@@ -8,6 +8,23 @@
   )
 
 
+  (sheet (at 203.2 72.39) (size 39.37 34.29) (fields_autoplaced)
+    (stroke (width 0.1524) (type solid))
+    (fill (color 0 0 0 0.0000))
+    (uuid 4fda4515-5101-4114-b127-757a18906135)
+    (property "Sheetname" "LED Matrix" (at 203.2 71.6784 0)
+      (effects (font (size 1.27 1.27)) (justify left bottom))
+    )
+    (property "Sheetfile" "LED Matrix.kicad_sch" (at 203.2 107.2646 0)
+      (effects (font (size 1.27 1.27)) (justify left top))
+    )
+    (instances
+      (project "pcb_badge"
+        (path "/5e1f2779-68ae-4a90-b87f-237568be093e" (page "4"))
+      )
+    )
+  )
+
   (sheet (at 118.11 66.04) (size 22.86 13.97) (fields_autoplaced)
     (stroke (width 0.1524) (type solid))
     (fill (color 0 0 0 0.0000))

@@ -1,2 +1,8 @@
 *.lck
 \#auto_saved_files\#
+pcb/kicad/pcb_badge/pcb_badge-backups/*.zip
+
+pcb/kicad/pcb_badge/fp-info-cache
+pcb/kicad/pcb_badge/fp-info-cache
+pcb/kicad/pcb_badge/fp-info-cache
+pcb/kicad/pcb_badge/fp-info-cache
