@@ -1,0 +1,65 @@
+(kicad_sch (version 20230121) (generator eeschema)
+
+  (uuid 5e1f2779-68ae-4a90-b87f-237568be093e)
+
+  (paper "A4")
+
+  (lib_symbols
+  )
+
+
+  (sheet (at 203.2 72.39) (size 39.37 34.29) (fields_autoplaced)
+    (stroke (width 0.1524) (type solid))
+    (fill (color 0 0 0 0.0000))
+    (uuid 4fda4515-5101-4114-b127-757a18906135)
+    (property "Sheetname" "LED Matrix" (at 203.2 71.6784 0)
+      (effects (font (size 1.27 1.27)) (justify left bottom))
+    )
+    (property "Sheetfile" "LED Matrix.kicad_sch" (at 203.2 107.2646 0)
+      (effects (font (size 1.27 1.27)) (justify left top))
+    )
+    (instances
+      (project "pcb_badge"
+        (path "/5e1f2779-68ae-4a90-b87f-237568be093e" (page "4"))
+      )
+    )
+  )
+
+  (sheet (at 118.11 66.04) (size 22.86 13.97) (fields_autoplaced)
+    (stroke (width 0.1524) (type solid))
+    (fill (color 0 0 0 0.0000))
+    (uuid 5b14d099-1603-44e2-9137-5cf230eeec9a)
+    (property "Sheetname" "Power" (at 118.11 65.3284 0)
+      (effects (font (size 1.27 1.27)) (justify left bottom))
+    )
+    (property "Sheetfile" "Power.kicad_sch" (at 118.11 80.5946 0)
+      (effects (font (size 1.27 1.27)) (justify left top))
+    )
+    (instances
+      (project "pcb_badge"
+        (path "/5e1f2779-68ae-4a90-b87f-237568be093e" (page "2"))
+      )
+    )
+  )
+
+  (sheet (at 158.75 71.12) (size 34.29 24.13) (fields_autoplaced)
+    (stroke (width 0.1524) (type solid))
+    (fill (color 0 0 0 0.0000))
+    (uuid 82449bab-7304-40f6-91f4-0748c7d23e61)
+    (property "Sheetname" "MCU" (at 158.75 70.4084 0)
+      (effects (font (size 1.27 1.27)) (justify left bottom))
+    )
+    (property "Sheetfile" "MCU.kicad_sch" (at 158.75 95.8346 0)
+      (effects (font (size 1.27 1.27)) (justify left top))
+    )
+    (instances
+      (project "pcb_badge"
+        (path "/5e1f2779-68ae-4a90-b87f-237568be093e" (page "3"))
+      )
+    )
+  )
+
+  (sheet_instances
+    (path "/" (page "1"))
+  )
+)
