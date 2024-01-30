@@ -1122,11 +1122,11 @@
         )
       )
     )
-    (symbol "power:+3.3V" (power) (pin_names (offset 0)) (in_bom yes) (on_board yes)
+    (symbol "power:+BATT" (power) (pin_names (offset 0)) (in_bom yes) (on_board yes)
       (property "Reference" "#PWR" (at 0 -3.81 0)
         (effects (font (size 1.27 1.27)) hide)
       )
-      (property "Value" "+3.3V" (at 0 3.556 0)
+      (property "Value" "+BATT" (at 0 3.556 0)
         (effects (font (size 1.27 1.27)))
       )
       (property "Footprint" "" (at 0 0 0)
@@ -1135,13 +1135,13 @@
       (property "Datasheet" "" (at 0 0 0)
         (effects (font (size 1.27 1.27)) hide)
       )
-      (property "ki_keywords" "global power" (at 0 0 0)
+      (property "ki_keywords" "global power battery" (at 0 0 0)
         (effects (font (size 1.27 1.27)) hide)
       )
-      (property "ki_description" "Power symbol creates a global label with name \"+3.3V\"" (at 0 0 0)
+      (property "ki_description" "Power symbol creates a global label with name \"+BATT\"" (at 0 0 0)
         (effects (font (size 1.27 1.27)) hide)
       )
-      (symbol "+3.3V_0_1"
+      (symbol "+BATT_0_1"
         (polyline
           (pts
             (xy -0.762 1.27)
@@ -1167,9 +1167,9 @@
           (fill (type none))
         )
       )
-      (symbol "+3.3V_1_1"
+      (symbol "+BATT_1_1"
         (pin power_in line (at 0 0 90) (length 0) hide
-          (name "+3.3V" (effects (font (size 1.27 1.27))))
+          (name "+BATT" (effects (font (size 1.27 1.27))))
           (number "1" (effects (font (size 1.27 1.27))))
         )
       )
@@ -1210,6 +1210,58 @@
       (symbol "GND_1_1"
         (pin power_in line (at 0 0 270) (length 0) hide
           (name "GND" (effects (font (size 1.27 1.27))))
+          (number "1" (effects (font (size 1.27 1.27))))
+        )
+      )
+    )
+    (symbol "power:VCC" (power) (pin_names (offset 0)) (in_bom yes) (on_board yes)
+      (property "Reference" "#PWR" (at 0 -3.81 0)
+        (effects (font (size 1.27 1.27)) hide)
+      )
+      (property "Value" "VCC" (at 0 3.81 0)
+        (effects (font (size 1.27 1.27)))
+      )
+      (property "Footprint" "" (at 0 0 0)
+        (effects (font (size 1.27 1.27)) hide)
+      )
+      (property "Datasheet" "" (at 0 0 0)
+        (effects (font (size 1.27 1.27)) hide)
+      )
+      (property "ki_keywords" "global power" (at 0 0 0)
+        (effects (font (size 1.27 1.27)) hide)
+      )
+      (property "ki_description" "Power symbol creates a global label with name \"VCC\"" (at 0 0 0)
+        (effects (font (size 1.27 1.27)) hide)
+      )
+      (symbol "VCC_0_1"
+        (polyline
+          (pts
+            (xy -0.762 1.27)
+            (xy 0 2.54)
+          )
+          (stroke (width 0) (type default))
+          (fill (type none))
+        )
+        (polyline
+          (pts
+            (xy 0 0)
+            (xy 0 2.54)
+          )
+          (stroke (width 0) (type default))
+          (fill (type none))
+        )
+        (polyline
+          (pts
+            (xy 0 2.54)
+            (xy 0.762 1.27)
+          )
+          (stroke (width 0) (type default))
+          (fill (type none))
+        )
+      )
+      (symbol "VCC_1_1"
+        (pin power_in line (at 0 0 90) (length 0) hide
+          (name "VCC" (effects (font (size 1.27 1.27))))
           (number "1" (effects (font (size 1.27 1.27))))
         )
       )
@@ -1297,6 +1349,8 @@
   (junction (at 260.35 66.04) (diameter 0) (color 0 0 0 0)
     (uuid f98042e6-ce8f-4302-ba52-ed0eee38dc12)
   )
+
+  (no_connect (at 121.92 82.55) (uuid 1ebe353c-f766-47fc-9954-8777bade2d57))
 
   (wire (pts (xy 171.45 133.35) (xy 177.8 133.35))
     (stroke (width 0) (type default))
@@ -1685,6 +1739,10 @@
   (wire (pts (xy 154.94 69.85) (xy 161.29 69.85))
     (stroke (width 0) (type default))
     (uuid a7f1b97c-f82d-454a-93b9-8206a12e47fb)
+  )
+  (wire (pts (xy 134.62 57.15) (xy 134.62 59.69))
+    (stroke (width 0) (type default))
+    (uuid a93ff18c-0fdf-4d64-8f54-32ff8f7451c3)
   )
   (wire (pts (xy 64.77 62.23) (xy 64.77 64.77))
     (stroke (width 0) (type default))
@@ -2249,13 +2307,13 @@
   (symbol (lib_id "Device:C") (at 64.77 71.12 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 09f6e12a-ec33-41ca-9a2d-15e7987dce39)
-    (property "Reference" "C5" (at 59.69 69.85 0)
+    (property "Reference" "C34" (at 59.69 69.85 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
     (property "Value" "10u" (at 59.69 72.39 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
-    (property "Footprint" "" (at 65.7352 74.93 0)
+    (property "Footprint" "Capacitor_SMD:C_0603_1608Metric_Pad1.08x0.95mm_HandSolder" (at 65.7352 74.93 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Datasheet" "~" (at 64.77 71.12 0)
@@ -2266,7 +2324,7 @@
     (instances
       (project "pcb_badge"
         (path "/5e1f2779-68ae-4a90-b87f-237568be093e/82449bab-7304-40f6-91f4-0748c7d23e61"
-          (reference "C5") (unit 1)
+          (reference "C34") (unit 1)
         )
       )
     )
@@ -2424,13 +2482,13 @@
     )
   )
 
-  (symbol (lib_id "power:+3.3V") (at 121.92 36.83 0) (unit 1)
+  (symbol (lib_id "power:VCC") (at 121.92 36.83 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
     (uuid 32a06930-7475-459a-9abf-fbf742a481cd)
-    (property "Reference" "#PWR032" (at 121.92 40.64 0)
+    (property "Reference" "#PWR0105" (at 121.92 40.64 0)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (property "Value" "+3.3V" (at 121.92 31.75 0)
+    (property "Value" "VCC" (at 121.92 31.75 0)
       (effects (font (size 1.27 1.27)))
     )
     (property "Footprint" "" (at 121.92 36.83 0)
@@ -2443,7 +2501,7 @@
     (instances
       (project "pcb_badge"
         (path "/5e1f2779-68ae-4a90-b87f-237568be093e/82449bab-7304-40f6-91f4-0748c7d23e61"
-          (reference "#PWR032") (unit 1)
+          (reference "#PWR0105") (unit 1)
         )
       )
     )
@@ -2458,7 +2516,7 @@
     (property "Value" "32.768khz" (at 68.58 100.33 0)
       (effects (font (size 1.27 1.27)))
     )
-    (property "Footprint" "" (at 68.58 105.41 0)
+    (property "Footprint" "Crystal:Crystal_DS15_D1.5mm_L5.0mm_Horizontal" (at 68.58 105.41 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Datasheet" "~" (at 68.58 105.41 0)
@@ -2478,13 +2536,13 @@
   (symbol (lib_id "Device:C") (at 156.21 40.64 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 39fef25b-a86a-49ab-934c-04b953eec47a)
-    (property "Reference" "C13" (at 160.02 38.1 0)
+    (property "Reference" "C32" (at 160.02 38.1 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
     (property "Value" "0.1u" (at 160.02 40.64 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
-    (property "Footprint" "" (at 157.1752 44.45 0)
+    (property "Footprint" "Capacitor_SMD:C_0603_1608Metric_Pad1.08x0.95mm_HandSolder" (at 157.1752 44.45 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Datasheet" "~" (at 156.21 40.64 0)
@@ -2495,19 +2553,19 @@
     (instances
       (project "pcb_badge"
         (path "/5e1f2779-68ae-4a90-b87f-237568be093e/82449bab-7304-40f6-91f4-0748c7d23e61"
-          (reference "C13") (unit 1)
+          (reference "C32") (unit 1)
         )
       )
     )
   )
 
-  (symbol (lib_id "power:+3.3V") (at 171.45 36.83 0) (unit 1)
+  (symbol (lib_id "power:VCC") (at 171.45 36.83 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
     (uuid 3aec5da3-5c4a-4976-a5ba-dc4db5da5a6b)
-    (property "Reference" "#PWR037" (at 171.45 40.64 0)
+    (property "Reference" "#PWR0103" (at 171.45 40.64 0)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (property "Value" "+3.3V" (at 171.45 31.75 0)
+    (property "Value" "VCC" (at 171.45 31.75 0)
       (effects (font (size 1.27 1.27)))
     )
     (property "Footprint" "" (at 171.45 36.83 0)
@@ -2520,7 +2578,7 @@
     (instances
       (project "pcb_badge"
         (path "/5e1f2779-68ae-4a90-b87f-237568be093e/82449bab-7304-40f6-91f4-0748c7d23e61"
-          (reference "#PWR037") (unit 1)
+          (reference "#PWR0103") (unit 1)
         )
       )
     )
@@ -2529,13 +2587,13 @@
   (symbol (lib_id "Device:C") (at 25.4 113.03 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 4b743f5e-664f-43c5-ac23-27c12af7336f)
-    (property "Reference" "C6" (at 20.32 111.76 0)
+    (property "Reference" "C35" (at 20.32 111.76 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
     (property "Value" "20p" (at 20.32 114.3 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
-    (property "Footprint" "" (at 26.3652 116.84 0)
+    (property "Footprint" "Capacitor_SMD:C_0603_1608Metric_Pad1.08x0.95mm_HandSolder" (at 26.3652 116.84 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Datasheet" "~" (at 25.4 113.03 0)
@@ -2546,19 +2604,19 @@
     (instances
       (project "pcb_badge"
         (path "/5e1f2779-68ae-4a90-b87f-237568be093e/82449bab-7304-40f6-91f4-0748c7d23e61"
-          (reference "C6") (unit 1)
+          (reference "C35") (unit 1)
         )
       )
     )
   )
 
-  (symbol (lib_id "power:+3.3V") (at 156.21 36.83 0) (unit 1)
+  (symbol (lib_id "power:VCC") (at 156.21 36.83 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
     (uuid 5115a394-5aab-4d77-bc66-9c535bb5e422)
-    (property "Reference" "#PWR035" (at 156.21 40.64 0)
+    (property "Reference" "#PWR0102" (at 156.21 40.64 0)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (property "Value" "+3.3V" (at 156.21 31.75 0)
+    (property "Value" "VCC" (at 156.21 31.75 0)
       (effects (font (size 1.27 1.27)))
     )
     (property "Footprint" "" (at 156.21 36.83 0)
@@ -2571,7 +2629,7 @@
     (instances
       (project "pcb_badge"
         (path "/5e1f2779-68ae-4a90-b87f-237568be093e/82449bab-7304-40f6-91f4-0748c7d23e61"
-          (reference "#PWR035") (unit 1)
+          (reference "#PWR0102") (unit 1)
         )
       )
     )
@@ -2605,13 +2663,13 @@
   (symbol (lib_id "Device:C") (at 139.7 40.64 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 530b5bbb-6584-47de-a6b9-81304fb120cc)
-    (property "Reference" "C12" (at 143.51 38.1 0)
+    (property "Reference" "C31" (at 143.51 38.1 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
     (property "Value" "0.1u" (at 143.51 40.64 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
-    (property "Footprint" "" (at 140.6652 44.45 0)
+    (property "Footprint" "Capacitor_SMD:C_0603_1608Metric_Pad1.08x0.95mm_HandSolder" (at 140.6652 44.45 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Datasheet" "~" (at 139.7 40.64 0)
@@ -2622,7 +2680,7 @@
     (instances
       (project "pcb_badge"
         (path "/5e1f2779-68ae-4a90-b87f-237568be093e/82449bab-7304-40f6-91f4-0748c7d23e61"
-          (reference "C12") (unit 1)
+          (reference "C31") (unit 1)
         )
       )
     )
@@ -2756,6 +2814,31 @@
     )
   )
 
+  (symbol (lib_id "power:+BATT") (at 134.62 57.15 0) (unit 1)
+    (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
+    (uuid 65b3404f-6835-44bd-bc51-8dc9b7f76bf1)
+    (property "Reference" "#PWR05" (at 134.62 60.96 0)
+      (effects (font (size 1.27 1.27)) hide)
+    )
+    (property "Value" "+BATT" (at 134.62 52.07 0)
+      (effects (font (size 1.27 1.27)))
+    )
+    (property "Footprint" "" (at 134.62 57.15 0)
+      (effects (font (size 1.27 1.27)) hide)
+    )
+    (property "Datasheet" "" (at 134.62 57.15 0)
+      (effects (font (size 1.27 1.27)) hide)
+    )
+    (pin "1" (uuid b0eaed5c-127b-410b-bbab-313e05822d58))
+    (instances
+      (project "pcb_badge"
+        (path "/5e1f2779-68ae-4a90-b87f-237568be093e/82449bab-7304-40f6-91f4-0748c7d23e61"
+          (reference "#PWR05") (unit 1)
+        )
+      )
+    )
+  )
+
   (symbol (lib_id "Switch:SW_MEC_5E") (at 262.89 58.42 90) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 6b2c41db-d8c3-47e1-9ce2-94a0b414abe0)
@@ -2787,13 +2870,13 @@
   (symbol (lib_id "Device:R") (at 64.77 58.42 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
     (uuid 6bfddc86-bdfe-4e10-a0fc-42716acd01a6)
-    (property "Reference" "R6" (at 67.31 57.15 0)
+    (property "Reference" "R30" (at 67.31 57.15 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
     (property "Value" "1k" (at 67.31 59.69 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
-    (property "Footprint" "" (at 62.992 58.42 90)
+    (property "Footprint" "Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder" (at 62.992 58.42 90)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Datasheet" "~" (at 64.77 58.42 0)
@@ -2804,7 +2887,7 @@
     (instances
       (project "pcb_badge"
         (path "/5e1f2779-68ae-4a90-b87f-237568be093e/82449bab-7304-40f6-91f4-0748c7d23e61"
-          (reference "R6") (unit 1)
+          (reference "R30") (unit 1)
         )
       )
     )
@@ -2813,13 +2896,13 @@
   (symbol (lib_id "Device:C") (at 59.69 113.03 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 735c6fa6-7679-4784-8056-975247d9751e)
-    (property "Reference" "C8" (at 54.61 111.76 0)
+    (property "Reference" "C37" (at 54.61 111.76 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
     (property "Value" "20p" (at 54.61 114.3 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
-    (property "Footprint" "" (at 60.6552 116.84 0)
+    (property "Footprint" "Capacitor_SMD:C_0603_1608Metric_Pad1.08x0.95mm_HandSolder" (at 60.6552 116.84 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Datasheet" "~" (at 59.69 113.03 0)
@@ -2830,7 +2913,7 @@
     (instances
       (project "pcb_badge"
         (path "/5e1f2779-68ae-4a90-b87f-237568be093e/82449bab-7304-40f6-91f4-0748c7d23e61"
-          (reference "C8") (unit 1)
+          (reference "C37") (unit 1)
         )
       )
     )
@@ -2867,13 +2950,13 @@
   (symbol (lib_id "Device:C") (at 43.18 113.03 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 76445427-5a92-4ee6-8613-7bb3b9d98019)
-    (property "Reference" "C7" (at 38.1 111.76 0)
+    (property "Reference" "C36" (at 38.1 111.76 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
     (property "Value" "20p" (at 38.1 114.3 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
-    (property "Footprint" "" (at 44.1452 116.84 0)
+    (property "Footprint" "Capacitor_SMD:C_0603_1608Metric_Pad1.08x0.95mm_HandSolder" (at 44.1452 116.84 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Datasheet" "~" (at 43.18 113.03 0)
@@ -2884,7 +2967,7 @@
     (instances
       (project "pcb_badge"
         (path "/5e1f2779-68ae-4a90-b87f-237568be093e/82449bab-7304-40f6-91f4-0748c7d23e61"
-          (reference "C7") (unit 1)
+          (reference "C36") (unit 1)
         )
       )
     )
@@ -2893,13 +2976,13 @@
   (symbol (lib_id "Device:C") (at 247.65 86.36 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 786fb1ce-3791-4bcf-abee-f8fb719cd7ab)
-    (property "Reference" "C15" (at 251.46 83.82 0)
+    (property "Reference" "C51" (at 251.46 83.82 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
     (property "Value" "0.1u" (at 251.46 86.36 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
-    (property "Footprint" "" (at 248.6152 90.17 0)
+    (property "Footprint" "Capacitor_SMD:C_0603_1608Metric_Pad1.08x0.95mm_HandSolder" (at 248.6152 90.17 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Datasheet" "~" (at 247.65 86.36 0)
@@ -2910,7 +2993,7 @@
     (instances
       (project "pcb_badge"
         (path "/5e1f2779-68ae-4a90-b87f-237568be093e/82449bab-7304-40f6-91f4-0748c7d23e61"
-          (reference "C15") (unit 1)
+          (reference "C51") (unit 1)
         )
       )
     )
@@ -2944,13 +3027,13 @@
   (symbol (lib_id "Device:C") (at 171.45 40.64 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 8236dda8-7719-4c7d-8f01-bb380d2be4df)
-    (property "Reference" "C14" (at 175.26 38.1 0)
+    (property "Reference" "C33" (at 175.26 38.1 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
     (property "Value" "0.1u" (at 175.26 40.64 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
-    (property "Footprint" "" (at 172.4152 44.45 0)
+    (property "Footprint" "Capacitor_SMD:C_0603_1608Metric_Pad1.08x0.95mm_HandSolder" (at 172.4152 44.45 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Datasheet" "~" (at 171.45 40.64 0)
@@ -2961,7 +3044,7 @@
     (instances
       (project "pcb_badge"
         (path "/5e1f2779-68ae-4a90-b87f-237568be093e/82449bab-7304-40f6-91f4-0748c7d23e61"
-          (reference "C14") (unit 1)
+          (reference "C33") (unit 1)
         )
       )
     )
@@ -3017,13 +3100,13 @@
     )
   )
 
-  (symbol (lib_id "power:+3.3V") (at 139.7 36.83 0) (unit 1)
+  (symbol (lib_id "power:VCC") (at 139.7 36.83 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
     (uuid 94e2983d-232d-43b0-bf1c-0aec6942c65d)
-    (property "Reference" "#PWR033" (at 139.7 40.64 0)
+    (property "Reference" "#PWR0106" (at 139.7 40.64 0)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (property "Value" "+3.3V" (at 139.7 31.75 0)
+    (property "Value" "VCC" (at 139.7 31.75 0)
       (effects (font (size 1.27 1.27)))
     )
     (property "Footprint" "" (at 139.7 36.83 0)
@@ -3036,7 +3119,7 @@
     (instances
       (project "pcb_badge"
         (path "/5e1f2779-68ae-4a90-b87f-237568be093e/82449bab-7304-40f6-91f4-0748c7d23e61"
-          (reference "#PWR033") (unit 1)
+          (reference "#PWR0106") (unit 1)
         )
       )
     )
@@ -3045,13 +3128,13 @@
   (symbol (lib_id "Device:C") (at 77.47 113.03 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid a0398b3f-9c31-4262-bc5b-ee71c4af9ea1)
-    (property "Reference" "C9" (at 72.39 111.76 0)
+    (property "Reference" "C38" (at 72.39 111.76 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
     (property "Value" "20p" (at 72.39 114.3 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
-    (property "Footprint" "" (at 78.4352 116.84 0)
+    (property "Footprint" "Capacitor_SMD:C_0603_1608Metric_Pad1.08x0.95mm_HandSolder" (at 78.4352 116.84 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Datasheet" "~" (at 77.47 113.03 0)
@@ -3062,7 +3145,7 @@
     (instances
       (project "pcb_badge"
         (path "/5e1f2779-68ae-4a90-b87f-237568be093e/82449bab-7304-40f6-91f4-0748c7d23e61"
-          (reference "C9") (unit 1)
+          (reference "C38") (unit 1)
         )
       )
     )
@@ -3155,7 +3238,7 @@
     (property "Value" "Conn_01x16_Pin" (at 167.005 118.11 0)
       (effects (font (size 1.27 1.27)))
     )
-    (property "Footprint" "" (at 166.37 138.43 0)
+    (property "Footprint" "Connector_PinSocket_2.54mm:PinSocket_1x16_P2.54mm_Vertical" (at 166.37 138.43 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Datasheet" "~" (at 166.37 138.43 0)
@@ -3186,13 +3269,13 @@
     )
   )
 
-  (symbol (lib_id "power:+3.3V") (at 238.76 80.01 0) (unit 1)
+  (symbol (lib_id "power:VCC") (at 238.76 80.01 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid a86b8d9e-8c47-4603-800c-92a2420ad320)
-    (property "Reference" "#PWR027" (at 238.76 83.82 0)
+    (property "Reference" "#PWR0107" (at 238.76 83.82 0)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (property "Value" "+3.3V" (at 238.76 74.93 0)
+    (property "Value" "VCC" (at 238.76 76.2 0)
       (effects (font (size 1.27 1.27)))
     )
     (property "Footprint" "" (at 238.76 80.01 0)
@@ -3205,7 +3288,7 @@
     (instances
       (project "pcb_badge"
         (path "/5e1f2779-68ae-4a90-b87f-237568be093e/82449bab-7304-40f6-91f4-0748c7d23e61"
-          (reference "#PWR027") (unit 1)
+          (reference "#PWR0107") (unit 1)
         )
       )
     )
@@ -3214,13 +3297,13 @@
   (symbol (lib_id "Device:R") (at 179.07 85.09 90) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid af2650b7-8b4c-4784-99a5-b9b72289bed1)
-    (property "Reference" "R18" (at 179.07 78.74 90)
+    (property "Reference" "R50" (at 179.07 78.74 90)
       (effects (font (size 1.27 1.27)))
     )
     (property "Value" "47" (at 179.07 81.28 90)
       (effects (font (size 1.27 1.27)))
     )
-    (property "Footprint" "" (at 179.07 86.868 90)
+    (property "Footprint" "Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder" (at 179.07 86.868 90)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Datasheet" "~" (at 179.07 85.09 0)
@@ -3231,7 +3314,7 @@
     (instances
       (project "pcb_badge"
         (path "/5e1f2779-68ae-4a90-b87f-237568be093e/82449bab-7304-40f6-91f4-0748c7d23e61"
-          (reference "R18") (unit 1)
+          (reference "R50") (unit 1)
         )
       )
     )
@@ -3246,7 +3329,7 @@
     (property "Value" "8Mhz" (at 34.29 100.33 0)
       (effects (font (size 1.27 1.27)))
     )
-    (property "Footprint" "" (at 34.29 105.41 0)
+    (property "Footprint" "Crystal:Crystal_HC49-U_Vertical" (at 34.29 105.41 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Datasheet" "~" (at 34.29 105.41 0)
@@ -3266,13 +3349,13 @@
   (symbol (lib_id "Device:C") (at 121.92 40.64 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid b5bdabb6-3a07-4d23-ac22-2a250adc03c0)
-    (property "Reference" "C11" (at 125.73 38.1 0)
+    (property "Reference" "C30" (at 125.73 38.1 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
     (property "Value" "0.1u" (at 125.73 40.64 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
-    (property "Footprint" "" (at 122.8852 44.45 0)
+    (property "Footprint" "Capacitor_SMD:C_0603_1608Metric_Pad1.08x0.95mm_HandSolder" (at 122.8852 44.45 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Datasheet" "~" (at 121.92 40.64 0)
@@ -3283,7 +3366,7 @@
     (instances
       (project "pcb_badge"
         (path "/5e1f2779-68ae-4a90-b87f-237568be093e/82449bab-7304-40f6-91f4-0748c7d23e61"
-          (reference "C11") (unit 1)
+          (reference "C30") (unit 1)
         )
       )
     )
@@ -3317,7 +3400,7 @@
   (symbol (lib_id "Connector:Conn_01x04_Pin") (at 181.61 100.33 180) (unit 1)
     (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
     (uuid ce7f7ed3-9bef-4d77-9565-be859fc776a2)
-    (property "Reference" "J2" (at 182.88 97.79 0)
+    (property "Reference" "J3" (at 182.88 97.79 0)
       (effects (font (size 1.27 1.27)) (justify right))
     )
     (property "Value" "Conn_01x04_Pin" (at 182.88 100.33 0)
@@ -3336,7 +3419,7 @@
     (instances
       (project "pcb_badge"
         (path "/5e1f2779-68ae-4a90-b87f-237568be093e/82449bab-7304-40f6-91f4-0748c7d23e61"
-          (reference "J2") (unit 1)
+          (reference "J3") (unit 1)
         )
       )
     )
@@ -3370,13 +3453,13 @@
     )
   )
 
-  (symbol (lib_id "power:+3.3V") (at 64.77 49.53 0) (unit 1)
+  (symbol (lib_id "power:VCC") (at 64.77 49.53 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
     (uuid cf9d2926-a537-4b94-8748-302d3899195a)
-    (property "Reference" "#PWR020" (at 64.77 53.34 0)
+    (property "Reference" "#PWR0104" (at 64.77 53.34 0)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (property "Value" "+3.3V" (at 64.77 44.45 0)
+    (property "Value" "VCC" (at 64.77 44.45 0)
       (effects (font (size 1.27 1.27)))
     )
     (property "Footprint" "" (at 64.77 49.53 0)
@@ -3389,7 +3472,7 @@
     (instances
       (project "pcb_badge"
         (path "/5e1f2779-68ae-4a90-b87f-237568be093e/82449bab-7304-40f6-91f4-0748c7d23e61"
-          (reference "#PWR020") (unit 1)
+          (reference "#PWR0104") (unit 1)
         )
       )
     )
@@ -3448,13 +3531,13 @@
     )
   )
 
-  (symbol (lib_id "power:+3.3V") (at 173.99 93.98 0) (unit 1)
+  (symbol (lib_id "power:VCC") (at 173.99 93.98 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
     (uuid d8776233-2769-4d52-ae35-877de6fb79aa)
-    (property "Reference" "#PWR07" (at 173.99 97.79 0)
+    (property "Reference" "#PWR0108" (at 173.99 97.79 0)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (property "Value" "+3.3V" (at 173.99 88.9 0)
+    (property "Value" "VCC" (at 173.99 88.9 0)
       (effects (font (size 1.27 1.27)))
     )
     (property "Footprint" "" (at 173.99 93.98 0)
@@ -3467,7 +3550,7 @@
     (instances
       (project "pcb_badge"
         (path "/5e1f2779-68ae-4a90-b87f-237568be093e/82449bab-7304-40f6-91f4-0748c7d23e61"
-          (reference "#PWR07") (unit 1)
+          (reference "#PWR0108") (unit 1)
         )
       )
     )
@@ -3476,13 +3559,13 @@
   (symbol (lib_id "Device:C") (at 193.04 87.63 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid d9618323-0628-484d-a4a9-24927600799e)
-    (property "Reference" "C10" (at 187.96 86.36 0)
+    (property "Reference" "C50" (at 187.96 86.36 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
     (property "Value" "10u" (at 187.96 88.9 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
-    (property "Footprint" "" (at 194.0052 91.44 0)
+    (property "Footprint" "Capacitor_SMD:C_0603_1608Metric_Pad1.08x0.95mm_HandSolder" (at 194.0052 91.44 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Datasheet" "~" (at 193.04 87.63 0)
@@ -3493,7 +3576,7 @@
     (instances
       (project "pcb_badge"
         (path "/5e1f2779-68ae-4a90-b87f-237568be093e/82449bab-7304-40f6-91f4-0748c7d23e61"
-          (reference "C10") (unit 1)
+          (reference "C50") (unit 1)
         )
       )
     )
@@ -3502,7 +3585,7 @@
   (symbol (lib_id "Device:LED") (at 220.98 115.57 90) (unit 1)
     (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
     (uuid da27880f-b23d-4d1e-a389-58cad08dad51)
-    (property "Reference" "D67" (at 224.79 115.8875 90)
+    (property "Reference" "D3" (at 224.79 115.8875 90)
       (effects (font (size 1.27 1.27)) (justify right))
     )
     (property "Value" "IR_LED" (at 224.79 118.4275 90)
@@ -3519,7 +3602,7 @@
     (instances
       (project "pcb_badge"
         (path "/5e1f2779-68ae-4a90-b87f-237568be093e/82449bab-7304-40f6-91f4-0748c7d23e61"
-          (reference "D67") (unit 1)
+          (reference "D3") (unit 1)
         )
       )
     )
