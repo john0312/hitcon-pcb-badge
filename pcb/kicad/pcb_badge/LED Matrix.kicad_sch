@@ -3109,7 +3109,7 @@
     (property "Reference" "U4" (at 49.1841 110.49 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
-    (property "Value" "CD74HC238" (at 49.1841 113.03 0)
+    (property "Value" "CD74HCT238M" (at 49.1841 113.03 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
     (property "Footprint" "Package_SO:SOP-16_3.9x9.9mm_P1.27mm" (at 46.99 128.27 0)
