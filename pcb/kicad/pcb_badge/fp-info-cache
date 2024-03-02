@@ -1,4 +1,4 @@
-22643234424029398
+22644945309097982
 Audio_Module
 Reverb_BTDR-1H
 Digital Reverberation Unit, http://www.belton.co.kr/inc/downfile.php?seq=17&file=pdf (footprint from http://www.uk-electronic.de/PDF/BTDR-1.pdf)
@@ -93050,6 +93050,13 @@ IRM-3638T
 0
 3
 3
+myLib
+SOIC4_TL3301SPF160RGTAPE_EWI
+
+TL3301SPF160RGTAPE 
+0
+4
+4
 myLib
 SOT-23-5
 
