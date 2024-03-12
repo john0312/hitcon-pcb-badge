@@ -111,7 +111,7 @@
 			(plotinvisibletext no)
 			(sketchpadsonfab no)
 			(subtractmaskfromsilk no)
-			(outputformat 1)
+			(outputformat 4)
 			(mirror no)
 			(drillshape 0)
 			(scaleselection 1)
