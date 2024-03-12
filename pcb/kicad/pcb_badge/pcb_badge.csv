@@ -1,30 +1,29 @@
-"#","Reference","Qty","Value","Footprint","DNP"
-"1","BT1","1","Battery_Cell","",""
-"2","C10, C11","2","1u","Capacitor_SMD:C_0603_1608Metric_Pad1.08x0.95mm_HandSolder",""
-"3","C20, C34, C50","3","10u","Capacitor_SMD:C_0603_1608Metric_Pad1.08x0.95mm_HandSolder",""
-"4","C21","1","22u","Capacitor_SMD:C_0603_1608Metric_Pad1.08x0.95mm_HandSolder",""
-"5","C30, C31, C32, C33, C40, C51","6","0.1u","Capacitor_SMD:C_0603_1608Metric_Pad1.08x0.95mm_HandSolder",""
-"6","C35, C36, C37, C38","4","20p","Capacitor_SMD:C_0603_1608Metric_Pad1.08x0.95mm_HandSolder",""
-"7","D00, D01, D02, D03, D04, D05, D06, D07, D10, D11, D12, D13, D14, D15, D16, D17, D20, D21, D22, D23, D24, D25, D26, D27, D30, D31, D32, D33, D34, D35, D36, D37, D40, D41, D42, D43, D44, D45, D46, D47, D50, D51, D52, D53, D54, D55, D56, D57, D60, D61, D62, D63, D64, D65, D66, D67, D70, D71, D72, D73, D74, D75, D76, D77","64","LED","LED_SMD:LED_0603_1608Metric_Pad1.05x0.95mm_HandSolder",""
-"8","D1","1","NSR0320MW2T1G","Diode_SMD:D_SOD-323",""
-"9","D2","1","NSR0320MW2T1G","Diode_SMD:D_SOD-323_HandSoldering",""
-"10","D3","1","IR_LED","LED_SMD:LED_0603_1608Metric_Pad1.05x0.95mm_HandSolder",""
-"11","J1","1","10118192-0002LF","myLib:CONN_10118192-0002LF_AMP",""
-"12","J2","1","Conn_01x02_Pin","Connector:JWT_A3963_1x02_P3.96mm_Vertical",""
-"13","J3","1","Conn_01x04_Pin","Connector:FanPinHeader_1x04_P2.54mm_Vertical",""
-"14","J4","1","Conn_01x16_Pin","Connector_PinSocket_2.54mm:PinSocket_1x16_P2.54mm_Vertical",""
-"15","Q1, Q2, Q3, Q4, Q5, Q6, Q7, Q8","8","2N7002","Package_TO_SOT_SMD:SOT-23",""
-"16","R1, R2","2","20R","Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder",""
-"17","R3","1","4.7k","Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder",""
-"18","R10, R20, R21, R22, R40, R41, R42, R43, R44, R45, R46, R47, R48, R49, R410","15","0","Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder",""
-"19","R30","1","1k","Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder",""
-"20","R50","1","47","Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder",""
-"21","R80, R81, R82, R83, R84, R85, R86, R87","8","300","Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder",""
-"22","SW1, SW2, SW3, SW4, SW5, SW6, SW7, SW8","8","SW_MEC_5E","Button_Switch_SMD:SW_MEC_5GSH9",""
-"23","U1","1","TLV70328DBVR","myLib:SOT-23-5",""
-"24","U2","1","AMS1117","Package_TO_SOT_SMD:SOT-223-3_TabPin2",""
-"25","U3","1","STM32F103C8Tx","Package_QFP:LQFP-48_7x7mm_P0.5mm",""
-"26","U4","1","CD74HC238","Package_SO:SOP-16_3.9x9.9mm_P1.27mm",""
-"27","U5","1","IRM-3638T","myLib:IRM-3638T_EVE",""
-"28","Y1","1","8Mhz","Crystal:Crystal_HC49-U_Vertical",""
-"29","Y2","1","32.768khz","Crystal:Crystal_DS15_D1.5mm_L5.0mm_Horizontal",""
+"Id";"Designator";"Footprint";"Quantity";"Designation";"Supplier and ref";
+1;"C40,C32,C30,C51,C33,C31,C34";"C_0402_1005Metric_Pad0.74x0.62mm_HandSolder";7;"0.1u";;;
+2;"Q1,Q2,Q5,Q3,Q7,Q4,Q8,Q6";"SOT-23";8;"2N7002";;;
+3;"U3";"LQFP-48_7x7mm_P0.5mm";1;"STM32F103C8Tx";;;
+4;"D21,D22,D55,D33,D51,D71,D77,D43,D01,D56,D05,D16,D66,D12,D76,D75,D67,D13,D44,D34,D14,D53,D62,D20,D36,D60,D32,D30,D37,D27,D07,D65,D02,D06,D17,D24,D35,D04,D74,D70,D23,D57,D64,D26,D42,D46,D50,D52,D00,D63,D47,D15,D41,D25,D40,D11,D72,D54,D03,D10,D45,D61,D31,D73";"LED_0402_1005Metric_Pad0.77x0.64mm_HandSolder";64;"LED";;;
+5;"D2,D1";"D_SOD-323_HandSoldering";2;"NSR0320MW2T1G";;;
+6;"R48,R410,R40,R10,R5,R42,R47,R41,R20,R21,R45,R44,R46,R43,R49,R22";"R_0402_1005Metric_Pad0.72x0.64mm_HandSolder";16;"0";;;
+7;"SW3,SW6,SW1,SW2,SW8,SW5,SW4,SW7";"SOIC4_TL3301SPF160RGTAPE_EWI";8;"SW_MEC_5E";;;
+8;"C11,C10";"C_0603_1608Metric_Pad1.08x0.95mm_HandSolder";2;"1u";;;
+9;"R87,R85,R82,R84,R83,R86,R81,R80";"R_0402_1005Metric_Pad0.72x0.64mm_HandSolder";8;"300";;;
+10;"C38,C37";"C_0402_1005Metric_Pad0.74x0.62mm_HandSolder";2;"20p";;;
+11;"U5";"IRM-3638T_EVE";1;"IRM-3638T";;;
+12;"J2";"JWT_A3963_1x02_P3.96mm_Vertical";1;"Conn_01x02_Pin";;;
+13;"D3";"LED_0603_1608Metric_Pad1.05x0.95mm_HandSolder";1;"IR_LED";;;
+14;"R4";"R_0402_1005Metric_Pad0.72x0.64mm_HandSolder";1;"R";;;
+15;"J1";"CONN_10118192-0002LF_AMP";1;"10118192-0002LF";;;
+16;"U4";"SOP-16_3.9x9.9mm_P1.27mm";1;"CD74HCT238M";;;
+17;"R3";"R_0402_1005Metric_Pad0.72x0.64mm_HandSolder";1;"4.7k";;;
+18;"C21";"C_0603_1608Metric_Pad1.08x0.95mm_HandSolder";1;"22u";;;
+19;"R50";"R_0402_1005Metric_Pad0.72x0.64mm_HandSolder";1;"47";;;
+20;"R2,R1";"R_0402_1005Metric_Pad0.72x0.64mm_HandSolder";2;"20R";;;
+21;"U1";"SOT-23-5";1;"TLV70328DBVR";;;
+22;"C50,C20";"C_0603_1608Metric_Pad1.08x0.95mm_HandSolder";2;"10u";;;
+23;"Y2";"Crystal_SMD_3215-2Pin_3.2x1.5mm";1;"32.768khz";;;
+24;"U2";"SOT-223-3_TabPin2";1;"AMS1117";;;
+25;"Y1";"Oscillator_SMD_Abracon_ASE-4Pin_3.2x2.5mm";1;"ASE-xxxMHz";;;
+26;"J3";"FanPinHeader_1x04_P2.54mm_Vertical";1;"Conn_01x04_Pin";;;
+27;"R30";"R_0402_1005Metric_Pad0.72x0.64mm_HandSolder";1;"1k";;;
+28;"C01";"C_0603_1608Metric_Pad1.08x0.95mm_HandSolder";1;"0.1u";;;
