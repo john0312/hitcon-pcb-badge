@@ -1,29 +1,29 @@
-"Id";"Designator";"Footprint";"Quantity";"Designation";"Supplier and ref";
-1;"C40,C32,C30,C51,C33,C31,C34";"C_0402_1005Metric_Pad0.74x0.62mm_HandSolder";7;"0.1u";;;
-2;"Q1,Q2,Q5,Q3,Q7,Q4,Q8,Q6";"SOT-23";8;"2N7002";;;
-3;"U3";"LQFP-48_7x7mm_P0.5mm";1;"STM32F103C8Tx";;;
-4;"D21,D22,D55,D33,D51,D71,D77,D43,D01,D56,D05,D16,D66,D12,D76,D75,D67,D13,D44,D34,D14,D53,D62,D20,D36,D60,D32,D30,D37,D27,D07,D65,D02,D06,D17,D24,D35,D04,D74,D70,D23,D57,D64,D26,D42,D46,D50,D52,D00,D63,D47,D15,D41,D25,D40,D11,D72,D54,D03,D10,D45,D61,D31,D73";"LED_0402_1005Metric_Pad0.77x0.64mm_HandSolder";64;"LED";;;
-5;"D2,D1";"D_SOD-323_HandSoldering";2;"NSR0320MW2T1G";;;
-6;"R48,R410,R40,R10,R5,R42,R47,R41,R20,R21,R45,R44,R46,R43,R49,R22";"R_0402_1005Metric_Pad0.72x0.64mm_HandSolder";16;"0";;;
-7;"SW3,SW6,SW1,SW2,SW8,SW5,SW4,SW7";"SOIC4_TL3301SPF160RGTAPE_EWI";8;"SW_MEC_5E";;;
-8;"C11,C10";"C_0603_1608Metric_Pad1.08x0.95mm_HandSolder";2;"1u";;;
-9;"R87,R85,R82,R84,R83,R86,R81,R80";"R_0402_1005Metric_Pad0.72x0.64mm_HandSolder";8;"300";;;
-10;"C38,C37";"C_0402_1005Metric_Pad0.74x0.62mm_HandSolder";2;"20p";;;
-11;"U5";"IRM-3638T_EVE";1;"IRM-3638T";;;
-12;"J2";"JWT_A3963_1x02_P3.96mm_Vertical";1;"Conn_01x02_Pin";;;
-13;"D3";"LED_0603_1608Metric_Pad1.05x0.95mm_HandSolder";1;"IR_LED";;;
-14;"R4";"R_0402_1005Metric_Pad0.72x0.64mm_HandSolder";1;"R";;;
-15;"J1";"CONN_10118192-0002LF_AMP";1;"10118192-0002LF";;;
-16;"U4";"SOP-16_3.9x9.9mm_P1.27mm";1;"CD74HCT238M";;;
-17;"R3";"R_0402_1005Metric_Pad0.72x0.64mm_HandSolder";1;"4.7k";;;
-18;"C21";"C_0603_1608Metric_Pad1.08x0.95mm_HandSolder";1;"22u";;;
-19;"R50";"R_0402_1005Metric_Pad0.72x0.64mm_HandSolder";1;"47";;;
-20;"R2,R1";"R_0402_1005Metric_Pad0.72x0.64mm_HandSolder";2;"20R";;;
-21;"U1";"SOT-23-5";1;"TLV70328DBVR";;;
-22;"C50,C20";"C_0603_1608Metric_Pad1.08x0.95mm_HandSolder";2;"10u";;;
-23;"Y2";"Crystal_SMD_3215-2Pin_3.2x1.5mm";1;"32.768khz";;;
-24;"U2";"SOT-223-3_TabPin2";1;"AMS1117";;;
-25;"Y1";"Oscillator_SMD_Abracon_ASE-4Pin_3.2x2.5mm";1;"ASE-xxxMHz";;;
-26;"J3";"FanPinHeader_1x04_P2.54mm_Vertical";1;"Conn_01x04_Pin";;;
-27;"R30";"R_0402_1005Metric_Pad0.72x0.64mm_HandSolder";1;"1k";;;
-28;"C01";"C_0603_1608Metric_Pad1.08x0.95mm_HandSolder";1;"0.1u";;;
+Designator,Value,Footprint,Qty,Ref
+C01,0.1u,0603,1,
+"C30,C31,C32,C33,C34,C40,C51",0.1u,0402,7,
+"C10,C11",1u,0603,2,
+"C20, C50",10u,0603,2,
+C21,22u,0603,1,
+"C37,C38",20p,0402,2,
+D00~D77,LED,0402,64,
+"D1, D2",NSR0320MW2T1G,SOD-323,2,
+D3,¬õ¥~½uLED,0603,1,
+J1,10118192-0002LF,,1,https://www.mouser.tw/ProductDetail/Amphenol-FCI/10118192-0002LF?qs=KVgMXE4aH4nIkuWlMxQzog%3D%3D
+J2,2pin header,2pin 2.54mm,1,https://reurl.cc/E40Aqn
+J3,4pin header,4pin 2.54mm,1,https://reurl.cc/Z9kmRg
+"Q1,Q2,Q3,Q4,Q5,Q6,Q7,Q8",2N7002,SOT-23,8,
+"R1,R2",20R,0402,2,
+R3,4.7k,0402,1,
+R4,47k,0402,1,
+"R5,R10,R20,R21,R22,R40,R41,R42,R43,R44,R45,R46,R47,R48,R49,R410",0,0402,16,
+R30,1k,0402,1,
+R50,47,0402,1,
+R80-R87,300,0402,8,
+SW1-SW8,Tactile Switch,TS04,8,https://reurl.cc/4jzKQL
+U1,TLV70328,SOT-23-5,1,
+U2,AMS1117,SOT-223-2,1,
+U3,STM32F103C8,LQFP48,1,
+U4,CD74HCT238M,SOIC-16(SOP-16),1,
+U5,IRM-3638T,,1,
+Y1,8MHz,Oscillator:Oscillator_SMD_Abracon_ASE-4Pin_3.2x2.5mm,1,
+Y2,32.768kHz,Crystal:Crystal_SMD_3215-2Pin_3.2x1.5mm,1,
