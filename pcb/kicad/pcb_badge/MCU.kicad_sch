@@ -4119,7 +4119,7 @@
 	)
 	(wire
 		(pts
-			(xy 214.63 111.76) (xy 220.98 111.76)
+			(xy 204.47 106.68) (xy 210.82 106.68)
 		)
 		(stroke
 			(width 0)
@@ -4529,6 +4529,16 @@
 	)
 	(wire
 		(pts
+			(xy 220.98 106.68) (xy 220.98 111.76)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "be917787-1116-4130-a6b4-67ac1f154c5d")
+	)
+	(wire
+		(pts
 			(xy 173.99 102.87) (xy 173.99 104.14)
 		)
 		(stroke
@@ -4926,6 +4936,16 @@
 			(type default)
 		)
 		(uuid "fc469999-55f3-42c3-8323-d3079c343f0c")
+	)
+	(wire
+		(pts
+			(xy 218.44 106.68) (xy 220.98 106.68)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "fd0ce568-5214-4237-9e0e-65685dcdb9c6")
 	)
 	(wire
 		(pts
@@ -5475,7 +5495,7 @@
 		(uuid "eff0b332-4fb5-4929-bf02-4414beaaafff")
 	)
 	(label "PA1"
-		(at 215.9 111.76 0)
+		(at 205.74 106.68 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -6659,6 +6679,74 @@
 			(project "pcb_badge"
 				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/82449bab-7304-40f6-91f4-0748c7d23e61"
 					(reference "#PWR0103")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:R")
+		(at 214.63 106.68 90)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "453978ee-1c9b-4bb6-9d98-0f828dbccb95")
+		(property "Reference" "R11"
+			(at 214.63 100.33 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "R"
+			(at 214.63 102.87 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "Resistor_SMD:R_0402_1005Metric_Pad0.72x0.64mm_HandSolder"
+			(at 214.63 108.458 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 214.63 106.68 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Resistor"
+			(at 214.63 106.68 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "ba766be5-7150-4a48-9e12-8838d694e028")
+		)
+		(pin "2"
+			(uuid "4f60e30a-b80b-472c-8d34-7f0caef15820")
+		)
+		(instances
+			(project "pcb_badge"
+				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/82449bab-7304-40f6-91f4-0748c7d23e61"
+					(reference "R11")
 					(unit 1)
 				)
 			)

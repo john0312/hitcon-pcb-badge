@@ -1973,6 +1973,12 @@
 		(uuid "8a34445d-52d0-44f0-9d1b-d5b6be54e5c1")
 	)
 	(junction
+		(at 119.38 60.96)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "8bf7e915-3e17-4a59-87ff-77549b4bf4bb")
+	)
+	(junction
 		(at 135.89 130.81)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -2578,6 +2584,16 @@
 	)
 	(wire
 		(pts
+			(xy 119.38 60.96) (xy 135.89 60.96)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "bb739b39-300a-4a49-bf19-dbf0c038314a")
+	)
+	(wire
+		(pts
 			(xy 80.01 45.72) (xy 80.01 48.26)
 		)
 		(stroke
@@ -2765,6 +2781,61 @@
 			(type default)
 		)
 		(uuid "fb1cdd6c-8eb8-4814-b8e4-1038333406bb")
+	)
+	(label "TLV_OUT"
+		(at 157.48 87.63 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "1b3b6644-9be8-443e-b3c7-bbe62feaf6af")
+	)
+	(label "PWR_IN_MIXED"
+		(at 120.65 60.96 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "5e97b92f-675b-478f-98a5-fcb4173863e9")
+	)
+	(label "AMS_OUT"
+		(at 154.94 119.38 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "7dfb3222-e89d-45df-abf8-9dab2b9d7290")
+	)
+	(label "AMS_ADJ"
+		(at 137.16 130.81 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "c2d87d38-3f2b-4c1d-acfe-f12b3cec57cd")
+	)
+	(label "USB_5V"
+		(at 82.55 69.85 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "efcab200-75dd-4da0-af0e-d20ab494f0d8")
 	)
 	(hierarchical_label "GND"
 		(shape output)
@@ -3388,7 +3459,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Capacitor_SMD:C_0603_1608Metric_Pad1.08x0.95mm_HandSolder"
+		(property "Footprint" "Capacitor_SMD:C_0402_1005Metric_Pad0.74x0.62mm_HandSolder"
 			(at 101.2952 55.88 0)
 			(effects
 				(font
