@@ -513,6 +513,10 @@
       {
         "netclass": "Default",
         "pattern": "+BATT"
+      },
+      {
+        "netclass": "Power",
+        "pattern": "/MCU/PA14"
       }
     ]
   },
