@@ -927,7 +927,7 @@
 				)
 			)
 		)
-		(property "Footprint" "KWM-30881XPGB_ADA"
+		(property "Footprint" "myLib:KWM-30881XPGB_ADA"
 			(at 0.254 2.54 0)
 			(effects
 				(font
@@ -954,14 +954,6 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
-			)
-		)
-		(property "ki_locked" ""
-			(at 0 0 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
 			)
 		)
 		(property "ki_keywords" "1623"
