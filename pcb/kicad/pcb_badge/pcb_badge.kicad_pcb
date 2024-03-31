@@ -39308,6 +39308,32 @@
 		(layer "Edge.Cuts")
 		(uuid "f707d133-97e0-496a-a8f9-2c84ad3acacc")
 	)
+	(gr_text "Git Rev: c035ef4834fdc4811"
+		(at 86 148 0)
+		(layer "F.Cu")
+		(uuid "30654c2d-501b-4fe0-871f-11851d8e7e92")
+		(effects
+			(font
+				(size 1.5 1.5)
+				(thickness 0.3)
+				(bold yes)
+			)
+			(justify left bottom)
+		)
+	)
+	(gr_text "Git Rev: c035ef4834fdc4811"
+		(at 86 148 0)
+		(layer "F.SilkS")
+		(uuid "c7ecdb6e-553a-4c34-bebb-24491feadd34")
+		(effects
+			(font
+				(size 1.5 1.5)
+				(thickness 0.3)
+				(bold yes)
+			)
+			(justify left bottom)
+		)
+	)
 	(gr_text "${REFERENCE}"
 		(at 148 62 0)
 		(layer "F.Fab")
