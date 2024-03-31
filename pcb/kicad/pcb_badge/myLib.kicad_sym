@@ -904,7 +904,7 @@
 			)
 		)
 	)
-	(symbol "LED Matrix"
+	(symbol "SZ421288N-64"
 		(pin_names
 			(offset 0.254)
 		)
@@ -919,7 +919,7 @@
 				)
 			)
 		)
-		(property "Value" "LED Matrix"
+		(property "Value" "SZ421288N-64"
 			(at 20.32 17.78 0)
 			(effects
 				(font
@@ -974,7 +974,7 @@
 				(hide yes)
 			)
 		)
-		(symbol "LED Matrix_0_1"
+		(symbol "SZ421288N-64_0_1"
 			(polyline
 				(pts
 					(xy 7.62 -17.78) (xy 26.67 -17.78)
@@ -9054,7 +9054,7 @@
 				)
 			)
 		)
-		(symbol "LED Matrix_1_1"
+		(symbol "SZ421288N-64_1_1"
 			(pin unspecified line
 				(at 0 -10.16 0)
 				(length 7.62)
