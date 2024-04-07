@@ -21,7 +21,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "../Hitcon/DmaTest.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -42,6 +42,7 @@
 /* Private variables ---------------------------------------------------------*/
 PCD_HandleTypeDef hpcd_USB_FS;
 
+DMA_HandleTypeDef hdma_memtomem_dma1_channel1;
 /* USER CODE BEGIN PV */
 
 /* USER CODE END PV */
@@ -49,6 +50,7 @@ PCD_HandleTypeDef hpcd_USB_FS;
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
+static void MX_DMA_Init(void);
 static void MX_USB_PCD_Init(void);
 /* USER CODE BEGIN PFP */
 
@@ -56,26 +58,7 @@ static void MX_USB_PCD_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-static void FlashGpio(void)
-{
-//	HAL_GPIO_TogglePin(OnBoard_GPIO_Port, OnBoard_Pin);
-//	HAL_GPIO_TogglePin(IrLed_GPIO_Port, IrLed_Pin);
-	HAL_GPIO_TogglePin(Flashing_GPIO_Port, Flashing_Pin);
-}
 
-static void SwitchAlwaysOn(void)
-{
-	HAL_GPIO_WritePin(AlwaysOn_GPIO_Port, AlwaysOn_Pin, GPIO_PIN_SET);
-}
-
-static void DetectIr(void)
-{
-	GPIO_PinState state = HAL_GPIO_ReadPin(IrSensor_GPIO_Port, IrSensor_Pin);
-	if (state)
-		HAL_UART_Transmit(&huart2, "off\r\n", 5, 1000);
-	else
-		HAL_UART_Transmit(&huart2, "on\r\n", 4, 1000);
-}
 /* USER CODE END 0 */
 
 /**
@@ -84,6 +67,7 @@ static void DetectIr(void)
   */
 int main(void)
 {
+
   /* USER CODE BEGIN 1 */
 
   /* USER CODE END 1 */
@@ -106,9 +90,10 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
+  MX_DMA_Init();
   MX_USB_PCD_Init();
   /* USER CODE BEGIN 2 */
-  SwitchAlwaysOn();
+  hitcon::DmaTest dmatest(hdma_memtomem_dma1_channel1);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -118,6 +103,7 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
+	dmatest.Trigger();
   }
   /* USER CODE END 3 */
 }
@@ -195,6 +181,33 @@ static void MX_USB_PCD_Init(void)
   /* USER CODE BEGIN USB_Init 2 */
 
   /* USER CODE END USB_Init 2 */
+
+}
+
+/**
+  * Enable DMA controller clock
+  * Configure DMA for memory to memory transfers
+  *   hdma_memtomem_dma1_channel1
+  */
+static void MX_DMA_Init(void)
+{
+
+  /* DMA controller clock enable */
+  __HAL_RCC_DMA1_CLK_ENABLE();
+
+  /* Configure DMA request hdma_memtomem_dma1_channel1 on DMA1_Channel1 */
+  hdma_memtomem_dma1_channel1.Instance = DMA1_Channel1;
+  hdma_memtomem_dma1_channel1.Init.Direction = DMA_MEMORY_TO_MEMORY;
+  hdma_memtomem_dma1_channel1.Init.PeriphInc = DMA_PINC_ENABLE;
+  hdma_memtomem_dma1_channel1.Init.MemInc = DMA_MINC_ENABLE;
+  hdma_memtomem_dma1_channel1.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;
+  hdma_memtomem_dma1_channel1.Init.MemDataAlignment = DMA_MDATAALIGN_BYTE;
+  hdma_memtomem_dma1_channel1.Init.Mode = DMA_NORMAL;
+  hdma_memtomem_dma1_channel1.Init.Priority = DMA_PRIORITY_LOW;
+  if (HAL_DMA_Init(&hdma_memtomem_dma1_channel1) != HAL_OK)
+  {
+    Error_Handler( );
+  }
 
 }
 

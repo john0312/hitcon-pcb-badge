@@ -1,9 +1,0 @@
-../Core/Src/main.c:59:13:FlashGpio	8	static
-../Core/Src/main.c:66:13:ToggleSendSerial	4	static
-../Core/Src/main.c:72:13:SwitchAlwaysOn	8	static
-../Core/Src/main.c:77:13:DetectIr	16	static
-../Core/Src/main.c:93:5:main	8	static
-../Core/Src/main.c:142:6:SystemClock_Config	72	static
-../Core/Src/main.c:181:13:MX_USART2_UART_Init	8	static
-../Core/Src/main.c:214:13:MX_GPIO_Init	40	static
-../Core/Src/main.c:273:6:Error_Handler	4	static,ignoring_inline_asm
