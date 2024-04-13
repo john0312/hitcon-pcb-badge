@@ -361,6 +361,12 @@
 		(uuid "1f6d991e-f74b-4332-bd7f-4abd6c73b6b5")
 	)
 	(junction
+		(at 205.74 77.47)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "236f2a4b-5f78-4ef4-bce5-da2ec320bb42")
+	)
+	(junction
 		(at 205.74 88.9)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -560,6 +566,16 @@
 	)
 	(wire
 		(pts
+			(xy 205.74 77.47) (xy 222.25 77.47)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "89f6c00c-9f1c-4201-95b9-29f6ec8881df")
+	)
+	(wire
+		(pts
 			(xy 200.66 82.55) (xy 205.74 82.55)
 		)
 		(stroke
@@ -707,16 +723,6 @@
 			(type default)
 		)
 		(uuid "d98fd36d-163c-44db-a8bc-89baa4065665")
-	)
-	(wire
-		(pts
-			(xy 200.66 80.01) (xy 222.25 80.01)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "dc2bc849-c7f8-4684-942a-a9cd0125bd4d")
 	)
 	(wire
 		(pts
@@ -1037,7 +1043,7 @@
 			(uuid "e8a41d21-1cee-412f-b8fe-f69e9ed25708")
 		)
 		(pin "EN" input
-			(at 222.25 80.01 180)
+			(at 222.25 77.47 180)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -1530,26 +1536,6 @@
 			)
 			(uuid "cb4d35c4-2c2c-4ab7-a0fb-f0b003afd224")
 		)
-		(pin "EN1" output
-			(at 200.66 77.47 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-			(uuid "987fd0c8-e291-4e05-aeba-1eb771821b85")
-		)
-		(pin "EN2" output
-			(at 200.66 80.01 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-			(uuid "50a5df65-8ced-4cc6-8e87-9d5d68054cd7")
-		)
 		(pin "CC" output
 			(at 200.66 85.09 0)
 			(effects
@@ -1579,6 +1565,16 @@
 				(justify right)
 			)
 			(uuid "fc19f712-10ef-4a33-b46b-c864edbec08d")
+		)
+		(pin "A3" output
+			(at 200.66 77.47 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+			(uuid "767b35b5-a027-4fdd-ac5a-30ee5baef856")
 		)
 		(instances
 			(project "pcb_badge"
