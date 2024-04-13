@@ -5286,7 +5286,7 @@
 		)
 		(uuid "ff8c6966-52fb-4a58-92ab-096e6839ff6d")
 	)
-	(label "Y1D"
+	(label "YQD"
 		(at 109.22 147.32 0)
 		(fields_autoplaced yes)
 		(effects
@@ -5297,7 +5297,7 @@
 		)
 		(uuid "04e3567a-13e6-467b-9b0d-4c761da64fb5")
 	)
-	(label "MAT_RE"
+	(label "MAT_RN"
 		(at 128.27 111.76 0)
 		(fields_autoplaced yes)
 		(effects
@@ -5319,7 +5319,7 @@
 		)
 		(uuid "0ab7bdbf-0ac3-4676-a552-f62e151c66ed")
 	)
-	(label "Y0D"
+	(label "YJD"
 		(at 68.58 55.88 0)
 		(fields_autoplaced yes)
 		(effects
@@ -5330,7 +5330,7 @@
 		)
 		(uuid "0b766b5a-5554-444b-a690-6676e306e5d0")
 	)
-	(label "Y2D"
+	(label "YPD"
 		(at 109.22 132.08 0)
 		(fields_autoplaced yes)
 		(effects
@@ -5341,7 +5341,7 @@
 		)
 		(uuid "1258bb12-8f59-4e7b-8278-5e9cbd32ad35")
 	)
-	(label "Y3D"
+	(label "YMD"
 		(at 68.58 63.5 0)
 		(fields_autoplaced yes)
 		(effects
@@ -5352,7 +5352,7 @@
 		)
 		(uuid "18253826-48f3-4425-bf53-db9760d340ba")
 	)
-	(label "Y3D"
+	(label "YND"
 		(at 109.22 116.84 0)
 		(fields_autoplaced yes)
 		(effects
@@ -5363,7 +5363,7 @@
 		)
 		(uuid "19c203c3-a120-4aed-90ea-7acf47dbaa73")
 	)
-	(label "MAT_RD"
+	(label "MAT_RM"
 		(at 128.27 96.52 0)
 		(fields_autoplaced yes)
 		(effects
@@ -5374,7 +5374,7 @@
 		)
 		(uuid "3059c94f-5079-44d0-9481-def960f40abf")
 	)
-	(label "Y2D"
+	(label "YLD"
 		(at 68.58 60.96 0)
 		(fields_autoplaced yes)
 		(effects
@@ -5385,7 +5385,7 @@
 		)
 		(uuid "31fa99f5-14af-4898-9e0d-dc857013edec")
 	)
-	(label "Y4D"
+	(label "YND"
 		(at 68.58 66.04 0)
 		(fields_autoplaced yes)
 		(effects
@@ -5396,7 +5396,7 @@
 		)
 		(uuid "344e16c8-84a7-4079-a819-2e8d18c89507")
 	)
-	(label "Y5D"
+	(label "YPD"
 		(at 68.58 68.58 0)
 		(fields_autoplaced yes)
 		(effects
@@ -5407,7 +5407,7 @@
 		)
 		(uuid "36617571-fc3a-4502-9833-4c2c62fc0a7e")
 	)
-	(label "Y4D"
+	(label "YMD"
 		(at 109.3057 101.6 0)
 		(fields_autoplaced yes)
 		(effects
@@ -5418,7 +5418,7 @@
 		)
 		(uuid "386ad874-af8f-41f2-b50d-b5dada8ddb11")
 	)
-	(label "Y1D"
+	(label "YKD"
 		(at 68.58 58.42 0)
 		(fields_autoplaced yes)
 		(effects
@@ -5429,7 +5429,7 @@
 		)
 		(uuid "404f29c1-b741-4b83-805f-0d96eaf7e4df")
 	)
-	(label "MAT_RB"
+	(label "MAT_RK"
 		(at 128.27 66.04 0)
 		(fields_autoplaced yes)
 		(effects
@@ -5440,7 +5440,7 @@
 		)
 		(uuid "4ffaf53b-3c04-4cdc-8cd7-5fc90ac6476c")
 	)
-	(label "Y5D"
+	(label "YLD"
 		(at 109.22 86.36 0)
 		(fields_autoplaced yes)
 		(effects
@@ -5451,7 +5451,7 @@
 		)
 		(uuid "524daca1-b5ac-4116-b6f2-6d75a6da034f")
 	)
-	(label "Y6D"
+	(label "YKD"
 		(at 109.22 71.12 0)
 		(fields_autoplaced yes)
 		(effects
@@ -5473,7 +5473,7 @@
 		)
 		(uuid "55bda60a-1aae-4509-b449-8c14fbbfaba0")
 	)
-	(label "Y6D"
+	(label "YQD"
 		(at 68.58 71.12 0)
 		(fields_autoplaced yes)
 		(effects
@@ -5495,7 +5495,7 @@
 		)
 		(uuid "6c997535-a4d0-4df1-a048-ba911668b122")
 	)
-	(label "Y7D"
+	(label "YJD"
 		(at 109.22 55.88 0)
 		(fields_autoplaced yes)
 		(effects
@@ -5506,7 +5506,7 @@
 		)
 		(uuid "6e27df6f-9a1b-4db0-b526-38f187aa3c0a")
 	)
-	(label "MAT_RA"
+	(label "MAT_RJ"
 		(at 128.27 50.8 0)
 		(fields_autoplaced yes)
 		(effects
@@ -5528,7 +5528,7 @@
 		)
 		(uuid "9f8b0026-a0ab-467f-94be-6e61679951c2")
 	)
-	(label "MAT_RG"
+	(label "MAT_RQ"
 		(at 128.27 142.24 0)
 		(fields_autoplaced yes)
 		(effects
@@ -5539,7 +5539,7 @@
 		)
 		(uuid "ac88621e-eacc-4503-8d70-20e33dc349ce")
 	)
-	(label "Y0D"
+	(label "YRD"
 		(at 109.22 162.56 0)
 		(fields_autoplaced yes)
 		(effects
@@ -5550,7 +5550,7 @@
 		)
 		(uuid "b2c799ff-5253-47c9-baee-3bc1708aff13")
 	)
-	(label "Y7D"
+	(label "YRD"
 		(at 68.58 73.66 0)
 		(fields_autoplaced yes)
 		(effects
@@ -5561,7 +5561,7 @@
 		)
 		(uuid "b5cf8ec1-563d-42c0-9720-176be7678bb5")
 	)
-	(label "MAT_RH"
+	(label "MAT_RR"
 		(at 128.27 157.48 0)
 		(fields_autoplaced yes)
 		(effects
@@ -5583,7 +5583,7 @@
 		)
 		(uuid "d67650a3-9933-4298-aaae-ba0e484d662e")
 	)
-	(label "MAT_RF"
+	(label "MAT_RP"
 		(at 128.27 127 0)
 		(fields_autoplaced yes)
 		(effects
@@ -5605,7 +5605,7 @@
 		)
 		(uuid "f936053f-00fc-46d8-8eb3-416315084341")
 	)
-	(label "MAT_RC"
+	(label "MAT_RL"
 		(at 128.27 81.28 0)
 		(fields_autoplaced yes)
 		(effects
@@ -5792,8 +5792,8 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "08f27368-66c9-4c2d-bafe-a1ad015917c5")
-		(property "Reference" "D01"
-			(at 158.75 43.4975 90)
+		(property "Reference" "D101"
+			(at 158.75 43.4974 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5802,7 +5802,7 @@
 			)
 		)
 		(property "Value" "LED"
-			(at 158.75 46.0375 90)
+			(at 158.75 46.0374 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5845,8 +5845,8 @@
 		)
 		(instances
 			(project "pcb_badge"
-				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "D01")
+				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/38654120-f4c0-4bbc-91fa-65f5f7f0b778"
+					(reference "D101")
 					(unit 1)
 				)
 			)
@@ -5862,8 +5862,8 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "09824a06-2f7a-440c-afb8-ee2d369bfd6a")
-		(property "Reference" "D63"
-			(at 185.42 134.9375 90)
+		(property "Reference" "D163"
+			(at 185.42 134.9374 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5872,7 +5872,7 @@
 			)
 		)
 		(property "Value" "LED"
-			(at 185.42 137.4775 90)
+			(at 185.42 137.4774 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5915,8 +5915,8 @@
 		)
 		(instances
 			(project "pcb_badge"
-				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "D63")
+				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/38654120-f4c0-4bbc-91fa-65f5f7f0b778"
+					(reference "D163")
 					(unit 1)
 				)
 			)
@@ -5932,8 +5932,8 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "09f5af24-f13d-4b9a-b071-fffd7a6d5f87")
-		(property "Reference" "D53"
-			(at 185.42 119.6975 90)
+		(property "Reference" "D153"
+			(at 185.42 119.6974 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5942,7 +5942,7 @@
 			)
 		)
 		(property "Value" "LED"
-			(at 185.42 122.2375 90)
+			(at 185.42 122.2374 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5985,8 +5985,8 @@
 		)
 		(instances
 			(project "pcb_badge"
-				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "D53")
+				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/38654120-f4c0-4bbc-91fa-65f5f7f0b778"
+					(reference "D153")
 					(unit 1)
 				)
 			)
@@ -6002,7 +6002,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "0a691c29-a450-4a2a-a34b-65077e6b087e")
-		(property "Reference" "#PWR018"
+		(property "Reference" "#PWR0113"
 			(at 125.73 157.48 0)
 			(effects
 				(font
@@ -6051,8 +6051,8 @@
 		)
 		(instances
 			(project "pcb_badge"
-				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "#PWR018")
+				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/38654120-f4c0-4bbc-91fa-65f5f7f0b778"
+					(reference "#PWR0113")
 					(unit 1)
 				)
 			)
@@ -6068,8 +6068,8 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "0eee3b09-2456-4101-a648-aa57b443453f")
-		(property "Reference" "D07"
-			(at 240.03 43.4975 90)
+		(property "Reference" "D107"
+			(at 240.03 43.4974 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6078,7 +6078,7 @@
 			)
 		)
 		(property "Value" "LED"
-			(at 240.03 46.0375 90)
+			(at 240.03 46.0374 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6121,8 +6121,8 @@
 		)
 		(instances
 			(project "pcb_badge"
-				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "D07")
+				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/38654120-f4c0-4bbc-91fa-65f5f7f0b778"
+					(reference "D107")
 					(unit 1)
 				)
 			)
@@ -6138,8 +6138,8 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "0fd092df-5aa7-45bf-baf5-ae84beff546e")
-		(property "Reference" "D34"
-			(at 199.39 89.2175 90)
+		(property "Reference" "D134"
+			(at 199.39 89.2174 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6148,7 +6148,7 @@
 			)
 		)
 		(property "Value" "LED"
-			(at 199.39 91.7575 90)
+			(at 199.39 91.7574 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6191,8 +6191,8 @@
 		)
 		(instances
 			(project "pcb_badge"
-				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "D34")
+				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/38654120-f4c0-4bbc-91fa-65f5f7f0b778"
+					(reference "D134")
 					(unit 1)
 				)
 			)
@@ -6208,8 +6208,8 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "10ac56e0-81c3-4419-9a11-1616982a6deb")
-		(property "Reference" "R82"
-			(at 179.07 30.48 0)
+		(property "Reference" "R182"
+			(at 179.07 30.4799 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6218,7 +6218,7 @@
 			)
 		)
 		(property "Value" "300"
-			(at 179.07 33.02 0)
+			(at 179.07 33.0199 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6261,8 +6261,8 @@
 		)
 		(instances
 			(project "pcb_badge"
-				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "R82")
+				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/38654120-f4c0-4bbc-91fa-65f5f7f0b778"
+					(reference "R182")
 					(unit 1)
 				)
 			)
@@ -6278,8 +6278,8 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "20ab2d6f-ae22-4522-b804-e8da7f11090c")
-		(property "Reference" "D02"
-			(at 171.45 43.4975 90)
+		(property "Reference" "D102"
+			(at 171.45 43.4974 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6288,7 +6288,7 @@
 			)
 		)
 		(property "Value" "LED"
-			(at 171.45 46.0375 90)
+			(at 171.45 46.0374 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6331,8 +6331,8 @@
 		)
 		(instances
 			(project "pcb_badge"
-				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "D02")
+				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/38654120-f4c0-4bbc-91fa-65f5f7f0b778"
+					(reference "D102")
 					(unit 1)
 				)
 			)
@@ -6348,8 +6348,8 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "251bcc84-d0c9-40ef-a294-c743093782e4")
-		(property "Reference" "R80"
-			(at 152.4 30.48 0)
+		(property "Reference" "R180"
+			(at 152.4 30.4799 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6358,7 +6358,7 @@
 			)
 		)
 		(property "Value" "300"
-			(at 152.4 33.02 0)
+			(at 152.4 33.0199 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6401,8 +6401,8 @@
 		)
 		(instances
 			(project "pcb_badge"
-				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "R80")
+				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/38654120-f4c0-4bbc-91fa-65f5f7f0b778"
+					(reference "R180")
 					(unit 1)
 				)
 			)
@@ -6417,7 +6417,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "2871968f-5577-4422-b84b-2228b594e045")
-		(property "Reference" "C40"
+		(property "Reference" "C140"
 			(at 34.29 39.37 0)
 			(effects
 				(font
@@ -6470,8 +6470,8 @@
 		)
 		(instances
 			(project "pcb_badge"
-				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "C40")
+				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/38654120-f4c0-4bbc-91fa-65f5f7f0b778"
+					(reference "C140")
 					(unit 1)
 				)
 			)
@@ -6487,8 +6487,8 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "28ccc7f1-f87a-4abe-a3f8-d02cb86c229a")
-		(property "Reference" "D26"
-			(at 226.06 73.9775 90)
+		(property "Reference" "D126"
+			(at 226.06 73.9774 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6497,7 +6497,7 @@
 			)
 		)
 		(property "Value" "LED"
-			(at 226.06 76.5175 90)
+			(at 226.06 76.5174 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6540,8 +6540,8 @@
 		)
 		(instances
 			(project "pcb_badge"
-				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "D26")
+				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/38654120-f4c0-4bbc-91fa-65f5f7f0b778"
+					(reference "D126")
 					(unit 1)
 				)
 			)
@@ -6557,7 +6557,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "2bd285e5-8f63-4fb7-9db6-7a217750ead1")
-		(property "Reference" "#PWR040"
+		(property "Reference" "#PWR0117"
 			(at 30.48 52.07 0)
 			(effects
 				(font
@@ -6606,8 +6606,8 @@
 		)
 		(instances
 			(project "pcb_badge"
-				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "#PWR040")
+				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/38654120-f4c0-4bbc-91fa-65f5f7f0b778"
+					(reference "#PWR0117")
 					(unit 1)
 				)
 			)
@@ -6623,8 +6623,8 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "2caf3477-daed-4a35-8fd4-3b6b2c1f5546")
-		(property "Reference" "D24"
-			(at 199.39 73.9775 90)
+		(property "Reference" "D124"
+			(at 199.39 73.9774 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6633,7 +6633,7 @@
 			)
 		)
 		(property "Value" "LED"
-			(at 199.39 76.5175 90)
+			(at 199.39 76.5174 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6676,8 +6676,8 @@
 		)
 		(instances
 			(project "pcb_badge"
-				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "D24")
+				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/38654120-f4c0-4bbc-91fa-65f5f7f0b778"
+					(reference "D124")
 					(unit 1)
 				)
 			)
@@ -6693,7 +6693,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "2ead3e6a-bdcc-437b-87e0-0b5a70ddb5ca")
-		(property "Reference" "D00"
+		(property "Reference" "D100"
 			(at 144.78 43.4975 90)
 			(effects
 				(font
@@ -6746,8 +6746,8 @@
 		)
 		(instances
 			(project "pcb_badge"
-				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "D00")
+				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/38654120-f4c0-4bbc-91fa-65f5f7f0b778"
+					(reference "D100")
 					(unit 1)
 				)
 			)
@@ -6763,8 +6763,8 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "2f13ae99-974a-485a-a97a-d8d30f96d15c")
-		(property "Reference" "D05"
-			(at 213.36 43.4975 90)
+		(property "Reference" "D105"
+			(at 213.36 43.4974 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6773,7 +6773,7 @@
 			)
 		)
 		(property "Value" "LED"
-			(at 213.36 46.0375 90)
+			(at 213.36 46.0374 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6816,8 +6816,8 @@
 		)
 		(instances
 			(project "pcb_badge"
-				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "D05")
+				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/38654120-f4c0-4bbc-91fa-65f5f7f0b778"
+					(reference "D105")
 					(unit 1)
 				)
 			)
@@ -6833,8 +6833,8 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "3170320c-ae3d-40e7-bde9-0e3bbc57f931")
-		(property "Reference" "D43"
-			(at 185.42 104.4575 90)
+		(property "Reference" "D143"
+			(at 185.42 104.4574 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6843,7 +6843,7 @@
 			)
 		)
 		(property "Value" "LED"
-			(at 185.42 106.9975 90)
+			(at 185.42 106.9974 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6886,8 +6886,8 @@
 		)
 		(instances
 			(project "pcb_badge"
-				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "D43")
+				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/38654120-f4c0-4bbc-91fa-65f5f7f0b778"
+					(reference "D143")
 					(unit 1)
 				)
 			)
@@ -6903,8 +6903,8 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "34c746b6-c6f6-4dfa-acff-47818be1f663")
-		(property "Reference" "R83"
-			(at 193.04 30.48 0)
+		(property "Reference" "R183"
+			(at 193.04 30.4799 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6913,7 +6913,7 @@
 			)
 		)
 		(property "Value" "300"
-			(at 193.04 33.02 0)
+			(at 193.04 33.0199 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6956,8 +6956,8 @@
 		)
 		(instances
 			(project "pcb_badge"
-				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "R83")
+				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/38654120-f4c0-4bbc-91fa-65f5f7f0b778"
+					(reference "R183")
 					(unit 1)
 				)
 			)
@@ -6973,8 +6973,8 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "35fe4571-1a04-42fd-8f09-4405400d1d13")
-		(property "Reference" "Q5"
-			(at 129.54 115.57 0)
+		(property "Reference" "Q25"
+			(at 129.54 115.5699 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6983,7 +6983,7 @@
 			)
 		)
 		(property "Value" "2N7002"
-			(at 129.54 118.11 0)
+			(at 129.54 118.1099 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7032,8 +7032,8 @@
 		)
 		(instances
 			(project "pcb_badge"
-				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "Q5")
+				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/38654120-f4c0-4bbc-91fa-65f5f7f0b778"
+					(reference "Q25")
 					(unit 1)
 				)
 			)
@@ -7049,7 +7049,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "36fce6d0-d68c-4ca3-a505-eb1c662426c2")
-		(property "Reference" "#PWR06"
+		(property "Reference" "#PWR0115"
 			(at 31.75 82.55 0)
 			(effects
 				(font
@@ -7098,8 +7098,8 @@
 		)
 		(instances
 			(project "pcb_badge"
-				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "#PWR06")
+				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/38654120-f4c0-4bbc-91fa-65f5f7f0b778"
+					(reference "#PWR0115")
 					(unit 1)
 				)
 			)
@@ -7115,8 +7115,8 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "38b0b89b-59ee-4a88-9273-dcbc03c19c90")
-		(property "Reference" "D73"
-			(at 185.42 150.1775 90)
+		(property "Reference" "D173"
+			(at 185.42 150.1774 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7125,7 +7125,7 @@
 			)
 		)
 		(property "Value" "LED"
-			(at 185.42 152.7175 90)
+			(at 185.42 152.7174 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7168,8 +7168,8 @@
 		)
 		(instances
 			(project "pcb_badge"
-				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "D73")
+				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/38654120-f4c0-4bbc-91fa-65f5f7f0b778"
+					(reference "D173")
 					(unit 1)
 				)
 			)
@@ -7185,8 +7185,8 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "38ef5dee-b3b8-49f6-96f2-cc31eaeebd8b")
-		(property "Reference" "D70"
-			(at 144.78 150.1775 90)
+		(property "Reference" "D170"
+			(at 144.78 150.1774 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7195,7 +7195,7 @@
 			)
 		)
 		(property "Value" "LED"
-			(at 144.78 152.7175 90)
+			(at 144.78 152.7174 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7238,8 +7238,8 @@
 		)
 		(instances
 			(project "pcb_badge"
-				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "D70")
+				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/38654120-f4c0-4bbc-91fa-65f5f7f0b778"
+					(reference "D170")
 					(unit 1)
 				)
 			)
@@ -7254,7 +7254,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "3f25e34e-774c-4d30-a9fc-b935d37fa735")
-		(property "Reference" "R410"
+		(property "Reference" "R147"
 			(at 58.42 72.39 90)
 			(effects
 				(font
@@ -7305,8 +7305,8 @@
 		)
 		(instances
 			(project "pcb_badge"
-				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "R410")
+				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/38654120-f4c0-4bbc-91fa-65f5f7f0b778"
+					(reference "R147")
 					(unit 1)
 				)
 			)
@@ -7322,8 +7322,8 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "41abb264-1498-4216-ac17-82f4feb0b6ec")
-		(property "Reference" "D16"
-			(at 226.06 58.7375 90)
+		(property "Reference" "D116"
+			(at 226.06 58.7374 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7332,7 +7332,7 @@
 			)
 		)
 		(property "Value" "LED"
-			(at 226.06 61.2775 90)
+			(at 226.06 61.2774 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7375,8 +7375,8 @@
 		)
 		(instances
 			(project "pcb_badge"
-				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "D16")
+				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/38654120-f4c0-4bbc-91fa-65f5f7f0b778"
+					(reference "D116")
 					(unit 1)
 				)
 			)
@@ -7392,8 +7392,8 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "430c5158-d17f-4db4-8e69-e70b1d7739c5")
-		(property "Reference" "R87"
-			(at 247.65 30.48 0)
+		(property "Reference" "R187"
+			(at 247.65 30.4799 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7402,7 +7402,7 @@
 			)
 		)
 		(property "Value" "300"
-			(at 247.65 33.02 0)
+			(at 247.65 33.0199 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7445,8 +7445,8 @@
 		)
 		(instances
 			(project "pcb_badge"
-				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "R87")
+				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/38654120-f4c0-4bbc-91fa-65f5f7f0b778"
+					(reference "R187")
 					(unit 1)
 				)
 			)
@@ -7462,8 +7462,8 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "448861da-93b5-4b96-911d-1f04a3bb051b")
-		(property "Reference" "D10"
-			(at 144.78 58.7375 90)
+		(property "Reference" "D110"
+			(at 144.78 58.7374 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7472,7 +7472,7 @@
 			)
 		)
 		(property "Value" "LED"
-			(at 144.78 61.2775 90)
+			(at 144.78 61.2774 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7515,8 +7515,8 @@
 		)
 		(instances
 			(project "pcb_badge"
-				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "D10")
+				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/38654120-f4c0-4bbc-91fa-65f5f7f0b778"
+					(reference "D110")
 					(unit 1)
 				)
 			)
@@ -7532,8 +7532,8 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "44a33926-b8d0-4465-a448-edd39f85648b")
-		(property "Reference" "D72"
-			(at 171.45 150.1775 90)
+		(property "Reference" "D172"
+			(at 171.45 150.1774 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7542,7 +7542,7 @@
 			)
 		)
 		(property "Value" "LED"
-			(at 171.45 152.7175 90)
+			(at 171.45 152.7174 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7585,8 +7585,8 @@
 		)
 		(instances
 			(project "pcb_badge"
-				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "D72")
+				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/38654120-f4c0-4bbc-91fa-65f5f7f0b778"
+					(reference "D172")
 					(unit 1)
 				)
 			)
@@ -7602,8 +7602,8 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "48c494c3-8ca5-4ec8-b7ec-4c9914d6b8dc")
-		(property "Reference" "D65"
-			(at 213.36 134.9375 90)
+		(property "Reference" "D165"
+			(at 213.36 134.9374 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7612,7 +7612,7 @@
 			)
 		)
 		(property "Value" "LED"
-			(at 213.36 137.4775 90)
+			(at 213.36 137.4774 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7655,8 +7655,8 @@
 		)
 		(instances
 			(project "pcb_badge"
-				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "D65")
+				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/38654120-f4c0-4bbc-91fa-65f5f7f0b778"
+					(reference "D165")
 					(unit 1)
 				)
 			)
@@ -7671,7 +7671,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "53e02f6b-9437-49bf-bc41-a9e542f1c017")
-		(property "Reference" "R43"
+		(property "Reference" "R140"
 			(at 58.42 54.61 90)
 			(effects
 				(font
@@ -7722,8 +7722,8 @@
 		)
 		(instances
 			(project "pcb_badge"
-				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "R43")
+				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/38654120-f4c0-4bbc-91fa-65f5f7f0b778"
+					(reference "R140")
 					(unit 1)
 				)
 			)
@@ -7739,7 +7739,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "566e97ce-457e-4364-a599-7ee1e124f6ff")
-		(property "Reference" "#PWR016"
+		(property "Reference" "#PWR0112"
 			(at 125.73 127 0)
 			(effects
 				(font
@@ -7788,8 +7788,8 @@
 		)
 		(instances
 			(project "pcb_badge"
-				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "#PWR016")
+				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/38654120-f4c0-4bbc-91fa-65f5f7f0b778"
+					(reference "#PWR0112")
 					(unit 1)
 				)
 			)
@@ -7805,8 +7805,8 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "57a6f803-18b7-49ff-b80d-bce198872fec")
-		(property "Reference" "D30"
-			(at 144.78 89.2175 90)
+		(property "Reference" "D130"
+			(at 144.78 89.2174 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7815,7 +7815,7 @@
 			)
 		)
 		(property "Value" "LED"
-			(at 144.78 91.7575 90)
+			(at 144.78 91.7574 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7858,8 +7858,8 @@
 		)
 		(instances
 			(project "pcb_badge"
-				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "D30")
+				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/38654120-f4c0-4bbc-91fa-65f5f7f0b778"
+					(reference "D130")
 					(unit 1)
 				)
 			)
@@ -7874,7 +7874,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "57c801f9-4243-497a-b676-cd751e7ff38c")
-		(property "Reference" "R47"
+		(property "Reference" "R144"
 			(at 58.42 64.77 90)
 			(effects
 				(font
@@ -7925,8 +7925,8 @@
 		)
 		(instances
 			(project "pcb_badge"
-				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "R47")
+				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/38654120-f4c0-4bbc-91fa-65f5f7f0b778"
+					(reference "R144")
 					(unit 1)
 				)
 			)
@@ -7942,7 +7942,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "5969e7ad-a31b-41b7-9b0c-56769bfb7ea4")
-		(property "Reference" "U4"
+		(property "Reference" "U14"
 			(at 46.6441 48.26 0)
 			(effects
 				(font
@@ -8037,8 +8037,8 @@
 		)
 		(instances
 			(project "pcb_badge"
-				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "U4")
+				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/38654120-f4c0-4bbc-91fa-65f5f7f0b778"
+					(reference "U14")
 					(unit 1)
 				)
 			)
@@ -8054,7 +8054,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "5d8d6b00-3115-449f-a3c6-5183a7cfd361")
-		(property "Reference" "#PWR03"
+		(property "Reference" "#PWR0116"
 			(at 44.45 87.63 0)
 			(effects
 				(font
@@ -8103,8 +8103,8 @@
 		)
 		(instances
 			(project "pcb_badge"
-				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "#PWR03")
+				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/38654120-f4c0-4bbc-91fa-65f5f7f0b778"
+					(reference "#PWR0116")
 					(unit 1)
 				)
 			)
@@ -8120,8 +8120,8 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "6222f775-7b4e-4702-b51c-57dbafddf8f3")
-		(property "Reference" "D23"
-			(at 185.42 73.9775 90)
+		(property "Reference" "D123"
+			(at 185.42 73.9774 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8130,7 +8130,7 @@
 			)
 		)
 		(property "Value" "LED"
-			(at 185.42 76.5175 90)
+			(at 185.42 76.5174 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8173,8 +8173,8 @@
 		)
 		(instances
 			(project "pcb_badge"
-				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "D23")
+				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/38654120-f4c0-4bbc-91fa-65f5f7f0b778"
+					(reference "D123")
 					(unit 1)
 				)
 			)
@@ -8190,8 +8190,8 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "644bc61b-c330-4840-b837-fbb23d7721a6")
-		(property "Reference" "D57"
-			(at 240.03 119.6975 90)
+		(property "Reference" "D157"
+			(at 240.03 119.6974 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8200,7 +8200,7 @@
 			)
 		)
 		(property "Value" "LED"
-			(at 240.03 122.2375 90)
+			(at 240.03 122.2374 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8243,8 +8243,8 @@
 		)
 		(instances
 			(project "pcb_badge"
-				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "D57")
+				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/38654120-f4c0-4bbc-91fa-65f5f7f0b778"
+					(reference "D157")
 					(unit 1)
 				)
 			)
@@ -8260,8 +8260,8 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "65516eb5-2bbe-4227-a4f4-450a33e67481")
-		(property "Reference" "D56"
-			(at 226.06 119.6975 90)
+		(property "Reference" "D156"
+			(at 226.06 119.6974 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8270,7 +8270,7 @@
 			)
 		)
 		(property "Value" "LED"
-			(at 226.06 122.2375 90)
+			(at 226.06 122.2374 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8313,8 +8313,8 @@
 		)
 		(instances
 			(project "pcb_badge"
-				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "D56")
+				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/38654120-f4c0-4bbc-91fa-65f5f7f0b778"
+					(reference "D156")
 					(unit 1)
 				)
 			)
@@ -8330,8 +8330,8 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "659a1646-3290-4132-9fcf-6c2098b81ca8")
-		(property "Reference" "D21"
-			(at 158.75 73.9775 90)
+		(property "Reference" "D121"
+			(at 158.75 73.9774 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8340,7 +8340,7 @@
 			)
 		)
 		(property "Value" "LED"
-			(at 158.75 76.5175 90)
+			(at 158.75 76.5174 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8383,8 +8383,8 @@
 		)
 		(instances
 			(project "pcb_badge"
-				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "D21")
+				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/38654120-f4c0-4bbc-91fa-65f5f7f0b778"
+					(reference "D121")
 					(unit 1)
 				)
 			)
@@ -8400,8 +8400,8 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "668347a4-1725-4af3-87bb-6af81aedf4ca")
-		(property "Reference" "R84"
-			(at 207.01 30.48 0)
+		(property "Reference" "R184"
+			(at 207.01 30.4799 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8410,7 +8410,7 @@
 			)
 		)
 		(property "Value" "300"
-			(at 207.01 33.02 0)
+			(at 207.01 33.0199 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8453,8 +8453,8 @@
 		)
 		(instances
 			(project "pcb_badge"
-				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "R84")
+				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/38654120-f4c0-4bbc-91fa-65f5f7f0b778"
+					(reference "R184")
 					(unit 1)
 				)
 			)
@@ -8470,8 +8470,8 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "6853d272-154f-4774-8787-0f64e6d6d269")
-		(property "Reference" "D60"
-			(at 144.78 134.9375 90)
+		(property "Reference" "D160"
+			(at 144.78 134.9374 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8480,7 +8480,7 @@
 			)
 		)
 		(property "Value" "LED"
-			(at 144.78 137.4775 90)
+			(at 144.78 137.4774 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8523,8 +8523,8 @@
 		)
 		(instances
 			(project "pcb_badge"
-				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "D60")
+				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/38654120-f4c0-4bbc-91fa-65f5f7f0b778"
+					(reference "D160")
 					(unit 1)
 				)
 			)
@@ -8540,8 +8540,8 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "691c0afc-8e29-4ac2-94a7-a838546e48b4")
-		(property "Reference" "D36"
-			(at 226.06 89.2175 90)
+		(property "Reference" "D136"
+			(at 226.06 89.2174 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8550,7 +8550,7 @@
 			)
 		)
 		(property "Value" "LED"
-			(at 226.06 91.7575 90)
+			(at 226.06 91.7574 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8593,8 +8593,8 @@
 		)
 		(instances
 			(project "pcb_badge"
-				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "D36")
+				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/38654120-f4c0-4bbc-91fa-65f5f7f0b778"
+					(reference "D136")
 					(unit 1)
 				)
 			)
@@ -8610,8 +8610,8 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "6a477cba-dc16-48fd-a759-bd2cd6dfb644")
-		(property "Reference" "D27"
-			(at 240.03 73.9775 90)
+		(property "Reference" "D127"
+			(at 240.03 73.9774 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8620,7 +8620,7 @@
 			)
 		)
 		(property "Value" "LED"
-			(at 240.03 76.5175 90)
+			(at 240.03 76.5174 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8663,8 +8663,8 @@
 		)
 		(instances
 			(project "pcb_badge"
-				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "D27")
+				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/38654120-f4c0-4bbc-91fa-65f5f7f0b778"
+					(reference "D127")
 					(unit 1)
 				)
 			)
@@ -8680,7 +8680,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "740c8491-a0bd-4c3c-af2f-766f7792e548")
-		(property "Reference" "#PWR014"
+		(property "Reference" "#PWR0121"
 			(at 125.73 96.52 0)
 			(effects
 				(font
@@ -8729,8 +8729,8 @@
 		)
 		(instances
 			(project "pcb_badge"
-				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "#PWR014")
+				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/38654120-f4c0-4bbc-91fa-65f5f7f0b778"
+					(reference "#PWR0121")
 					(unit 1)
 				)
 			)
@@ -8746,8 +8746,8 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "74d442cf-b76b-4e16-be85-4a03a65bac8f")
-		(property "Reference" "D74"
-			(at 199.39 150.1775 90)
+		(property "Reference" "D174"
+			(at 199.39 150.1774 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8756,7 +8756,7 @@
 			)
 		)
 		(property "Value" "LED"
-			(at 199.39 152.7175 90)
+			(at 199.39 152.7174 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8799,8 +8799,8 @@
 		)
 		(instances
 			(project "pcb_badge"
-				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "D74")
+				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/38654120-f4c0-4bbc-91fa-65f5f7f0b778"
+					(reference "D174")
 					(unit 1)
 				)
 			)
@@ -8816,8 +8816,8 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "759c8063-f3a9-4363-8f06-731cd1a4ed08")
-		(property "Reference" "D13"
-			(at 185.42 58.7375 90)
+		(property "Reference" "D113"
+			(at 185.42 58.7374 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8826,7 +8826,7 @@
 			)
 		)
 		(property "Value" "LED"
-			(at 185.42 61.2775 90)
+			(at 185.42 61.2774 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8869,8 +8869,8 @@
 		)
 		(instances
 			(project "pcb_badge"
-				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "D13")
+				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/38654120-f4c0-4bbc-91fa-65f5f7f0b778"
+					(reference "D113")
 					(unit 1)
 				)
 			)
@@ -8885,7 +8885,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "766d2d58-a12e-4ed5-971c-acadd58269b0")
-		(property "Reference" "R48"
+		(property "Reference" "R145"
 			(at 58.42 67.31 90)
 			(effects
 				(font
@@ -8936,8 +8936,8 @@
 		)
 		(instances
 			(project "pcb_badge"
-				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "R48")
+				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/38654120-f4c0-4bbc-91fa-65f5f7f0b778"
+					(reference "R145")
 					(unit 1)
 				)
 			)
@@ -8953,8 +8953,8 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "7786f5e0-2e8e-4d5d-8e96-9d77448ca810")
-		(property "Reference" "D51"
-			(at 158.75 119.6975 90)
+		(property "Reference" "D151"
+			(at 158.75 119.6974 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8963,7 +8963,7 @@
 			)
 		)
 		(property "Value" "LED"
-			(at 158.75 122.2375 90)
+			(at 158.75 122.2374 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9006,8 +9006,8 @@
 		)
 		(instances
 			(project "pcb_badge"
-				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "D51")
+				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/38654120-f4c0-4bbc-91fa-65f5f7f0b778"
+					(reference "D151")
 					(unit 1)
 				)
 			)
@@ -9023,8 +9023,8 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "7885eb05-411f-4d36-a7dd-9a938ba03b67")
-		(property "Reference" "D50"
-			(at 144.78 119.6975 90)
+		(property "Reference" "D150"
+			(at 144.78 119.6974 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9033,7 +9033,7 @@
 			)
 		)
 		(property "Value" "LED"
-			(at 144.78 122.2375 90)
+			(at 144.78 122.2374 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9076,8 +9076,8 @@
 		)
 		(instances
 			(project "pcb_badge"
-				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "D50")
+				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/38654120-f4c0-4bbc-91fa-65f5f7f0b778"
+					(reference "D150")
 					(unit 1)
 				)
 			)
@@ -9093,7 +9093,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "844c45aa-77f5-4210-b9bb-60067ede915e")
-		(property "Reference" "#PWR015"
+		(property "Reference" "#PWR0120"
 			(at 125.73 111.76 0)
 			(effects
 				(font
@@ -9142,8 +9142,8 @@
 		)
 		(instances
 			(project "pcb_badge"
-				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "#PWR015")
+				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/38654120-f4c0-4bbc-91fa-65f5f7f0b778"
+					(reference "#PWR0120")
 					(unit 1)
 				)
 			)
@@ -9159,8 +9159,8 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "84aa0c67-dea9-4cae-a416-47ff6127e30f")
-		(property "Reference" "D33"
-			(at 185.42 89.2175 90)
+		(property "Reference" "D133"
+			(at 185.42 89.2174 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9169,7 +9169,7 @@
 			)
 		)
 		(property "Value" "LED"
-			(at 185.42 91.7575 90)
+			(at 185.42 91.7574 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9212,8 +9212,8 @@
 		)
 		(instances
 			(project "pcb_badge"
-				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "D33")
+				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/38654120-f4c0-4bbc-91fa-65f5f7f0b778"
+					(reference "D133")
 					(unit 1)
 				)
 			)
@@ -9229,8 +9229,8 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "84c75f2b-a512-43be-9849-56a7a507f27a")
-		(property "Reference" "Q1"
-			(at 129.54 54.61 0)
+		(property "Reference" "Q21"
+			(at 129.54 54.6099 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9239,7 +9239,7 @@
 			)
 		)
 		(property "Value" "2N7002"
-			(at 129.54 57.15 0)
+			(at 129.54 57.1499 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9288,8 +9288,8 @@
 		)
 		(instances
 			(project "pcb_badge"
-				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "Q1")
+				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/38654120-f4c0-4bbc-91fa-65f5f7f0b778"
+					(reference "Q21")
 					(unit 1)
 				)
 			)
@@ -9305,8 +9305,8 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "85c2f172-07ef-48b1-807b-c2663dbf798a")
-		(property "Reference" "D31"
-			(at 158.75 89.2175 90)
+		(property "Reference" "D131"
+			(at 158.75 89.2174 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9315,7 +9315,7 @@
 			)
 		)
 		(property "Value" "LED"
-			(at 158.75 91.7575 90)
+			(at 158.75 91.7574 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9358,8 +9358,8 @@
 		)
 		(instances
 			(project "pcb_badge"
-				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "D31")
+				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/38654120-f4c0-4bbc-91fa-65f5f7f0b778"
+					(reference "D131")
 					(unit 1)
 				)
 			)
@@ -9374,7 +9374,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "87ad3a91-4738-431d-926d-ccbda339d08b")
-		(property "Reference" "R45"
+		(property "Reference" "R142"
 			(at 58.42 59.69 90)
 			(effects
 				(font
@@ -9425,8 +9425,8 @@
 		)
 		(instances
 			(project "pcb_badge"
-				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "R45")
+				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/38654120-f4c0-4bbc-91fa-65f5f7f0b778"
+					(reference "R142")
 					(unit 1)
 				)
 			)
@@ -9442,8 +9442,8 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "88c397be-c53c-4fd5-b058-1bac73115e29")
-		(property "Reference" "D47"
-			(at 240.03 104.4575 90)
+		(property "Reference" "D147"
+			(at 240.03 104.4574 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9452,7 +9452,7 @@
 			)
 		)
 		(property "Value" "LED"
-			(at 240.03 106.9975 90)
+			(at 240.03 106.9974 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9495,8 +9495,8 @@
 		)
 		(instances
 			(project "pcb_badge"
-				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "D47")
+				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/38654120-f4c0-4bbc-91fa-65f5f7f0b778"
+					(reference "D147")
 					(unit 1)
 				)
 			)
@@ -9512,7 +9512,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "8e6e961d-16de-47fe-ae25-f2574e214e7d")
-		(property "Reference" "#PWR017"
+		(property "Reference" "#PWR0111"
 			(at 125.73 142.24 0)
 			(effects
 				(font
@@ -9561,8 +9561,8 @@
 		)
 		(instances
 			(project "pcb_badge"
-				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "#PWR017")
+				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/38654120-f4c0-4bbc-91fa-65f5f7f0b778"
+					(reference "#PWR0111")
 					(unit 1)
 				)
 			)
@@ -9578,8 +9578,8 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "8fe30aca-b1b1-473d-8aea-06c0ad912409")
-		(property "Reference" "D25"
-			(at 213.36 73.9775 90)
+		(property "Reference" "D125"
+			(at 213.36 73.9774 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9588,7 +9588,7 @@
 			)
 		)
 		(property "Value" "LED"
-			(at 213.36 76.5175 90)
+			(at 213.36 76.5174 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9631,8 +9631,8 @@
 		)
 		(instances
 			(project "pcb_badge"
-				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "D25")
+				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/38654120-f4c0-4bbc-91fa-65f5f7f0b778"
+					(reference "D125")
 					(unit 1)
 				)
 			)
@@ -9648,8 +9648,8 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "90bec8aa-45ca-4fe4-bd84-166dfc956471")
-		(property "Reference" "D62"
-			(at 171.45 134.9375 90)
+		(property "Reference" "D162"
+			(at 171.45 134.9374 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9658,7 +9658,7 @@
 			)
 		)
 		(property "Value" "LED"
-			(at 171.45 137.4775 90)
+			(at 171.45 137.4774 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9701,8 +9701,8 @@
 		)
 		(instances
 			(project "pcb_badge"
-				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "D62")
+				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/38654120-f4c0-4bbc-91fa-65f5f7f0b778"
+					(reference "D162")
 					(unit 1)
 				)
 			)
@@ -9718,8 +9718,8 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "92c5250a-07ee-4895-93b1-0a92362e9a12")
-		(property "Reference" "D64"
-			(at 199.39 134.9375 90)
+		(property "Reference" "D164"
+			(at 199.39 134.9374 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9728,7 +9728,7 @@
 			)
 		)
 		(property "Value" "LED"
-			(at 199.39 137.4775 90)
+			(at 199.39 137.4774 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9771,8 +9771,8 @@
 		)
 		(instances
 			(project "pcb_badge"
-				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "D64")
+				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/38654120-f4c0-4bbc-91fa-65f5f7f0b778"
+					(reference "D164")
 					(unit 1)
 				)
 			)
@@ -9788,8 +9788,8 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "92d6b24e-d8c8-4fb2-8169-b253abf58b3e")
-		(property "Reference" "D55"
-			(at 213.36 119.6975 90)
+		(property "Reference" "D155"
+			(at 213.36 119.6974 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9798,7 +9798,7 @@
 			)
 		)
 		(property "Value" "LED"
-			(at 213.36 122.2375 90)
+			(at 213.36 122.2374 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9841,8 +9841,8 @@
 		)
 		(instances
 			(project "pcb_badge"
-				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "D55")
+				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/38654120-f4c0-4bbc-91fa-65f5f7f0b778"
+					(reference "D155")
 					(unit 1)
 				)
 			)
@@ -9858,8 +9858,8 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "93a9309b-f8f4-42db-9075-f54bdac6d689")
-		(property "Reference" "D04"
-			(at 199.39 43.4975 90)
+		(property "Reference" "D104"
+			(at 199.39 43.4974 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9868,7 +9868,7 @@
 			)
 		)
 		(property "Value" "LED"
-			(at 199.39 46.0375 90)
+			(at 199.39 46.0374 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9911,8 +9911,8 @@
 		)
 		(instances
 			(project "pcb_badge"
-				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "D04")
+				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/38654120-f4c0-4bbc-91fa-65f5f7f0b778"
+					(reference "D104")
 					(unit 1)
 				)
 			)
@@ -9928,8 +9928,8 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "948c9e0f-a486-4159-8e41-4f817dfd6def")
-		(property "Reference" "D35"
-			(at 213.36 89.2175 90)
+		(property "Reference" "D135"
+			(at 213.36 89.2174 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9938,7 +9938,7 @@
 			)
 		)
 		(property "Value" "LED"
-			(at 213.36 91.7575 90)
+			(at 213.36 91.7574 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9981,8 +9981,8 @@
 		)
 		(instances
 			(project "pcb_badge"
-				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "D35")
+				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/38654120-f4c0-4bbc-91fa-65f5f7f0b778"
+					(reference "D135")
 					(unit 1)
 				)
 			)
@@ -9998,8 +9998,8 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "98642507-1f24-43d1-9136-5a6d3bdc1d30")
-		(property "Reference" "D22"
-			(at 171.45 73.9775 90)
+		(property "Reference" "D122"
+			(at 171.45 73.9774 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -10008,7 +10008,7 @@
 			)
 		)
 		(property "Value" "LED"
-			(at 171.45 76.5175 90)
+			(at 171.45 76.5174 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -10051,8 +10051,8 @@
 		)
 		(instances
 			(project "pcb_badge"
-				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "D22")
+				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/38654120-f4c0-4bbc-91fa-65f5f7f0b778"
+					(reference "D122")
 					(unit 1)
 				)
 			)
@@ -10068,8 +10068,8 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "9aca262e-5b37-49ff-a52c-f943433ff0f3")
-		(property "Reference" "D52"
-			(at 171.45 119.6975 90)
+		(property "Reference" "D152"
+			(at 171.45 119.6974 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -10078,7 +10078,7 @@
 			)
 		)
 		(property "Value" "LED"
-			(at 171.45 122.2375 90)
+			(at 171.45 122.2374 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -10121,8 +10121,8 @@
 		)
 		(instances
 			(project "pcb_badge"
-				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "D52")
+				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/38654120-f4c0-4bbc-91fa-65f5f7f0b778"
+					(reference "D152")
 					(unit 1)
 				)
 			)
@@ -10138,8 +10138,8 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "9c8a5416-6619-4215-91b4-218cf87085cf")
-		(property "Reference" "D11"
-			(at 158.75 58.7375 90)
+		(property "Reference" "D111"
+			(at 158.75 58.7374 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -10148,7 +10148,7 @@
 			)
 		)
 		(property "Value" "LED"
-			(at 158.75 61.2775 90)
+			(at 158.75 61.2774 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -10191,8 +10191,8 @@
 		)
 		(instances
 			(project "pcb_badge"
-				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "D11")
+				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/38654120-f4c0-4bbc-91fa-65f5f7f0b778"
+					(reference "D111")
 					(unit 1)
 				)
 			)
@@ -10207,7 +10207,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "a1e449ac-104a-444b-ab2f-cd808f05d8b8")
-		(property "Reference" "R49"
+		(property "Reference" "R146"
 			(at 58.42 69.85 90)
 			(effects
 				(font
@@ -10258,8 +10258,8 @@
 		)
 		(instances
 			(project "pcb_badge"
-				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "R49")
+				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/38654120-f4c0-4bbc-91fa-65f5f7f0b778"
+					(reference "R146")
 					(unit 1)
 				)
 			)
@@ -10275,8 +10275,8 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "a6222559-5105-4884-b1ee-d63878002ffe")
-		(property "Reference" "Q3"
-			(at 129.54 85.09 0)
+		(property "Reference" "Q23"
+			(at 129.54 85.0899 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -10285,7 +10285,7 @@
 			)
 		)
 		(property "Value" "2N7002"
-			(at 129.54 87.63 0)
+			(at 129.54 87.6299 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -10334,8 +10334,8 @@
 		)
 		(instances
 			(project "pcb_badge"
-				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "Q3")
+				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/38654120-f4c0-4bbc-91fa-65f5f7f0b778"
+					(reference "Q23")
 					(unit 1)
 				)
 			)
@@ -10351,8 +10351,8 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "a987ef58-58b6-4442-bf91-5fa9075f3bb6")
-		(property "Reference" "D20"
-			(at 144.78 73.9775 90)
+		(property "Reference" "D120"
+			(at 144.78 73.9774 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -10361,7 +10361,7 @@
 			)
 		)
 		(property "Value" "LED"
-			(at 144.78 76.5175 90)
+			(at 144.78 76.5174 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -10404,8 +10404,8 @@
 		)
 		(instances
 			(project "pcb_badge"
-				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "D20")
+				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/38654120-f4c0-4bbc-91fa-65f5f7f0b778"
+					(reference "D120")
 					(unit 1)
 				)
 			)
@@ -10421,8 +10421,8 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "aa790d01-016b-4249-b0d8-644b2a9d92f6")
-		(property "Reference" "D15"
-			(at 213.36 58.7375 90)
+		(property "Reference" "D115"
+			(at 213.36 58.7374 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -10431,7 +10431,7 @@
 			)
 		)
 		(property "Value" "LED"
-			(at 213.36 61.2775 90)
+			(at 213.36 61.2774 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -10474,8 +10474,8 @@
 		)
 		(instances
 			(project "pcb_badge"
-				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "D15")
+				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/38654120-f4c0-4bbc-91fa-65f5f7f0b778"
+					(reference "D115")
 					(unit 1)
 				)
 			)
@@ -10491,8 +10491,8 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "abbbc4ab-ec9e-4307-af6e-e9aeafe4cef3")
-		(property "Reference" "D76"
-			(at 226.06 150.1775 90)
+		(property "Reference" "D176"
+			(at 226.06 150.1774 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -10501,7 +10501,7 @@
 			)
 		)
 		(property "Value" "LED"
-			(at 226.06 152.7175 90)
+			(at 226.06 152.7174 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -10544,8 +10544,8 @@
 		)
 		(instances
 			(project "pcb_badge"
-				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "D76")
+				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/38654120-f4c0-4bbc-91fa-65f5f7f0b778"
+					(reference "D176")
 					(unit 1)
 				)
 			)
@@ -10561,8 +10561,8 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "abd0f4ad-c2fc-4ed9-8975-b4d4fa0db782")
-		(property "Reference" "D46"
-			(at 226.06 104.4575 90)
+		(property "Reference" "D146"
+			(at 226.06 104.4574 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -10571,7 +10571,7 @@
 			)
 		)
 		(property "Value" "LED"
-			(at 226.06 106.9975 90)
+			(at 226.06 106.9974 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -10614,8 +10614,8 @@
 		)
 		(instances
 			(project "pcb_badge"
-				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "D46")
+				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/38654120-f4c0-4bbc-91fa-65f5f7f0b778"
+					(reference "D146")
 					(unit 1)
 				)
 			)
@@ -10631,8 +10631,8 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "b11c62fa-a423-4da9-88f4-ab02b6c031f2")
-		(property "Reference" "D37"
-			(at 240.03 89.2175 90)
+		(property "Reference" "D137"
+			(at 240.03 89.2174 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -10641,7 +10641,7 @@
 			)
 		)
 		(property "Value" "LED"
-			(at 240.03 91.7575 90)
+			(at 240.03 91.7574 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -10684,8 +10684,8 @@
 		)
 		(instances
 			(project "pcb_badge"
-				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "D37")
+				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/38654120-f4c0-4bbc-91fa-65f5f7f0b778"
+					(reference "D137")
 					(unit 1)
 				)
 			)
@@ -10701,8 +10701,8 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "b150a796-ea99-4a26-aa39-a40ffe09b3b5")
-		(property "Reference" "Q8"
-			(at 129.54 161.29 0)
+		(property "Reference" "Q28"
+			(at 129.54 161.2899 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -10711,7 +10711,7 @@
 			)
 		)
 		(property "Value" "2N7002"
-			(at 129.54 163.83 0)
+			(at 129.54 163.8299 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -10760,8 +10760,8 @@
 		)
 		(instances
 			(project "pcb_badge"
-				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "Q8")
+				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/38654120-f4c0-4bbc-91fa-65f5f7f0b778"
+					(reference "Q28")
 					(unit 1)
 				)
 			)
@@ -10777,8 +10777,8 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "b3cae8a3-7a7a-4c9a-aeee-5214a3704c48")
-		(property "Reference" "D06"
-			(at 226.06 43.4975 90)
+		(property "Reference" "D106"
+			(at 226.06 43.4974 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -10787,7 +10787,7 @@
 			)
 		)
 		(property "Value" "LED"
-			(at 226.06 46.0375 90)
+			(at 226.06 46.0374 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -10830,8 +10830,8 @@
 		)
 		(instances
 			(project "pcb_badge"
-				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "D06")
+				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/38654120-f4c0-4bbc-91fa-65f5f7f0b778"
+					(reference "D106")
 					(unit 1)
 				)
 			)
@@ -10847,8 +10847,8 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "b47d17f6-3292-4122-a378-57811d5de2b4")
-		(property "Reference" "D14"
-			(at 199.39 58.7375 90)
+		(property "Reference" "D114"
+			(at 199.39 58.7374 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -10857,7 +10857,7 @@
 			)
 		)
 		(property "Value" "LED"
-			(at 199.39 61.2775 90)
+			(at 199.39 61.2774 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -10900,8 +10900,8 @@
 		)
 		(instances
 			(project "pcb_badge"
-				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "D14")
+				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/38654120-f4c0-4bbc-91fa-65f5f7f0b778"
+					(reference "D114")
 					(unit 1)
 				)
 			)
@@ -10917,8 +10917,8 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "b8b23d66-0ded-4104-8c72-57351df45b59")
-		(property "Reference" "D67"
-			(at 240.03 134.9375 90)
+		(property "Reference" "D167"
+			(at 240.03 134.9374 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -10927,7 +10927,7 @@
 			)
 		)
 		(property "Value" "LED"
-			(at 240.03 137.4775 90)
+			(at 240.03 137.4774 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -10970,8 +10970,8 @@
 		)
 		(instances
 			(project "pcb_badge"
-				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "D67")
+				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/38654120-f4c0-4bbc-91fa-65f5f7f0b778"
+					(reference "D167")
 					(unit 1)
 				)
 			)
@@ -10987,8 +10987,8 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "bc1a8c3e-ce7f-4a6b-9f90-12d7a52a4559")
-		(property "Reference" "D71"
-			(at 158.75 150.1775 90)
+		(property "Reference" "D171"
+			(at 158.75 150.1774 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -10997,7 +10997,7 @@
 			)
 		)
 		(property "Value" "LED"
-			(at 158.75 152.7175 90)
+			(at 158.75 152.7174 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -11040,8 +11040,8 @@
 		)
 		(instances
 			(project "pcb_badge"
-				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "D71")
+				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/38654120-f4c0-4bbc-91fa-65f5f7f0b778"
+					(reference "D171")
 					(unit 1)
 				)
 			)
@@ -11057,7 +11057,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "bda95279-1cb3-4e13-8d43-a75558c35f83")
-		(property "Reference" "#PWR012"
+		(property "Reference" "#PWR0110"
 			(at 125.73 66.04 0)
 			(effects
 				(font
@@ -11106,8 +11106,8 @@
 		)
 		(instances
 			(project "pcb_badge"
-				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "#PWR012")
+				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/38654120-f4c0-4bbc-91fa-65f5f7f0b778"
+					(reference "#PWR0110")
 					(unit 1)
 				)
 			)
@@ -11123,7 +11123,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "c15ddb33-6579-4e76-8edc-9d12e06055a0")
-		(property "Reference" "#PWR019"
+		(property "Reference" "#PWR0114"
 			(at 125.73 172.72 0)
 			(effects
 				(font
@@ -11172,8 +11172,8 @@
 		)
 		(instances
 			(project "pcb_badge"
-				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "#PWR019")
+				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/38654120-f4c0-4bbc-91fa-65f5f7f0b778"
+					(reference "#PWR0114")
 					(unit 1)
 				)
 			)
@@ -11189,7 +11189,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "c3896558-5298-4a08-80a5-53de6bef1bb1")
-		(property "Reference" "#PWR0109"
+		(property "Reference" "#PWR0118"
 			(at 44.45 39.37 0)
 			(effects
 				(font
@@ -11238,8 +11238,8 @@
 		)
 		(instances
 			(project "pcb_badge"
-				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "#PWR0109")
+				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/38654120-f4c0-4bbc-91fa-65f5f7f0b778"
+					(reference "#PWR0118")
 					(unit 1)
 				)
 			)
@@ -11255,8 +11255,8 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "c49ffa9f-8cba-4a74-8b5f-fbe50c5f32fb")
-		(property "Reference" "D66"
-			(at 226.06 134.9375 90)
+		(property "Reference" "D166"
+			(at 226.06 134.9374 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -11265,7 +11265,7 @@
 			)
 		)
 		(property "Value" "LED"
-			(at 226.06 137.4775 90)
+			(at 226.06 137.4774 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -11308,8 +11308,8 @@
 		)
 		(instances
 			(project "pcb_badge"
-				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "D66")
+				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/38654120-f4c0-4bbc-91fa-65f5f7f0b778"
+					(reference "D166")
 					(unit 1)
 				)
 			)
@@ -11325,8 +11325,8 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "c5dea1a9-d989-4097-a90e-1e9c398cb99d")
-		(property "Reference" "D32"
-			(at 171.45 89.2175 90)
+		(property "Reference" "D132"
+			(at 171.45 89.2174 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -11335,7 +11335,7 @@
 			)
 		)
 		(property "Value" "LED"
-			(at 171.45 91.7575 90)
+			(at 171.45 91.7574 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -11378,8 +11378,8 @@
 		)
 		(instances
 			(project "pcb_badge"
-				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "D32")
+				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/38654120-f4c0-4bbc-91fa-65f5f7f0b778"
+					(reference "D132")
 					(unit 1)
 				)
 			)
@@ -11395,8 +11395,8 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "c6cae878-24ef-4938-b179-dbec9e937614")
-		(property "Reference" "D12"
-			(at 171.45 58.7375 90)
+		(property "Reference" "D112"
+			(at 171.45 58.7374 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -11405,7 +11405,7 @@
 			)
 		)
 		(property "Value" "LED"
-			(at 171.45 61.2775 90)
+			(at 171.45 61.2774 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -11448,8 +11448,8 @@
 		)
 		(instances
 			(project "pcb_badge"
-				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "D12")
+				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/38654120-f4c0-4bbc-91fa-65f5f7f0b778"
+					(reference "D112")
 					(unit 1)
 				)
 			)
@@ -11465,8 +11465,8 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "c892cd33-fff6-4346-8731-1826168b13d4")
-		(property "Reference" "R86"
-			(at 233.68 30.48 0)
+		(property "Reference" "R186"
+			(at 233.68 30.4799 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -11475,7 +11475,7 @@
 			)
 		)
 		(property "Value" "300"
-			(at 233.68 33.02 0)
+			(at 233.68 33.0199 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -11518,8 +11518,8 @@
 		)
 		(instances
 			(project "pcb_badge"
-				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "R86")
+				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/38654120-f4c0-4bbc-91fa-65f5f7f0b778"
+					(reference "R186")
 					(unit 1)
 				)
 			)
@@ -11535,8 +11535,8 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "ca4b761a-eb2b-4271-9886-b7f17edae2eb")
-		(property "Reference" "R81"
-			(at 166.37 30.48 0)
+		(property "Reference" "R181"
+			(at 166.37 30.4799 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -11545,7 +11545,7 @@
 			)
 		)
 		(property "Value" "300"
-			(at 166.37 33.02 0)
+			(at 166.37 33.0199 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -11588,8 +11588,8 @@
 		)
 		(instances
 			(project "pcb_badge"
-				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "R81")
+				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/38654120-f4c0-4bbc-91fa-65f5f7f0b778"
+					(reference "R181")
 					(unit 1)
 				)
 			)
@@ -11605,8 +11605,8 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "cb4323f5-5cac-4ca8-bd01-540a09bd3db7")
-		(property "Reference" "Q2"
-			(at 129.54 69.85 0)
+		(property "Reference" "Q22"
+			(at 129.54 69.8499 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -11615,7 +11615,7 @@
 			)
 		)
 		(property "Value" "2N7002"
-			(at 129.54 72.39 0)
+			(at 129.54 72.3899 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -11664,8 +11664,8 @@
 		)
 		(instances
 			(project "pcb_badge"
-				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "Q2")
+				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/38654120-f4c0-4bbc-91fa-65f5f7f0b778"
+					(reference "Q22")
 					(unit 1)
 				)
 			)
@@ -11681,8 +11681,8 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "ccccd0cd-62ee-43a4-8d73-e06607413745")
-		(property "Reference" "D54"
-			(at 199.39 119.6975 90)
+		(property "Reference" "D154"
+			(at 199.39 119.6974 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -11691,7 +11691,7 @@
 			)
 		)
 		(property "Value" "LED"
-			(at 199.39 122.2375 90)
+			(at 199.39 122.2374 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -11734,8 +11734,8 @@
 		)
 		(instances
 			(project "pcb_badge"
-				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "D54")
+				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/38654120-f4c0-4bbc-91fa-65f5f7f0b778"
+					(reference "D154")
 					(unit 1)
 				)
 			)
@@ -11751,8 +11751,8 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "cf18a37b-28d3-4575-ab25-42f0cfbd904b")
-		(property "Reference" "Q7"
-			(at 129.54 146.05 0)
+		(property "Reference" "Q27"
+			(at 129.54 146.0499 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -11761,7 +11761,7 @@
 			)
 		)
 		(property "Value" "2N7002"
-			(at 129.54 148.59 0)
+			(at 129.54 148.5899 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -11810,8 +11810,8 @@
 		)
 		(instances
 			(project "pcb_badge"
-				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "Q7")
+				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/38654120-f4c0-4bbc-91fa-65f5f7f0b778"
+					(reference "Q27")
 					(unit 1)
 				)
 			)
@@ -11827,7 +11827,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "d6cf2d43-158e-4e4f-b90f-105b1a07ff99")
-		(property "Reference" "#PWR013"
+		(property "Reference" "#PWR0119"
 			(at 125.73 81.28 0)
 			(effects
 				(font
@@ -11876,8 +11876,8 @@
 		)
 		(instances
 			(project "pcb_badge"
-				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "#PWR013")
+				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/38654120-f4c0-4bbc-91fa-65f5f7f0b778"
+					(reference "#PWR0119")
 					(unit 1)
 				)
 			)
@@ -11893,8 +11893,8 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "d8cb3eb5-abdf-4ce2-bc1b-6e84b054d808")
-		(property "Reference" "D45"
-			(at 213.36 104.4575 90)
+		(property "Reference" "D145"
+			(at 213.36 104.4574 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -11903,7 +11903,7 @@
 			)
 		)
 		(property "Value" "LED"
-			(at 213.36 106.9975 90)
+			(at 213.36 106.9974 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -11946,8 +11946,8 @@
 		)
 		(instances
 			(project "pcb_badge"
-				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "D45")
+				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/38654120-f4c0-4bbc-91fa-65f5f7f0b778"
+					(reference "D145")
 					(unit 1)
 				)
 			)
@@ -11963,8 +11963,8 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "e1f04158-ca07-4a26-b13d-aea4a75d8b34")
-		(property "Reference" "D40"
-			(at 144.78 104.4575 90)
+		(property "Reference" "D140"
+			(at 144.78 104.4574 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -11973,7 +11973,7 @@
 			)
 		)
 		(property "Value" "LED"
-			(at 144.78 106.9975 90)
+			(at 144.78 106.9974 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -12016,8 +12016,8 @@
 		)
 		(instances
 			(project "pcb_badge"
-				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "D40")
+				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/38654120-f4c0-4bbc-91fa-65f5f7f0b778"
+					(reference "D140")
 					(unit 1)
 				)
 			)
@@ -12033,8 +12033,8 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "e2f108fd-90df-49df-aa66-ad9a05bdeb12")
-		(property "Reference" "D77"
-			(at 240.03 150.1775 90)
+		(property "Reference" "D177"
+			(at 240.03 150.1774 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -12043,7 +12043,7 @@
 			)
 		)
 		(property "Value" "LED"
-			(at 240.03 152.7175 90)
+			(at 240.03 152.7174 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -12086,8 +12086,8 @@
 		)
 		(instances
 			(project "pcb_badge"
-				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "D77")
+				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/38654120-f4c0-4bbc-91fa-65f5f7f0b778"
+					(reference "D177")
 					(unit 1)
 				)
 			)
@@ -12102,7 +12102,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "e4fb897b-bce0-48fb-81a2-079e84a43f45")
-		(property "Reference" "R46"
+		(property "Reference" "R143"
 			(at 58.42 62.23 90)
 			(effects
 				(font
@@ -12153,8 +12153,8 @@
 		)
 		(instances
 			(project "pcb_badge"
-				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "R46")
+				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/38654120-f4c0-4bbc-91fa-65f5f7f0b778"
+					(reference "R143")
 					(unit 1)
 				)
 			)
@@ -12170,8 +12170,8 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "e8a9e088-b89f-4e42-a7e2-07999fcb7fd3")
-		(property "Reference" "D61"
-			(at 158.75 134.9375 90)
+		(property "Reference" "D161"
+			(at 158.75 134.9374 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -12180,7 +12180,7 @@
 			)
 		)
 		(property "Value" "LED"
-			(at 158.75 137.4775 90)
+			(at 158.75 137.4774 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -12223,8 +12223,8 @@
 		)
 		(instances
 			(project "pcb_badge"
-				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "D61")
+				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/38654120-f4c0-4bbc-91fa-65f5f7f0b778"
+					(reference "D161")
 					(unit 1)
 				)
 			)
@@ -12240,8 +12240,8 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "e8f5f1ea-ea2a-4bd3-ada3-d5a14425e8c5")
-		(property "Reference" "D17"
-			(at 240.03 58.7375 90)
+		(property "Reference" "D117"
+			(at 240.03 58.7374 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -12250,7 +12250,7 @@
 			)
 		)
 		(property "Value" "LED"
-			(at 240.03 61.2775 90)
+			(at 240.03 61.2774 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -12293,8 +12293,8 @@
 		)
 		(instances
 			(project "pcb_badge"
-				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "D17")
+				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/38654120-f4c0-4bbc-91fa-65f5f7f0b778"
+					(reference "D117")
 					(unit 1)
 				)
 			)
@@ -12310,8 +12310,8 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "eda0aa48-ff76-4fb3-8430-92e08d09566e")
-		(property "Reference" "D42"
-			(at 171.45 104.4575 90)
+		(property "Reference" "D142"
+			(at 171.45 104.4574 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -12320,7 +12320,7 @@
 			)
 		)
 		(property "Value" "LED"
-			(at 171.45 106.9975 90)
+			(at 171.45 106.9974 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -12363,8 +12363,8 @@
 		)
 		(instances
 			(project "pcb_badge"
-				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "D42")
+				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/38654120-f4c0-4bbc-91fa-65f5f7f0b778"
+					(reference "D142")
 					(unit 1)
 				)
 			)
@@ -12380,8 +12380,8 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "ee130ab2-9663-4d59-b4b1-d4e074f85ce7")
-		(property "Reference" "Q4"
-			(at 129.54 100.33 0)
+		(property "Reference" "Q24"
+			(at 129.54 100.3299 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -12390,7 +12390,7 @@
 			)
 		)
 		(property "Value" "2N7002"
-			(at 129.54 102.87 0)
+			(at 129.54 102.8699 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -12439,8 +12439,8 @@
 		)
 		(instances
 			(project "pcb_badge"
-				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "Q4")
+				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/38654120-f4c0-4bbc-91fa-65f5f7f0b778"
+					(reference "Q24")
 					(unit 1)
 				)
 			)
@@ -12456,8 +12456,8 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "ee8113f0-e042-42d8-b6f5-4453c41bed8e")
-		(property "Reference" "Q6"
-			(at 129.54 130.81 0)
+		(property "Reference" "Q26"
+			(at 129.54 130.8099 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -12466,7 +12466,7 @@
 			)
 		)
 		(property "Value" "2N7002"
-			(at 129.54 133.35 0)
+			(at 129.54 133.3499 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -12515,8 +12515,8 @@
 		)
 		(instances
 			(project "pcb_badge"
-				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "Q6")
+				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/38654120-f4c0-4bbc-91fa-65f5f7f0b778"
+					(reference "Q26")
 					(unit 1)
 				)
 			)
@@ -12532,8 +12532,8 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "f16a358b-8319-48ad-8f1b-e52609a3a15a")
-		(property "Reference" "D75"
-			(at 213.36 150.1775 90)
+		(property "Reference" "D175"
+			(at 213.36 150.1774 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -12542,7 +12542,7 @@
 			)
 		)
 		(property "Value" "LED"
-			(at 213.36 152.7175 90)
+			(at 213.36 152.7174 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -12585,8 +12585,8 @@
 		)
 		(instances
 			(project "pcb_badge"
-				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "D75")
+				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/38654120-f4c0-4bbc-91fa-65f5f7f0b778"
+					(reference "D175")
 					(unit 1)
 				)
 			)
@@ -12602,8 +12602,8 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "f1966f45-dfd2-4621-9b85-8657c800dce1")
-		(property "Reference" "R85"
-			(at 220.98 30.48 0)
+		(property "Reference" "R185"
+			(at 220.98 30.4799 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -12612,7 +12612,7 @@
 			)
 		)
 		(property "Value" "300"
-			(at 220.98 33.02 0)
+			(at 220.98 33.0199 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -12655,8 +12655,8 @@
 		)
 		(instances
 			(project "pcb_badge"
-				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "R85")
+				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/38654120-f4c0-4bbc-91fa-65f5f7f0b778"
+					(reference "R185")
 					(unit 1)
 				)
 			)
@@ -12672,8 +12672,8 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "f197cada-4a1f-49a6-9e45-754a55e9fac6")
-		(property "Reference" "D41"
-			(at 158.75 104.4575 90)
+		(property "Reference" "D141"
+			(at 158.75 104.4574 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -12682,7 +12682,7 @@
 			)
 		)
 		(property "Value" "LED"
-			(at 158.75 106.9975 90)
+			(at 158.75 106.9974 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -12725,8 +12725,8 @@
 		)
 		(instances
 			(project "pcb_badge"
-				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "D41")
+				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/38654120-f4c0-4bbc-91fa-65f5f7f0b778"
+					(reference "D141")
 					(unit 1)
 				)
 			)
@@ -12742,8 +12742,8 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "f2c8976b-a9d2-445a-ba38-23c30686e460")
-		(property "Reference" "D03"
-			(at 185.42 43.4975 90)
+		(property "Reference" "D103"
+			(at 185.42 43.4974 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -12752,7 +12752,7 @@
 			)
 		)
 		(property "Value" "LED"
-			(at 185.42 46.0375 90)
+			(at 185.42 46.0374 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -12795,8 +12795,8 @@
 		)
 		(instances
 			(project "pcb_badge"
-				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "D03")
+				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/38654120-f4c0-4bbc-91fa-65f5f7f0b778"
+					(reference "D103")
 					(unit 1)
 				)
 			)
@@ -12811,7 +12811,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "fa7bf721-9af3-4ac1-8079-4e5d5cd978db")
-		(property "Reference" "R44"
+		(property "Reference" "R141"
 			(at 58.42 57.15 90)
 			(effects
 				(font
@@ -12862,8 +12862,8 @@
 		)
 		(instances
 			(project "pcb_badge"
-				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "R44")
+				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/38654120-f4c0-4bbc-91fa-65f5f7f0b778"
+					(reference "R141")
 					(unit 1)
 				)
 			)
@@ -12879,8 +12879,8 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "feb0a211-93d3-4cc7-a9b4-c1b7d31d7814")
-		(property "Reference" "D44"
-			(at 199.39 104.4575 90)
+		(property "Reference" "D144"
+			(at 199.39 104.4574 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -12889,7 +12889,7 @@
 			)
 		)
 		(property "Value" "LED"
-			(at 199.39 106.9975 90)
+			(at 199.39 106.9974 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -12932,8 +12932,8 @@
 		)
 		(instances
 			(project "pcb_badge"
-				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "D44")
+				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/38654120-f4c0-4bbc-91fa-65f5f7f0b778"
+					(reference "D144")
 					(unit 1)
 				)
 			)
