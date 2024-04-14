@@ -1,4 +1,4 @@
-23053083321281465
+23058227032103270
 Audio_Module
 Reverb_BTDR-1H
 Digital Reverberation Unit, http://www.belton.co.kr/inc/downfile.php?seq=17&file=pdf (footprint from http://www.uk-electronic.de/PDF/BTDR-1.pdf)
@@ -94402,6 +94402,13 @@ BAT_CR2032-BS-6-1_Q&J
 2
 2
 myLib
+BH-AAA-B5BA021
+
+
+0
+2
+2
+myLib
 CONN_10118192-0002LF_AMP
 
 10118192-0002LF 
@@ -94415,6 +94422,20 @@ IRM-3638T
 0
 3
 3
+myLib
+IRM-H638T
+
+IRM-H638T/TR2 
+0
+4
+4
+myLib
+IRM-V840C
+
+IRM-H638T/TR2 
+0
+4
+4
 myLib
 KWM-30881XPGB_ADA
 
