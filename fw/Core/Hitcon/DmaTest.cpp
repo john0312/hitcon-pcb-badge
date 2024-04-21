@@ -10,7 +10,13 @@
 
 namespace hitcon {
 
+static void memset(char *buf, char c, unsigned int sz) {
+	for (unsigned int i = 0; i < sz; ++i)
+		buf[i] = c;
+}
+
 DmaTest::DmaTest() {
+	memset((char *)dmaBuf, 0, sizeof(dmaBuf));
 	MakeBuf();
 }
 
@@ -18,32 +24,58 @@ DmaTest::~DmaTest() {
 
 }
 
-void DmaTest::SetRow(unsigned char timestamp, unsigned char row) {
-	const GpioBit &bit = DmaRowBits[row];
-	bufs[bit.port][timestamp] |= 1 << bit.offset;
+inline GPIO_TypeDef *DmaTest::GetGpioPort() {
+	return GPIOA;
 }
 
-void DmaTest::ResetRow(unsigned char timestamp, unsigned char row) {
-	const GpioBit &bit = DmaRowBits[row];
-	bufs[bit.port][timestamp] |= 1 << (bit.offset + ResetOffset);
+void DmaTest::SetRow(unsigned char timestamp, unsigned char row) {
+	const GpioBit &bit0 = DmaRowBits[0];
+	const GpioBit &bit1 = DmaRowBits[1];
+	const GpioBit &bit2 = DmaRowBits[2];
+	if (row & 0b001)
+		dmaBuf[timestamp] |= 1 << bit0.offset;
+	else
+		dmaBuf[timestamp] |= 1 << (bit0.offset + ResetOffset);
+	if (row & 0b010)
+		dmaBuf[timestamp] |= 1 << bit1.offset;
+	else
+		dmaBuf[timestamp] |= 1 << (bit1.offset + ResetOffset);
+	if (row & 0b100)
+		dmaBuf[timestamp] |= 1 << bit2.offset;
+	else
+		dmaBuf[timestamp] |= 1 << (bit2.offset + ResetOffset);
 }
+
+//void DmaTest::ResetRow(unsigned char timestamp, unsigned char row) {
+//	const GpioBit &bit = DmaRowBits[row];
+//	bufs[bit.port][timestamp] |= 1 << (bit.offset + ResetOffset);
+//}
 
 void DmaTest::SetCol(unsigned char timestamp, unsigned char col) {
 	const GpioBit &bit = DmaColBits[col];
-	bufs[bit.port][timestamp] |= 1 << bit.offset;
+	dmaBuf[timestamp] |= 1 << bit.offset;
 }
 
 void DmaTest::ResetCol(unsigned char timestamp, unsigned char col) {
 	const GpioBit &bit = DmaColBits[col];
-	bufs[bit.port][timestamp] |= 1 << (bit.offset + ResetOffset);
+	dmaBuf[timestamp] |= 1 << (bit.offset + ResetOffset);
 }
 
 void DmaTest::MakeBuf() {
-	SetRow(0, 0);
-	ResetRow(0, DmaCycleLen-1);
 	for (unsigned char timestamp = 0; timestamp < DmaCycleLen; ++timestamp) {
 		SetRow(timestamp, timestamp);
-		ResetRow(timestamp, timestamp-1);
+		if (timestamp & 1) {
+			SetCol(timestamp, 4);
+			ResetCol(timestamp, 5);
+			SetCol(timestamp, 6);
+			ResetCol(timestamp, 7);
+		}
+		else {
+			ResetCol(timestamp, 4);
+			SetCol(timestamp, 5);
+			ResetCol(timestamp, 6);
+			SetCol(timestamp, 7);
+		}
 	}
 }
 
@@ -54,28 +86,22 @@ static uint16_t rPins[] = {LedRa_Pin, LedRb_Pin, LedRc_Pin, LedRd_Pin, LedRe_Pin
 
 void DmaTest::ResetBoard() {
 	for (unsigned i = 0; i < DmaCSize; ++i)
-		HAL_GPIO_WritePin(cPorts[i], cPins[i], GPIO_PIN_SET);
-	for (unsigned i = 0; i < DmaRSize; ++i)
-		HAL_GPIO_WritePin(rPorts[i], rPins[i], GPIO_PIN_SET);
+		HAL_GPIO_WritePin(cPorts[i], cPins[i], GPIO_PIN_RESET);
+	for (unsigned i = 0; i < 3; ++i)
+		HAL_GPIO_WritePin(rPorts[i], rPins[i], GPIO_PIN_RESET);
 }
 
 void DmaTest::Trigger() {
 	ResetBoard();
-	for (unsigned char port = 0; port < DmaGpioPortCount; ++port) {
-		DMA_HandleTypeDef *dmaChannel = dmaChannels[port];
-		TIM_HandleTypeDef *timerHandler = timerHandlers[port];
-		HAL_DMA_Start(dmaChannel, (uint32_t)(this->bufs[port]), (uint32_t)&(GpioPorts[port]->BSRR), DmaCycleLen);
-		HAL_TIM_Base_Start(timerHandler);
-		HAL_TIM_OC_Start(timerHandler, TIM_CHANNEL_1);
-		timerHandler->Instance->DIER |= (1 << 8);
-	}
+	HAL_DMA_Start(dmaChannel, (uint32_t)(dmaBuf), (uint32_t)&(GetGpioPort()->BSRR), DmaCycleLen);
+	HAL_TIM_Base_Start(timerHandler);
+	HAL_TIM_OC_Start(timerHandler, TIM_CHANNEL_ALL);
+	timerHandler->Instance->DIER |= (1 << 8);
 }
 
-void DmaTest::Init(DMA_HandleTypeDef *dmaChannels[DmaGpioPortCount], TIM_HandleTypeDef *timerHandlers[DmaGpioPortCount]) {
-	for (unsigned char port = 0; port < DmaGpioPortCount; ++port) {
-		this->dmaChannels[port] = dmaChannels[port];
-		this->timerHandlers[port] = timerHandlers[port];
-	}
+void DmaTest::Init(DMA_HandleTypeDef *dmaChannel, TIM_HandleTypeDef *timerHandler) {
+	this->dmaChannel = dmaChannel;
+	this->timerHandler = timerHandler;
 }
 
 } /* namespace hitcon */

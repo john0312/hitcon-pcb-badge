@@ -17,7 +17,6 @@ extern "C" {
 namespace hitcon {
 
 struct GpioBit {
-	unsigned char port;
 	unsigned char offset;
 };
 
@@ -32,40 +31,40 @@ public:
 	DmaTest();
 	virtual ~DmaTest();
 	void Trigger();
-	void Init(DMA_HandleTypeDef *dmaChannels[DmaGpioPortCount], TIM_HandleTypeDef *timerHandlers[DmaGpioPortCount]);
+	void Init(DMA_HandleTypeDef *dmaChannel, TIM_HandleTypeDef *timerHandler);
 	void MakeBuf();
 private:
-	uint32_t bufs[DmaGpioPortCount][DmaCycleLen];
-	DMA_HandleTypeDef *dmaChannels[DmaGpioPortCount];
-	TIM_HandleTypeDef *timerHandlers[DmaGpioPortCount];
+	uint32_t dmaBuf[DmaCycleLen];
+	DMA_HandleTypeDef *dmaChannel;
+	TIM_HandleTypeDef *timerHandler;
 	void ResetBoard();
 	void SetRow(unsigned char timestamp, unsigned char row);
-	void ResetRow(unsigned char timestamp, unsigned char row);
 	void SetCol(unsigned char timestamp, unsigned char col);
 	void ResetCol(unsigned char timestamp, unsigned char col);
+	inline GPIO_TypeDef *GetGpioPort();
 };
 
-constexpr GPIO_TypeDef *GpioPorts[DmaGpioPortCount] = {GPIOA, GPIOB};
+
 
 constexpr GpioBit DmaRowBits[DmaRSize] = {
-	{0, 10},
-	{0, 9},
-	{0, 8},
-	{1, 15},
-	{1, 14},
-	{1, 13},
-	{1, 12},
-	{1, 11}
+	{10},
+	{9},
+	{8},
+	{15},
+	{15},
+	{15},
+	{15},
+	{15}
 };
 constexpr GpioBit DmaColBits[DmaCSize] = {
-	{1, 10},
-	{1, 2},
-	{1, 1},
-	{1, 0},
-	{0, 7},
-	{0, 6},
-	{0, 5},
-	{0, 4}
+	{15},
+	{15},
+	{15},
+	{15},
+	{7},
+	{6},
+	{5},
+	{4}
 };
 
 } /* namespace hitcon */

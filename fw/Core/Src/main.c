@@ -41,9 +41,7 @@
 
 /* Private variables ---------------------------------------------------------*/
 TIM_HandleTypeDef htim2;
-TIM_HandleTypeDef htim4;
 DMA_HandleTypeDef hdma_tim2_up;
-DMA_HandleTypeDef hdma_tim4_up;
 
 PCD_HandleTypeDef hpcd_USB_FS;
 
@@ -57,7 +55,6 @@ static void MX_GPIO_Init(void);
 static void MX_DMA_Init(void);
 static void MX_USB_PCD_Init(void);
 static void MX_TIM2_Init(void);
-static void MX_TIM4_Init(void);
 /* USER CODE BEGIN PFP */
 /* USER CODE END PFP */
 
@@ -97,9 +94,8 @@ int main(void)
   MX_DMA_Init();
   MX_USB_PCD_Init();
   MX_TIM2_Init();
-  MX_TIM4_Init();
   /* USER CODE BEGIN 2 */
-  hitcon_init_leddma(&htim2, &hdma_tim2_up, &htim4, &hdma_tim4_up);
+  hitcon_init_leddma(&htim2, &hdma_tim2_up);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -205,52 +201,6 @@ static void MX_TIM2_Init(void)
 }
 
 /**
-  * @brief TIM4 Initialization Function
-  * @param None
-  * @retval None
-  */
-static void MX_TIM4_Init(void)
-{
-
-  /* USER CODE BEGIN TIM4_Init 0 */
-
-  /* USER CODE END TIM4_Init 0 */
-
-  TIM_SlaveConfigTypeDef sSlaveConfig = {0};
-  TIM_MasterConfigTypeDef sMasterConfig = {0};
-
-  /* USER CODE BEGIN TIM4_Init 1 */
-
-  /* USER CODE END TIM4_Init 1 */
-  htim4.Instance = TIM4;
-  htim4.Init.Prescaler = 1000-1;
-  htim4.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim4.Init.Period = 4096-1;
-  htim4.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
-  htim4.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE;
-  if (HAL_TIM_Base_Init(&htim4) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  sSlaveConfig.SlaveMode = TIM_SLAVEMODE_TRIGGER;
-  sSlaveConfig.InputTrigger = TIM_TS_ITR1;
-  if (HAL_TIM_SlaveConfigSynchro(&htim4, &sSlaveConfig) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
-  sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_ENABLE;
-  if (HAL_TIMEx_MasterConfigSynchronization(&htim4, &sMasterConfig) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  /* USER CODE BEGIN TIM4_Init 2 */
-
-  /* USER CODE END TIM4_Init 2 */
-
-}
-
-/**
   * @brief USB Initialization Function
   * @param None
   * @retval None
@@ -294,9 +244,6 @@ static void MX_DMA_Init(void)
   /* DMA1_Channel2_IRQn interrupt configuration */
   HAL_NVIC_SetPriority(DMA1_Channel2_IRQn, 0, 0);
   HAL_NVIC_EnableIRQ(DMA1_Channel2_IRQn);
-  /* DMA1_Channel7_IRQn interrupt configuration */
-  HAL_NVIC_SetPriority(DMA1_Channel7_IRQn, 0, 0);
-  HAL_NVIC_EnableIRQ(DMA1_Channel7_IRQn);
 
 }
 
@@ -322,9 +269,7 @@ static void MX_GPIO_Init(void)
                           |LedCe_Pin|LedRc_Pin|LedRb_Pin|LedRa_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOB, LedCd_Pin|LedCc_Pin|LedCb_Pin|LedCa_Pin
-                          |LedRh_Pin|LedRg_Pin|LedRf_Pin|LedRe_Pin
-                          |LedRd_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOB, LedCd_Pin|LedCc_Pin|LedCb_Pin|LedCa_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin : IrIn_Pin */
   GPIO_InitStruct.Pin = IrIn_Pin;
@@ -341,15 +286,19 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : LedCd_Pin LedCc_Pin LedCb_Pin LedCa_Pin
-                           LedRh_Pin LedRg_Pin LedRf_Pin LedRe_Pin
-                           LedRd_Pin */
-  GPIO_InitStruct.Pin = LedCd_Pin|LedCc_Pin|LedCb_Pin|LedCa_Pin
-                          |LedRh_Pin|LedRg_Pin|LedRf_Pin|LedRe_Pin
-                          |LedRd_Pin;
+  /*Configure GPIO pins : LedCd_Pin LedCc_Pin LedCb_Pin LedCa_Pin */
+  GPIO_InitStruct.Pin = LedCd_Pin|LedCc_Pin|LedCb_Pin|LedCa_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+
+  /*Configure GPIO pins : LedRh_Pin LedRg_Pin LedRf_Pin LedRe_Pin
+                           LedRd_Pin */
+  GPIO_InitStruct.Pin = LedRh_Pin|LedRg_Pin|LedRf_Pin|LedRe_Pin
+                          |LedRd_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
 /* USER CODE BEGIN MX_GPIO_Init_2 */

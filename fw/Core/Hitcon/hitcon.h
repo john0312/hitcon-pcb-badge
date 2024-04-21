@@ -12,7 +12,7 @@
 extern "C" {
 #endif
 
-void hitcon_init_leddma(TIM_HandleTypeDef *tHandler2, DMA_HandleTypeDef *dmaCh2, TIM_HandleTypeDef *tHandler4, DMA_HandleTypeDef *dmaCh4);
+void hitcon_init_leddma(TIM_HandleTypeDef *tHandler, DMA_HandleTypeDef *dmaChannel);
 void hitcon_mainloop();
 
 #ifdef __cplusplus
