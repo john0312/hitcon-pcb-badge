@@ -10,3 +10,7 @@ git config --local filter.eclipse_env_hash.smudge cat
 ```
 
 ref: [Eclipse Community Forums: C / C++ IDE (CDT) &raquo; Keeping language.settings.xml under source control?](https://www.eclipse.org/forums/index.php/t/1074031/)
+
+## Firmware Development
+
+execute `fw/merge.py` to merge STM32CubeIDE generated `main.c` with user code in `main.cc` into `main.cc`.
