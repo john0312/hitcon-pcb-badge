@@ -4560,6 +4560,16 @@
 	)
 	(wire
 		(pts
+			(xy 81.28 144.78) (xy 81.28 177.8)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "4bbf9877-42b1-48d8-80bb-0b949a11e352")
+	)
+	(wire
+		(pts
 			(xy 242.57 63.5) (xy 242.57 66.04)
 		)
 		(stroke
@@ -5080,7 +5090,7 @@
 	)
 	(wire
 		(pts
-			(xy 96.52 144.78) (xy 102.87 144.78)
+			(xy 81.28 144.78) (xy 102.87 144.78)
 		)
 		(stroke
 			(width 0)
@@ -6213,6 +6223,16 @@
 		)
 		(uuid "9916b18b-755c-4441-b9a6-f3e727a7c38c")
 	)
+	(text "For IR\n"
+		(exclude_from_sim no)
+		(at 141.478 178.308 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+		)
+		(uuid "da961a82-48ea-4ea6-abd9-5b25e32003b1")
+	)
 	(label "BTN_D"
 		(at 156.21 80.01 0)
 		(fields_autoplaced yes)
@@ -6289,6 +6309,17 @@
 			(justify left bottom)
 		)
 		(uuid "3e69fe59-6139-4c9c-9a6e-1a79d0d40251")
+	)
+	(label "BOOT0"
+		(at 113.03 69.85 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "3ed30034-d88b-4029-b236-151384ce2c51")
 	)
 	(label "OSC_IN"
 		(at 88.9 107.95 0)
@@ -6631,17 +6662,6 @@
 		)
 		(uuid "ea9d7977-8244-485d-83ef-07503c66875d")
 	)
-	(label "PA1"
-		(at 97.79 144.78 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "f3ea5018-d51c-4a06-a349-cc3c1a484939")
-	)
 	(label "BTN_G"
 		(at 250.19 50.8 0)
 		(fields_autoplaced yes)
@@ -6679,7 +6699,7 @@
 	)
 	(hierarchical_label "CA"
 		(shape output)
-		(at 116.84 95.25 180)
+		(at 116.84 130.81 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -6691,7 +6711,7 @@
 	)
 	(hierarchical_label "CC"
 		(shape output)
-		(at 116.84 118.11 180)
+		(at 116.84 125.73 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -6703,7 +6723,7 @@
 	)
 	(hierarchical_label "CD"
 		(shape output)
-		(at 116.84 120.65 180)
+		(at 116.84 123.19 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -6739,7 +6759,7 @@
 	)
 	(hierarchical_label "CH"
 		(shape output)
-		(at 116.84 130.81 180)
+		(at 116.84 95.25 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -6763,7 +6783,7 @@
 	)
 	(hierarchical_label "CE"
 		(shape output)
-		(at 116.84 123.19 180)
+		(at 116.84 120.65 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -6775,7 +6795,7 @@
 	)
 	(hierarchical_label "CG"
 		(shape output)
-		(at 116.84 128.27 180)
+		(at 116.84 97.79 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -6811,7 +6831,7 @@
 	)
 	(hierarchical_label "CB"
 		(shape output)
-		(at 116.84 97.79 180)
+		(at 116.84 128.27 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -6823,7 +6843,7 @@
 	)
 	(hierarchical_label "CF"
 		(shape output)
-		(at 116.84 125.73 180)
+		(at 116.84 118.11 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -7988,6 +8008,75 @@
 			(project "pcb_badge"
 				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/82449bab-7304-40f6-91f4-0748c7d23e61"
 					(reference "Y1")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:C")
+		(at 135.89 175.26 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "393fa62e-b78f-4996-a2c9-5668d412a6e6")
+		(property "Reference" "C92"
+			(at 139.7 172.72 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "10u"
+			(at 139.7 175.26 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Capacitor_SMD:C_0603_1608Metric_Pad1.08x0.95mm_HandSolder"
+			(at 136.8552 179.07 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 135.89 175.26 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 135.89 175.26 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "b350874e-ee26-44cb-b206-c123b15dde1b")
+		)
+		(pin "2"
+			(uuid "2f423672-50b9-483b-a51a-693a8552fd78")
+		)
+		(instances
+			(project "pcb_badge"
+				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/82449bab-7304-40f6-91f4-0748c7d23e61"
+					(reference "C92")
 					(unit 1)
 				)
 			)
@@ -10868,6 +10957,72 @@
 		)
 	)
 	(symbol
+		(lib_id "power:VCC")
+		(at 135.89 171.45 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "b65c72d1-a0c9-4673-a068-96f9d1a5e1d0")
+		(property "Reference" "#PWR047"
+			(at 135.89 175.26 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "VCC"
+			(at 135.89 166.37 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 135.89 171.45 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 135.89 171.45 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 135.89 171.45 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "9efe8916-e5b2-47ce-bbf1-362efbef52d6")
+		)
+		(instances
+			(project "pcb_badge"
+				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/82449bab-7304-40f6-91f4-0748c7d23e61"
+					(reference "#PWR047")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "power:GND")
 		(at 86.36 123.19 0)
 		(unit 1)
@@ -12800,6 +12955,71 @@
 			(project "pcb_badge"
 				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/82449bab-7304-40f6-91f4-0748c7d23e61"
 					(reference "SW2")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:GND")
+		(at 135.89 179.07 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "ff90edee-0e72-4f7b-bfb5-023d91e65494")
+		(property "Reference" "#PWR048"
+			(at 135.89 185.42 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "GND"
+			(at 139.7 180.34 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 135.89 179.07 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 135.89 179.07 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 135.89 179.07 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "a83fb1d5-48e3-4cb2-b63c-8c9d63de64d2")
+		)
+		(instances
+			(project "pcb_badge"
+				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/82449bab-7304-40f6-91f4-0748c7d23e61"
+					(reference "#PWR048")
 					(unit 1)
 				)
 			)
