@@ -18,6 +18,7 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "usart.h"
 #include "usb.h"
 #include "gpio.h"
 
@@ -55,26 +56,7 @@ void SystemClock_Config(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-static void FlashGpio(void)
-{
-//	HAL_GPIO_TogglePin(OnBoard_GPIO_Port, OnBoard_Pin);
-//	HAL_GPIO_TogglePin(IrLed_GPIO_Port, IrLed_Pin);
-	HAL_GPIO_TogglePin(Flashing_GPIO_Port, Flashing_Pin);
-}
 
-static void SwitchAlwaysOn(void)
-{
-	HAL_GPIO_WritePin(AlwaysOn_GPIO_Port, AlwaysOn_Pin, GPIO_PIN_SET);
-}
-
-static void DetectIr(void)
-{
-	GPIO_PinState state = HAL_GPIO_ReadPin(IrSensor_GPIO_Port, IrSensor_Pin);
-	if (state)
-		HAL_UART_Transmit(&huart2, "off\r\n", 5, 1000);
-	else
-		HAL_UART_Transmit(&huart2, "on\r\n", 4, 1000);
-}
 /* USER CODE END 0 */
 
 /**
@@ -107,8 +89,9 @@ int main(void)
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_USB_PCD_Init();
+  MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
-  SwitchAlwaysOn();
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
