@@ -6363,7 +6363,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "4d2c8fa7-824b-4f3f-ab3b-e700ea5d1989")
-		(property "Reference" "C01"
+		(property "Reference" "C1"
 			(at 87.63 39.37 0)
 			(effects
 				(font
@@ -6417,7 +6417,7 @@
 		(instances
 			(project "pcb_badge"
 				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/5b14d099-1603-44e2-9137-5cf230eeec9a"
-					(reference "C01")
+					(reference "C1")
 					(unit 1)
 				)
 			)
@@ -7785,7 +7785,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "a6212519-5c22-4fde-a77b-c358a0ed764d")
-		(property "Reference" "Q9"
+		(property "Reference" "Q10"
 			(at 184.15 38.1 90)
 			(effects
 				(font
@@ -7843,7 +7843,7 @@
 		(instances
 			(project "pcb_badge"
 				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/5b14d099-1603-44e2-9137-5cf230eeec9a"
-					(reference "Q9")
+					(reference "Q10")
 					(unit 1)
 				)
 			)
