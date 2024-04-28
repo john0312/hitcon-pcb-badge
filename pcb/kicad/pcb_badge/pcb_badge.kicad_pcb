@@ -26450,7 +26450,7 @@
 		(descr "LED, SMD, PLCC-2, 3.0 x 2.0mm, orientation marker at anode, https://media.digikey.com/pdf/Data%20Sheets/CREE%20Power/CLM3A-BKW,GKW.pdf")
 		(tags "LED PLCC-2 SMD")
 		(property "Reference" "D161"
-			(at 0 -2 270)
+			(at 0 -2 -90)
 			(layer "F.SilkS")
 			(uuid "6f363d07-ee9d-4e8d-9ed6-10c632986eea")
 			(effects
@@ -26461,7 +26461,7 @@
 			)
 		)
 		(property "Value" "IR_LED"
-			(at 0 2 270)
+			(at 0 2 -90)
 			(layer "F.Fab")
 			(uuid "b740480a-8a8e-4e8b-96e7-7eb8bcd8214b")
 			(effects
