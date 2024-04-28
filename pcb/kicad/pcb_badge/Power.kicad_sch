@@ -8289,7 +8289,7 @@
 				)
 			)
 		)
-		(property "Value" "1N4001"
+		(property "Value" "SOD4007-MS"
 			(at 127 134.62 0)
 			(effects
 				(font
@@ -8297,7 +8297,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Diode_SMD:D_SOD-323_HandSoldering"
+		(property "Footprint" "Diode_SMD:D_SOD-123F"
 			(at 127 138.43 0)
 			(effects
 				(font
@@ -8579,7 +8579,7 @@
 				)
 			)
 		)
-		(property "Value" "1N4001"
+		(property "Value" "SOD4007-MS"
 			(at 171.45 55.88 0)
 			(effects
 				(font
