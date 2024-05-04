@@ -19,7 +19,7 @@
 #define DISPLAY_MODE_FIXED 1
 #define DISPLAY_MODE_SCROLL 2
 
-#define DISPLAY_SCROLL_MAX_COLUMNS 48
+#define DISPLAY_SCROLL_MAX_COLUMNS 100
 
 void display_init();
 
@@ -37,7 +37,8 @@ void display_set_mode_fixed(uint8_t *buf);
 // `speed` means how many frames to move one pixel
 void display_set_mode_scroll(uint8_t *buf, int cols, int speed);
 
-// TODO
-// void display_set_mode_scroll_text(const char *text);
+// Rasterize `text` to the underlying display buffer.
+// If the text is too long, the output will be truncated.
+void display_set_mode_scroll_text(const char *text, int speed);
 
 #endif

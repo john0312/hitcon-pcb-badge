@@ -1,4 +1,5 @@
 #include "display.h"
+#include "font.h"
 #include <string.h>
 
 static uint8_t display_buf[DISPLAY_HEIGHT][DISPLAY_WIDTH];
@@ -105,4 +106,32 @@ void display_set_mode_scroll(uint8_t *buf, int cols, int speed) {
   display_scroll_info.cols = cols;
   display_scroll_info.speed = speed;
   memcpy(display_scroll_info.buf, buf, DISPLAY_HEIGHT * cols);
+}
+
+void display_set_mode_scroll_text(const char *text, int speed) {
+  uint8_t buf[DISPLAY_HEIGHT][DISPLAY_SCROLL_MAX_COLUMNS];
+  int char_width = 5;
+  int char_height = 8;
+  int len = strlen(text);
+  for (int i = 0; i < len && i * char_width < DISPLAY_SCROLL_MAX_COLUMNS; ++i) {
+    for (int y = 0; y < char_height; ++y) {
+      for (int x = 0;
+           x < char_width && i * char_width + x < DISPLAY_SCROLL_MAX_COLUMNS;
+           ++x) {
+        buf[y][i * char_width + x] = rasterize_char_5x8(text[i], y, x);
+      }
+    }
+  }
+  int cols = (len * char_width > DISPLAY_SCROLL_MAX_COLUMNS)
+                 ? DISPLAY_SCROLL_MAX_COLUMNS
+                 : len * char_width;
+
+  uint8_t buf_1d[DISPLAY_HEIGHT * DISPLAY_SCROLL_MAX_COLUMNS];
+  for (int y = 0; y < DISPLAY_HEIGHT; ++y) {
+    for (int x = 0; x < cols; ++x) {
+      buf_1d[y * cols + x] = buf[y][x];
+    }
+  }
+
+  display_set_mode_scroll(buf_1d, cols, speed);
 }
