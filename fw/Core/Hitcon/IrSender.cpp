@@ -26,11 +26,17 @@ void IrSender::init(TIM_HandleTypeDef *timer, uint32_t dmaChannel) {
 }
 
 void IrSender::trigger() {
-	HAL_TIM_PWM_Start_DMA(timer, dmaChannel, pwmData, pwmSz);
+	HAL_TIM_Base_Start(timer);
+	HAL_TIM_PWM_Start(timer, dmaChannel);
+//	HAL_TIM_PWM_Start_DMA(timer, dmaChannel, pwmData, pwmSz);
+}
+
+void IrSender::stop() {
+	HAL_TIM_PWM_Stop(timer, dmaChannel);
 }
 
 IrSender::~IrSender() {
-	HAL_TIM_PWM_Stop_DMA(timer, dmaChannel);
+//	HAL_TIM_PWM_Stop_DMA(timer, dmaChannel);
 }
 
 } /* namespace hitcon */

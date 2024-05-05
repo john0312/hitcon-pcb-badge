@@ -21,6 +21,7 @@ public:
 	IrSender();
 	void init(TIM_HandleTypeDef *timer, uint32_t dmaChannel);
 	void trigger();
+	void stop();
 	virtual ~IrSender();
 };
 

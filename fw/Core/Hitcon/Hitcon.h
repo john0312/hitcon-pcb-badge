@@ -16,6 +16,8 @@ extern "C" {
 
 void hitcon_init(TIM_HandleTypeDef *timer, uint32_t dmaChannel);
 
+void hitcon_loop();
+
 #ifdef __cplusplus
 }
 #endif

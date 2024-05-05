@@ -14,6 +14,12 @@ hitcon::IrSender irSender;
 
 void hitcon_init(TIM_HandleTypeDef *timer, uint32_t dmaChannel) {
 	irSender.init(timer, dmaChannel);
-	irSender.trigger();
 }
 
+
+void hitcon_loop() {
+	irSender.trigger();
+	HAL_Delay(1000);
+	irSender.stop();
+	HAL_Delay(1000);
+}
