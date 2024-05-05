@@ -8596,7 +8596,7 @@
 		(path "/82449bab-7304-40f6-91f4-0748c7d23e61/786fb1ce-3791-4bcf-abee-f8fb719cd7ab")
 		(sheetname "MCU")
 		(sheetfile "MCU.kicad_sch")
-		(attr smd)
+		(attr smd exclude_from_pos_files exclude_from_bom)
 		(fp_line
 			(start -0.115835 0.36)
 			(end 0.115835 0.36)
@@ -10354,7 +10354,7 @@
 		(path "/82449bab-7304-40f6-91f4-0748c7d23e61/26cb09f1-2ed0-4db3-95fe-6b3d1135459f")
 		(sheetname "MCU")
 		(sheetfile "MCU.kicad_sch")
-		(attr smd)
+		(attr smd exclude_from_pos_files exclude_from_bom)
 		(fp_line
 			(start -0.167621 -0.38)
 			(end 0.167621 -0.38)
@@ -10829,7 +10829,7 @@
 		(path "/82449bab-7304-40f6-91f4-0748c7d23e61/30d3039a-b3a3-4e32-b0f6-4a59cd197411")
 		(sheetname "MCU")
 		(sheetfile "MCU.kicad_sch")
-		(attr through_hole)
+		(attr through_hole exclude_from_pos_files exclude_from_bom)
 		(fp_circle
 			(center -1.2192 0)
 			(end -0.8382 0)
@@ -11117,7 +11117,7 @@
 		(path "/5b14d099-1603-44e2-9137-5cf230eeec9a/6bc874d1-dcae-4bdf-9446-37f8ffd93a7f")
 		(sheetname "Power")
 		(sheetfile "Power.kicad_sch")
-		(attr through_hole)
+		(attr through_hole exclude_from_pos_files exclude_from_bom)
 		(fp_line
 			(start 1.52 4.83)
 			(end -2.16 4.83)
@@ -16892,7 +16892,7 @@
 		(path "/82449bab-7304-40f6-91f4-0748c7d23e61/034b6d35-27c9-416b-b777-f626fde97eed")
 		(sheetname "MCU")
 		(sheetfile "MCU.kicad_sch")
-		(attr smd)
+		(attr smd exclude_from_pos_files exclude_from_bom)
 		(fp_line
 			(start -0.146267 0.51)
 			(end 0.146267 0.51)
@@ -23179,7 +23179,7 @@
 		(path "/82449bab-7304-40f6-91f4-0748c7d23e61/af2650b7-8b4c-4784-99a5-b9b72289bed1")
 		(sheetname "MCU")
 		(sheetfile "MCU.kicad_sch")
-		(attr smd)
+		(attr smd exclude_from_pos_files exclude_from_bom)
 		(fp_line
 			(start -0.167621 0.38)
 			(end 0.167621 0.38)
@@ -26792,7 +26792,7 @@
 		(path "/82449bab-7304-40f6-91f4-0748c7d23e61/d9618323-0628-484d-a4a9-24927600799e")
 		(sheetname "MCU")
 		(sheetfile "MCU.kicad_sch")
-		(attr smd)
+		(attr smd exclude_from_pos_files exclude_from_bom)
 		(fp_line
 			(start -0.146267 -0.51)
 			(end 0.146267 -0.51)
@@ -34052,7 +34052,7 @@
 		(path "/82449bab-7304-40f6-91f4-0748c7d23e61/25d8adf1-f004-4849-ad1c-9fef46a6d909")
 		(sheetname "MCU")
 		(sheetfile "MCU.kicad_sch")
-		(attr smd)
+		(attr smd exclude_from_pos_files exclude_from_bom)
 		(fp_line
 			(start -1.4 -3.605)
 			(end 1.6 -3.605)
@@ -36503,7 +36503,7 @@
 		(path "/82449bab-7304-40f6-91f4-0748c7d23e61/eeef3471-1384-4a44-be91-30e672687a85")
 		(sheetname "MCU")
 		(sheetfile "MCU.kicad_sch")
-		(attr smd)
+		(attr smd exclude_from_pos_files exclude_from_bom)
 		(fp_line
 			(start -0.167621 -0.38)
 			(end 0.167621 -0.38)
