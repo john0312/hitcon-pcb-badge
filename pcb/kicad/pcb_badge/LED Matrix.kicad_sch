@@ -5015,226 +5015,6 @@
 		)
 		(uuid "ff8c6966-52fb-4a58-92ab-096e6839ff6d")
 	)
-	(label "Y6D"
-		(at 109.22 147.32 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "04e3567a-13e6-467b-9b0d-4c761da64fb5")
-	)
-	(label "MAT_RE"
-		(at 128.27 111.76 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "083296a6-c07e-45b2-9cd3-144ce5fafb76")
-	)
-	(label "MAT_CF"
-		(at 219.71 36.83 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "0ab7bdbf-0ac3-4676-a552-f62e151c66ed")
-	)
-	(label "Y0D"
-		(at 60.96 55.88 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "0b766b5a-5554-444b-a690-6676e306e5d0")
-	)
-	(label "Y5D"
-		(at 109.22 132.08 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "1258bb12-8f59-4e7b-8278-5e9cbd32ad35")
-	)
-	(label "Y3D"
-		(at 60.96 63.5 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "18253826-48f3-4425-bf53-db9760d340ba")
-	)
-	(label "Y4D"
-		(at 109.22 116.84 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "19c203c3-a120-4aed-90ea-7acf47dbaa73")
-	)
-	(label "MAT_RD"
-		(at 128.27 96.52 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "3059c94f-5079-44d0-9481-def960f40abf")
-	)
-	(label "Y2D"
-		(at 60.96 60.96 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "31fa99f5-14af-4898-9e0d-dc857013edec")
-	)
-	(label "Y4D"
-		(at 60.96 66.04 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "344e16c8-84a7-4079-a819-2e8d18c89507")
-	)
-	(label "Y5D"
-		(at 60.96 68.58 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "36617571-fc3a-4502-9833-4c2c62fc0a7e")
-	)
-	(label "Y3D"
-		(at 109.3057 101.6 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "386ad874-af8f-41f2-b50d-b5dada8ddb11")
-	)
-	(label "Y1D"
-		(at 60.96 58.42 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "404f29c1-b741-4b83-805f-0d96eaf7e4df")
-	)
-	(label "MAT_RB"
-		(at 128.27 66.04 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "4ffaf53b-3c04-4cdc-8cd7-5fc90ac6476c")
-	)
-	(label "Y2D"
-		(at 109.22 86.36 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "524daca1-b5ac-4116-b6f2-6d75a6da034f")
-	)
-	(label "Y1D"
-		(at 109.22 71.12 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "5558d078-ffea-42b1-814b-9f7f01c8d0ca")
-	)
-	(label "MAT_CD"
-		(at 191.77 36.83 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "55bda60a-1aae-4509-b449-8c14fbbfaba0")
-	)
-	(label "Y6D"
-		(at 60.96 71.12 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "59123472-32f6-4d62-b4ed-adfa96c5b268")
-	)
-	(label "MAT_CE"
-		(at 205.74 36.83 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "6c997535-a4d0-4df1-a048-ba911668b122")
-	)
-	(label "Y0D"
-		(at 109.22 55.88 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "6e27df6f-9a1b-4db0-b526-38f187aa3c0a")
-	)
 	(label "MAT_RA"
 		(at 128.27 50.8 0)
 		(fields_autoplaced yes)
@@ -5244,62 +5024,7 @@
 			)
 			(justify left bottom)
 		)
-		(uuid "8d2aa030-c001-4abb-a2c0-1881fdf06db3")
-	)
-	(label "MAT_CA"
-		(at 151.13 36.83 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "9f8b0026-a0ab-467f-94be-6e61679951c2")
-	)
-	(label "MAT_RG"
-		(at 128.27 142.24 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "ac88621e-eacc-4503-8d70-20e33dc349ce")
-	)
-	(label "Y7D"
-		(at 109.22 162.56 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "b2c799ff-5253-47c9-baee-3bc1708aff13")
-	)
-	(label "Y7D"
-		(at 60.96 73.66 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "b5cf8ec1-563d-42c0-9720-176be7678bb5")
-	)
-	(label "MAT_RH"
-		(at 128.27 157.48 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "bcee96d7-69cd-4fea-a7b0-bcbf3caa389c")
+		(uuid "0027bf39-3ed2-4fd4-be81-ac69bfb3dec6")
 	)
 	(label "MAT_CH"
 		(at 246.38 36.83 0)
@@ -5310,10 +5035,10 @@
 			)
 			(justify left bottom)
 		)
-		(uuid "d67650a3-9933-4298-aaae-ba0e484d662e")
+		(uuid "14067343-f190-4e0b-83f2-e0509dde4531")
 	)
-	(label "MAT_RF"
-		(at 128.27 127 0)
+	(label "Y5D"
+		(at 109.22 132.08 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -5321,10 +5046,10 @@
 			)
 			(justify left bottom)
 		)
-		(uuid "e99bfac8-1c60-4d36-9e94-cb52ecfcaac3")
+		(uuid "21b680e9-5f6b-4dcf-9280-83875b10e2be")
 	)
-	(label "MAT_CC"
-		(at 177.8 36.83 0)
+	(label "Y3D"
+		(at 60.96 63.5 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -5332,10 +5057,10 @@
 			)
 			(justify left bottom)
 		)
-		(uuid "f936053f-00fc-46d8-8eb3-416315084341")
+		(uuid "255cb615-06e9-4575-871d-5fe88c115a1a")
 	)
-	(label "MAT_RC"
-		(at 128.27 81.28 0)
+	(label "MAT_CA"
+		(at 151.13 36.83 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -5343,7 +5068,7 @@
 			)
 			(justify left bottom)
 		)
-		(uuid "fa639fef-bde9-47c3-ada5-3103f7c24c9b")
+		(uuid "281b4acf-39fa-4219-bf80-806d2fdaab3f")
 	)
 	(label "MAT_CG"
 		(at 232.41 36.83 0)
@@ -5354,7 +5079,172 @@
 			)
 			(justify left bottom)
 		)
-		(uuid "fd259011-4fd2-4967-a0d7-9fcd4ca6dc36")
+		(uuid "336864c2-899a-4c53-9cd4-2eaf9956058b")
+	)
+	(label "MAT_RF"
+		(at 128.27 127 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "489bb431-867c-4e40-9d69-ee0e97258d3c")
+	)
+	(label "Y7D"
+		(at 60.96 73.66 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "4c8b508e-fa69-4f3f-81f8-f1464f015bee")
+	)
+	(label "Y1D"
+		(at 60.96 58.42 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "4dbe4e4e-460a-4ff9-beb8-485a53a2f8e0")
+	)
+	(label "MAT_CF"
+		(at 219.71 36.83 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "52aa0fa8-b67f-4465-b58c-ba33c9de8ede")
+	)
+	(label "Y0D"
+		(at 60.96 55.88 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "5536ad5f-29df-4e8c-8320-de1bdeca113e")
+	)
+	(label "Y4D"
+		(at 109.22 116.84 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "5ef75811-238d-4ded-a5be-a2a2a7287e1d")
+	)
+	(label "MAT_RC"
+		(at 128.27 81.28 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "6180cdc2-cdc1-4acf-ac73-80d85d23c7ba")
+	)
+	(label "MAT_CC"
+		(at 177.8 36.83 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "6bea47a3-2417-4d15-9b86-e30b8694129b")
+	)
+	(label "MAT_RE"
+		(at 128.27 111.76 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "711cd291-e2bb-4825-9bbc-3c61c7814a17")
+	)
+	(label "MAT_RH"
+		(at 128.27 157.48 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "8aa07426-82fb-4125-8f26-20b691bc4ffb")
+	)
+	(label "Y7D"
+		(at 109.22 162.56 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "a1851639-0d8d-4c50-90d0-60042e73a482")
+	)
+	(label "Y2D"
+		(at 109.22 86.36 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "a615f2fd-6f04-48e2-b5e7-50326a595bae")
+	)
+	(label "MAT_CD"
+		(at 191.77 36.83 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "afee4d22-3dd4-4708-888d-465f0d859ee1")
+	)
+	(label "Y6D"
+		(at 109.22 147.32 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "b59a0c46-b59a-4c45-aa41-3d5fcf340106")
+	)
+	(label "Y4D"
+		(at 60.96 66.04 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "b6dde438-b300-46d7-861f-326d4a6485f1")
 	)
 	(label "MAT_CB"
 		(at 165.1 36.83 0)
@@ -5365,19 +5255,117 @@
 			)
 			(justify left bottom)
 		)
-		(uuid "ff81a6b4-2ad8-4109-a575-0cf05bf6007e")
+		(uuid "b8fe653c-fe05-4b05-965e-0a55edf59490")
 	)
-	(hierarchical_label "A1"
-		(shape input)
-		(at 21.59 58.42 180)
+	(label "Y0D"
+		(at 109.22 55.88 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
-			(justify right)
+			(justify left bottom)
 		)
-		(uuid "07e49154-5818-48d3-b39b-b12e03214d25")
+		(uuid "b9e7c418-95a4-4ac8-b4b5-a6762feeda78")
+	)
+	(label "Y3D"
+		(at 109.3057 101.6 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "c3646eda-4808-4590-9031-4ee7539191c0")
+	)
+	(label "MAT_RG"
+		(at 128.27 142.24 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "ce03c809-a9eb-49c9-a61f-d602fbea8ebf")
+	)
+	(label "Y6D"
+		(at 60.96 71.12 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "d1a807a7-448c-4551-8e46-995845be477a")
+	)
+	(label "Y5D"
+		(at 60.96 68.58 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "d51e2c7b-f526-41e8-ab98-d760a5373753")
+	)
+	(label "MAT_RB"
+		(at 128.27 66.04 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "de34ac1e-6d96-4549-af46-82ff0e52fcff")
+	)
+	(label "MAT_CE"
+		(at 205.74 36.83 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "ea53d3d2-8239-40f8-9d0c-2badff2b6bce")
+	)
+	(label "Y1D"
+		(at 109.22 71.12 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "f28768ef-1b9c-4974-b387-9eb0d463ae8d")
+	)
+	(label "Y2D"
+		(at 60.96 60.96 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "f7f75f25-1e63-4eee-bb81-2817a721158e")
+	)
+	(label "MAT_RD"
+		(at 128.27 96.52 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "fc2cf632-d193-4216-b700-c4a10af8a19c")
 	)
 	(hierarchical_label "EN"
 		(shape input)
@@ -5391,30 +5379,6 @@
 		)
 		(uuid "0c18bda1-bc2b-47c6-a0de-c1180a5cbb30")
 	)
-	(hierarchical_label "C_{H}"
-		(shape input)
-		(at 245.11 24.13 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "261244f5-5a5f-4726-9b96-ea281cd0c671")
-	)
-	(hierarchical_label "A0"
-		(shape input)
-		(at 21.59 55.88 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "593c504a-8c43-4475-a005-acaf0a32698b")
-	)
 	(hierarchical_label "C_{C}"
 		(shape input)
 		(at 176.53 24.13 0)
@@ -5425,67 +5389,7 @@
 			)
 			(justify left)
 		)
-		(uuid "6716fab0-e282-478f-86b5-3ad0d5452a83")
-	)
-	(hierarchical_label "C_{E}"
-		(shape input)
-		(at 204.47 24.13 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "95b7bbc6-3ffb-4b94-9e40-2098bfd62161")
-	)
-	(hierarchical_label "A2"
-		(shape input)
-		(at 21.59 60.96 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "9d735317-15d8-4606-9871-cf44fd51e25b")
-	)
-	(hierarchical_label "C_{B}"
-		(shape input)
-		(at 163.83 24.13 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "aedc642c-00c7-4210-8705-f1758a0f6a62")
-	)
-	(hierarchical_label "C_{A}"
-		(shape input)
-		(at 149.86 24.13 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "b4fee472-6df4-459b-968e-15ab40d2aa37")
-	)
-	(hierarchical_label "C_{G}"
-		(shape input)
-		(at 231.14 24.13 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "e79bfc08-c234-495e-a2c4-9dd68c7383a3")
+		(uuid "82c05b2c-4adb-49c8-a70f-79b8cf912a6f")
 	)
 	(hierarchical_label "C_{D}"
 		(shape input)
@@ -5497,7 +5401,79 @@
 			)
 			(justify left)
 		)
-		(uuid "f55eda96-05dd-4075-8cb4-a0ba34a5c04c")
+		(uuid "838f0248-6e52-47e0-9467-c96c4e1effe5")
+	)
+	(hierarchical_label "A1"
+		(shape input)
+		(at 21.59 58.42 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "9c700b71-e063-43f3-8279-15acbb1d453b")
+	)
+	(hierarchical_label "C_{G}"
+		(shape input)
+		(at 231.14 24.13 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "b514be90-4c6f-460a-97fa-87c2a49ddfe5")
+	)
+	(hierarchical_label "C_{E}"
+		(shape input)
+		(at 204.47 24.13 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "bc86b78b-5660-40dc-a8d0-f919f91ab80e")
+	)
+	(hierarchical_label "A0"
+		(shape input)
+		(at 21.59 55.88 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "c1b5d03a-f51b-45b6-909f-c548ea3b26f1")
+	)
+	(hierarchical_label "C_{A}"
+		(shape input)
+		(at 149.86 24.13 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "c25844b0-6a01-4f1d-bcaa-d6dab1f21487")
+	)
+	(hierarchical_label "C_{B}"
+		(shape input)
+		(at 163.83 24.13 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "d9717104-1478-4218-a325-aa56403b2683")
 	)
 	(hierarchical_label "C_{F}"
 		(shape input)
@@ -5509,230 +5485,44 @@
 			)
 			(justify left)
 		)
-		(uuid "fcff6abc-5dde-4bf5-992b-9464323f1118")
+		(uuid "da8fc356-4ec9-4caa-b662-9e9f2c6fa8b9")
 	)
-	(symbol
-		(lib_id "Device:LED")
-		(at 154.94 43.18 90)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
+	(hierarchical_label "C_{H}"
+		(shape input)
+		(at 245.11 24.13 0)
 		(fields_autoplaced yes)
-		(uuid "08f27368-66c9-4c2d-bafe-a1ad015917c5")
-		(property "Reference" "D01"
-			(at 158.75 43.4975 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
+		(effects
+			(font
+				(size 1.27 1.27)
 			)
+			(justify left)
 		)
-		(property "Value" "LED"
-			(at 158.75 46.0375 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Footprint" "LED_SMD:LED_0402_1005Metric_Pad0.77x0.64mm_HandSolder"
-			(at 154.94 43.18 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 154.94 43.18 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" ""
-			(at 154.94 43.18 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "2"
-			(uuid "a4040857-9f3e-49f1-a514-2086043a5552")
-		)
-		(pin "1"
-			(uuid "0627cc18-e6f0-4491-b0f8-79a5f31bf41b")
-		)
-		(instances
-			(project "pcb_badge"
-				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "D01")
-					(unit 1)
-				)
-			)
-		)
+		(uuid "ebadc3b5-3f15-485d-bf1c-ef6d6f0565b6")
 	)
-	(symbol
-		(lib_id "Device:LED")
-		(at 181.61 134.62 90)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
+	(hierarchical_label "A2"
+		(shape input)
+		(at 21.59 60.96 180)
 		(fields_autoplaced yes)
-		(uuid "09824a06-2f7a-440c-afb8-ee2d369bfd6a")
-		(property "Reference" "D63"
-			(at 185.42 134.9375 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
+		(effects
+			(font
+				(size 1.27 1.27)
 			)
+			(justify right)
 		)
-		(property "Value" "LED"
-			(at 185.42 137.4775 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Footprint" "LED_SMD:LED_0402_1005Metric_Pad0.77x0.64mm_HandSolder"
-			(at 181.61 134.62 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 181.61 134.62 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" ""
-			(at 181.61 134.62 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "2"
-			(uuid "f413c124-6dfc-4de7-a7a9-37ade6e897ea")
-		)
-		(pin "1"
-			(uuid "e18d505c-506b-43be-ad3f-3be9819cb54a")
-		)
-		(instances
-			(project "pcb_badge"
-				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "D63")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:LED")
-		(at 181.61 119.38 90)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "09f5af24-f13d-4b9a-b071-fffd7a6d5f87")
-		(property "Reference" "D53"
-			(at 185.42 119.6975 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Value" "LED"
-			(at 185.42 122.2375 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Footprint" "LED_SMD:LED_0402_1005Metric_Pad0.77x0.64mm_HandSolder"
-			(at 181.61 119.38 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 181.61 119.38 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" ""
-			(at 181.61 119.38 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "2"
-			(uuid "8b49fc8e-c76d-47a8-86b1-5dc39208e871")
-		)
-		(pin "1"
-			(uuid "503f1ea7-be08-4af0-98f0-0583b9036bb7")
-		)
-		(instances
-			(project "pcb_badge"
-				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "D53")
-					(unit 1)
-				)
-			)
-		)
+		(uuid "f0e9fbb5-0fb5-4138-8648-d9849d8ce066")
 	)
 	(symbol
 		(lib_id "power:GND")
-		(at 125.73 151.13 0)
+		(at 125.73 90.17 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
 		(fields_autoplaced yes)
-		(uuid "0a691c29-a450-4a2a-a34b-65077e6b087e")
-		(property "Reference" "#PWR018"
-			(at 125.73 157.48 0)
+		(uuid "01a5850c-2e00-4f39-8ad3-0e468e72873d")
+		(property "Reference" "#PWR014"
+			(at 125.73 96.52 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5741,7 +5531,7 @@
 			)
 		)
 		(property "Value" "GND"
-			(at 125.73 156.21 0)
+			(at 125.73 95.25 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5749,7 +5539,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 125.73 151.13 0)
+			(at 125.73 90.17 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5758,7 +5548,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 125.73 151.13 0)
+			(at 125.73 90.17 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5767,7 +5557,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 125.73 151.13 0)
+			(at 125.73 90.17 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5776,47 +5566,29 @@
 			)
 		)
 		(pin "1"
-			(uuid "bfca224f-0b09-49ba-aafd-8366a27dbbdc")
+			(uuid "90087aaa-7ae2-409e-ae62-b19a354633ce")
 		)
 		(instances
 			(project "pcb_badge"
 				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "#PWR018")
+					(reference "#PWR014")
 					(unit 1)
 				)
 			)
 		)
 	)
 	(symbol
-		(lib_id "Device:LED")
-		(at 236.22 43.18 90)
+		(lib_id "power:GND")
+		(at 44.45 81.28 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
 		(fields_autoplaced yes)
-		(uuid "0eee3b09-2456-4101-a648-aa57b443453f")
-		(property "Reference" "D07"
-			(at 240.03 43.4975 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Value" "LED"
-			(at 240.03 46.0375 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Footprint" "LED_SMD:LED_0402_1005Metric_Pad0.77x0.64mm_HandSolder"
-			(at 236.22 43.18 0)
+		(uuid "03762f4d-6ce6-4ba5-8a59-9946ec0277f7")
+		(property "Reference" "#PWR03"
+			(at 44.45 87.63 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5824,8 +5596,25 @@
 				(hide yes)
 			)
 		)
-		(property "Datasheet" "~"
-			(at 236.22 43.18 0)
+		(property "Value" "GND"
+			(at 44.45 86.36 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 44.45 81.28 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 44.45 81.28 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5834,7 +5623,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 236.22 43.18 0)
+			(at 44.45 81.28 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5842,51 +5631,30 @@
 				(hide yes)
 			)
 		)
-		(pin "2"
-			(uuid "5afa6f7d-eee8-460d-826f-5c46def43cc2")
-		)
 		(pin "1"
-			(uuid "207b3569-1da6-4feb-8e2d-d0e28f037a95")
+			(uuid "9a6e03a3-c44f-4a65-b856-bb2b0a1a3046")
 		)
 		(instances
 			(project "pcb_badge"
 				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "D07")
+					(reference "#PWR03")
 					(unit 1)
 				)
 			)
 		)
 	)
 	(symbol
-		(lib_id "Device:LED")
-		(at 195.58 88.9 90)
+		(lib_id "power:GND")
+		(at 30.48 45.72 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
 		(fields_autoplaced yes)
-		(uuid "0fd092df-5aa7-45bf-baf5-ae84beff546e")
-		(property "Reference" "D34"
-			(at 199.39 89.2175 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Value" "LED"
-			(at 199.39 91.7575 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Footprint" "LED_SMD:LED_0402_1005Metric_Pad0.77x0.64mm_HandSolder"
-			(at 195.58 88.9 0)
+		(uuid "053da0c1-639f-47ea-9f1d-5393ea64c944")
+		(property "Reference" "#PWR040"
+			(at 30.48 52.07 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5894,8 +5662,25 @@
 				(hide yes)
 			)
 		)
-		(property "Datasheet" "~"
-			(at 195.58 88.9 0)
+		(property "Value" "GND"
+			(at 30.48 50.8 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 30.48 45.72 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 30.48 45.72 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5904,7 +5689,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 195.58 88.9 0)
+			(at 30.48 45.72 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5912,102 +5697,30 @@
 				(hide yes)
 			)
 		)
-		(pin "2"
-			(uuid "6bb24981-ed66-4217-ba52-2d7a2d68855f")
-		)
 		(pin "1"
-			(uuid "fbc3fb10-961e-4545-8768-9f11d30ad09d")
+			(uuid "84772e5c-6821-4c46-92cc-a286195fb394")
 		)
 		(instances
 			(project "pcb_badge"
 				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "D34")
+					(reference "#PWR040")
 					(unit 1)
 				)
 			)
 		)
 	)
 	(symbol
-		(lib_id "Device:LED")
-		(at 167.64 43.18 90)
+		(lib_id "Transistor_FET:2N7002")
+		(at 123.19 162.56 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
 		(fields_autoplaced yes)
-		(uuid "20ab2d6f-ae22-4522-b804-e8da7f11090c")
-		(property "Reference" "D02"
-			(at 171.45 43.4975 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Value" "LED"
-			(at 171.45 46.0375 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Footprint" "LED_SMD:LED_0402_1005Metric_Pad0.77x0.64mm_HandSolder"
-			(at 167.64 43.18 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 167.64 43.18 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" ""
-			(at 167.64 43.18 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "2"
-			(uuid "4bea7297-5c30-4053-ab6a-a4c514036ae5")
-		)
-		(pin "1"
-			(uuid "381f1f18-1e49-4c0f-b60f-945ae97dc945")
-		)
-		(instances
-			(project "pcb_badge"
-				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "D02")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:C")
-		(at 30.48 41.91 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "2871968f-5577-4422-b84b-2228b594e045")
-		(property "Reference" "C40"
-			(at 34.29 39.37 0)
+		(uuid "0d845ca7-11cf-4610-a72c-ed3b92696235")
+		(property "Reference" "Q97"
+			(at 129.54 161.2899 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6015,8 +5728,8 @@
 				(justify left)
 			)
 		)
-		(property "Value" "0.1u"
-			(at 34.29 41.91 0)
+		(property "Value" "2N7002"
+			(at 129.54 163.8299 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6024,8 +5737,84 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Capacitor_SMD:C_0402_1005Metric_Pad0.74x0.62mm_HandSolder"
-			(at 31.4452 45.72 0)
+		(property "Footprint" "Package_TO_SOT_SMD:SOT-23"
+			(at 128.27 164.465 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+					(italic yes)
+				)
+				(justify left)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "https://www.onsemi.com/pub/Collateral/NDS7002A-D.PDF"
+			(at 128.27 166.37 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 123.19 162.56 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "3"
+			(uuid "0de10a51-cf5b-47c4-b853-a985dc40cf3c")
+		)
+		(pin "1"
+			(uuid "ba304ed4-5580-48ef-b14b-4272d598d126")
+		)
+		(pin "2"
+			(uuid "23934604-153d-4181-91a0-6c1fcdd9332a")
+		)
+		(instances
+			(project "pcb_badge"
+				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
+					(reference "Q97")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:LED")
+		(at 209.55 58.42 90)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "0eefcb15-f6bb-43d7-9103-13e5a213377f")
+		(property "Reference" "D15"
+			(at 213.36 58.7375 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Value" "LED"
+			(at 213.36 61.2775 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Footprint" "LED_SMD:LED_0402_1005Metric_Pad0.77x0.64mm_HandSolder"
+			(at 209.55 58.42 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6034,7 +5823,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 30.48 41.91 0)
+			(at 209.55 58.42 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6043,7 +5832,76 @@
 			)
 		)
 		(property "Description" ""
-			(at 30.48 41.91 0)
+			(at 209.55 58.42 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "2"
+			(uuid "fcb3f0d5-4461-40ff-9906-645fef01a6e6")
+		)
+		(pin "1"
+			(uuid "ac02a907-3f27-4466-a3e7-a95b4d95851b")
+		)
+		(instances
+			(project "pcb_badge"
+				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
+					(reference "D15")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:GND")
+		(at 125.73 105.41 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "1648c7c3-3399-4977-97d9-3e3cf68aef3e")
+		(property "Reference" "#PWR015"
+			(at 125.73 111.76 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "GND"
+			(at 125.73 110.49 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 125.73 105.41 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 125.73 105.41 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 125.73 105.41 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6052,15 +5910,578 @@
 			)
 		)
 		(pin "1"
-			(uuid "a3b66dda-7832-4d2b-9629-18cee780aa85")
-		)
-		(pin "2"
-			(uuid "61e12797-5dce-4e7d-b828-5b2d850b23c6")
+			(uuid "6ef31a3b-9ffc-48c6-ac81-0c3026b71401")
 		)
 		(instances
 			(project "pcb_badge"
 				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "C40")
+					(reference "#PWR015")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:LED")
+		(at 140.97 119.38 90)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "16d9572b-444e-4eb7-8222-5a8706933f48")
+		(property "Reference" "D50"
+			(at 144.78 119.6975 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Value" "LED"
+			(at 144.78 122.2375 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Footprint" "LED_SMD:LED_0402_1005Metric_Pad0.77x0.64mm_HandSolder"
+			(at 140.97 119.38 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 140.97 119.38 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 140.97 119.38 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "2"
+			(uuid "c088379c-1311-4d24-9134-3a2e60145bf3")
+		)
+		(pin "1"
+			(uuid "5be986c9-aca5-48b6-968b-87b7cb15c399")
+		)
+		(instances
+			(project "pcb_badge"
+				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
+					(reference "D50")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Transistor_FET:2N7002")
+		(at 123.19 55.88 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "17de6349-436c-4c2f-b96f-065655345c33")
+		(property "Reference" "Q90"
+			(at 129.54 54.6099 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "2N7002"
+			(at 129.54 57.1499 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Package_TO_SOT_SMD:SOT-23"
+			(at 128.27 57.785 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+					(italic yes)
+				)
+				(justify left)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "https://www.onsemi.com/pub/Collateral/NDS7002A-D.PDF"
+			(at 128.27 59.69 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 123.19 55.88 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "3"
+			(uuid "c6c2fdd7-f3bb-439a-a7d1-e00cb350b9da")
+		)
+		(pin "1"
+			(uuid "3fac54f6-641d-4012-b31f-2fd853155f49")
+		)
+		(pin "2"
+			(uuid "6a1d1ed3-6834-42d2-8e60-edea0b9fdd89")
+		)
+		(instances
+			(project "pcb_badge"
+				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
+					(reference "Q90")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:LED")
+		(at 209.55 43.18 90)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "184b868a-a7d2-4b2c-b7b6-8e4c27b4e463")
+		(property "Reference" "D05"
+			(at 213.36 43.4974 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Value" "LED"
+			(at 213.36 46.0374 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Footprint" "LED_SMD:LED_0402_1005Metric_Pad0.77x0.64mm_HandSolder"
+			(at 209.55 43.18 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 209.55 43.18 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 209.55 43.18 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "2"
+			(uuid "eb6c4818-300e-4b5d-8252-b7d6cabfde36")
+		)
+		(pin "1"
+			(uuid "63a70a20-b666-4877-8d83-45fd58101edd")
+		)
+		(instances
+			(project "pcb_badge"
+				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
+					(reference "D05")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:LED")
+		(at 140.97 134.62 90)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "1b93b270-c8ca-4cb8-b12f-d016b4fc2877")
+		(property "Reference" "D60"
+			(at 144.78 134.9375 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Value" "LED"
+			(at 144.78 137.4775 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Footprint" "LED_SMD:LED_0402_1005Metric_Pad0.77x0.64mm_HandSolder"
+			(at 140.97 134.62 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 140.97 134.62 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 140.97 134.62 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "2"
+			(uuid "70e3d22e-2f78-4cf9-bb0c-99db88668b09")
+		)
+		(pin "1"
+			(uuid "67b1113c-c075-44da-ad53-2b2cf202e017")
+		)
+		(instances
+			(project "pcb_badge"
+				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
+					(reference "D60")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:LED")
+		(at 195.58 58.42 90)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "200ac5fe-81b7-4bce-a467-15fbe9078d18")
+		(property "Reference" "D14"
+			(at 199.39 58.7375 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Value" "LED"
+			(at 199.39 61.2775 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Footprint" "LED_SMD:LED_0402_1005Metric_Pad0.77x0.64mm_HandSolder"
+			(at 195.58 58.42 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 195.58 58.42 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 195.58 58.42 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "2"
+			(uuid "5271033e-4086-400d-bfa0-8d65c5d1cd87")
+		)
+		(pin "1"
+			(uuid "464c36dd-0c63-4121-b03d-d81f03495814")
+		)
+		(instances
+			(project "pcb_badge"
+				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
+					(reference "D14")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:LED")
+		(at 222.25 88.9 90)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "21dd90ba-3388-4588-b7ca-53a25c34b9e0")
+		(property "Reference" "D36"
+			(at 226.06 89.2175 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Value" "LED"
+			(at 226.06 91.7575 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Footprint" "LED_SMD:LED_0402_1005Metric_Pad0.77x0.64mm_HandSolder"
+			(at 222.25 88.9 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 222.25 88.9 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 222.25 88.9 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "2"
+			(uuid "47ef52e7-6719-45ae-85c8-47539bdb89c3")
+		)
+		(pin "1"
+			(uuid "e54998d8-60a4-495a-871f-8dce38507926")
+		)
+		(instances
+			(project "pcb_badge"
+				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
+					(reference "D36")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:LED")
+		(at 154.94 149.86 90)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "2b67f2d9-c67f-43b7-b029-c3301a1a8c80")
+		(property "Reference" "D71"
+			(at 158.75 150.1775 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Value" "LED"
+			(at 158.75 152.7175 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Footprint" "LED_SMD:LED_0402_1005Metric_Pad0.77x0.64mm_HandSolder"
+			(at 154.94 149.86 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 154.94 149.86 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 154.94 149.86 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "2"
+			(uuid "c0c5a887-7c34-4d9e-8ce3-4b32a1c072de")
+		)
+		(pin "1"
+			(uuid "912a5293-5488-4a98-8723-2f004df2e58f")
+		)
+		(instances
+			(project "pcb_badge"
+				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
+					(reference "D71")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:LED")
+		(at 222.25 134.62 90)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "2bf6b309-e1f8-4201-b339-779ef93baf96")
+		(property "Reference" "D66"
+			(at 226.06 134.9375 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Value" "LED"
+			(at 226.06 137.4775 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Footprint" "LED_SMD:LED_0402_1005Metric_Pad0.77x0.64mm_HandSolder"
+			(at 222.25 134.62 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 222.25 134.62 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 222.25 134.62 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "2"
+			(uuid "61ece3ed-5a7a-4e3d-8cc0-2806fe564fab")
+		)
+		(pin "1"
+			(uuid "1bc39b23-ca73-4aef-a94e-b329b57e6950")
+		)
+		(instances
+			(project "pcb_badge"
+				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
+					(reference "D66")
 					(unit 1)
 				)
 			)
@@ -6075,7 +6496,7 @@
 		(on_board yes)
 		(dnp no)
 		(fields_autoplaced yes)
-		(uuid "28ccc7f1-f87a-4abe-a3f8-d02cb86c229a")
+		(uuid "30f2de7b-b496-4be2-bd18-a02472896553")
 		(property "Reference" "D26"
 			(at 226.06 73.9775 90)
 			(effects
@@ -6137,83 +6558,17 @@
 		)
 	)
 	(symbol
-		(lib_id "power:GND")
-		(at 30.48 45.72 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "2bd285e5-8f63-4fb7-9db6-7a217750ead1")
-		(property "Reference" "#PWR040"
-			(at 30.48 52.07 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Value" "GND"
-			(at 30.48 50.8 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 30.48 45.72 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" ""
-			(at 30.48 45.72 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" ""
-			(at 30.48 45.72 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "84772e5c-6821-4c46-92cc-a286195fb394")
-		)
-		(instances
-			(project "pcb_badge"
-				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "#PWR040")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
 		(lib_id "Device:LED")
-		(at 195.58 73.66 90)
+		(at 195.58 43.18 90)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
 		(fields_autoplaced yes)
-		(uuid "2caf3477-daed-4a35-8fd4-3b6b2c1f5546")
-		(property "Reference" "D24"
-			(at 199.39 73.9775 90)
+		(uuid "323ea2a6-0761-4c16-beff-8d0d63ccefd5")
+		(property "Reference" "D04"
+			(at 199.39 43.4974 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6222,7 +6577,7 @@
 			)
 		)
 		(property "Value" "LED"
-			(at 199.39 76.5175 90)
+			(at 199.39 46.0374 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6231,7 +6586,7 @@
 			)
 		)
 		(property "Footprint" "LED_SMD:LED_0402_1005Metric_Pad0.77x0.64mm_HandSolder"
-			(at 195.58 73.66 0)
+			(at 195.58 43.18 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6240,7 +6595,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 195.58 73.66 0)
+			(at 195.58 43.18 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6249,7 +6604,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 195.58 73.66 0)
+			(at 195.58 43.18 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6258,15 +6613,15 @@
 			)
 		)
 		(pin "2"
-			(uuid "38d6ff2a-99ef-4920-b979-690d750d87fc")
+			(uuid "149acf7c-6ee0-4949-8726-3363a8a432d2")
 		)
 		(pin "1"
-			(uuid "7e4c5f9d-bb79-4325-bcb7-a7e9fb3af08f")
+			(uuid "3c115945-93cc-4002-99d2-dd042577b6d4")
 		)
 		(instances
 			(project "pcb_badge"
 				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "D24")
+					(reference "D04")
 					(unit 1)
 				)
 			)
@@ -6274,16 +6629,16 @@
 	)
 	(symbol
 		(lib_id "Device:LED")
-		(at 140.97 43.18 90)
+		(at 209.55 149.86 90)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
 		(fields_autoplaced yes)
-		(uuid "2ead3e6a-bdcc-437b-87e0-0b5a70ddb5ca")
-		(property "Reference" "D00"
-			(at 144.78 43.4975 90)
+		(uuid "37f463d6-5e68-42a1-b8db-8e4fefceb428")
+		(property "Reference" "D75"
+			(at 213.36 150.1775 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6292,7 +6647,7 @@
 			)
 		)
 		(property "Value" "LED"
-			(at 144.78 46.0375 90)
+			(at 213.36 152.7175 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6301,7 +6656,7 @@
 			)
 		)
 		(property "Footprint" "LED_SMD:LED_0402_1005Metric_Pad0.77x0.64mm_HandSolder"
-			(at 140.97 43.18 0)
+			(at 209.55 149.86 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6310,7 +6665,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 140.97 43.18 0)
+			(at 209.55 149.86 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6319,7 +6674,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 140.97 43.18 0)
+			(at 209.55 149.86 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6328,15 +6683,15 @@
 			)
 		)
 		(pin "2"
-			(uuid "8400048e-403f-460b-ab53-61e8773ebd53")
+			(uuid "fbd20fbb-d054-4725-b8cc-9245a42f1c0e")
 		)
 		(pin "1"
-			(uuid "66f8a02f-3522-47c1-9fd4-e5f778f46fca")
+			(uuid "d98d9540-5d85-4843-a342-a4a1d4094847")
 		)
 		(instances
 			(project "pcb_badge"
 				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "D00")
+					(reference "D75")
 					(unit 1)
 				)
 			)
@@ -6344,16 +6699,16 @@
 	)
 	(symbol
 		(lib_id "Device:LED")
-		(at 209.55 43.18 90)
+		(at 140.97 73.66 90)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
 		(fields_autoplaced yes)
-		(uuid "2f13ae99-974a-485a-a97a-d8d30f96d15c")
-		(property "Reference" "D05"
-			(at 213.36 43.4975 90)
+		(uuid "3b7cdc99-2b8d-43d0-8112-06aa1c68efd8")
+		(property "Reference" "D20"
+			(at 144.78 73.9775 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6362,7 +6717,7 @@
 			)
 		)
 		(property "Value" "LED"
-			(at 213.36 46.0375 90)
+			(at 144.78 76.5175 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6371,7 +6726,7 @@
 			)
 		)
 		(property "Footprint" "LED_SMD:LED_0402_1005Metric_Pad0.77x0.64mm_HandSolder"
-			(at 209.55 43.18 0)
+			(at 140.97 73.66 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6380,7 +6735,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 209.55 43.18 0)
+			(at 140.97 73.66 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6389,7 +6744,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 209.55 43.18 0)
+			(at 140.97 73.66 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6398,15 +6753,15 @@
 			)
 		)
 		(pin "2"
-			(uuid "eb6c4818-300e-4b5d-8252-b7d6cabfde36")
+			(uuid "f5b7a3c2-df80-430c-a0fb-c44d09d3a79d")
 		)
 		(pin "1"
-			(uuid "63a70a20-b666-4877-8d83-45fd58101edd")
+			(uuid "08ba4d20-12cc-489d-96be-dc8558785e36")
 		)
 		(instances
 			(project "pcb_badge"
 				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "D05")
+					(reference "D20")
 					(unit 1)
 				)
 			)
@@ -6414,16 +6769,16 @@
 	)
 	(symbol
 		(lib_id "Device:LED")
-		(at 181.61 104.14 90)
+		(at 236.22 149.86 90)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
 		(fields_autoplaced yes)
-		(uuid "3170320c-ae3d-40e7-bde9-0e3bbc57f931")
-		(property "Reference" "D43"
-			(at 185.42 104.4575 90)
+		(uuid "4497693e-6439-4dfb-98e6-8292f1c98a2e")
+		(property "Reference" "D77"
+			(at 240.03 150.1775 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6432,7 +6787,7 @@
 			)
 		)
 		(property "Value" "LED"
-			(at 185.42 106.9975 90)
+			(at 240.03 152.7175 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6441,7 +6796,7 @@
 			)
 		)
 		(property "Footprint" "LED_SMD:LED_0402_1005Metric_Pad0.77x0.64mm_HandSolder"
-			(at 181.61 104.14 0)
+			(at 236.22 149.86 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6450,7 +6805,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 181.61 104.14 0)
+			(at 236.22 149.86 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6459,7 +6814,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 181.61 104.14 0)
+			(at 236.22 149.86 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6468,15 +6823,85 @@
 			)
 		)
 		(pin "2"
-			(uuid "98c7db21-e624-474b-8dda-4356a9090cbd")
+			(uuid "dd5ae1ad-6671-46d1-afe6-d7f10d80e73f")
 		)
 		(pin "1"
-			(uuid "f3c33378-621b-4a56-ae19-fca5fdf40216")
+			(uuid "f024c8a5-2573-4866-8393-11af455c4647")
 		)
 		(instances
 			(project "pcb_badge"
 				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "D43")
+					(reference "D77")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:LED")
+		(at 154.94 58.42 90)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "464fc79b-710d-4678-8721-841a92df0545")
+		(property "Reference" "D11"
+			(at 158.75 58.7375 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Value" "LED"
+			(at 158.75 61.2775 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Footprint" "LED_SMD:LED_0402_1005Metric_Pad0.77x0.64mm_HandSolder"
+			(at 154.94 58.42 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 154.94 58.42 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 154.94 58.42 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "2"
+			(uuid "dd87670e-2cf5-4405-b124-2edb26379b26")
+		)
+		(pin "1"
+			(uuid "4eb8ced0-e7c6-4330-bd93-b50d4bd36467")
+		)
+		(instances
+			(project "pcb_badge"
+				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
+					(reference "D11")
 					(unit 1)
 				)
 			)
@@ -6484,16 +6909,16 @@
 	)
 	(symbol
 		(lib_id "Transistor_FET:2N7002")
-		(at 123.19 116.84 0)
+		(at 123.19 86.36 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
 		(fields_autoplaced yes)
-		(uuid "35fe4571-1a04-42fd-8f09-4405400d1d13")
-		(property "Reference" "Q94"
-			(at 129.54 115.5699 0)
+		(uuid "47119d8c-65c9-4b2a-8aa9-0e929678ff09")
+		(property "Reference" "Q92"
+			(at 129.54 85.0899 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6502,7 +6927,7 @@
 			)
 		)
 		(property "Value" "2N7002"
-			(at 129.54 118.1099 0)
+			(at 129.54 87.6299 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6511,7 +6936,7 @@
 			)
 		)
 		(property "Footprint" "Package_TO_SOT_SMD:SOT-23"
-			(at 128.27 118.745 0)
+			(at 128.27 88.265 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6522,7 +6947,7 @@
 			)
 		)
 		(property "Datasheet" "https://www.onsemi.com/pub/Collateral/NDS7002A-D.PDF"
-			(at 128.27 120.65 0)
+			(at 128.27 90.17 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6532,7 +6957,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 123.19 116.84 0)
+			(at 123.19 86.36 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6541,88 +6966,18 @@
 			)
 		)
 		(pin "3"
-			(uuid "5a6ab7e0-e6e7-4210-a631-d6dde7f41397")
+			(uuid "9967a27b-05b1-4e8f-99f4-e0ef5401071d")
 		)
 		(pin "1"
-			(uuid "b3d47f96-8e80-47b3-9a3b-c4f305d14f28")
+			(uuid "dff45c4b-c941-4ab9-88d7-032920ea8a41")
 		)
 		(pin "2"
-			(uuid "a55be798-7574-4513-baa8-a53bdf912121")
+			(uuid "70e8803b-de3b-4432-bcdb-bcf13af2e004")
 		)
 		(instances
 			(project "pcb_badge"
 				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "Q94")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:LED")
-		(at 181.61 149.86 90)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "38b0b89b-59ee-4a88-9273-dcbc03c19c90")
-		(property "Reference" "D73"
-			(at 185.42 150.1775 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Value" "LED"
-			(at 185.42 152.7175 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Footprint" "LED_SMD:LED_0402_1005Metric_Pad0.77x0.64mm_HandSolder"
-			(at 181.61 149.86 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 181.61 149.86 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" ""
-			(at 181.61 149.86 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "2"
-			(uuid "ad49c59a-6da3-49bc-828c-34f0099e5974")
-		)
-		(pin "1"
-			(uuid "284a45cf-b450-466f-b94b-841667aeac8c")
-		)
-		(instances
-			(project "pcb_badge"
-				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "D73")
+					(reference "Q92")
 					(unit 1)
 				)
 			)
@@ -6637,7 +6992,7 @@
 		(on_board yes)
 		(dnp no)
 		(fields_autoplaced yes)
-		(uuid "38ef5dee-b3b8-49f6-96f2-cc31eaeebd8b")
+		(uuid "482afd37-59a1-48a2-9ed2-ee1fc6bd416f")
 		(property "Reference" "D70"
 			(at 144.78 150.1775 90)
 			(effects
@@ -6700,16 +7055,16 @@
 	)
 	(symbol
 		(lib_id "Device:LED")
-		(at 222.25 58.42 90)
+		(at 167.64 119.38 90)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
 		(fields_autoplaced yes)
-		(uuid "41abb264-1498-4216-ac17-82f4feb0b6ec")
-		(property "Reference" "D16"
-			(at 226.06 58.7375 90)
+		(uuid "494bce63-376d-49c2-99ca-7570ddb45faa")
+		(property "Reference" "D52"
+			(at 171.45 119.6975 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6718,7 +7073,7 @@
 			)
 		)
 		(property "Value" "LED"
-			(at 226.06 61.2775 90)
+			(at 171.45 122.2375 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6727,7 +7082,7 @@
 			)
 		)
 		(property "Footprint" "LED_SMD:LED_0402_1005Metric_Pad0.77x0.64mm_HandSolder"
-			(at 222.25 58.42 0)
+			(at 167.64 119.38 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6736,7 +7091,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 222.25 58.42 0)
+			(at 167.64 119.38 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6745,7 +7100,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 222.25 58.42 0)
+			(at 167.64 119.38 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6754,15 +7109,15 @@
 			)
 		)
 		(pin "2"
-			(uuid "e773331b-3826-4577-8979-a442af09dc82")
+			(uuid "46b261dc-2de0-4e09-8f79-a11a5f461873")
 		)
 		(pin "1"
-			(uuid "9d8a66d4-76a5-48f2-9597-6e6d5d704961")
+			(uuid "0a815f62-1e9e-43d5-a5ba-362c42577e2a")
 		)
 		(instances
 			(project "pcb_badge"
 				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "D16")
+					(reference "D52")
 					(unit 1)
 				)
 			)
@@ -6770,16 +7125,16 @@
 	)
 	(symbol
 		(lib_id "Device:LED")
-		(at 140.97 58.42 90)
+		(at 222.25 104.14 90)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
 		(fields_autoplaced yes)
-		(uuid "448861da-93b5-4b96-911d-1f04a3bb051b")
-		(property "Reference" "D10"
-			(at 144.78 58.7375 90)
+		(uuid "4f01cc89-a50b-4c88-9c0d-48b79fd756b6")
+		(property "Reference" "D46"
+			(at 226.06 104.4575 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6788,7 +7143,7 @@
 			)
 		)
 		(property "Value" "LED"
-			(at 144.78 61.2775 90)
+			(at 226.06 106.9975 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6797,7 +7152,7 @@
 			)
 		)
 		(property "Footprint" "LED_SMD:LED_0402_1005Metric_Pad0.77x0.64mm_HandSolder"
-			(at 140.97 58.42 0)
+			(at 222.25 104.14 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6806,7 +7161,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 140.97 58.42 0)
+			(at 222.25 104.14 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6815,7 +7170,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 140.97 58.42 0)
+			(at 222.25 104.14 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6824,291 +7179,15 @@
 			)
 		)
 		(pin "2"
-			(uuid "ab1193fa-20b5-434b-af1c-24ea7e6adcbb")
+			(uuid "2644dcc0-30ec-4921-9bbd-7c204eb89219")
 		)
 		(pin "1"
-			(uuid "3e8518b6-46ba-47bb-9848-cdf6f219b698")
+			(uuid "8ef05f03-bb15-4ae7-a19c-3886f5ffbf11")
 		)
 		(instances
 			(project "pcb_badge"
 				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "D10")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:LED")
-		(at 167.64 149.86 90)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "44a33926-b8d0-4465-a448-edd39f85648b")
-		(property "Reference" "D72"
-			(at 171.45 150.1775 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Value" "LED"
-			(at 171.45 152.7175 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Footprint" "LED_SMD:LED_0402_1005Metric_Pad0.77x0.64mm_HandSolder"
-			(at 167.64 149.86 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 167.64 149.86 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" ""
-			(at 167.64 149.86 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "2"
-			(uuid "9378f53f-264e-45b7-a8b2-ab10b1d08db1")
-		)
-		(pin "1"
-			(uuid "a78eea53-6fb7-4096-9000-3e950fcfe4b3")
-		)
-		(instances
-			(project "pcb_badge"
-				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "D72")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:LED")
-		(at 209.55 134.62 90)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "48c494c3-8ca5-4ec8-b7ec-4c9914d6b8dc")
-		(property "Reference" "D65"
-			(at 213.36 134.9375 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Value" "LED"
-			(at 213.36 137.4775 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Footprint" "LED_SMD:LED_0402_1005Metric_Pad0.77x0.64mm_HandSolder"
-			(at 209.55 134.62 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 209.55 134.62 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" ""
-			(at 209.55 134.62 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "2"
-			(uuid "f01016fd-ad73-47c3-8de7-1b28fdcb6f3e")
-		)
-		(pin "1"
-			(uuid "7d7d22bb-dfbb-4153-93c0-5e0559ea03f6")
-		)
-		(instances
-			(project "pcb_badge"
-				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "D65")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "power:GND")
-		(at 125.73 120.65 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "566e97ce-457e-4364-a599-7ee1e124f6ff")
-		(property "Reference" "#PWR016"
-			(at 125.73 127 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Value" "GND"
-			(at 125.73 125.73 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 125.73 120.65 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" ""
-			(at 125.73 120.65 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" ""
-			(at 125.73 120.65 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "543c8e86-2afe-42f7-83b4-76808eb25129")
-		)
-		(instances
-			(project "pcb_badge"
-				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "#PWR016")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:LED")
-		(at 140.97 88.9 90)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "57a6f803-18b7-49ff-b80d-bce198872fec")
-		(property "Reference" "D30"
-			(at 144.78 89.2175 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Value" "LED"
-			(at 144.78 91.7575 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Footprint" "LED_SMD:LED_0402_1005Metric_Pad0.77x0.64mm_HandSolder"
-			(at 140.97 88.9 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 140.97 88.9 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" ""
-			(at 140.97 88.9 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "2"
-			(uuid "31b5cc6c-b622-4b3b-8bc5-3e8c1f3f677b")
-		)
-		(pin "1"
-			(uuid "260cd6c3-085d-4b2f-b16b-38f0a56ce22c")
-		)
-		(instances
-			(project "pcb_badge"
-				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "D30")
+					(reference "D46")
 					(unit 1)
 				)
 			)
@@ -7123,7 +7202,7 @@
 		(on_board yes)
 		(dnp no)
 		(fields_autoplaced yes)
-		(uuid "5969e7ad-a31b-41b7-9b0c-56769bfb7ea4")
+		(uuid "52aef583-a952-4e15-982b-65c6b9baf7dc")
 		(property "Reference" "U4"
 			(at 46.6441 48.26 0)
 			(effects
@@ -7228,16 +7307,16 @@
 	)
 	(symbol
 		(lib_id "power:GND")
-		(at 44.45 81.28 0)
+		(at 125.73 74.93 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
 		(fields_autoplaced yes)
-		(uuid "5d8d6b00-3115-449f-a3c6-5183a7cfd361")
-		(property "Reference" "#PWR03"
-			(at 44.45 87.63 0)
+		(uuid "53da5029-fa0e-4084-835a-fbc407a58f7a")
+		(property "Reference" "#PWR013"
+			(at 125.73 81.28 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7246,7 +7325,7 @@
 			)
 		)
 		(property "Value" "GND"
-			(at 44.45 86.36 0)
+			(at 125.73 80.01 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7254,7 +7333,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 44.45 81.28 0)
+			(at 125.73 74.93 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7263,7 +7342,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 44.45 81.28 0)
+			(at 125.73 74.93 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7272,7 +7351,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 44.45 81.28 0)
+			(at 125.73 74.93 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7281,12 +7360,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "9a6e03a3-c44f-4a65-b856-bb2b0a1a3046")
+			(uuid "50512d94-c116-4ea1-8075-46350a5b1172")
 		)
 		(instances
 			(project "pcb_badge"
 				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "#PWR03")
+					(reference "#PWR013")
 					(unit 1)
 				)
 			)
@@ -7294,16 +7373,16 @@
 	)
 	(symbol
 		(lib_id "Device:LED")
-		(at 181.61 73.66 90)
+		(at 195.58 73.66 90)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
 		(fields_autoplaced yes)
-		(uuid "6222f775-7b4e-4702-b51c-57dbafddf8f3")
-		(property "Reference" "D23"
-			(at 185.42 73.9775 90)
+		(uuid "58c60983-ba79-4699-8077-56410621b8d1")
+		(property "Reference" "D24"
+			(at 199.39 73.9775 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7312,7 +7391,7 @@
 			)
 		)
 		(property "Value" "LED"
-			(at 185.42 76.5175 90)
+			(at 199.39 76.5175 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7321,7 +7400,7 @@
 			)
 		)
 		(property "Footprint" "LED_SMD:LED_0402_1005Metric_Pad0.77x0.64mm_HandSolder"
-			(at 181.61 73.66 0)
+			(at 195.58 73.66 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7330,7 +7409,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 181.61 73.66 0)
+			(at 195.58 73.66 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7339,7 +7418,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 181.61 73.66 0)
+			(at 195.58 73.66 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7348,1549 +7427,15 @@
 			)
 		)
 		(pin "2"
-			(uuid "00673771-f565-47f1-9baf-058d7e6720ca")
+			(uuid "38d6ff2a-99ef-4920-b979-690d750d87fc")
 		)
 		(pin "1"
-			(uuid "4f43e1b1-5871-41e3-94d7-4838af8cca41")
+			(uuid "7e4c5f9d-bb79-4325-bcb7-a7e9fb3af08f")
 		)
 		(instances
 			(project "pcb_badge"
 				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "D23")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:LED")
-		(at 236.22 119.38 90)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "644bc61b-c330-4840-b837-fbb23d7721a6")
-		(property "Reference" "D57"
-			(at 240.03 119.6975 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Value" "LED"
-			(at 240.03 122.2375 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Footprint" "LED_SMD:LED_0402_1005Metric_Pad0.77x0.64mm_HandSolder"
-			(at 236.22 119.38 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 236.22 119.38 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" ""
-			(at 236.22 119.38 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "2"
-			(uuid "29f90cdb-8620-4295-8537-07b9a5f9ec9f")
-		)
-		(pin "1"
-			(uuid "eea48136-38ec-4e21-ba1d-71222db365c3")
-		)
-		(instances
-			(project "pcb_badge"
-				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "D57")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:LED")
-		(at 222.25 119.38 90)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "65516eb5-2bbe-4227-a4f4-450a33e67481")
-		(property "Reference" "D56"
-			(at 226.06 119.6975 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Value" "LED"
-			(at 226.06 122.2375 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Footprint" "LED_SMD:LED_0402_1005Metric_Pad0.77x0.64mm_HandSolder"
-			(at 222.25 119.38 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 222.25 119.38 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" ""
-			(at 222.25 119.38 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "2"
-			(uuid "7dfa278c-85b0-4b1a-a18b-96a4eb1c1682")
-		)
-		(pin "1"
-			(uuid "a1ffef7b-df56-4b9f-b0e8-4fadf51decfb")
-		)
-		(instances
-			(project "pcb_badge"
-				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "D56")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:LED")
-		(at 154.94 73.66 90)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "659a1646-3290-4132-9fcf-6c2098b81ca8")
-		(property "Reference" "D21"
-			(at 158.75 73.9775 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Value" "LED"
-			(at 158.75 76.5175 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Footprint" "LED_SMD:LED_0402_1005Metric_Pad0.77x0.64mm_HandSolder"
-			(at 154.94 73.66 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 154.94 73.66 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" ""
-			(at 154.94 73.66 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "2"
-			(uuid "3c1d374d-761b-4d8d-a1a0-97b6fa0bd9e8")
-		)
-		(pin "1"
-			(uuid "69d5f2d9-4807-43b3-a02f-228094fceb38")
-		)
-		(instances
-			(project "pcb_badge"
-				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "D21")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:LED")
-		(at 140.97 134.62 90)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "6853d272-154f-4774-8787-0f64e6d6d269")
-		(property "Reference" "D60"
-			(at 144.78 134.9375 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Value" "LED"
-			(at 144.78 137.4775 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Footprint" "LED_SMD:LED_0402_1005Metric_Pad0.77x0.64mm_HandSolder"
-			(at 140.97 134.62 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 140.97 134.62 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" ""
-			(at 140.97 134.62 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "2"
-			(uuid "70e3d22e-2f78-4cf9-bb0c-99db88668b09")
-		)
-		(pin "1"
-			(uuid "67b1113c-c075-44da-ad53-2b2cf202e017")
-		)
-		(instances
-			(project "pcb_badge"
-				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "D60")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:LED")
-		(at 222.25 88.9 90)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "691c0afc-8e29-4ac2-94a7-a838546e48b4")
-		(property "Reference" "D36"
-			(at 226.06 89.2175 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Value" "LED"
-			(at 226.06 91.7575 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Footprint" "LED_SMD:LED_0402_1005Metric_Pad0.77x0.64mm_HandSolder"
-			(at 222.25 88.9 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 222.25 88.9 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" ""
-			(at 222.25 88.9 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "2"
-			(uuid "47ef52e7-6719-45ae-85c8-47539bdb89c3")
-		)
-		(pin "1"
-			(uuid "e54998d8-60a4-495a-871f-8dce38507926")
-		)
-		(instances
-			(project "pcb_badge"
-				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "D36")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:LED")
-		(at 236.22 73.66 90)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "6a477cba-dc16-48fd-a759-bd2cd6dfb644")
-		(property "Reference" "D27"
-			(at 240.03 73.9775 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Value" "LED"
-			(at 240.03 76.5175 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Footprint" "LED_SMD:LED_0402_1005Metric_Pad0.77x0.64mm_HandSolder"
-			(at 236.22 73.66 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 236.22 73.66 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" ""
-			(at 236.22 73.66 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "2"
-			(uuid "f5d15618-13d1-4bba-aace-0a5a041a5661")
-		)
-		(pin "1"
-			(uuid "044a4f57-c1de-4360-96a3-dc97d14f6e8c")
-		)
-		(instances
-			(project "pcb_badge"
-				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "D27")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "power:GND")
-		(at 125.73 90.17 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "740c8491-a0bd-4c3c-af2f-766f7792e548")
-		(property "Reference" "#PWR014"
-			(at 125.73 96.52 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Value" "GND"
-			(at 125.73 95.25 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 125.73 90.17 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" ""
-			(at 125.73 90.17 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" ""
-			(at 125.73 90.17 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "90087aaa-7ae2-409e-ae62-b19a354633ce")
-		)
-		(instances
-			(project "pcb_badge"
-				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "#PWR014")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:LED")
-		(at 195.58 149.86 90)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "74d442cf-b76b-4e16-be85-4a03a65bac8f")
-		(property "Reference" "D74"
-			(at 199.39 150.1775 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Value" "LED"
-			(at 199.39 152.7175 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Footprint" "LED_SMD:LED_0402_1005Metric_Pad0.77x0.64mm_HandSolder"
-			(at 195.58 149.86 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 195.58 149.86 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" ""
-			(at 195.58 149.86 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "2"
-			(uuid "1bdda279-b84d-4b91-b6fd-1c5ed46e13ec")
-		)
-		(pin "1"
-			(uuid "ffbe8e77-ca25-4de3-a3c6-b220de29b522")
-		)
-		(instances
-			(project "pcb_badge"
-				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "D74")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:LED")
-		(at 181.61 58.42 90)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "759c8063-f3a9-4363-8f06-731cd1a4ed08")
-		(property "Reference" "D13"
-			(at 185.42 58.7375 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Value" "LED"
-			(at 185.42 61.2775 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Footprint" "LED_SMD:LED_0402_1005Metric_Pad0.77x0.64mm_HandSolder"
-			(at 181.61 58.42 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 181.61 58.42 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" ""
-			(at 181.61 58.42 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "2"
-			(uuid "175509aa-f8ab-4e3d-9d35-fdb360867b04")
-		)
-		(pin "1"
-			(uuid "d3dd90cf-5099-4721-a716-c3ae5125df59")
-		)
-		(instances
-			(project "pcb_badge"
-				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "D13")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:LED")
-		(at 154.94 119.38 90)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "7786f5e0-2e8e-4d5d-8e96-9d77448ca810")
-		(property "Reference" "D51"
-			(at 158.75 119.6975 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Value" "LED"
-			(at 158.75 122.2375 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Footprint" "LED_SMD:LED_0402_1005Metric_Pad0.77x0.64mm_HandSolder"
-			(at 154.94 119.38 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 154.94 119.38 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" ""
-			(at 154.94 119.38 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "2"
-			(uuid "8c6922a2-20e5-417f-bb77-d829b194cb7c")
-		)
-		(pin "1"
-			(uuid "a8c66cb9-f3f9-4d91-bc50-f44d168c752e")
-		)
-		(instances
-			(project "pcb_badge"
-				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "D51")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:LED")
-		(at 140.97 119.38 90)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "7885eb05-411f-4d36-a7dd-9a938ba03b67")
-		(property "Reference" "D50"
-			(at 144.78 119.6975 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Value" "LED"
-			(at 144.78 122.2375 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Footprint" "LED_SMD:LED_0402_1005Metric_Pad0.77x0.64mm_HandSolder"
-			(at 140.97 119.38 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 140.97 119.38 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" ""
-			(at 140.97 119.38 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "2"
-			(uuid "c088379c-1311-4d24-9134-3a2e60145bf3")
-		)
-		(pin "1"
-			(uuid "5be986c9-aca5-48b6-968b-87b7cb15c399")
-		)
-		(instances
-			(project "pcb_badge"
-				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "D50")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "power:GND")
-		(at 125.73 105.41 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "844c45aa-77f5-4210-b9bb-60067ede915e")
-		(property "Reference" "#PWR015"
-			(at 125.73 111.76 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Value" "GND"
-			(at 125.73 110.49 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 125.73 105.41 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" ""
-			(at 125.73 105.41 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" ""
-			(at 125.73 105.41 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "6ef31a3b-9ffc-48c6-ac81-0c3026b71401")
-		)
-		(instances
-			(project "pcb_badge"
-				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "#PWR015")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:LED")
-		(at 181.61 88.9 90)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "84aa0c67-dea9-4cae-a416-47ff6127e30f")
-		(property "Reference" "D33"
-			(at 185.42 89.2175 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Value" "LED"
-			(at 185.42 91.7575 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Footprint" "LED_SMD:LED_0402_1005Metric_Pad0.77x0.64mm_HandSolder"
-			(at 181.61 88.9 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 181.61 88.9 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" ""
-			(at 181.61 88.9 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "2"
-			(uuid "cea0529f-7074-4c1d-bddc-f18a2f58d9e7")
-		)
-		(pin "1"
-			(uuid "d621c59c-0d3c-43fe-8374-47d085df6c45")
-		)
-		(instances
-			(project "pcb_badge"
-				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "D33")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Transistor_FET:2N7002")
-		(at 123.19 55.88 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "84c75f2b-a512-43be-9849-56a7a507f27a")
-		(property "Reference" "Q90"
-			(at 129.54 54.6099 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Value" "2N7002"
-			(at 129.54 57.1499 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" "Package_TO_SOT_SMD:SOT-23"
-			(at 128.27 57.785 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-					(italic yes)
-				)
-				(justify left)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "https://www.onsemi.com/pub/Collateral/NDS7002A-D.PDF"
-			(at 128.27 59.69 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-				(hide yes)
-			)
-		)
-		(property "Description" ""
-			(at 123.19 55.88 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "3"
-			(uuid "c6c2fdd7-f3bb-439a-a7d1-e00cb350b9da")
-		)
-		(pin "1"
-			(uuid "3fac54f6-641d-4012-b31f-2fd853155f49")
-		)
-		(pin "2"
-			(uuid "6a1d1ed3-6834-42d2-8e60-edea0b9fdd89")
-		)
-		(instances
-			(project "pcb_badge"
-				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "Q90")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:LED")
-		(at 154.94 88.9 90)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "85c2f172-07ef-48b1-807b-c2663dbf798a")
-		(property "Reference" "D31"
-			(at 158.75 89.2175 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Value" "LED"
-			(at 158.75 91.7575 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Footprint" "LED_SMD:LED_0402_1005Metric_Pad0.77x0.64mm_HandSolder"
-			(at 154.94 88.9 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 154.94 88.9 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" ""
-			(at 154.94 88.9 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "2"
-			(uuid "c3715d19-d135-4f07-8031-e138f05a1c2b")
-		)
-		(pin "1"
-			(uuid "3c1bfc0f-5f50-4e68-8173-bc74e83fd919")
-		)
-		(instances
-			(project "pcb_badge"
-				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "D31")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:LED")
-		(at 236.22 104.14 90)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "88c397be-c53c-4fd5-b058-1bac73115e29")
-		(property "Reference" "D47"
-			(at 240.03 104.4575 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Value" "LED"
-			(at 240.03 106.9975 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Footprint" "LED_SMD:LED_0402_1005Metric_Pad0.77x0.64mm_HandSolder"
-			(at 236.22 104.14 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 236.22 104.14 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" ""
-			(at 236.22 104.14 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "2"
-			(uuid "f33452c7-3a63-4a2d-b689-46475bc3282b")
-		)
-		(pin "1"
-			(uuid "d561e2ed-7b85-4362-a088-444f07872759")
-		)
-		(instances
-			(project "pcb_badge"
-				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "D47")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "power:GND")
-		(at 125.73 135.89 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "8e6e961d-16de-47fe-ae25-f2574e214e7d")
-		(property "Reference" "#PWR017"
-			(at 125.73 142.24 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Value" "GND"
-			(at 125.73 140.97 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 125.73 135.89 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" ""
-			(at 125.73 135.89 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" ""
-			(at 125.73 135.89 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "d93ce9e5-a2bd-4a20-95c1-e5d0fe23e9f9")
-		)
-		(instances
-			(project "pcb_badge"
-				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "#PWR017")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:LED")
-		(at 209.55 73.66 90)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "8fe30aca-b1b1-473d-8aea-06c0ad912409")
-		(property "Reference" "D25"
-			(at 213.36 73.9775 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Value" "LED"
-			(at 213.36 76.5175 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Footprint" "LED_SMD:LED_0402_1005Metric_Pad0.77x0.64mm_HandSolder"
-			(at 209.55 73.66 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 209.55 73.66 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" ""
-			(at 209.55 73.66 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "2"
-			(uuid "4ea5ff2e-f085-4460-86dd-5ebb2dff8e63")
-		)
-		(pin "1"
-			(uuid "9d7b8f4b-5969-4e77-a182-bc059be367d8")
-		)
-		(instances
-			(project "pcb_badge"
-				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "D25")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:LED")
-		(at 167.64 134.62 90)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "90bec8aa-45ca-4fe4-bd84-166dfc956471")
-		(property "Reference" "D62"
-			(at 171.45 134.9375 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Value" "LED"
-			(at 171.45 137.4775 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Footprint" "LED_SMD:LED_0402_1005Metric_Pad0.77x0.64mm_HandSolder"
-			(at 167.64 134.62 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 167.64 134.62 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" ""
-			(at 167.64 134.62 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "2"
-			(uuid "b4a27141-167c-4cf0-8f96-291d9546699e")
-		)
-		(pin "1"
-			(uuid "efd85750-b5f7-4bbd-80a5-85eb8737ca2b")
-		)
-		(instances
-			(project "pcb_badge"
-				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "D62")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:LED")
-		(at 195.58 134.62 90)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "92c5250a-07ee-4895-93b1-0a92362e9a12")
-		(property "Reference" "D64"
-			(at 199.39 134.9375 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Value" "LED"
-			(at 199.39 137.4775 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Footprint" "LED_SMD:LED_0402_1005Metric_Pad0.77x0.64mm_HandSolder"
-			(at 195.58 134.62 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 195.58 134.62 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" ""
-			(at 195.58 134.62 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "2"
-			(uuid "540ec74e-97c6-4c4f-9e93-19a10d0d132b")
-		)
-		(pin "1"
-			(uuid "e9437db7-43f2-43e6-8e09-5847794d141b")
-		)
-		(instances
-			(project "pcb_badge"
-				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "D64")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:LED")
-		(at 209.55 119.38 90)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "92d6b24e-d8c8-4fb2-8169-b253abf58b3e")
-		(property "Reference" "D55"
-			(at 213.36 119.6975 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Value" "LED"
-			(at 213.36 122.2375 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Footprint" "LED_SMD:LED_0402_1005Metric_Pad0.77x0.64mm_HandSolder"
-			(at 209.55 119.38 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 209.55 119.38 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" ""
-			(at 209.55 119.38 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "2"
-			(uuid "ec89829a-808b-4c4f-bf93-f8f4a5e86724")
-		)
-		(pin "1"
-			(uuid "ea2752ef-07ab-413d-97b5-2dd034a46194")
-		)
-		(instances
-			(project "pcb_badge"
-				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "D55")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:LED")
-		(at 195.58 43.18 90)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "93a9309b-f8f4-42db-9075-f54bdac6d689")
-		(property "Reference" "D04"
-			(at 199.39 43.4975 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Value" "LED"
-			(at 199.39 46.0375 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Footprint" "LED_SMD:LED_0402_1005Metric_Pad0.77x0.64mm_HandSolder"
-			(at 195.58 43.18 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 195.58 43.18 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" ""
-			(at 195.58 43.18 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "2"
-			(uuid "149acf7c-6ee0-4949-8726-3363a8a432d2")
-		)
-		(pin "1"
-			(uuid "3c115945-93cc-4002-99d2-dd042577b6d4")
-		)
-		(instances
-			(project "pcb_badge"
-				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "D04")
+					(reference "D24")
 					(unit 1)
 				)
 			)
@@ -8905,7 +7450,7 @@
 		(on_board yes)
 		(dnp no)
 		(fields_autoplaced yes)
-		(uuid "948c9e0f-a486-4159-8e41-4f817dfd6def")
+		(uuid "599cbda7-592e-4e69-87e1-a2c1ef1bd94d")
 		(property "Reference" "D35"
 			(at 213.36 89.2175 90)
 			(effects
@@ -8968,6 +7513,282 @@
 	)
 	(symbol
 		(lib_id "Device:LED")
+		(at 154.94 88.9 90)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "59edc22b-76d6-4fe2-b05c-1532574bfc2f")
+		(property "Reference" "D31"
+			(at 158.75 89.2175 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Value" "LED"
+			(at 158.75 91.7575 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Footprint" "LED_SMD:LED_0402_1005Metric_Pad0.77x0.64mm_HandSolder"
+			(at 154.94 88.9 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 154.94 88.9 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 154.94 88.9 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "2"
+			(uuid "c3715d19-d135-4f07-8031-e138f05a1c2b")
+		)
+		(pin "1"
+			(uuid "3c1bfc0f-5f50-4e68-8173-bc74e83fd919")
+		)
+		(instances
+			(project "pcb_badge"
+				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
+					(reference "D31")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:LED")
+		(at 181.61 104.14 90)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "5ad1ecfc-b593-46b5-8b82-c18a4d9ae94f")
+		(property "Reference" "D43"
+			(at 185.42 104.4575 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Value" "LED"
+			(at 185.42 106.9975 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Footprint" "LED_SMD:LED_0402_1005Metric_Pad0.77x0.64mm_HandSolder"
+			(at 181.61 104.14 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 181.61 104.14 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 181.61 104.14 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "2"
+			(uuid "98c7db21-e624-474b-8dda-4356a9090cbd")
+		)
+		(pin "1"
+			(uuid "f3c33378-621b-4a56-ae19-fca5fdf40216")
+		)
+		(instances
+			(project "pcb_badge"
+				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
+					(reference "D43")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:GND")
+		(at 125.73 120.65 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "5f3efbd5-4b26-41fe-befb-b7122679f894")
+		(property "Reference" "#PWR016"
+			(at 125.73 127 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "GND"
+			(at 125.73 125.73 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 125.73 120.65 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 125.73 120.65 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 125.73 120.65 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "543c8e86-2afe-42f7-83b4-76808eb25129")
+		)
+		(instances
+			(project "pcb_badge"
+				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
+					(reference "#PWR016")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:LED")
+		(at 222.25 43.18 90)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "5f7ecd2f-4cd2-4947-8ba1-c5b023023a35")
+		(property "Reference" "D06"
+			(at 226.06 43.4974 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Value" "LED"
+			(at 226.06 46.0374 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Footprint" "LED_SMD:LED_0402_1005Metric_Pad0.77x0.64mm_HandSolder"
+			(at 222.25 43.18 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 222.25 43.18 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 222.25 43.18 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "2"
+			(uuid "2b7076bd-1ce7-46e9-ad6e-a5ca3f61ac47")
+		)
+		(pin "1"
+			(uuid "0ede0c5e-7756-4a65-aa4f-da0ec9ddc6df")
+		)
+		(instances
+			(project "pcb_badge"
+				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
+					(reference "D06")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:LED")
 		(at 167.64 73.66 90)
 		(unit 1)
 		(exclude_from_sim no)
@@ -8975,7 +7796,7 @@
 		(on_board yes)
 		(dnp no)
 		(fields_autoplaced yes)
-		(uuid "98642507-1f24-43d1-9136-5a6d3bdc1d30")
+		(uuid "5fd0be7b-cf6b-41e1-9a23-114684916ee6")
 		(property "Reference" "D22"
 			(at 171.45 73.9775 90)
 			(effects
@@ -9038,16 +7859,16 @@
 	)
 	(symbol
 		(lib_id "Device:LED")
-		(at 167.64 119.38 90)
+		(at 209.55 73.66 90)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
 		(fields_autoplaced yes)
-		(uuid "9aca262e-5b37-49ff-a52c-f943433ff0f3")
-		(property "Reference" "D52"
-			(at 171.45 119.6975 90)
+		(uuid "62f77cb9-4299-411a-8cca-5a6d5e696a52")
+		(property "Reference" "D25"
+			(at 213.36 73.9775 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9056,7 +7877,7 @@
 			)
 		)
 		(property "Value" "LED"
-			(at 171.45 122.2375 90)
+			(at 213.36 76.5175 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9065,7 +7886,7 @@
 			)
 		)
 		(property "Footprint" "LED_SMD:LED_0402_1005Metric_Pad0.77x0.64mm_HandSolder"
-			(at 167.64 119.38 0)
+			(at 209.55 73.66 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9074,7 +7895,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 167.64 119.38 0)
+			(at 209.55 73.66 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9083,7 +7904,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 167.64 119.38 0)
+			(at 209.55 73.66 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9092,15 +7913,15 @@
 			)
 		)
 		(pin "2"
-			(uuid "46b261dc-2de0-4e09-8f79-a11a5f461873")
+			(uuid "4ea5ff2e-f085-4460-86dd-5ebb2dff8e63")
 		)
 		(pin "1"
-			(uuid "0a815f62-1e9e-43d5-a5ba-362c42577e2a")
+			(uuid "9d7b8f4b-5969-4e77-a182-bc059be367d8")
 		)
 		(instances
 			(project "pcb_badge"
 				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "D52")
+					(reference "D25")
 					(unit 1)
 				)
 			)
@@ -9108,16 +7929,16 @@
 	)
 	(symbol
 		(lib_id "Device:LED")
-		(at 154.94 58.42 90)
+		(at 195.58 104.14 90)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
 		(fields_autoplaced yes)
-		(uuid "9c8a5416-6619-4215-91b4-218cf87085cf")
-		(property "Reference" "D11"
-			(at 158.75 58.7375 90)
+		(uuid "6cd2d1e9-3583-42e0-8a72-ccbacc63b50c")
+		(property "Reference" "D44"
+			(at 199.39 104.4575 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9126,7 +7947,7 @@
 			)
 		)
 		(property "Value" "LED"
-			(at 158.75 61.2775 90)
+			(at 199.39 106.9975 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9135,7 +7956,7 @@
 			)
 		)
 		(property "Footprint" "LED_SMD:LED_0402_1005Metric_Pad0.77x0.64mm_HandSolder"
-			(at 154.94 58.42 0)
+			(at 195.58 104.14 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9144,7 +7965,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 154.94 58.42 0)
+			(at 195.58 104.14 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9153,7 +7974,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 154.94 58.42 0)
+			(at 195.58 104.14 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9162,15 +7983,225 @@
 			)
 		)
 		(pin "2"
-			(uuid "dd87670e-2cf5-4405-b124-2edb26379b26")
+			(uuid "5b438e42-ec93-4892-9c19-4c0c23dda78c")
 		)
 		(pin "1"
-			(uuid "4eb8ced0-e7c6-4330-bd93-b50d4bd36467")
+			(uuid "61b6fec0-14f4-40c5-aab9-a6929ca85143")
 		)
 		(instances
 			(project "pcb_badge"
 				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "D11")
+					(reference "D44")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:LED")
+		(at 167.64 58.42 90)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "6e078f42-73fd-485b-aefd-3a5c3dfb31f1")
+		(property "Reference" "D12"
+			(at 171.45 58.7375 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Value" "LED"
+			(at 171.45 61.2775 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Footprint" "LED_SMD:LED_0402_1005Metric_Pad0.77x0.64mm_HandSolder"
+			(at 167.64 58.42 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 167.64 58.42 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 167.64 58.42 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "2"
+			(uuid "ae437b4b-e59a-4bdf-b0c5-5e408598870f")
+		)
+		(pin "1"
+			(uuid "185bb622-6008-4906-bd6e-4665205fb68b")
+		)
+		(instances
+			(project "pcb_badge"
+				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
+					(reference "D12")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:LED")
+		(at 167.64 43.18 90)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "6e6a45ec-634e-4303-835f-da040deca7ef")
+		(property "Reference" "D02"
+			(at 171.45 43.4974 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Value" "LED"
+			(at 171.45 46.0374 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Footprint" "LED_SMD:LED_0402_1005Metric_Pad0.77x0.64mm_HandSolder"
+			(at 167.64 43.18 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 167.64 43.18 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 167.64 43.18 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "2"
+			(uuid "4bea7297-5c30-4053-ab6a-a4c514036ae5")
+		)
+		(pin "1"
+			(uuid "381f1f18-1e49-4c0f-b60f-945ae97dc945")
+		)
+		(instances
+			(project "pcb_badge"
+				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
+					(reference "D02")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:LED")
+		(at 140.97 58.42 90)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "702a5e43-68c4-4b8e-b91d-ea52c21d460b")
+		(property "Reference" "D10"
+			(at 144.78 58.7375 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Value" "LED"
+			(at 144.78 61.2775 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Footprint" "LED_SMD:LED_0402_1005Metric_Pad0.77x0.64mm_HandSolder"
+			(at 140.97 58.42 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 140.97 58.42 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 140.97 58.42 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "2"
+			(uuid "ab1193fa-20b5-434b-af1c-24ea7e6adcbb")
+		)
+		(pin "1"
+			(uuid "3e8518b6-46ba-47bb-9848-cdf6f219b698")
+		)
+		(instances
+			(project "pcb_badge"
+				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
+					(reference "D10")
 					(unit 1)
 				)
 			)
@@ -9178,16 +8209,16 @@
 	)
 	(symbol
 		(lib_id "Transistor_FET:2N7002")
-		(at 123.19 86.36 0)
+		(at 123.19 147.32 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
 		(fields_autoplaced yes)
-		(uuid "a6222559-5105-4884-b1ee-d63878002ffe")
-		(property "Reference" "Q92"
-			(at 129.54 85.0899 0)
+		(uuid "707ad9f4-22c4-476a-8bf3-50bb9e86369d")
+		(property "Reference" "Q96"
+			(at 129.54 146.0499 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9196,7 +8227,7 @@
 			)
 		)
 		(property "Value" "2N7002"
-			(at 129.54 87.6299 0)
+			(at 129.54 148.5899 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9205,7 +8236,7 @@
 			)
 		)
 		(property "Footprint" "Package_TO_SOT_SMD:SOT-23"
-			(at 128.27 88.265 0)
+			(at 128.27 149.225 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9216,7 +8247,7 @@
 			)
 		)
 		(property "Datasheet" "https://www.onsemi.com/pub/Collateral/NDS7002A-D.PDF"
-			(at 128.27 90.17 0)
+			(at 128.27 151.13 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9226,7 +8257,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 123.19 86.36 0)
+			(at 123.19 147.32 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9235,18 +8266,18 @@
 			)
 		)
 		(pin "3"
-			(uuid "9967a27b-05b1-4e8f-99f4-e0ef5401071d")
+			(uuid "6cb9eb36-0046-43a6-be7d-641b9b3ec818")
 		)
 		(pin "1"
-			(uuid "dff45c4b-c941-4ab9-88d7-032920ea8a41")
+			(uuid "6b8e2e99-6c1f-4ad8-9ac6-ecbffad28e8b")
 		)
 		(pin "2"
-			(uuid "70e8803b-de3b-4432-bcdb-bcf13af2e004")
+			(uuid "8dc5c28b-72e2-4cab-b049-8fc006cd63df")
 		)
 		(instances
 			(project "pcb_badge"
 				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "Q92")
+					(reference "Q96")
 					(unit 1)
 				)
 			)
@@ -9254,16 +8285,16 @@
 	)
 	(symbol
 		(lib_id "Device:LED")
-		(at 140.97 73.66 90)
+		(at 154.94 134.62 90)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
 		(fields_autoplaced yes)
-		(uuid "a987ef58-58b6-4442-bf91-5fa9075f3bb6")
-		(property "Reference" "D20"
-			(at 144.78 73.9775 90)
+		(uuid "71a15d9e-4eb7-4ed8-b3c1-a9bb169b1f02")
+		(property "Reference" "D61"
+			(at 158.75 134.9375 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9272,7 +8303,7 @@
 			)
 		)
 		(property "Value" "LED"
-			(at 144.78 76.5175 90)
+			(at 158.75 137.4775 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9281,7 +8312,7 @@
 			)
 		)
 		(property "Footprint" "LED_SMD:LED_0402_1005Metric_Pad0.77x0.64mm_HandSolder"
-			(at 140.97 73.66 0)
+			(at 154.94 134.62 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9290,7 +8321,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 140.97 73.66 0)
+			(at 154.94 134.62 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9299,7 +8330,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 140.97 73.66 0)
+			(at 154.94 134.62 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9308,15 +8339,15 @@
 			)
 		)
 		(pin "2"
-			(uuid "f5b7a3c2-df80-430c-a0fb-c44d09d3a79d")
+			(uuid "cfa6d5ec-36d3-416e-b5a5-31fe43bbd5b7")
 		)
 		(pin "1"
-			(uuid "08ba4d20-12cc-489d-96be-dc8558785e36")
+			(uuid "8eb8d63a-78a7-448a-8753-609d2001bebb")
 		)
 		(instances
 			(project "pcb_badge"
 				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "D20")
+					(reference "D61")
 					(unit 1)
 				)
 			)
@@ -9324,16 +8355,16 @@
 	)
 	(symbol
 		(lib_id "Device:LED")
-		(at 209.55 58.42 90)
+		(at 195.58 134.62 90)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
 		(fields_autoplaced yes)
-		(uuid "aa790d01-016b-4249-b0d8-644b2a9d92f6")
-		(property "Reference" "D15"
-			(at 213.36 58.7375 90)
+		(uuid "727bcd78-e740-4504-89d0-67a521a5e305")
+		(property "Reference" "D64"
+			(at 199.39 134.9375 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9342,7 +8373,7 @@
 			)
 		)
 		(property "Value" "LED"
-			(at 213.36 61.2775 90)
+			(at 199.39 137.4775 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9351,7 +8382,7 @@
 			)
 		)
 		(property "Footprint" "LED_SMD:LED_0402_1005Metric_Pad0.77x0.64mm_HandSolder"
-			(at 209.55 58.42 0)
+			(at 195.58 134.62 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9360,7 +8391,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 209.55 58.42 0)
+			(at 195.58 134.62 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9369,7 +8400,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 209.55 58.42 0)
+			(at 195.58 134.62 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9378,15 +8409,15 @@
 			)
 		)
 		(pin "2"
-			(uuid "fcb3f0d5-4461-40ff-9906-645fef01a6e6")
+			(uuid "540ec74e-97c6-4c4f-9e93-19a10d0d132b")
 		)
 		(pin "1"
-			(uuid "ac02a907-3f27-4466-a3e7-a95b4d95851b")
+			(uuid "e9437db7-43f2-43e6-8e09-5847794d141b")
 		)
 		(instances
 			(project "pcb_badge"
 				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "D15")
+					(reference "D64")
 					(unit 1)
 				)
 			)
@@ -9394,16 +8425,16 @@
 	)
 	(symbol
 		(lib_id "Device:LED")
-		(at 222.25 149.86 90)
+		(at 236.22 119.38 90)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
 		(fields_autoplaced yes)
-		(uuid "abbbc4ab-ec9e-4307-af6e-e9aeafe4cef3")
-		(property "Reference" "D76"
-			(at 226.06 150.1775 90)
+		(uuid "72e763a4-a88f-42c1-a8e7-9872d13d7a94")
+		(property "Reference" "D57"
+			(at 240.03 119.6975 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9412,7 +8443,7 @@
 			)
 		)
 		(property "Value" "LED"
-			(at 226.06 152.7175 90)
+			(at 240.03 122.2375 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9421,7 +8452,7 @@
 			)
 		)
 		(property "Footprint" "LED_SMD:LED_0402_1005Metric_Pad0.77x0.64mm_HandSolder"
-			(at 222.25 149.86 0)
+			(at 236.22 119.38 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9430,7 +8461,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 222.25 149.86 0)
+			(at 236.22 119.38 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9439,7 +8470,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 222.25 149.86 0)
+			(at 236.22 119.38 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9448,50 +8479,32 @@
 			)
 		)
 		(pin "2"
-			(uuid "27bf72cd-3dc0-4443-8b69-8a091991faba")
+			(uuid "29f90cdb-8620-4295-8537-07b9a5f9ec9f")
 		)
 		(pin "1"
-			(uuid "5a490078-08df-4c6d-bf3d-da9b7954cc9e")
+			(uuid "eea48136-38ec-4e21-ba1d-71222db365c3")
 		)
 		(instances
 			(project "pcb_badge"
 				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "D76")
+					(reference "D57")
 					(unit 1)
 				)
 			)
 		)
 	)
 	(symbol
-		(lib_id "Device:LED")
-		(at 222.25 104.14 90)
+		(lib_id "power:GND")
+		(at 125.73 135.89 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
 		(fields_autoplaced yes)
-		(uuid "abd0f4ad-c2fc-4ed9-8975-b4d4fa0db782")
-		(property "Reference" "D46"
-			(at 226.06 104.4575 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Value" "LED"
-			(at 226.06 106.9975 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Footprint" "LED_SMD:LED_0402_1005Metric_Pad0.77x0.64mm_HandSolder"
-			(at 222.25 104.14 0)
+		(uuid "734312b5-1127-43e0-b698-a9bc790b343a")
+		(property "Reference" "#PWR017"
+			(at 125.73 142.24 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9499,8 +8512,25 @@
 				(hide yes)
 			)
 		)
-		(property "Datasheet" "~"
-			(at 222.25 104.14 0)
+		(property "Value" "GND"
+			(at 125.73 140.97 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 125.73 135.89 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 125.73 135.89 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9509,7 +8539,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 222.25 104.14 0)
+			(at 125.73 135.89 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9517,302 +8547,13 @@
 				(hide yes)
 			)
 		)
-		(pin "2"
-			(uuid "2644dcc0-30ec-4921-9bbd-7c204eb89219")
-		)
 		(pin "1"
-			(uuid "8ef05f03-bb15-4ae7-a19c-3886f5ffbf11")
+			(uuid "d93ce9e5-a2bd-4a20-95c1-e5d0fe23e9f9")
 		)
 		(instances
 			(project "pcb_badge"
 				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "D46")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:LED")
-		(at 236.22 88.9 90)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "b11c62fa-a423-4da9-88f4-ab02b6c031f2")
-		(property "Reference" "D37"
-			(at 240.03 89.2175 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Value" "LED"
-			(at 240.03 91.7575 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Footprint" "LED_SMD:LED_0402_1005Metric_Pad0.77x0.64mm_HandSolder"
-			(at 236.22 88.9 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 236.22 88.9 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" ""
-			(at 236.22 88.9 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "2"
-			(uuid "ce58b8a3-03b7-4cd1-a09b-2f05bbedb38f")
-		)
-		(pin "1"
-			(uuid "5d8cde4a-ec7b-4b8d-8600-1da06addb841")
-		)
-		(instances
-			(project "pcb_badge"
-				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "D37")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Transistor_FET:2N7002")
-		(at 123.19 162.56 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "b150a796-ea99-4a26-aa39-a40ffe09b3b5")
-		(property "Reference" "Q97"
-			(at 129.54 161.2899 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Value" "2N7002"
-			(at 129.54 163.8299 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" "Package_TO_SOT_SMD:SOT-23"
-			(at 128.27 164.465 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-					(italic yes)
-				)
-				(justify left)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "https://www.onsemi.com/pub/Collateral/NDS7002A-D.PDF"
-			(at 128.27 166.37 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-				(hide yes)
-			)
-		)
-		(property "Description" ""
-			(at 123.19 162.56 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "3"
-			(uuid "0de10a51-cf5b-47c4-b853-a985dc40cf3c")
-		)
-		(pin "1"
-			(uuid "ba304ed4-5580-48ef-b14b-4272d598d126")
-		)
-		(pin "2"
-			(uuid "23934604-153d-4181-91a0-6c1fcdd9332a")
-		)
-		(instances
-			(project "pcb_badge"
-				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "Q97")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:LED")
-		(at 222.25 43.18 90)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "b3cae8a3-7a7a-4c9a-aeee-5214a3704c48")
-		(property "Reference" "D06"
-			(at 226.06 43.4975 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Value" "LED"
-			(at 226.06 46.0375 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Footprint" "LED_SMD:LED_0402_1005Metric_Pad0.77x0.64mm_HandSolder"
-			(at 222.25 43.18 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 222.25 43.18 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" ""
-			(at 222.25 43.18 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "2"
-			(uuid "2b7076bd-1ce7-46e9-ad6e-a5ca3f61ac47")
-		)
-		(pin "1"
-			(uuid "0ede0c5e-7756-4a65-aa4f-da0ec9ddc6df")
-		)
-		(instances
-			(project "pcb_badge"
-				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "D06")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:LED")
-		(at 195.58 58.42 90)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "b47d17f6-3292-4122-a378-57811d5de2b4")
-		(property "Reference" "D14"
-			(at 199.39 58.7375 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Value" "LED"
-			(at 199.39 61.2775 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Footprint" "LED_SMD:LED_0402_1005Metric_Pad0.77x0.64mm_HandSolder"
-			(at 195.58 58.42 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 195.58 58.42 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" ""
-			(at 195.58 58.42 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "2"
-			(uuid "5271033e-4086-400d-bfa0-8d65c5d1cd87")
-		)
-		(pin "1"
-			(uuid "464c36dd-0c63-4121-b03d-d81f03495814")
-		)
-		(instances
-			(project "pcb_badge"
-				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "D14")
+					(reference "#PWR017")
 					(unit 1)
 				)
 			)
@@ -9827,7 +8568,7 @@
 		(on_board yes)
 		(dnp no)
 		(fields_autoplaced yes)
-		(uuid "b8b23d66-0ded-4104-8c72-57351df45b59")
+		(uuid "7839a285-2b38-46f7-bf69-8c3d9204a988")
 		(property "Reference" "D67"
 			(at 240.03 134.9375 90)
 			(effects
@@ -9890,16 +8631,16 @@
 	)
 	(symbol
 		(lib_id "Device:LED")
-		(at 154.94 149.86 90)
+		(at 222.25 58.42 90)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
 		(fields_autoplaced yes)
-		(uuid "bc1a8c3e-ce7f-4a6b-9f90-12d7a52a4559")
-		(property "Reference" "D71"
-			(at 158.75 150.1775 90)
+		(uuid "7c074e0c-5824-4e8b-ad79-3be6f172d25e")
+		(property "Reference" "D16"
+			(at 226.06 58.7375 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9908,7 +8649,7 @@
 			)
 		)
 		(property "Value" "LED"
-			(at 158.75 152.7175 90)
+			(at 226.06 61.2775 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9917,7 +8658,7 @@
 			)
 		)
 		(property "Footprint" "LED_SMD:LED_0402_1005Metric_Pad0.77x0.64mm_HandSolder"
-			(at 154.94 149.86 0)
+			(at 222.25 58.42 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9926,7 +8667,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 154.94 149.86 0)
+			(at 222.25 58.42 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9935,7 +8676,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 154.94 149.86 0)
+			(at 222.25 58.42 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9944,32 +8685,50 @@
 			)
 		)
 		(pin "2"
-			(uuid "c0c5a887-7c34-4d9e-8ce3-4b32a1c072de")
+			(uuid "e773331b-3826-4577-8979-a442af09dc82")
 		)
 		(pin "1"
-			(uuid "912a5293-5488-4a98-8723-2f004df2e58f")
+			(uuid "9d8a66d4-76a5-48f2-9597-6e6d5d704961")
 		)
 		(instances
 			(project "pcb_badge"
 				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "D71")
+					(reference "D16")
 					(unit 1)
 				)
 			)
 		)
 	)
 	(symbol
-		(lib_id "power:GND")
-		(at 125.73 59.69 0)
+		(lib_id "Device:LED")
+		(at 167.64 149.86 90)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
 		(fields_autoplaced yes)
-		(uuid "bda95279-1cb3-4e13-8d43-a75558c35f83")
-		(property "Reference" "#PWR012"
-			(at 125.73 66.04 0)
+		(uuid "7cdf9e9e-406e-4ad5-9c6c-e61b5a6a91c5")
+		(property "Reference" "D72"
+			(at 171.45 150.1775 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Value" "LED"
+			(at 171.45 152.7175 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Footprint" "LED_SMD:LED_0402_1005Metric_Pad0.77x0.64mm_HandSolder"
+			(at 167.64 149.86 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9977,25 +8736,8 @@
 				(hide yes)
 			)
 		)
-		(property "Value" "GND"
-			(at 125.73 64.77 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 125.73 59.69 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" ""
-			(at 125.73 59.69 0)
+		(property "Datasheet" "~"
+			(at 167.64 149.86 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -10004,7 +8746,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 125.73 59.69 0)
+			(at 167.64 149.86 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -10012,30 +8754,51 @@
 				(hide yes)
 			)
 		)
+		(pin "2"
+			(uuid "9378f53f-264e-45b7-a8b2-ab10b1d08db1")
+		)
 		(pin "1"
-			(uuid "69807f82-5df0-4993-b4f3-0c6ae7db9b4c")
+			(uuid "a78eea53-6fb7-4096-9000-3e950fcfe4b3")
 		)
 		(instances
 			(project "pcb_badge"
 				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "#PWR012")
+					(reference "D72")
 					(unit 1)
 				)
 			)
 		)
 	)
 	(symbol
-		(lib_id "power:GND")
-		(at 125.73 166.37 0)
+		(lib_id "Device:LED")
+		(at 209.55 104.14 90)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
 		(fields_autoplaced yes)
-		(uuid "c15ddb33-6579-4e76-8edc-9d12e06055a0")
-		(property "Reference" "#PWR019"
-			(at 125.73 172.72 0)
+		(uuid "866654b9-fc98-4cc2-ad8a-ef516f715c8d")
+		(property "Reference" "D45"
+			(at 213.36 104.4575 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Value" "LED"
+			(at 213.36 106.9975 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Footprint" "LED_SMD:LED_0402_1005Metric_Pad0.77x0.64mm_HandSolder"
+			(at 209.55 104.14 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -10043,25 +8806,8 @@
 				(hide yes)
 			)
 		)
-		(property "Value" "GND"
-			(at 125.73 171.45 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 125.73 166.37 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" ""
-			(at 125.73 166.37 0)
+		(property "Datasheet" "~"
+			(at 209.55 104.14 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -10070,7 +8816,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 125.73 166.37 0)
+			(at 209.55 104.14 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -10078,13 +8824,16 @@
 				(hide yes)
 			)
 		)
+		(pin "2"
+			(uuid "b3546ad5-c18a-44cb-9da6-74ab2fb20890")
+		)
 		(pin "1"
-			(uuid "880b9a34-7015-400b-a1b1-ca2e47e0a980")
+			(uuid "fcfe5514-3e07-4317-8454-0c4258e3fb45")
 		)
 		(instances
 			(project "pcb_badge"
 				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "#PWR019")
+					(reference "D45")
 					(unit 1)
 				)
 			)
@@ -10099,7 +8848,7 @@
 		(on_board yes)
 		(dnp no)
 		(fields_autoplaced yes)
-		(uuid "c3896558-5298-4a08-80a5-53de6bef1bb1")
+		(uuid "882738c3-ed8a-4fb2-81b4-6c583a7b0fc6")
 		(property "Reference" "#PWR0109"
 			(at 44.45 39.37 0)
 			(effects
@@ -10158,76 +8907,6 @@
 	)
 	(symbol
 		(lib_id "Device:LED")
-		(at 222.25 134.62 90)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "c49ffa9f-8cba-4a74-8b5f-fbe50c5f32fb")
-		(property "Reference" "D66"
-			(at 226.06 134.9375 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Value" "LED"
-			(at 226.06 137.4775 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Footprint" "LED_SMD:LED_0402_1005Metric_Pad0.77x0.64mm_HandSolder"
-			(at 222.25 134.62 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 222.25 134.62 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" ""
-			(at 222.25 134.62 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "2"
-			(uuid "61ece3ed-5a7a-4e3d-8cc0-2806fe564fab")
-		)
-		(pin "1"
-			(uuid "1bc39b23-ca73-4aef-a94e-b329b57e6950")
-		)
-		(instances
-			(project "pcb_badge"
-				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "D66")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:LED")
 		(at 167.64 88.9 90)
 		(unit 1)
 		(exclude_from_sim no)
@@ -10235,7 +8914,7 @@
 		(on_board yes)
 		(dnp no)
 		(fields_autoplaced yes)
-		(uuid "c5dea1a9-d989-4097-a90e-1e9c398cb99d")
+		(uuid "883e8e67-437f-4eaf-ae86-069dbcb647dd")
 		(property "Reference" "D32"
 			(at 171.45 89.2175 90)
 			(effects
@@ -10297,53 +8976,56 @@
 		)
 	)
 	(symbol
-		(lib_id "Device:LED")
-		(at 167.64 58.42 90)
+		(lib_id "Transistor_FET:2N7002")
+		(at 123.19 116.84 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
 		(fields_autoplaced yes)
-		(uuid "c6cae878-24ef-4938-b179-dbec9e937614")
-		(property "Reference" "D12"
-			(at 171.45 58.7375 90)
+		(uuid "89001ad5-77a8-4ce9-b8d0-0e209d1ce6b6")
+		(property "Reference" "Q94"
+			(at 129.54 115.5699 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
-				(justify right)
+				(justify left)
 			)
 		)
-		(property "Value" "LED"
-			(at 171.45 61.2775 90)
+		(property "Value" "2N7002"
+			(at 129.54 118.1099 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
-				(justify right)
+				(justify left)
 			)
 		)
-		(property "Footprint" "LED_SMD:LED_0402_1005Metric_Pad0.77x0.64mm_HandSolder"
-			(at 167.64 58.42 0)
+		(property "Footprint" "Package_TO_SOT_SMD:SOT-23"
+			(at 128.27 118.745 0)
 			(effects
 				(font
 					(size 1.27 1.27)
+					(italic yes)
 				)
+				(justify left)
 				(hide yes)
 			)
 		)
-		(property "Datasheet" "~"
-			(at 167.64 58.42 0)
+		(property "Datasheet" "https://www.onsemi.com/pub/Collateral/NDS7002A-D.PDF"
+			(at 128.27 120.65 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
+				(justify left)
 				(hide yes)
 			)
 		)
 		(property "Description" ""
-			(at 167.64 58.42 0)
+			(at 123.19 116.84 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -10351,16 +9033,19 @@
 				(hide yes)
 			)
 		)
-		(pin "2"
-			(uuid "ae437b4b-e59a-4bdf-b0c5-5e408598870f")
+		(pin "3"
+			(uuid "5a6ab7e0-e6e7-4210-a631-d6dde7f41397")
 		)
 		(pin "1"
-			(uuid "185bb622-6008-4906-bd6e-4665205fb68b")
+			(uuid "b3d47f96-8e80-47b3-9a3b-c4f305d14f28")
+		)
+		(pin "2"
+			(uuid "a55be798-7574-4513-baa8-a53bdf912121")
 		)
 		(instances
 			(project "pcb_badge"
 				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "D12")
+					(reference "Q94")
 					(unit 1)
 				)
 			)
@@ -10375,7 +9060,7 @@
 		(on_board yes)
 		(dnp no)
 		(fields_autoplaced yes)
-		(uuid "cb4323f5-5cac-4ca8-bd01-540a09bd3db7")
+		(uuid "898098c7-2bb0-4d92-8ef2-4ddf9ad0d095")
 		(property "Reference" "Q91"
 			(at 129.54 69.8499 0)
 			(effects
@@ -10444,16 +9129,16 @@
 	)
 	(symbol
 		(lib_id "Device:LED")
-		(at 195.58 119.38 90)
+		(at 140.97 88.9 90)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
 		(fields_autoplaced yes)
-		(uuid "ccccd0cd-62ee-43a4-8d73-e06607413745")
-		(property "Reference" "D54"
-			(at 199.39 119.6975 90)
+		(uuid "89ad8088-59dd-413c-b69a-46f0dd4b375f")
+		(property "Reference" "D30"
+			(at 144.78 89.2175 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -10462,7 +9147,7 @@
 			)
 		)
 		(property "Value" "LED"
-			(at 199.39 122.2375 90)
+			(at 144.78 91.7575 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -10471,7 +9156,7 @@
 			)
 		)
 		(property "Footprint" "LED_SMD:LED_0402_1005Metric_Pad0.77x0.64mm_HandSolder"
-			(at 195.58 119.38 0)
+			(at 140.97 88.9 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -10480,7 +9165,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 195.58 119.38 0)
+			(at 140.97 88.9 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -10489,7 +9174,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 195.58 119.38 0)
+			(at 140.97 88.9 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -10498,157 +9183,15 @@
 			)
 		)
 		(pin "2"
-			(uuid "5d93e549-29d3-49ff-a51e-cc3422691400")
+			(uuid "31b5cc6c-b622-4b3b-8bc5-3e8c1f3f677b")
 		)
 		(pin "1"
-			(uuid "f92f294f-e90e-455f-b0f5-060ed27bb6cc")
+			(uuid "260cd6c3-085d-4b2f-b16b-38f0a56ce22c")
 		)
 		(instances
 			(project "pcb_badge"
 				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "D54")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Transistor_FET:2N7002")
-		(at 123.19 147.32 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "cf18a37b-28d3-4575-ab25-42f0cfbd904b")
-		(property "Reference" "Q96"
-			(at 129.54 146.0499 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Value" "2N7002"
-			(at 129.54 148.5899 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" "Package_TO_SOT_SMD:SOT-23"
-			(at 128.27 149.225 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-					(italic yes)
-				)
-				(justify left)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "https://www.onsemi.com/pub/Collateral/NDS7002A-D.PDF"
-			(at 128.27 151.13 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-				(hide yes)
-			)
-		)
-		(property "Description" ""
-			(at 123.19 147.32 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "3"
-			(uuid "6cb9eb36-0046-43a6-be7d-641b9b3ec818")
-		)
-		(pin "1"
-			(uuid "6b8e2e99-6c1f-4ad8-9ac6-ecbffad28e8b")
-		)
-		(pin "2"
-			(uuid "8dc5c28b-72e2-4cab-b049-8fc006cd63df")
-		)
-		(instances
-			(project "pcb_badge"
-				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "Q96")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "power:GND")
-		(at 125.73 74.93 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "d6cf2d43-158e-4e4f-b90f-105b1a07ff99")
-		(property "Reference" "#PWR013"
-			(at 125.73 81.28 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Value" "GND"
-			(at 125.73 80.01 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 125.73 74.93 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" ""
-			(at 125.73 74.93 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" ""
-			(at 125.73 74.93 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "50512d94-c116-4ea1-8075-46350a5b1172")
-		)
-		(instances
-			(project "pcb_badge"
-				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "#PWR013")
+					(reference "D30")
 					(unit 1)
 				)
 			)
@@ -10656,16 +9199,16 @@
 	)
 	(symbol
 		(lib_id "Device:LED")
-		(at 209.55 104.14 90)
+		(at 140.97 43.18 90)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
 		(fields_autoplaced yes)
-		(uuid "d8cb3eb5-abdf-4ce2-bc1b-6e84b054d808")
-		(property "Reference" "D45"
-			(at 213.36 104.4575 90)
+		(uuid "8ac41f0a-7eb6-4c15-a0ce-5ad848800684")
+		(property "Reference" "D00"
+			(at 144.78 43.4974 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -10674,7 +9217,7 @@
 			)
 		)
 		(property "Value" "LED"
-			(at 213.36 106.9975 90)
+			(at 144.78 46.0374 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -10683,7 +9226,7 @@
 			)
 		)
 		(property "Footprint" "LED_SMD:LED_0402_1005Metric_Pad0.77x0.64mm_HandSolder"
-			(at 209.55 104.14 0)
+			(at 140.97 43.18 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -10692,7 +9235,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 209.55 104.14 0)
+			(at 140.97 43.18 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -10701,7 +9244,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 209.55 104.14 0)
+			(at 140.97 43.18 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -10710,15 +9253,85 @@
 			)
 		)
 		(pin "2"
-			(uuid "b3546ad5-c18a-44cb-9da6-74ab2fb20890")
+			(uuid "8400048e-403f-460b-ab53-61e8773ebd53")
 		)
 		(pin "1"
-			(uuid "fcfe5514-3e07-4317-8454-0c4258e3fb45")
+			(uuid "66f8a02f-3522-47c1-9fd4-e5f778f46fca")
 		)
 		(instances
 			(project "pcb_badge"
 				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "D45")
+					(reference "D00")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:LED")
+		(at 181.61 73.66 90)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "91f57c71-484d-4cb3-ab05-8cf4cedf7104")
+		(property "Reference" "D23"
+			(at 185.42 73.9775 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Value" "LED"
+			(at 185.42 76.5175 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Footprint" "LED_SMD:LED_0402_1005Metric_Pad0.77x0.64mm_HandSolder"
+			(at 181.61 73.66 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 181.61 73.66 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 181.61 73.66 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "2"
+			(uuid "00673771-f565-47f1-9baf-058d7e6720ca")
+		)
+		(pin "1"
+			(uuid "4f43e1b1-5871-41e3-94d7-4838af8cca41")
+		)
+		(instances
+			(project "pcb_badge"
+				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
+					(reference "D23")
 					(unit 1)
 				)
 			)
@@ -10733,7 +9346,7 @@
 		(on_board yes)
 		(dnp no)
 		(fields_autoplaced yes)
-		(uuid "e1f04158-ca07-4a26-b13d-aea4a75d8b34")
+		(uuid "92d63449-1042-401f-a054-dd3376e7786f")
 		(property "Reference" "D40"
 			(at 144.78 104.4575 90)
 			(effects
@@ -10796,16 +9409,16 @@
 	)
 	(symbol
 		(lib_id "Device:LED")
-		(at 236.22 149.86 90)
+		(at 236.22 43.18 90)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
 		(fields_autoplaced yes)
-		(uuid "e2f108fd-90df-49df-aa66-ad9a05bdeb12")
-		(property "Reference" "D77"
-			(at 240.03 150.1775 90)
+		(uuid "96ef2d75-9fc9-4927-9feb-c9a67a8a2a10")
+		(property "Reference" "D07"
+			(at 240.03 43.4974 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -10814,7 +9427,7 @@
 			)
 		)
 		(property "Value" "LED"
-			(at 240.03 152.7175 90)
+			(at 240.03 46.0374 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -10823,7 +9436,7 @@
 			)
 		)
 		(property "Footprint" "LED_SMD:LED_0402_1005Metric_Pad0.77x0.64mm_HandSolder"
-			(at 236.22 149.86 0)
+			(at 236.22 43.18 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -10832,7 +9445,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 236.22 149.86 0)
+			(at 236.22 43.18 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -10841,7 +9454,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 236.22 149.86 0)
+			(at 236.22 43.18 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -10850,15 +9463,1419 @@
 			)
 		)
 		(pin "2"
-			(uuid "dd5ae1ad-6671-46d1-afe6-d7f10d80e73f")
+			(uuid "5afa6f7d-eee8-460d-826f-5c46def43cc2")
 		)
 		(pin "1"
-			(uuid "f024c8a5-2573-4866-8393-11af455c4647")
+			(uuid "207b3569-1da6-4feb-8e2d-d0e28f037a95")
 		)
 		(instances
 			(project "pcb_badge"
 				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "D77")
+					(reference "D07")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:LED")
+		(at 195.58 88.9 90)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "97d22b76-c6c9-44c5-a2a5-00ecb8a4f66d")
+		(property "Reference" "D34"
+			(at 199.39 89.2175 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Value" "LED"
+			(at 199.39 91.7575 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Footprint" "LED_SMD:LED_0402_1005Metric_Pad0.77x0.64mm_HandSolder"
+			(at 195.58 88.9 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 195.58 88.9 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 195.58 88.9 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "2"
+			(uuid "6bb24981-ed66-4217-ba52-2d7a2d68855f")
+		)
+		(pin "1"
+			(uuid "fbc3fb10-961e-4545-8768-9f11d30ad09d")
+		)
+		(instances
+			(project "pcb_badge"
+				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
+					(reference "D34")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:LED")
+		(at 222.25 149.86 90)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "9f20a8d0-9dc3-41f9-b602-d3dff448e57a")
+		(property "Reference" "D76"
+			(at 226.06 150.1775 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Value" "LED"
+			(at 226.06 152.7175 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Footprint" "LED_SMD:LED_0402_1005Metric_Pad0.77x0.64mm_HandSolder"
+			(at 222.25 149.86 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 222.25 149.86 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 222.25 149.86 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "2"
+			(uuid "27bf72cd-3dc0-4443-8b69-8a091991faba")
+		)
+		(pin "1"
+			(uuid "5a490078-08df-4c6d-bf3d-da9b7954cc9e")
+		)
+		(instances
+			(project "pcb_badge"
+				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
+					(reference "D76")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:LED")
+		(at 195.58 149.86 90)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "a91b293a-1bf8-4cc0-a951-e44bfbbc8e8e")
+		(property "Reference" "D74"
+			(at 199.39 150.1775 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Value" "LED"
+			(at 199.39 152.7175 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Footprint" "LED_SMD:LED_0402_1005Metric_Pad0.77x0.64mm_HandSolder"
+			(at 195.58 149.86 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 195.58 149.86 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 195.58 149.86 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "2"
+			(uuid "1bdda279-b84d-4b91-b6fd-1c5ed46e13ec")
+		)
+		(pin "1"
+			(uuid "ffbe8e77-ca25-4de3-a3c6-b220de29b522")
+		)
+		(instances
+			(project "pcb_badge"
+				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
+					(reference "D74")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:GND")
+		(at 125.73 59.69 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "a92df4cf-3b91-46a6-b498-f463eee5c844")
+		(property "Reference" "#PWR012"
+			(at 125.73 66.04 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "GND"
+			(at 125.73 64.77 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 125.73 59.69 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 125.73 59.69 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 125.73 59.69 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "69807f82-5df0-4993-b4f3-0c6ae7db9b4c")
+		)
+		(instances
+			(project "pcb_badge"
+				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
+					(reference "#PWR012")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:GND")
+		(at 125.73 166.37 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "abb5cc03-b265-43b6-a10d-1de6bef9c7dc")
+		(property "Reference" "#PWR019"
+			(at 125.73 172.72 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "GND"
+			(at 125.73 171.45 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 125.73 166.37 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 125.73 166.37 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 125.73 166.37 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "880b9a34-7015-400b-a1b1-ca2e47e0a980")
+		)
+		(instances
+			(project "pcb_badge"
+				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
+					(reference "#PWR019")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Transistor_FET:2N7002")
+		(at 123.19 101.6 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "b38cfa35-1be7-4a41-a226-b7da0db44e3f")
+		(property "Reference" "Q93"
+			(at 129.54 100.3299 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "2N7002"
+			(at 129.54 102.8699 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Package_TO_SOT_SMD:SOT-23"
+			(at 128.27 103.505 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+					(italic yes)
+				)
+				(justify left)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "https://www.onsemi.com/pub/Collateral/NDS7002A-D.PDF"
+			(at 128.27 105.41 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 123.19 101.6 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "3"
+			(uuid "13409d65-28bd-40ef-a164-b816ae144d2a")
+		)
+		(pin "1"
+			(uuid "9b4817f8-ada2-4e01-9f83-d3fa9555c1de")
+		)
+		(pin "2"
+			(uuid "8fa84e54-bdf1-4589-a257-12746b8862fb")
+		)
+		(instances
+			(project "pcb_badge"
+				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
+					(reference "Q93")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:LED")
+		(at 236.22 104.14 90)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "b7227291-3323-4203-a181-89b401d67222")
+		(property "Reference" "D47"
+			(at 240.03 104.4575 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Value" "LED"
+			(at 240.03 106.9975 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Footprint" "LED_SMD:LED_0402_1005Metric_Pad0.77x0.64mm_HandSolder"
+			(at 236.22 104.14 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 236.22 104.14 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 236.22 104.14 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "2"
+			(uuid "f33452c7-3a63-4a2d-b689-46475bc3282b")
+		)
+		(pin "1"
+			(uuid "d561e2ed-7b85-4362-a088-444f07872759")
+		)
+		(instances
+			(project "pcb_badge"
+				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
+					(reference "D47")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:LED")
+		(at 154.94 119.38 90)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "b7f0b3a8-3a0c-4318-a215-31c6ef1c7dc0")
+		(property "Reference" "D51"
+			(at 158.75 119.6975 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Value" "LED"
+			(at 158.75 122.2375 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Footprint" "LED_SMD:LED_0402_1005Metric_Pad0.77x0.64mm_HandSolder"
+			(at 154.94 119.38 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 154.94 119.38 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 154.94 119.38 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "2"
+			(uuid "8c6922a2-20e5-417f-bb77-d829b194cb7c")
+		)
+		(pin "1"
+			(uuid "a8c66cb9-f3f9-4d91-bc50-f44d168c752e")
+		)
+		(instances
+			(project "pcb_badge"
+				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
+					(reference "D51")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:LED")
+		(at 236.22 73.66 90)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "baaed146-c61b-4474-b8eb-654703b2e530")
+		(property "Reference" "D27"
+			(at 240.03 73.9775 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Value" "LED"
+			(at 240.03 76.5175 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Footprint" "LED_SMD:LED_0402_1005Metric_Pad0.77x0.64mm_HandSolder"
+			(at 236.22 73.66 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 236.22 73.66 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 236.22 73.66 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "2"
+			(uuid "f5d15618-13d1-4bba-aace-0a5a041a5661")
+		)
+		(pin "1"
+			(uuid "044a4f57-c1de-4360-96a3-dc97d14f6e8c")
+		)
+		(instances
+			(project "pcb_badge"
+				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
+					(reference "D27")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:LED")
+		(at 222.25 119.38 90)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "bd2ead88-451b-4090-8989-c32d99ce6694")
+		(property "Reference" "D56"
+			(at 226.06 119.6975 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Value" "LED"
+			(at 226.06 122.2375 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Footprint" "LED_SMD:LED_0402_1005Metric_Pad0.77x0.64mm_HandSolder"
+			(at 222.25 119.38 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 222.25 119.38 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 222.25 119.38 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "2"
+			(uuid "7dfa278c-85b0-4b1a-a18b-96a4eb1c1682")
+		)
+		(pin "1"
+			(uuid "a1ffef7b-df56-4b9f-b0e8-4fadf51decfb")
+		)
+		(instances
+			(project "pcb_badge"
+				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
+					(reference "D56")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:LED")
+		(at 209.55 119.38 90)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "be4aaa25-0dfd-43c1-9b15-131b7f5e09f5")
+		(property "Reference" "D55"
+			(at 213.36 119.6975 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Value" "LED"
+			(at 213.36 122.2375 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Footprint" "LED_SMD:LED_0402_1005Metric_Pad0.77x0.64mm_HandSolder"
+			(at 209.55 119.38 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 209.55 119.38 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 209.55 119.38 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "2"
+			(uuid "ec89829a-808b-4c4f-bf93-f8f4a5e86724")
+		)
+		(pin "1"
+			(uuid "ea2752ef-07ab-413d-97b5-2dd034a46194")
+		)
+		(instances
+			(project "pcb_badge"
+				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
+					(reference "D55")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:LED")
+		(at 209.55 134.62 90)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "cb5cb2f2-c259-4fa5-8e7f-ef5fb0efddb2")
+		(property "Reference" "D65"
+			(at 213.36 134.9375 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Value" "LED"
+			(at 213.36 137.4775 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Footprint" "LED_SMD:LED_0402_1005Metric_Pad0.77x0.64mm_HandSolder"
+			(at 209.55 134.62 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 209.55 134.62 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 209.55 134.62 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "2"
+			(uuid "f01016fd-ad73-47c3-8de7-1b28fdcb6f3e")
+		)
+		(pin "1"
+			(uuid "7d7d22bb-dfbb-4153-93c0-5e0559ea03f6")
+		)
+		(instances
+			(project "pcb_badge"
+				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
+					(reference "D65")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Transistor_FET:2N7002")
+		(at 123.19 132.08 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "cd73ec47-0dfd-48b5-bc74-61499811418e")
+		(property "Reference" "Q95"
+			(at 129.54 130.8099 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "2N7002"
+			(at 129.54 133.3499 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Package_TO_SOT_SMD:SOT-23"
+			(at 128.27 133.985 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+					(italic yes)
+				)
+				(justify left)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "https://www.onsemi.com/pub/Collateral/NDS7002A-D.PDF"
+			(at 128.27 135.89 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 123.19 132.08 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "3"
+			(uuid "141bf10a-b4bf-4341-9139-1892f9e4c603")
+		)
+		(pin "1"
+			(uuid "0ec4c859-40e2-4bab-958e-d0ab5156d82d")
+		)
+		(pin "2"
+			(uuid "1787ebf9-6974-49f4-9c56-5269c90675e9")
+		)
+		(instances
+			(project "pcb_badge"
+				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
+					(reference "Q95")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:LED")
+		(at 154.94 73.66 90)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "d5a15840-6573-49c4-b1d1-ee8d42dc4840")
+		(property "Reference" "D21"
+			(at 158.75 73.9775 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Value" "LED"
+			(at 158.75 76.5175 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Footprint" "LED_SMD:LED_0402_1005Metric_Pad0.77x0.64mm_HandSolder"
+			(at 154.94 73.66 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 154.94 73.66 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 154.94 73.66 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "2"
+			(uuid "3c1d374d-761b-4d8d-a1a0-97b6fa0bd9e8")
+		)
+		(pin "1"
+			(uuid "69d5f2d9-4807-43b3-a02f-228094fceb38")
+		)
+		(instances
+			(project "pcb_badge"
+				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
+					(reference "D21")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:LED")
+		(at 181.61 43.18 90)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "d898bffc-ee05-40eb-8bf6-ae88140f88a5")
+		(property "Reference" "D03"
+			(at 185.42 43.4974 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Value" "LED"
+			(at 185.42 46.0374 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Footprint" "LED_SMD:LED_0402_1005Metric_Pad0.77x0.64mm_HandSolder"
+			(at 181.61 43.18 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 181.61 43.18 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 181.61 43.18 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "2"
+			(uuid "6b059968-5a33-4ff2-a3d2-d2af09104bef")
+		)
+		(pin "1"
+			(uuid "a91a670d-ba30-48b7-acff-17d65ef36d1a")
+		)
+		(instances
+			(project "pcb_badge"
+				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
+					(reference "D03")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:LED")
+		(at 167.64 104.14 90)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "d8f41e45-35f1-4257-86e5-8eb78baca207")
+		(property "Reference" "D42"
+			(at 171.45 104.4575 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Value" "LED"
+			(at 171.45 106.9975 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Footprint" "LED_SMD:LED_0402_1005Metric_Pad0.77x0.64mm_HandSolder"
+			(at 167.64 104.14 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 167.64 104.14 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 167.64 104.14 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "2"
+			(uuid "4252881f-54d3-41e8-9f1e-0c43df92ae76")
+		)
+		(pin "1"
+			(uuid "27fe4234-43ac-44e8-bb96-d3295a668529")
+		)
+		(instances
+			(project "pcb_badge"
+				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
+					(reference "D42")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:LED")
+		(at 236.22 58.42 90)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "d9515bf4-e8a9-4aba-bed5-ed503b25df76")
+		(property "Reference" "D17"
+			(at 240.03 58.7375 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Value" "LED"
+			(at 240.03 61.2775 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Footprint" "LED_SMD:LED_0402_1005Metric_Pad0.77x0.64mm_HandSolder"
+			(at 236.22 58.42 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 236.22 58.42 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 236.22 58.42 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "2"
+			(uuid "14f8a835-0ab3-4ccb-bda3-8f1fdaa1b202")
+		)
+		(pin "1"
+			(uuid "3c23502d-64b8-4831-9563-00bc39e88f63")
+		)
+		(instances
+			(project "pcb_badge"
+				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
+					(reference "D17")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:LED")
+		(at 181.61 134.62 90)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "d9a2a705-350c-4a4a-872f-2312cdd636b1")
+		(property "Reference" "D63"
+			(at 185.42 134.9375 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Value" "LED"
+			(at 185.42 137.4775 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Footprint" "LED_SMD:LED_0402_1005Metric_Pad0.77x0.64mm_HandSolder"
+			(at 181.61 134.62 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 181.61 134.62 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 181.61 134.62 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "2"
+			(uuid "f413c124-6dfc-4de7-a7a9-37ade6e897ea")
+		)
+		(pin "1"
+			(uuid "e18d505c-506b-43be-ad3f-3be9819cb54a")
+		)
+		(instances
+			(project "pcb_badge"
+				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
+					(reference "D63")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:LED")
+		(at 167.64 134.62 90)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "db130cb2-236d-4d42-acac-6f03860c7c05")
+		(property "Reference" "D62"
+			(at 171.45 134.9375 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Value" "LED"
+			(at 171.45 137.4775 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Footprint" "LED_SMD:LED_0402_1005Metric_Pad0.77x0.64mm_HandSolder"
+			(at 167.64 134.62 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 167.64 134.62 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 167.64 134.62 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "2"
+			(uuid "b4a27141-167c-4cf0-8f96-291d9546699e")
+		)
+		(pin "1"
+			(uuid "efd85750-b5f7-4bbd-80a5-85eb8737ca2b")
+		)
+		(instances
+			(project "pcb_badge"
+				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
+					(reference "D62")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:LED")
+		(at 236.22 88.9 90)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "e01f9aaf-8873-47c6-9e74-9911f763c809")
+		(property "Reference" "D37"
+			(at 240.03 89.2175 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Value" "LED"
+			(at 240.03 91.7575 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Footprint" "LED_SMD:LED_0402_1005Metric_Pad0.77x0.64mm_HandSolder"
+			(at 236.22 88.9 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 236.22 88.9 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 236.22 88.9 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "2"
+			(uuid "ce58b8a3-03b7-4cd1-a09b-2f05bbedb38f")
+		)
+		(pin "1"
+			(uuid "5d8cde4a-ec7b-4b8d-8600-1da06addb841")
+		)
+		(instances
+			(project "pcb_badge"
+				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
+					(reference "D37")
 					(unit 1)
 				)
 			)
@@ -10932,16 +10949,16 @@
 	)
 	(symbol
 		(lib_id "Device:LED")
-		(at 154.94 134.62 90)
+		(at 154.94 43.18 90)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
 		(fields_autoplaced yes)
-		(uuid "e8a9e088-b89f-4e42-a7e2-07999fcb7fd3")
-		(property "Reference" "D61"
-			(at 158.75 134.9375 90)
+		(uuid "e81d18e3-c75b-422a-a1eb-16903ad87ca3")
+		(property "Reference" "D01"
+			(at 158.75 43.4974 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -10950,7 +10967,7 @@
 			)
 		)
 		(property "Value" "LED"
-			(at 158.75 137.4775 90)
+			(at 158.75 46.0374 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -10959,7 +10976,7 @@
 			)
 		)
 		(property "Footprint" "LED_SMD:LED_0402_1005Metric_Pad0.77x0.64mm_HandSolder"
-			(at 154.94 134.62 0)
+			(at 154.94 43.18 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -10968,7 +10985,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 154.94 134.62 0)
+			(at 154.94 43.18 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -10977,7 +10994,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 154.94 134.62 0)
+			(at 154.94 43.18 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -10986,15 +11003,15 @@
 			)
 		)
 		(pin "2"
-			(uuid "cfa6d5ec-36d3-416e-b5a5-31fe43bbd5b7")
+			(uuid "a4040857-9f3e-49f1-a514-2086043a5552")
 		)
 		(pin "1"
-			(uuid "8eb8d63a-78a7-448a-8753-609d2001bebb")
+			(uuid "0627cc18-e6f0-4491-b0f8-79a5f31bf41b")
 		)
 		(instances
 			(project "pcb_badge"
 				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "D61")
+					(reference "D01")
 					(unit 1)
 				)
 			)
@@ -11002,16 +11019,16 @@
 	)
 	(symbol
 		(lib_id "Device:LED")
-		(at 236.22 58.42 90)
+		(at 181.61 119.38 90)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
 		(fields_autoplaced yes)
-		(uuid "e8f5f1ea-ea2a-4bd3-ada3-d5a14425e8c5")
-		(property "Reference" "D17"
-			(at 240.03 58.7375 90)
+		(uuid "e9e1df7a-b977-493c-b1dc-a08cbeba1ad2")
+		(property "Reference" "D53"
+			(at 185.42 119.6975 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -11020,7 +11037,7 @@
 			)
 		)
 		(property "Value" "LED"
-			(at 240.03 61.2775 90)
+			(at 185.42 122.2375 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -11029,7 +11046,7 @@
 			)
 		)
 		(property "Footprint" "LED_SMD:LED_0402_1005Metric_Pad0.77x0.64mm_HandSolder"
-			(at 236.22 58.42 0)
+			(at 181.61 119.38 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -11038,7 +11055,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 236.22 58.42 0)
+			(at 181.61 119.38 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -11047,7 +11064,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 236.22 58.42 0)
+			(at 181.61 119.38 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -11056,15 +11073,15 @@
 			)
 		)
 		(pin "2"
-			(uuid "14f8a835-0ab3-4ccb-bda3-8f1fdaa1b202")
+			(uuid "8b49fc8e-c76d-47a8-86b1-5dc39208e871")
 		)
 		(pin "1"
-			(uuid "3c23502d-64b8-4831-9563-00bc39e88f63")
+			(uuid "503f1ea7-be08-4af0-98f0-0583b9036bb7")
 		)
 		(instances
 			(project "pcb_badge"
 				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "D17")
+					(reference "D53")
 					(unit 1)
 				)
 			)
@@ -11072,16 +11089,16 @@
 	)
 	(symbol
 		(lib_id "Device:LED")
-		(at 167.64 104.14 90)
+		(at 181.61 88.9 90)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
 		(fields_autoplaced yes)
-		(uuid "eda0aa48-ff76-4fb3-8430-92e08d09566e")
-		(property "Reference" "D42"
-			(at 171.45 104.4575 90)
+		(uuid "ee7bb212-5253-4733-8bf2-d41b55a07684")
+		(property "Reference" "D33"
+			(at 185.42 89.2175 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -11090,7 +11107,7 @@
 			)
 		)
 		(property "Value" "LED"
-			(at 171.45 106.9975 90)
+			(at 185.42 91.7575 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -11099,7 +11116,7 @@
 			)
 		)
 		(property "Footprint" "LED_SMD:LED_0402_1005Metric_Pad0.77x0.64mm_HandSolder"
-			(at 167.64 104.14 0)
+			(at 181.61 88.9 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -11108,7 +11125,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 167.64 104.14 0)
+			(at 181.61 88.9 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -11117,7 +11134,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 167.64 104.14 0)
+			(at 181.61 88.9 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -11126,167 +11143,15 @@
 			)
 		)
 		(pin "2"
-			(uuid "4252881f-54d3-41e8-9f1e-0c43df92ae76")
+			(uuid "cea0529f-7074-4c1d-bddc-f18a2f58d9e7")
 		)
 		(pin "1"
-			(uuid "27fe4234-43ac-44e8-bb96-d3295a668529")
+			(uuid "d621c59c-0d3c-43fe-8374-47d085df6c45")
 		)
 		(instances
 			(project "pcb_badge"
 				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "D42")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Transistor_FET:2N7002")
-		(at 123.19 101.6 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "ee130ab2-9663-4d59-b4b1-d4e074f85ce7")
-		(property "Reference" "Q93"
-			(at 129.54 100.3299 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Value" "2N7002"
-			(at 129.54 102.8699 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" "Package_TO_SOT_SMD:SOT-23"
-			(at 128.27 103.505 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-					(italic yes)
-				)
-				(justify left)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "https://www.onsemi.com/pub/Collateral/NDS7002A-D.PDF"
-			(at 128.27 105.41 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-				(hide yes)
-			)
-		)
-		(property "Description" ""
-			(at 123.19 101.6 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "3"
-			(uuid "13409d65-28bd-40ef-a164-b816ae144d2a")
-		)
-		(pin "1"
-			(uuid "9b4817f8-ada2-4e01-9f83-d3fa9555c1de")
-		)
-		(pin "2"
-			(uuid "8fa84e54-bdf1-4589-a257-12746b8862fb")
-		)
-		(instances
-			(project "pcb_badge"
-				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "Q93")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Transistor_FET:2N7002")
-		(at 123.19 132.08 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "ee8113f0-e042-42d8-b6f5-4453c41bed8e")
-		(property "Reference" "Q95"
-			(at 129.54 130.8099 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Value" "2N7002"
-			(at 129.54 133.3499 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" "Package_TO_SOT_SMD:SOT-23"
-			(at 128.27 133.985 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-					(italic yes)
-				)
-				(justify left)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "https://www.onsemi.com/pub/Collateral/NDS7002A-D.PDF"
-			(at 128.27 135.89 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-				(hide yes)
-			)
-		)
-		(property "Description" ""
-			(at 123.19 132.08 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "3"
-			(uuid "141bf10a-b4bf-4341-9139-1892f9e4c603")
-		)
-		(pin "1"
-			(uuid "0ec4c859-40e2-4bab-958e-d0ab5156d82d")
-		)
-		(pin "2"
-			(uuid "1787ebf9-6974-49f4-9c56-5269c90675e9")
-		)
-		(instances
-			(project "pcb_badge"
-				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "Q95")
+					(reference "D33")
 					(unit 1)
 				)
 			)
@@ -11294,16 +11159,16 @@
 	)
 	(symbol
 		(lib_id "Device:LED")
-		(at 209.55 149.86 90)
+		(at 181.61 149.86 90)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
 		(fields_autoplaced yes)
-		(uuid "f16a358b-8319-48ad-8f1b-e52609a3a15a")
-		(property "Reference" "D75"
-			(at 213.36 150.1775 90)
+		(uuid "f29b2c0b-6ba9-40e4-933d-749422fa9861")
+		(property "Reference" "D73"
+			(at 185.42 150.1775 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -11312,7 +11177,7 @@
 			)
 		)
 		(property "Value" "LED"
-			(at 213.36 152.7175 90)
+			(at 185.42 152.7175 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -11321,7 +11186,7 @@
 			)
 		)
 		(property "Footprint" "LED_SMD:LED_0402_1005Metric_Pad0.77x0.64mm_HandSolder"
-			(at 209.55 149.86 0)
+			(at 181.61 149.86 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -11330,7 +11195,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 209.55 149.86 0)
+			(at 181.61 149.86 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -11339,7 +11204,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 209.55 149.86 0)
+			(at 181.61 149.86 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -11348,15 +11213,15 @@
 			)
 		)
 		(pin "2"
-			(uuid "fbd20fbb-d054-4725-b8cc-9245a42f1c0e")
+			(uuid "ad49c59a-6da3-49bc-828c-34f0099e5974")
 		)
 		(pin "1"
-			(uuid "d98d9540-5d85-4843-a342-a4a1d4094847")
+			(uuid "284a45cf-b450-466f-b94b-841667aeac8c")
 		)
 		(instances
 			(project "pcb_badge"
 				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "D75")
+					(reference "D73")
 					(unit 1)
 				)
 			)
@@ -11371,7 +11236,7 @@
 		(on_board yes)
 		(dnp no)
 		(fields_autoplaced yes)
-		(uuid "f197cada-4a1f-49a6-9e45-754a55e9fac6")
+		(uuid "f2a0ce05-63e0-4255-9f3f-f3690e2ccf8d")
 		(property "Reference" "D41"
 			(at 158.75 104.4575 90)
 			(effects
@@ -11434,16 +11299,16 @@
 	)
 	(symbol
 		(lib_id "Device:LED")
-		(at 181.61 43.18 90)
+		(at 195.58 119.38 90)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
 		(fields_autoplaced yes)
-		(uuid "f2c8976b-a9d2-445a-ba38-23c30686e460")
-		(property "Reference" "D03"
-			(at 185.42 43.4975 90)
+		(uuid "f5254266-04df-4029-840d-98247843a9bc")
+		(property "Reference" "D54"
+			(at 199.39 119.6975 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -11452,7 +11317,7 @@
 			)
 		)
 		(property "Value" "LED"
-			(at 185.42 46.0375 90)
+			(at 199.39 122.2375 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -11461,7 +11326,7 @@
 			)
 		)
 		(property "Footprint" "LED_SMD:LED_0402_1005Metric_Pad0.77x0.64mm_HandSolder"
-			(at 181.61 43.18 0)
+			(at 195.58 119.38 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -11470,7 +11335,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 181.61 43.18 0)
+			(at 195.58 119.38 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -11479,7 +11344,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 181.61 43.18 0)
+			(at 195.58 119.38 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -11488,15 +11353,84 @@
 			)
 		)
 		(pin "2"
-			(uuid "6b059968-5a33-4ff2-a3d2-d2af09104bef")
+			(uuid "5d93e549-29d3-49ff-a51e-cc3422691400")
 		)
 		(pin "1"
-			(uuid "a91a670d-ba30-48b7-acff-17d65ef36d1a")
+			(uuid "f92f294f-e90e-455f-b0f5-060ed27bb6cc")
 		)
 		(instances
 			(project "pcb_badge"
 				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "D03")
+					(reference "D54")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:C")
+		(at 30.48 41.91 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "f665804b-35fa-4371-9a82-ab735c84d906")
+		(property "Reference" "C40"
+			(at 34.29 39.37 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "0.1u"
+			(at 34.29 41.91 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Capacitor_SMD:C_0402_1005Metric_Pad0.74x0.62mm_HandSolder"
+			(at 31.4452 45.72 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 30.48 41.91 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 30.48 41.91 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "a3b66dda-7832-4d2b-9629-18cee780aa85")
+		)
+		(pin "2"
+			(uuid "61e12797-5dce-4e7d-b828-5b2d850b23c6")
+		)
+		(instances
+			(project "pcb_badge"
+				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
+					(reference "C40")
 					(unit 1)
 				)
 			)
@@ -11504,16 +11438,16 @@
 	)
 	(symbol
 		(lib_id "Device:LED")
-		(at 195.58 104.14 90)
+		(at 181.61 58.42 90)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
 		(fields_autoplaced yes)
-		(uuid "feb0a211-93d3-4cc7-a9b4-c1b7d31d7814")
-		(property "Reference" "D44"
-			(at 199.39 104.4575 90)
+		(uuid "f7063181-b2d9-4de2-88d3-e1f8b789b9e3")
+		(property "Reference" "D13"
+			(at 185.42 58.7375 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -11522,7 +11456,7 @@
 			)
 		)
 		(property "Value" "LED"
-			(at 199.39 106.9975 90)
+			(at 185.42 61.2775 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -11531,7 +11465,7 @@
 			)
 		)
 		(property "Footprint" "LED_SMD:LED_0402_1005Metric_Pad0.77x0.64mm_HandSolder"
-			(at 195.58 104.14 0)
+			(at 181.61 58.42 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -11540,7 +11474,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 195.58 104.14 0)
+			(at 181.61 58.42 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -11549,7 +11483,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 195.58 104.14 0)
+			(at 181.61 58.42 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -11558,15 +11492,81 @@
 			)
 		)
 		(pin "2"
-			(uuid "5b438e42-ec93-4892-9c19-4c0c23dda78c")
+			(uuid "175509aa-f8ab-4e3d-9d35-fdb360867b04")
 		)
 		(pin "1"
-			(uuid "61b6fec0-14f4-40c5-aab9-a6929ca85143")
+			(uuid "d3dd90cf-5099-4721-a716-c3ae5125df59")
 		)
 		(instances
 			(project "pcb_badge"
 				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
-					(reference "D44")
+					(reference "D13")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:GND")
+		(at 125.73 151.13 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "fd8bc504-1239-42ff-9fa5-bfce043b8066")
+		(property "Reference" "#PWR018"
+			(at 125.73 157.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "GND"
+			(at 125.73 156.21 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 125.73 151.13 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 125.73 151.13 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 125.73 151.13 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "bfca224f-0b09-49ba-aafd-8366a27dbbdc")
+		)
+		(instances
+			(project "pcb_badge"
+				(path "/5e1f2779-68ae-4a90-b87f-237568be093e/4fda4515-5101-4114-b127-757a18906135"
+					(reference "#PWR018")
 					(unit 1)
 				)
 			)
