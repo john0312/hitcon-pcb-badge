@@ -18,7 +18,6 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
-#include "dma.h"
 #include "tim.h"
 #include "usart.h"
 #include "usb.h"
@@ -90,12 +89,11 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
-  MX_DMA_Init();
   MX_USB_PCD_Init();
   MX_USART2_UART_Init();
   MX_TIM3_Init();
   /* USER CODE BEGIN 2 */
-  hitcon_init(&htim3, TIM_CHANNEL_3);
+//  hitcon_init(&htim3, TIM_CHANNEL_3);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -105,7 +103,10 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-	hitcon_loop();
+	if (HAL_GPIO_ReadPin(IrIn_GPIO_Port, IrIn_Pin) == GPIO_PIN_SET)
+		HAL_GPIO_WritePin(IrOut_GPIO_Port, IrOut_Pin, GPIO_PIN_SET);
+	else
+		HAL_GPIO_WritePin(IrOut_GPIO_Port, IrOut_Pin, GPIO_PIN_RESET);
   }
   /* USER CODE END 3 */
 }
