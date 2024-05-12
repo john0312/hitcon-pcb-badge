@@ -6909,10 +6909,9 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(fields_autoplaced yes)
 		(uuid "2b3d42f4-f853-4c2d-8ad0-25205452e1e2")
 		(property "Reference" "D161"
-			(at 123.19 221.2974 90)
+			(at 122.174 228.6 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6920,8 +6919,8 @@
 				(justify right)
 			)
 		)
-		(property "Value" "IR_LED"
-			(at 123.19 223.8374 90)
+		(property "Value" "NEWOPTO XYC-IRA2835A90-X4"
+			(at 122.174 230.632 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7682,7 +7681,7 @@
 				(justify right)
 			)
 		)
-		(property "Value" "IR_LED"
+		(property "Value" "NC"
 			(at 138.43 223.8374 90)
 			(effects
 				(font
@@ -9398,7 +9397,7 @@
 				)
 			)
 		)
-		(property "Value" "470"
+		(property "Value" "220"
 			(at 66.04 240.03 90)
 			(effects
 				(font
@@ -10701,7 +10700,7 @@
 		(fields_autoplaced yes)
 		(uuid "da27880f-b23d-4d1e-a389-58cad08dad51")
 		(property "Reference" "D3"
-			(at 104.14 221.2975 90)
+			(at 104.14 221.2974 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -10709,8 +10708,8 @@
 				(justify right)
 			)
 		)
-		(property "Value" "IR_LED"
-			(at 104.14 223.8375 90)
+		(property "Value" "NC"
+			(at 104.14 223.8374 90)
 			(effects
 				(font
 					(size 1.27 1.27)

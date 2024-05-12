@@ -1697,7 +1697,7 @@
 			)
 			(uuid "049c2a09-df58-41a8-a6f2-ef8f5b01cf48")
 		)
-		(pin "DEC_IN" input
+		(pin "DEC_EN" input
 			(at 222.25 80.01 180)
 			(effects
 				(font

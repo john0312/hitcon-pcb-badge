@@ -2987,12 +2987,6 @@
 		(uuid "85d12ce5-214c-4c2d-9859-93a6f70e0538")
 	)
 	(junction
-		(at 34.29 176.53)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "8e8e0b6d-50d4-4543-871b-d5cd97653db6")
-	)
-	(junction
 		(at 125.73 43.18)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -3224,7 +3218,7 @@
 	)
 	(wire
 		(pts
-			(xy 34.29 176.53) (xy 34.29 173.99)
+			(xy 34.29 173.99) (xy 34.29 179.07)
 		)
 		(stroke
 			(width 0)
@@ -3381,16 +3375,6 @@
 			(type default)
 		)
 		(uuid "3e6aeca7-f678-4cbc-b367-f373fbb22652")
-	)
-	(wire
-		(pts
-			(xy 26.67 173.99) (xy 26.67 176.53)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "43fcb9c9-efe9-4812-b4ba-5ef1972bf2f7")
 	)
 	(wire
 		(pts
@@ -4004,16 +3988,6 @@
 	)
 	(wire
 		(pts
-			(xy 34.29 176.53) (xy 34.29 179.07)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "9aca45d6-baed-4f50-9803-dc6808f8ef3c")
-	)
-	(wire
-		(pts
 			(xy 110.49 34.29) (xy 110.49 43.18)
 		)
 		(stroke
@@ -4151,16 +4125,6 @@
 			(type default)
 		)
 		(uuid "b9ac3c8c-656b-45cb-b26a-67208df7668c")
-	)
-	(wire
-		(pts
-			(xy 26.67 176.53) (xy 34.29 176.53)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "c1f2cea1-bd91-4b37-a09b-8de8026fe62e")
 	)
 	(wire
 		(pts
@@ -6645,7 +6609,7 @@
 				)
 			)
 		)
-		(property "Value" "USB_C_Receptacle_USB2.0_16P"
+		(property "Value" "DEALON USB-TYPE-C-018"
 			(at 34.29 130.81 0)
 			(effects
 				(font
@@ -7095,10 +7059,9 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(fields_autoplaced yes)
 		(uuid "b4f27446-b2bd-4a22-b76e-dbda520c88d6")
 		(property "Reference" "BT1"
-			(at 60.96 38.7985 0)
+			(at 60.96 38.7984 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7106,8 +7069,8 @@
 				(justify left)
 			)
 		)
-		(property "Value" "Battery_Cell"
-			(at 60.96 41.3385 0)
+		(property "Value" "MYOUNG BH-AAA-B5BA021"
+			(at 57.912 36.576 0)
 			(effects
 				(font
 					(size 1.27 1.27)
