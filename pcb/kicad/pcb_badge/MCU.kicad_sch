@@ -3791,6 +3791,16 @@
 	)
 	(wire
 		(pts
+			(xy 116.84 105.41) (xy 121.92 105.41)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "07572d39-fb5d-466c-9e84-f3686758f9e5")
+	)
+	(wire
+		(pts
 			(xy 111.76 200.66) (xy 111.76 204.47)
 		)
 		(stroke
@@ -6352,6 +6362,18 @@
 			(justify right)
 		)
 		(uuid "1586890a-51fb-4cc8-a60c-ab0e4e5f2cbd")
+	)
+	(hierarchical_label "DEC_EN"
+		(shape output)
+		(at 116.84 105.41 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "1692bc6e-51d0-4c5b-828c-4d7858a38852")
 	)
 	(hierarchical_label "PA12"
 		(shape input)

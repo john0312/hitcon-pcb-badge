@@ -410,6 +410,12 @@
 		(uuid "b4ba5ea9-92be-4fa5-8962-c4f7a9a79c2a")
 	)
 	(junction
+		(at 205.74 80.01)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "c977f697-5658-4d79-8e1d-5dd2e2a54c0c")
+	)
+	(junction
 		(at 205.74 92.71)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -484,6 +490,16 @@
 			(type default)
 		)
 		(uuid "2a4807e2-eee0-4935-9520-11029b75e9a8")
+	)
+	(wire
+		(pts
+			(xy 175.26 80.01) (xy 205.74 80.01)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "2e9c00ff-907d-4330-983e-0aceeaa69f8e")
 	)
 	(wire
 		(pts
@@ -814,6 +830,16 @@
 			(type default)
 		)
 		(uuid "d98fd36d-163c-44db-a8bc-89baa4065665")
+	)
+	(wire
+		(pts
+			(xy 205.74 80.01) (xy 222.25 80.01)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "dd6eeb58-21c7-4330-a573-7c8149bcd438")
 	)
 	(wire
 		(pts
@@ -1671,6 +1697,16 @@
 			)
 			(uuid "049c2a09-df58-41a8-a6f2-ef8f5b01cf48")
 		)
+		(pin "DEC_IN" input
+			(at 222.25 80.01 180)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+			(uuid "ca55169f-4e75-4484-9325-838c26d96c78")
+		)
 		(instances
 			(project "pcb_badge"
 				(path "/5e1f2779-68ae-4a90-b87f-237568be093e"
@@ -1828,6 +1864,16 @@
 				(justify left)
 			)
 			(uuid "d06992c0-70ef-4861-8a82-0c45af0126cc")
+		)
+		(pin "DEC_EN" input
+			(at 205.74 80.01 180)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+			(uuid "b6cc47b4-2382-4bd7-9fe4-2ebf899de3e4")
 		)
 		(instances
 			(project "pcb_badge"
@@ -2104,6 +2150,16 @@
 				(justify right)
 			)
 			(uuid "767b35b5-a027-4fdd-ac5a-30ee5baef856")
+		)
+		(pin "DEC_EN" output
+			(at 175.26 80.01 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+			(uuid "fd91b1a6-8ef7-4a2b-ba67-3654a7bc27d0")
 		)
 		(instances
 			(project "pcb_badge"
