@@ -1581,7 +1581,7 @@
 			)
 			(uuid "e8a41d21-1cee-412f-b8fe-f69e9ed25708")
 		)
-		(pin "EN" input
+		(pin "A3" input
 			(at 222.25 77.47 180)
 			(effects
 				(font
@@ -1809,7 +1809,7 @@
 			)
 			(uuid "fa3e90a9-acc9-4c19-93bd-26acfb10dbae")
 		)
-		(pin "EN" input
+		(pin "A3" input
 			(at 205.74 77.47 180)
 			(effects
 				(font
