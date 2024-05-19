@@ -5,8 +5,8 @@
  *      Author: aoaaceai
  */
 
-#ifndef HITCON_SERVICE_DELAYEDTASK_H_
-#define HITCON_SERVICE_DELAYEDTASK_H_
+#ifndef HITCON_SERVICE_SCHED_DELAYEDTASK_H_
+#define HITCON_SERVICE_SCHED_DELAYEDTASK_H_
 
 #include "Task.h"
 
@@ -25,4 +25,4 @@ public:
 } /* namespace service */
 } /* namespace hitcon */
 
-#endif /* HITCON_SERVICE_DELAYEDTASK_H_ */
+#endif /* HITCON_SERVICE_SCHED_DELAYEDTASK_H_ */

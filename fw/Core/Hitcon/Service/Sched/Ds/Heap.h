@@ -5,8 +5,8 @@
  *      Author: aoaaceai
  */
 
-#ifndef HITCON_SERVICE_DS_HEAP_H_
-#define HITCON_SERVICE_DS_HEAP_H_
+#ifndef HITCON_SERVICE_SCHED_DS_HEAP_H_
+#define HITCON_SERVICE_SCHED_DS_HEAP_H_
 
 #include <Common.h>
 
@@ -101,4 +101,4 @@ public:
 } /* namespace service */
 } /* namespace hitcon */
 
-#endif /* HITCON_SERVICE_DS_HEAP_H_ */
+#endif /* HITCON_SERVICE_SCHED_DS_HEAP_H_ */

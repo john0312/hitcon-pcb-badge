@@ -5,8 +5,8 @@
  *      Author: aoaaceai
  */
 
-#ifndef HITCON_SERVICE_TASK_H_
-#define HITCON_SERVICE_TASK_H_
+#ifndef HITCON_SERVICE_SCHED_TASK_H_
+#define HITCON_SERVICE_SCHED_TASK_H_
 
 namespace hitcon {
 namespace service {
@@ -30,4 +30,4 @@ public:
 } /* namespcae service */
 } /* namespace hitcon */
 
-#endif /* HITCON_SERVICE_TASK_H_ */
+#endif /* HITCON_SERVICE_SCHED_TASK_H_ */

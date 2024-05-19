@@ -11,20 +11,17 @@ namespace hitcon {
 namespace service {
 
 Scheduler::Scheduler() {
-	// TODO Auto-generated constructor stub
-
 }
 
 Scheduler::~Scheduler() {
-	// TODO Auto-generated destructor stub
 }
 
 bool Scheduler::Queue(Task *task) {
-	tasks.Add(task);
+	return tasks.Add(task);
 }
 
 bool Scheduler::Queue(DelayedTask *task) {
-	delayedTasks.Add(task);
+	return delayedTasks.Add(task);
 }
 
 } /* namespace service */
