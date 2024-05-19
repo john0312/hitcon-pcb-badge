@@ -7,10 +7,11 @@
 
 #include "IrSender.h"
 #include "main.h"
+#include "IrLib.h"
 
 namespace hitcon {
 
-const uint32_t pwmSz = 256;
+const uint32_t pwmSz = 3;
 
 uint32_t pwmData[pwmSz];
 
@@ -22,13 +23,18 @@ void IrSender::init(TIM_HandleTypeDef *timer, uint32_t dmaChannel) {
 	this->timer = timer;
 	this->dmaChannel = dmaChannel;
 	for (unsigned i = 0; i < pwmSz; ++i)
-		pwmData[i] = i;
+		pwmData[i] = 80 * (i+1);
+	HAL_TIM_Base_Start(timer);
+}
+
+void IrSender::send(uint32_t size, uint8_t *data) {
+	encode_packet(size, data, &sendingPacket);
 }
 
 void IrSender::trigger() {
-	HAL_TIM_Base_Start(timer);
 	HAL_TIM_PWM_Start(timer, dmaChannel);
-//	HAL_TIM_PWM_Start_DMA(timer, dmaChannel, pwmData, pwmSz);
+//	HAL_TIM_PWM_Start_DMA(timer, dmaChannel, (uint32_t*) pwmData, pwmSz);
+//	HAL_Delay(1337000);
 }
 
 void IrSender::stop() {

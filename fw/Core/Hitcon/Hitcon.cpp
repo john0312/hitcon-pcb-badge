@@ -16,10 +16,19 @@ void hitcon_init(TIM_HandleTypeDef *timer, uint32_t dmaChannel) {
 	irSender.init(timer, dmaChannel);
 }
 
+static void busy_delay(uint32_t delay) {
+	static uint32_t lastTick = 0;
+	uint32_t currentTick;
+	do {
+		currentTick = HAL_GetTick();
+	} while (currentTick - lastTick < delay);
+	lastTick = currentTick;
+}
+
 
 void hitcon_loop() {
 	irSender.trigger();
-	HAL_Delay(1000);
+	busy_delay(1000);
 	irSender.stop();
-	HAL_Delay(1000);
+	busy_delay(1000);
 }
