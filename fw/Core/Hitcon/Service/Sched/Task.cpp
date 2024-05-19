@@ -9,6 +9,7 @@
 
 namespace hitcon {
 namespace service {
+namespace sched {
 
 Task::Task(unsigned prio, task_callback_t callback, void *thisptr, void *arg)
 		: prio(prio), callback(callback), thisptr(thisptr), arg(arg) {
@@ -36,5 +37,6 @@ bool Task::operator <(Task &task) {
 	return prio < task.prio;
 }
 
+} /* namespace sched */
 } /* namespace service */
 } /* namespace hitcon */

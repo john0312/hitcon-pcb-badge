@@ -12,8 +12,10 @@
 
 namespace hitcon {
 namespace service {
+namespace sched {
 
-class DelayedTask : public virtual Task {
+class DelayedTask : public Task {
+protected:
 	unsigned wakeTime;
 public:
 	DelayedTask(unsigned prio, task_callback_t callback, void *thisptr, void *arg, unsigned wakeTime);
@@ -22,6 +24,7 @@ public:
 	bool operator <(DelayedTask &task);
 };
 
+} /* namespace sched */
 } /* namespace service */
 } /* namespace hitcon */
 
