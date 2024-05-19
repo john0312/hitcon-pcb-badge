@@ -59,6 +59,8 @@ int decode_bit_at_pos(queue_t *buf, size_t pos) {
 int decode_packet(raw_packet_t *received_bits, size_t *decoded_size_byte,
                   uint8_t decoded_data[PACKET_DATA_MAX_BYTE]) {
   static queue_t buf;
+  int size = 0;
+  int parity = 0;
 
   // Append data to buffer
   for (size_t i = 0; i < received_bits->size; i++) {
@@ -79,7 +81,7 @@ int decode_packet(raw_packet_t *received_bits, size_t *decoded_size_byte,
     }
 
     // Find size (little-endian)
-    int size = 0;
+    size = 0;
     for (size_t i = 0; i < PACKET_SIZE_LEN; i++) {
       int bit = decode_bit_at_pos(&buf, PACKET_START_LEN + i);
       if (bit == -1)
@@ -90,7 +92,7 @@ int decode_packet(raw_packet_t *received_bits, size_t *decoded_size_byte,
       goto next;
 
     // Parse data (little-endian)
-    int parity = 0;
+    parity = 0;
     for (int i = 0; i < size; i++) {
       uint8_t byte = 0;
       for (int j = 0; j < 8; j++) {

@@ -1,3 +1,5 @@
+#ifdef HITCON_TEST_MODE
+
 #include "infrared.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -87,3 +89,5 @@ int main() {
 
   return 0;
 }
+
+#endif

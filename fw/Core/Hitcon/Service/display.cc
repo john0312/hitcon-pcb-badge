@@ -118,7 +118,7 @@ void display_set_mode_scroll_text(const char *text, int speed) {
       for (int x = 0;
            x < char_width && i * char_width + x < DISPLAY_SCROLL_MAX_COLUMNS;
            ++x) {
-        buf[y][i * char_width + x] = rasterize_char_5x8(text[i], y, x);
+        buf[y][i * char_width + x] = rasterize_char_5x8((size_t) text[i], y, x);
       }
     }
   }

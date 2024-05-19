@@ -1,3 +1,5 @@
+#ifdef HITCON_TEST_MODE
+
 #include "display.h"
 #include <stdio.h>
 #include <unistd.h>
@@ -82,3 +84,5 @@ int main() {
 
   return 0;
 }
+
+#endif

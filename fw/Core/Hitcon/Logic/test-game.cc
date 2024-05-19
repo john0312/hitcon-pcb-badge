@@ -1,3 +1,5 @@
+#ifdef HITCON_TEST_MODE
+
 #include "game.h"
 #include <stdio.h>
 #include <unistd.h>
@@ -42,3 +44,5 @@ int main() {
 
   return 0;
 }
+
+#endif
