@@ -10,11 +10,14 @@
 
 namespace hitcon {
 namespace service {
+namespace sched {
 
 typedef void (*task_callback_t)(void *thisptr, void *arg);
 
 class Task {
+private:
 	unsigned tid;
+protected:
 	unsigned prio;
 	task_callback_t callback;
 	void *thisptr, *arg;
@@ -27,6 +30,7 @@ public:
 	virtual bool operator <(Task &task);
 };
 
+} /* namespace sched */
 } /* namespcae service */
 } /* namespace hitcon */
 

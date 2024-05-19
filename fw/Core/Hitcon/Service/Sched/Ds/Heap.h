@@ -12,6 +12,7 @@
 
 namespace hitcon {
 namespace service {
+namespace sched {
 
 namespace heap {
 
@@ -98,6 +99,7 @@ public:
 	}
 };
 
+} /* namespace sched */
 } /* namespace service */
 } /* namespace hitcon */
 
