@@ -2,7 +2,6 @@
 
 namespace hitcon {
 
-ButtonService::ButtonService() {
-}
+ButtonService::ButtonService() {}
 
-}
+} // namespace hitcon

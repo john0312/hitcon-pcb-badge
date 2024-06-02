@@ -1,7 +1,7 @@
 .PHONY: format
 
 format:
-	clang-format -i *.c *.h
+	clang-format -i *.cc *.h
 
 /tmp/test-game: test-game.cc game.cc
 	g++ -DHITCON_TEST_MODE -o /tmp/test-game test-game.cc game.cc
