@@ -8,7 +8,7 @@ MenuTree::MenuTree() {
 void MenuTree::OnButton(button_t button) {
 }
 
-void MenuTree::OnCrossBoardPacket(uint8_t* packet) {
+void MenuTree::OnCrossBoardPacket(XBoardPacket* packet) {
 }
 
 void MenuTree::OnUsbInsertion() {

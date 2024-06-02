@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include <Util/callback.h>
 #include <Service/ButtonService.h>
+#include <Service/XBoardService.h>
 
 namespace hitcon {
 
@@ -18,7 +19,7 @@ class MenuTree final {
 
   // This is called whenever a packet is received from cross board
   // connector, usually by CrossBoardService.
-  void OnCrossBoardPacket(uint8_t* packet);
+  void OnCrossBoardPacket(XBoardPacket* packet);
 
   // This is called by UsbService whenever we're plugged into a
   // computer.
