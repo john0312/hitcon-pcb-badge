@@ -5,31 +5,48 @@
 #include <stdint.h>
 #include <Util/callback.h>
 #include <Service/DisplayInfo.h>
+#include <Service/Sched/Task.h>
+
+using namespace hitcon::service::sched;
 
 namespace hitcon {
-
+typedef struct CB_Param{
+  void* p1;
+  void* p2;
+} request_cb_param ;
 class DisplayService {
- public:
-  DisplayService();
+  public:
+    DisplayService();
 
-  // Init should:
-  // - Setup TIM2 to run at 9.5kHz.
-  // - Setup TIM2_CH1 to fire DMA trigger.
-  // - Setup DMA1 CH5 to write to PB GPIO.
-  void Init();
+    // Init should:
+    // - Setup TIM2 to run at 9.5kHz.
+    // - Setup TIM2_CH1 to fire DMA trigger.
+    // - Setup DMA1 CH5 to write to PB GPIO.
+    void Init();
 
-  // This callback will be called whenever DisplayService wants to pull a
-  // set of frames from the upper layer.
-  // The callback should call PopulateFrames().
-  void SetRequestFrameCallback(callback_t callback, void* callback_arg1);
+    // This callback will be called whenever DisplayService wants to pull a
+    // set of frames from the upper layer.
+    // The callback should call PopulateFrames().
+    void SetRequestFrameCallback(callback_t callback, void* callback_arg1);
 
-  // After RequestFrame callback is triggered, this should be called by upper
-  // layer to send frame to DisplayService. Each call should contain
-  // DISPLAY_FRAME_BATCH of frames.
-  void PopulateFrames(uint8_t* buffer);
+    // After RequestFrame callback is triggered, this should be called by upper
+    // layer to send frame to DisplayService. Each call should contain
+    // DISPLAY_FRAME_BATCH of frames.
+    void PopulateFrames(uint8_t* buffer);
 
-  // 0-100
-  void SetBrightness(int brightness);
+    // 0-10
+    void SetBrightness(uint8_t brightness);
+
+    void* request_frame_callback_arg1;
+    Task task;
+  private:
+    callback_t request_frame_callback;
+    uint8_t current_buffer_index;
+    uint32_t double_buffer[DISPLAY_FRAME_SIZE*DISPLAY_FRAME_BATCH*2];
+
+    void cb(request_cb_param* arg) {
+    	request_frame_callback(arg->p1, arg->p2);
+    }
 };
 
 #ifndef SERVICE_DISPLAY_SERVICE_CC_

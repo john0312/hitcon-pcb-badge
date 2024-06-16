@@ -6,6 +6,7 @@
 #include <Util/callback.h>
 #include <Service/DisplayService.h>
 #include <Service/DisplayInfo.h>
+#include <Logic/Display/display.h>
 
 namespace hitcon {
 
@@ -19,9 +20,9 @@ class DisplayLogic {
   void Init();
 
   // This is called by DisplayService to request for frames.
-  void OnRequestFrame(void *unused);
+  void OnRequestFrame(void* unused);
  private:
-  uint8_t buffer_[DISPLAY_FRAME_SIZE*DISPLAY_FRAME_BATCH];
+  uint8_t buffer_[DISPLAY_HEIGHT*DISPLAY_WIDTH*DISPLAY_FRAME_BATCH];
 
   // How many frames have we pushed to DisplayService?
   int frame_;

@@ -20,17 +20,26 @@ Scheduler::Scheduler() {
 Scheduler::~Scheduler() {
 }
 
+void my_assert(bool expr) {
+  if (!expr) {
+      ((char*)nullptr)[0] = 0;
+  }
+}
+
 bool Scheduler::Queue(Task *task, void *arg) {
+	my_assert(task);
 	task->SetArg(arg);
 	return tasks.Add(task);
 }
 
 bool Scheduler::Queue(DelayedTask *task, void *arg) {
+  my_assert(task);
 	task->SetArg(arg);
 	return delayedTasks.Add(task);
 }
 
 bool Scheduler::Queue(PeriodicTask *task, void *arg) {
+  my_assert(task);
 	task->SetArg(arg);
 	return disabledPeriodicTasks.Add(task);
 }

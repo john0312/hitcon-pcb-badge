@@ -97,8 +97,6 @@ void Error_Handler(void);
 #define UsbDp_GPIO_Port GPIOA
 #define BtnA_Pin GPIO_PIN_15
 #define BtnA_GPIO_Port GPIOA
-#define LedDis_Pin GPIO_PIN_5
-#define LedDis_GPIO_Port GPIOB
 #define LedA0_Pin GPIO_PIN_6
 #define LedA0_GPIO_Port GPIOB
 #define LedA1_Pin GPIO_PIN_7

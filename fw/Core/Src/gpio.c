@@ -45,7 +45,6 @@ void MX_GPIO_Init(void)
   GPIO_InitTypeDef GPIO_InitStruct = {0};
 
   /* GPIO Ports Clock Enable */
-  __HAL_RCC_GPIOC_CLK_ENABLE();
   __HAL_RCC_GPIOD_CLK_ENABLE();
   __HAL_RCC_GPIOA_CLK_ENABLE();
   __HAL_RCC_GPIOB_CLK_ENABLE();
@@ -53,8 +52,7 @@ void MX_GPIO_Init(void)
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOB, LedCh_Pin|LedCg_Pin|LedCf_Pin|LedCe_Pin
                           |LedCd_Pin|LedCc_Pin|LedCb_Pin|LedCa_Pin
-                          |LedDis_Pin|LedA0_Pin|LedA1_Pin|LedA2_Pin
-                          |LedA3_Pin, GPIO_PIN_RESET);
+                          |LedA0_Pin|LedA1_Pin|LedA2_Pin|LedA3_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin : PtPin */
   GPIO_InitStruct.Pin = IrRx_Pin;
@@ -72,12 +70,10 @@ void MX_GPIO_Init(void)
 
   /*Configure GPIO pins : PBPin PBPin PBPin PBPin
                            PBPin PBPin PBPin PBPin
-                           PBPin PBPin PBPin PBPin
-                           PBPin */
+                           PBPin PBPin PBPin PBPin */
   GPIO_InitStruct.Pin = LedCh_Pin|LedCg_Pin|LedCf_Pin|LedCe_Pin
                           |LedCd_Pin|LedCc_Pin|LedCb_Pin|LedCa_Pin
-                          |LedDis_Pin|LedA0_Pin|LedA1_Pin|LedA2_Pin
-                          |LedA3_Pin;
+                          |LedA0_Pin|LedA1_Pin|LedA2_Pin|LedA3_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;

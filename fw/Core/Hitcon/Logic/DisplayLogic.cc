@@ -5,14 +5,17 @@
 
 namespace hitcon {
 
+DisplayLogic::DisplayLogic() {
+}
+
 void DisplayLogic::Init() {
   // TODO: Verify this.
   g_display_service.SetRequestFrameCallback((callback_t)&DisplayLogic::OnRequestFrame, this);
 }
 
-void DisplayLogic::OnRequestFrame(void *unused) {
+void DisplayLogic::OnRequestFrame(void* unused) {
   // TODO: Verify this.
-  for (int i = 0; i < static_cast<int>(DISPLAY_FRAME_BATCH); i++) {
+  for (uint8_t i = 0; i < static_cast<int>(DISPLAY_FRAME_BATCH); i++) {
     display_get_frame(&buffer_[DISPLAY_FRAME_SIZE*i], frame_);
     frame_++;
   }
