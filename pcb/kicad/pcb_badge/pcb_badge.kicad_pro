@@ -499,7 +499,7 @@
       "pos_files": "",
       "specctra_dsn": "",
       "step": "",
-      "svg": "",
+      "svg": "../../../../../export/",
       "vrml": ""
     },
     "page_layout_descr_file": ""
