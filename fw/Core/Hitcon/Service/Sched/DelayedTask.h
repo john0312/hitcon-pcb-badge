@@ -18,6 +18,7 @@ class DelayedTask : public Task {
 protected:
 	unsigned wakeTime;
 public:
+	// For prio, see Scheduler.h
 	constexpr DelayedTask(unsigned prio, task_callback_t callback, void *thisptr, unsigned wakeTime)
 		: Task(prio, callback, thisptr), wakeTime(wakeTime) {
 	}

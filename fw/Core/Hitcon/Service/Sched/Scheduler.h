@@ -20,6 +20,21 @@ namespace hitcon {
 namespace service {
 namespace sched {
 
+/*
+Priority
+--------
+
+Priority ranges from 0 to 1000. 0 is not used.
+Lower priority value represents tasks that will be executed in shorter
+time frame (ie. higher priority).
+
+For background computation task, we use priority 800-1000.
+For real time task that has soft deadline, such as button detection, we use
+priority 300-400.
+For real time task that has hard deadline, such as display refresh/trigger,
+we use priority 100-200.
+*/
+
 class Scheduler {
 	Heap<Task, 50> tasks;
 	Heap<DelayedTask, 50> delayedTasks;
