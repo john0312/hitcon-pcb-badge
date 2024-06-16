@@ -21,6 +21,7 @@ execute `fw/merge.py` to merge STM32CubeIDE generated `main.c` with user code in
 - [x] IR Rx: DMA Triggered through TIM2_CH3, Input PA0 read by DMA1 Ch1
   * Compare: 105
   * Mode: Normal Peripheral to Memory
+
 |                   | Peripheral | Memory  |
 |-------------------|------------|-----------|
 | Increment Address | X          | X         |
@@ -28,6 +29,7 @@ execute `fw/merge.py` to merge STM32CubeIDE generated `main.c` with user code in
 - [x] Led Rows/Cols: DMA Triggered through TIM2_CH1, Output PB6-9(Rows), Output PB1-2/10-15(Cols), written by DMA1 Ch5
   * Compare: 315 
   * Mode: Circular Memory to Peripheral
+  
 |                   | Peripheral | Memory  |
 |-------------------|------------|-----------|
 | Increment Address | X          | V         |
