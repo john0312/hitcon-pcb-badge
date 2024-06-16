@@ -15,19 +15,17 @@ namespace sched {
 typedef void (*task_callback_t)(void *thisptr, void *arg);
 
 class Task {
-private:
-	unsigned tid;
 protected:
 	unsigned prio;
 	task_callback_t callback;
 	void *thisptr, *arg;
 public:
-	char *name;
-	Task(unsigned prio, task_callback_t callback, void *thisptr);
+	// For prio, see Scheduler.h
+	constexpr Task(unsigned prio, task_callback_t callback, void *thisptr) : prio(prio), callback(callback), thisptr(thisptr), arg(nullptr) {
+	}
+
 	virtual ~Task();
-	unsigned GetTid();
 	bool operator ==(Task &task);
-	bool operator ==(unsigned &tid);
 	virtual bool operator <(Task &task);
 	void Run();
 	void SetArg(void *arg);

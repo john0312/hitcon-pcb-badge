@@ -1,7 +1,7 @@
 
 #include <Logic/DisplayLogic.h>
 #include <Service/DisplayService.h>
-#include <Service/Display/display.h>
+#include <Logic/Display/display.h>
 
 namespace hitcon {
 

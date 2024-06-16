@@ -18,7 +18,10 @@ class DelayedTask : public Task {
 protected:
 	unsigned wakeTime;
 public:
-	DelayedTask(unsigned prio, task_callback_t callback, void *thisptr, unsigned wakeTime);
+	constexpr DelayedTask(unsigned prio, task_callback_t callback, void *thisptr, unsigned wakeTime)
+		: Task(prio, callback, thisptr), wakeTime(wakeTime) {
+	}
+
 	virtual ~DelayedTask();
 
 	unsigned WakeTime();

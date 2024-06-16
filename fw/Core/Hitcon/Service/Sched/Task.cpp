@@ -11,26 +11,12 @@ namespace hitcon {
 namespace service {
 namespace sched {
 
-Task::Task(unsigned prio, task_callback_t callback, void *thisptr)
-		: prio(prio), callback(callback), thisptr(thisptr) {
-	static unsigned lastTid = 0;
-	tid = lastTid++;
-}
-
 Task::~Task() {
 
 }
 
-unsigned Task::GetTid() {
-	return tid;
-}
-
-bool Task::operator ==(unsigned &tid) {
-	return this->tid == tid;
-}
-
 bool Task::operator ==(Task &task) {
-	return task == tid;
+	return &task == this;
 }
 
 bool Task::operator <(Task &task) {
