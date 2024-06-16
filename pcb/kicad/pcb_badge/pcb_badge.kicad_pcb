@@ -57530,6 +57530,19 @@
 		)
 	)
 	(gr_text "git rev:\n--------"
+		(at 124 35.9 0)
+		(layer "B.SilkS")
+		(uuid "04ed0d5f-7299-4973-ba10-cbd45e289e0c")
+		(effects
+			(font
+				(size 1.5 1.5)
+				(thickness 0.3)
+				(bold yes)
+			)
+			(justify left bottom mirror)
+		)
+	)
+	(gr_text "git rev:\n--------"
 		(at 142.4 146.9 0)
 		(layer "B.SilkS")
 		(uuid "82775558-e1ae-483e-ac87-f40646da3f1b")
@@ -57550,19 +57563,6 @@
 			(font
 				(size 1.5 1.5)
 				(thickness 0.2)
-			)
-			(justify left bottom)
-		)
-	)
-	(gr_text "git rev:\n--------"
-		(at 108 35.9 0)
-		(layer "F.SilkS")
-		(uuid "04ed0d5f-7299-4973-ba10-cbd45e289e0c")
-		(effects
-			(font
-				(size 1.5 1.5)
-				(thickness 0.3)
-				(bold yes)
 			)
 			(justify left bottom)
 		)
