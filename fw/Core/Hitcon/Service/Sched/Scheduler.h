@@ -24,6 +24,7 @@ class Scheduler {
 	Heap<Task, 50> tasks;
 	Heap<DelayedTask, 50> delayedTasks;
 	Array<PeriodicTask, 50> enabledPeriodicTasks, disabledPeriodicTasks;
+	void DelayedHouseKeeping();
 public:
 	Scheduler();
 	virtual ~Scheduler();
@@ -32,6 +33,7 @@ public:
 	bool Queue(PeriodicTask *task); // Queued tasks are disabled by default
 	bool EnablePeriodic(PeriodicTask *task);
 	bool DisablePeriodic(PeriodicTask *task);
+	void Run();
 };
 
 extern Scheduler scheduler;

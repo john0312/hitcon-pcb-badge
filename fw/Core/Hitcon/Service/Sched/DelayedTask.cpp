@@ -22,6 +22,10 @@ bool DelayedTask::operator <(DelayedTask &task) {
 	return wakeTime < task.wakeTime;
 }
 
+unsigned DelayedTask::WakeTime() {
+	return wakeTime;
+}
+
 } /* namespace sched */
 } /* namespace service */
 } /* namespace hitcon */

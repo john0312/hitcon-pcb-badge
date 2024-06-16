@@ -37,6 +37,10 @@ bool Task::operator <(Task &task) {
 	return prio < task.prio;
 }
 
+void Task::Run() {
+	callback(thisptr, arg);
+}
+
 } /* namespace sched */
 } /* namespace service */
 } /* namespace hitcon */

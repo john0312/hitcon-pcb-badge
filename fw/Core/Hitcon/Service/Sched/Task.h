@@ -22,12 +22,14 @@ protected:
 	task_callback_t callback;
 	void *thisptr, *arg;
 public:
+	char *name;
 	Task(unsigned prio, task_callback_t callback, void *thisptr, void *arg);
 	virtual ~Task();
 	unsigned GetTid();
 	bool operator ==(Task &task);
 	bool operator ==(unsigned &tid);
 	virtual bool operator <(Task &task);
+	void Run();
 };
 
 } /* namespace sched */

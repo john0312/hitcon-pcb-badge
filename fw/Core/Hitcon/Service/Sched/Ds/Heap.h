@@ -46,9 +46,9 @@ private:
 	void Heapify(unsigned i) {
 		while (i > 0) {
 			unsigned parIdx = heap::ParentIdx(i);
-			T &cur = *storage[i], &par = *storage[parIdx];
-			if (cur < par)
-				swap(cur, par);
+			T **cur = &storage[i], **par = &storage[parIdx];
+			if (**cur < **par)
+				swap(*cur, *par);
 			i = parIdx;
 		}
 	}
@@ -86,6 +86,7 @@ public:
 		if (idx == sz)
 			return false;
 		storage[idx] = storage[--sz];
+		storage[sz] = nullptr;
 		ReverseHeapify(idx);
 		return true;
 	}

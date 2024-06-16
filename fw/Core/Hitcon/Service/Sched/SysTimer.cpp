@@ -22,6 +22,8 @@ SysTimer::~SysTimer() {
 }
 
 unsigned SysTimer::GetTime() {
+//	static unsigned x = 0;
+//	return x++;
 	return HAL_GetTick();
 }
 
