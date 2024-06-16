@@ -11,8 +11,8 @@ namespace hitcon {
 namespace service {
 namespace sched {
 
-DelayedTask::DelayedTask(unsigned prio, task_callback_t callback, void *thisptr, void *arg, unsigned wakeTime)
-		: Task(prio, callback, thisptr, arg), wakeTime(wakeTime) {
+DelayedTask::DelayedTask(unsigned prio, task_callback_t callback, void *thisptr, unsigned wakeTime)
+		: Task(prio, callback, thisptr), wakeTime(wakeTime) {
 }
 
 DelayedTask::~DelayedTask() {
@@ -20,6 +20,10 @@ DelayedTask::~DelayedTask() {
 
 bool DelayedTask::operator <(DelayedTask &task) {
 	return wakeTime < task.wakeTime;
+}
+
+unsigned DelayedTask::WakeTime() {
+	return wakeTime;
 }
 
 } /* namespace sched */

@@ -14,19 +14,32 @@ namespace service {
 namespace sched {
 
 void PeriodicTask::AutoRequeueCb(void *arg) {
-	callback(savedThisptr, arg);
-	wakeTime = SysTimer::GetTime();
-	scheduler.Queue((DelayedTask *)this);
+	savedCallback(savedThisptr, arg);
+	if (enabled) {
+		wakeTime = SysTimer::GetTime() + interval;
+		scheduler.Queue((DelayedTask *)this, arg);
+	}
 }
 
-PeriodicTask::PeriodicTask(unsigned prio, task_callback_t callback, void *thisptr, void *arg, unsigned interval)
-		: DelayedTask(prio, (task_callback_t)&PeriodicTask::AutoRequeueCb, (void *)this, arg, 0),
+PeriodicTask::PeriodicTask(unsigned prio, task_callback_t callback, void *thisptr, unsigned interval)
+		: DelayedTask(prio, (task_callback_t)&PeriodicTask::AutoRequeueCb, (void *)this, 0),
+		  enabled(false),
 		  interval(interval),
-		  savedThisptr(thisptr) {
+		  savedThisptr(thisptr),
+		  savedCallback(callback) {
 }
 
 PeriodicTask::~PeriodicTask() {
 }
+
+void PeriodicTask::Enable() {
+	enabled = true;
+}
+
+void PeriodicTask::Disable() {
+	enabled = false;
+}
+
 
 } /* namespace sched */
 } /* namespace service */
