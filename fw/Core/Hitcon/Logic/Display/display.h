@@ -13,7 +13,7 @@
  */
 
 #define DISPLAY_HEIGHT 8 // fixed
-#define DISPLAY_WIDTH 8  // adjustable, maybe 8, 12, 16
+#define DISPLAY_WIDTH 16  // adjustable, maybe 8, 12, 16
 
 #define DISPLAY_MODE_BLANK 0
 #define DISPLAY_MODE_FIXED 1
