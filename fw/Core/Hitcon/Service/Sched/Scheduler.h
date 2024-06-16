@@ -28,9 +28,9 @@ class Scheduler {
 public:
 	Scheduler();
 	virtual ~Scheduler();
-	bool Queue(Task *task);
-	bool Queue(DelayedTask *task);
-	bool Queue(PeriodicTask *task); // Queued tasks are disabled by default
+	bool Queue(Task *task, void *arg);
+	bool Queue(DelayedTask *task, void *arg);
+	bool Queue(PeriodicTask *task, void *arg); // Queued tasks are disabled by default
 	bool EnablePeriodic(PeriodicTask *task);
 	bool DisablePeriodic(PeriodicTask *task);
 	void Run();

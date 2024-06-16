@@ -20,15 +20,18 @@ Scheduler::Scheduler() {
 Scheduler::~Scheduler() {
 }
 
-bool Scheduler::Queue(Task *task) {
+bool Scheduler::Queue(Task *task, void *arg) {
+	task->SetArg(arg);
 	return tasks.Add(task);
 }
 
-bool Scheduler::Queue(DelayedTask *task) {
+bool Scheduler::Queue(DelayedTask *task, void *arg) {
+	task->SetArg(arg);
 	return delayedTasks.Add(task);
 }
 
-bool Scheduler::Queue(PeriodicTask *task) {
+bool Scheduler::Queue(PeriodicTask *task, void *arg) {
+	task->SetArg(arg);
 	return disabledPeriodicTasks.Add(task);
 }
 

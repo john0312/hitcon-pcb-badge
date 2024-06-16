@@ -22,7 +22,7 @@ private:
 	task_callback_t savedCallback;
 	void AutoRequeueCb(void *arg);
 public:
-	PeriodicTask(unsigned prio, task_callback_t callback, void *thisptr, void *arg, unsigned interval);
+	PeriodicTask(unsigned prio, task_callback_t callback, void *thisptr, unsigned interval);
 	virtual ~PeriodicTask();
 	void Enable();
 	void Disable();
