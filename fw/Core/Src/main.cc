@@ -58,6 +58,35 @@ void SystemClock_Config(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+#include <Service/DisplayService.h>
+#include <Logic/DisplayLogic.h>
+#include <Service/Sched/Scheduler.h>
+using namespace hitcon;
+using namespace hitcon::service::sched;
+
+class BrightnessControl {
+public:
+
+  PeriodicTask task;
+
+  BrightnessControl() : task(15, (task_callback_t)&BrightnessControl::test, (void*) this, 100) {
+    scheduler.Queue(&task, nullptr);
+    scheduler.EnablePeriodic(&task);
+  }
+  void test(void* unused) {
+    static uint8_t brightness = 1, flag=0;
+    g_display_service.SetBrightness(brightness);
+    if(brightness > 10)
+      flag = 1;
+    if(brightness == 1)
+      flag = 0;
+    if(flag==0)
+      brightness++;
+    else
+      brightness--;
+  }
+};
+BrightnessControl g_brightness_control;
 /* USER CODE END 0 */
 
 /**
@@ -96,6 +125,26 @@ int main(void)
   MX_TIM3_Init();
   MX_TIM2_Init();
   /* USER CODE BEGIN 2 */
+  display_init();
+  DisplayLogic logic;
+  logic.Init();
+  g_display_service.Init();
+  uint8_t buf[DISPLAY_HEIGHT * DISPLAY_WIDTH] = {
+      1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1,
+      0, 1, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 1, 0,
+      0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0,
+      0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0,
+      0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0,
+      0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0,
+      0, 1, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 1, 0,
+      1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1,
+  };
+//  display_set_mode_fixed(buf_fixed);
+
+//  display_set_mode_scroll(buf, sizeof(buf) / 8, 10);
+  g_display_service.SetBrightness(3);
+  display_set_mode_scroll_text("Hello, world!", 15);
+  scheduler.Run();
   /* USER CODE END 2 */
 
   /* Infinite loop */
