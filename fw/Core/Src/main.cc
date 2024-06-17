@@ -58,11 +58,6 @@ void SystemClock_Config(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-#include <Service/DisplayService.h>
-#include <Logic/DisplayLogic.h>
-#include <Service/Sched/Scheduler.h>
-using namespace hitcon;
-using namespace hitcon::service::sched;
 /* USER CODE END 0 */
 
 /**
@@ -101,16 +96,6 @@ int main(void)
   MX_TIM3_Init();
   MX_TIM2_Init();
   /* USER CODE BEGIN 2 */
-  DisplayLogic logic;
-  logic.Init();
-  g_display_service.Init();
-  uint8_t buf_fixed[DISPLAY_HEIGHT * DISPLAY_WIDTH] = {
-    1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1,
-    0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 0,
-    0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 1,
-  };
-  display_set_mode_fixed(buf_fixed);
-  scheduler.Run();
   /* USER CODE END 2 */
 
   /* Infinite loop */

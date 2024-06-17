@@ -46,6 +46,11 @@ class DisplayService {
 
     void cb(request_cb_param* arg) {
     	request_frame_callback(arg->p1, arg->p2);
+
+        if(current_buffer_index == 0)
+          current_buffer_index = 1;
+        else
+          current_buffer_index = 0;
     }
 };
 

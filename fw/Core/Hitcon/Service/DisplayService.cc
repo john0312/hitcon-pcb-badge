@@ -17,14 +17,12 @@ DisplayService::DisplayService() : task(15, (task_callback_t)&DisplayService::cb
 }
 
 /*
- * DMA Mode: Circular?
+ * DMA Mode: Circular
  * 1. double buffered
  * 2. first half complete
  * 3. HalfTranferComplete called
- * 4. request new, 	queue new Task to call request_frame_callback (get first new frame buffer)
+ * 4. request new, queue new Task to call request_frame_callback (get first new frame buffer)
  * 5. if the Task hasn't been executed, then run the second buffer
- * 6.
- * 7.
  */
 
 
@@ -46,7 +44,7 @@ void DisplayService::Init() {
 
   HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_1);
   hdma_tim2_ch1.XferHalfCpltCallback = &HalfTransferComplete;
-  HAL_DMA_Start_IT(&hdma_tim2_ch1, (uint32_t) this->double_buffer, (uint32_t) &GPIOB->BSRR, DISPLAY_FRAME_SIZE);
+  HAL_DMA_Start_IT(&hdma_tim2_ch1, (uint32_t) this->double_buffer, (uint32_t) &GPIOB->BSRR, DISPLAY_FRAME_SIZE*DISPLAY_FRAME_BATCH*2);
   current_buffer_index = 0;
 }
 
@@ -58,31 +56,30 @@ void DisplayService::SetRequestFrameCallback(callback_t callback, void* callback
 }
 
 void DisplayService::PopulateFrames(uint8_t* buffer) {
-  // TODO
   const uint16_t gpio_pin[8] = { 15, 14, 13, 12, 11, 10, 2, 1 };
+  uint8_t test[16] = {8, 0, 9, 1, 10, 2, 11, 3, 12, 4, 13, 5, 14, 6, 15, 7};
   for(uint8_t k = 0; k < DISPLAY_FRAME_BATCH; k++) {
     for (uint8_t i = 0; i < DISPLAY_WIDTH; i++) {
-	uint8_t temp = 0;
+	uint32_t temp = 0;
 	for (uint8_t j = 0; j < DISPLAY_HEIGHT; j++) {
-	    if (buffer[i * DISPLAY_HEIGHT + j] == 0)
+	    uint8_t index = i * DISPLAY_HEIGHT + j;
+//	    if (i >= 8)
+//	      index -= 8+16*8;
+	    if (buffer[index] == 0)
 	      temp |= (1 << 16 << gpio_pin[j]);
 	    else
 	      temp |= (1 << gpio_pin[j]);
 	}
 	for (uint8_t j = 0; j < 4; j++) {
-	    if ((i >> (3 - j) & 1) == 0)
+	    if ((test[i] >> (3 - j) & 1) == 0)
 	      temp |= (1 << 16 << (9 - j));
 	    else
 	      temp |= (1 << (9 - j));
 	}
 
-	double_buffer[i + k * current_buffer_index * DISPLAY_FRAME_SIZE] = temp;
+	double_buffer[i + k * DISPLAY_FRAME_SIZE + current_buffer_index * DISPLAY_FRAME_SIZE * DISPLAY_FRAME_BATCH] = temp;
     }
   }
-  if(current_buffer_index == 0)
-    current_buffer_index = 1;
-  else
-    current_buffer_index = 0;
 }
 
 //void ConvertFrameToGpioState() {
