@@ -1,4 +1,7 @@
 #include "EditNameApp.h"
+#include <App/ShowNameApp.h>
+#include <Logic/BadgeController.h>
+#include <Logic/Display/display.h>
 #include <Service/ButtonService.h>
 
 namespace hitcon {
@@ -6,8 +9,8 @@ namespace hitcon {
 EditNameApp::EditNameApp() {}
 
 void EditNameApp::OnEntry() {
-  editor = TextEditorDisplay("HITCON"); // TODO: where to get the initial text?
-  // TODO: register editor.draw to display_service
+  editor = TextEditorDisplay(show_name_app.name);
+  // TODO: set display mode (maybe new mode?)
 }
 
 void EditNameApp::OnExit() {}
@@ -27,10 +30,12 @@ void EditNameApp::OnButton(button_t button) {
     editor.decr_current_char();
     break;
   case BUTTON_BACK:
-    // TODO: exit without saving
+    badge_controller.change_app(&show_name_app);
     break;
   case BUTTON_OK:
-    // TODO: save the name and exit (use editor.text to get the name)
+    // save the name and exit
+    show_name_app.SetName(editor.text);
+    badge_controller.change_app(&show_name_app);
     break;
   }
 }

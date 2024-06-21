@@ -1,8 +1,8 @@
-#ifndef SHOW_EDIT_NAME_APP_H
-#define SHOW_EDIT_NAME_APP_H
+#ifndef EDIT_NAME_APP_H
+#define EDIT_NAME_APP_H
 
 #include "app.h"
-#include <Display/editor.h>
+#include <Logic/Display/editor.h>
 
 namespace hitcon {
 
@@ -31,4 +31,4 @@ extern EditNameApp edit_name_app;
 
 } // namespace hitcon
 
-#endif // SHOW_EDIT_NAME_APP_H
+#endif // EDIT_NAME_APP_H

@@ -12,6 +12,7 @@ public:
   virtual ~App() = default;
 
   // Once the app is activated, OnEntry will be called.
+  // Display mode should be set in OnEntry.
   virtual void OnEntry() = 0;
 
   // If an App is going to be terminated, OnExit will be called.

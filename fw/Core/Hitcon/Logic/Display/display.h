@@ -20,6 +20,7 @@
 #define DISPLAY_MODE_SCROLL 2
 
 #define DISPLAY_SCROLL_MAX_COLUMNS 100
+#define DISPLAY_SCROLL_DEFAULT_SPEED 2
 
 void display_init();
 
@@ -40,5 +41,6 @@ void display_set_mode_scroll(uint8_t *buf, int cols, int speed);
 // Rasterize `text` to the underlying display buffer.
 // If the text is too long, the output will be truncated.
 void display_set_mode_scroll_text(const char *text, int speed);
+void display_set_mode_scroll_text(const char *text);
 
 #endif

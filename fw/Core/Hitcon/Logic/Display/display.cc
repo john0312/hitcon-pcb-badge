@@ -133,3 +133,7 @@ void display_set_mode_scroll_text(const char *text, int speed) {
 
   display_set_mode_scroll(buf_1d, cols, speed);
 }
+
+void display_set_mode_scroll_text(const char *text) {
+  display_set_mode_scroll_text(text, DISPLAY_SCROLL_DEFAULT_SPEED);
+}

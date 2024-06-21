@@ -1,8 +1,8 @@
 #ifndef EDITOR_H
 #define EDITOR_H
 
-#include <Display/display.h>
-#include <Display/font.h>
+#include <Logic/Display/display.h>
+#include <Logic/Display/font.h>
 
 namespace hitcon {
 

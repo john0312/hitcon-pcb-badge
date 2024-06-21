@@ -1,6 +1,6 @@
 #include "editor.h"
-#include <Display/display.h>
-#include <Display/font.h>
+#include <Logic/Display/display.h>
+#include <Logic/Display/font.h>
 #include <cstring>
 
 namespace hitcon {
