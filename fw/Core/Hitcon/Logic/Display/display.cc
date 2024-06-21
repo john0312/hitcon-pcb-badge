@@ -1,5 +1,6 @@
 #include "display.h"
-#include "font.h"
+#include <Logic/Display/editor.h>
+#include <Logic/Display/font.h>
 #include <string.h>
 
 static uint8_t display_buf[DISPLAY_HEIGHT][DISPLAY_WIDTH];
@@ -7,6 +8,7 @@ static uint8_t display_buf[DISPLAY_HEIGHT][DISPLAY_WIDTH];
 static int display_mode;
 static int
     display_current_frame; // will be updated when display_get_frame is called
+static hitcon::TextEditorDisplay *text_editor_display;
 
 // TODO: use union to save memory if we want to store other info for other modes
 struct {
@@ -85,6 +87,10 @@ void display_get_frame(uint8_t *buf, int frame) {
   case DISPLAY_MODE_SCROLL:
     get_scroll_frame(buf, frame);
     break;
+
+  case DISPLAY_MODE_TEXT_EDITOR:
+    text_editor_display->draw(buf, frame);
+    break;
   }
 
   display_current_frame = frame;
@@ -112,13 +118,8 @@ void display_set_mode_scroll_text(const char *text, int speed) {
   uint8_t buf[DISPLAY_HEIGHT][DISPLAY_SCROLL_MAX_COLUMNS];
   int len = strlen(text);
   for (int i = 0; i < len && i * CHAR_WIDTH < DISPLAY_SCROLL_MAX_COLUMNS; ++i) {
-    for (int y = 0; y < CHAR_HEIGHT; ++y) {
-      for (int x = 0;
-           x < CHAR_WIDTH && i * CHAR_WIDTH + x < DISPLAY_SCROLL_MAX_COLUMNS;
-           ++x) {
-        buf[y][i * CHAR_WIDTH + x] = rasterize_char_5x8((size_t)text[i], y, x);
-      }
-    }
+    render_char(buf, text[i], i * CHAR_WIDTH, 0, DISPLAY_SCROLL_MAX_COLUMNS,
+                DISPLAY_HEIGHT);
   }
   int cols = (len * CHAR_WIDTH > DISPLAY_SCROLL_MAX_COLUMNS)
                  ? DISPLAY_SCROLL_MAX_COLUMNS
@@ -136,4 +137,9 @@ void display_set_mode_scroll_text(const char *text, int speed) {
 
 void display_set_mode_scroll_text(const char *text) {
   display_set_mode_scroll_text(text, DISPLAY_SCROLL_DEFAULT_SPEED);
+}
+
+void display_set_mode_editor(hitcon::TextEditorDisplay *editor) {
+  display_mode = DISPLAY_MODE_TEXT_EDITOR;
+  text_editor_display = editor;
 }

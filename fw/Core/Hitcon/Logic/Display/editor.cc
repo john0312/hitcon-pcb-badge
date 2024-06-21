@@ -65,8 +65,44 @@ void TextEditorDisplay::set_current_char(char c) {
   }
 }
 
-void TextEditorDisplay::draw(uint8_t *display_buf) const {
-  // TODO
+void TextEditorDisplay::draw(uint8_t *display_buf, int frame) const {
+  constexpr int max_text_num = DISPLAY_WIDTH / CHAR_WIDTH;
+  char text_to_display[max_text_num + 1] = {0};
+  int cursor_index_in_display;
+
+  if (cursor <= max_text_num) {
+    // case: cursor <= maximum displayable text length
+    // Just display all characters.
+    strncpy(text_to_display, text, max_text_num);
+    cursor_index_in_display = cursor;
+  } else {
+    // case: cursor > maximum displayable text length
+    // Display the last `max_text_num` - 1 characters since we need to display
+    // the cursor.
+    strncpy(text_to_display, text + cursor - max_text_num + 1, max_text_num);
+    cursor_index_in_display = max_text_num - 1;
+  }
+
+  // render the text to the 2D buffer
+  char buf_2d[DISPLAY_HEIGHT][DISPLAY_WIDTH] = {0};
+  for (int i = 0; i < strlen(text_to_display); ++i) {
+    render_char(buf_2d, text_to_display[i], i * CHAR_WIDTH, 0, DISPLAY_WIDTH,
+                DISPLAY_HEIGHT);
+  }
+
+  // blink the cursor
+  if (frame % BLINK_CURSOR_PERIOD < BLINK_CURSOR_PERIOD / 2) {
+    for (int x = 0; x < CHAR_WIDTH; ++x) {
+      buf_2d[CHAR_HEIGHT - 1][cursor_index_in_display * CHAR_WIDTH + x] ^= 1;
+    }
+  }
+
+  // flatten the 2D buffer to 1D buffer
+  for (int y = 0; y < DISPLAY_HEIGHT; ++y) {
+    for (int x = 0; x < DISPLAY_WIDTH; ++x) {
+      display_buf[y * DISPLAY_WIDTH + x] = buf_2d[y][x];
+    }
+  }
 }
 
 } // namespace hitcon
