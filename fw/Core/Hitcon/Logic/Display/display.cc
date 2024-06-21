@@ -110,21 +110,19 @@ void display_set_mode_scroll(uint8_t *buf, int cols, int speed) {
 
 void display_set_mode_scroll_text(const char *text, int speed) {
   uint8_t buf[DISPLAY_HEIGHT][DISPLAY_SCROLL_MAX_COLUMNS];
-  int char_width = 5;
-  int char_height = 8;
   int len = strlen(text);
-  for (int i = 0; i < len && i * char_width < DISPLAY_SCROLL_MAX_COLUMNS; ++i) {
-    for (int y = 0; y < char_height; ++y) {
+  for (int i = 0; i < len && i * CHAR_WIDTH < DISPLAY_SCROLL_MAX_COLUMNS; ++i) {
+    for (int y = 0; y < CHAR_HEIGHT; ++y) {
       for (int x = 0;
-           x < char_width && i * char_width + x < DISPLAY_SCROLL_MAX_COLUMNS;
+           x < CHAR_WIDTH && i * CHAR_WIDTH + x < DISPLAY_SCROLL_MAX_COLUMNS;
            ++x) {
-        buf[y][i * char_width + x] = rasterize_char_5x8((size_t) text[i], y, x);
+        buf[y][i * CHAR_WIDTH + x] = rasterize_char_5x8((size_t)text[i], y, x);
       }
     }
   }
-  int cols = (len * char_width > DISPLAY_SCROLL_MAX_COLUMNS)
+  int cols = (len * CHAR_WIDTH > DISPLAY_SCROLL_MAX_COLUMNS)
                  ? DISPLAY_SCROLL_MAX_COLUMNS
-                 : len * char_width;
+                 : len * CHAR_WIDTH;
 
   uint8_t buf_1d[DISPLAY_HEIGHT * DISPLAY_SCROLL_MAX_COLUMNS];
   for (int y = 0; y < DISPLAY_HEIGHT; ++y) {
