@@ -10,7 +10,7 @@ EditNameApp::EditNameApp() {}
 
 void EditNameApp::OnEntry() {
   editor = TextEditorDisplay(show_name_app.name);
-  // TODO: set display mode (maybe new mode?)
+  display_set_mode_editor(&editor);
 }
 
 void EditNameApp::OnExit() {}

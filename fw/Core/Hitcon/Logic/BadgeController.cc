@@ -21,10 +21,6 @@ void BadgeController::OnButton(void *arg1, void *arg2) {
   button_t button = static_cast<button_t>(reinterpret_cast<uintptr_t>(arg2));
 
   switch (button) {
-  case BUTTON_MODE:
-    // TODO: if button means change app, call change_app()
-    break;
-
   case BUTTON_BRIGHTNESS:
   case BUTTON_LONG_BRIGHTNESS:
     // TODO: change brightness
