@@ -1,7 +1,6 @@
 #ifndef DISPLAY_H
 #define DISPLAY_H
 
-#include <Logic/Display/editor.h>
 #include <stdint.h>
 
 /**
@@ -44,6 +43,10 @@ void display_set_mode_scroll(uint8_t *buf, int cols, int speed);
 // If the text is too long, the output will be truncated.
 void display_set_mode_scroll_text(const char *text, int speed);
 void display_set_mode_scroll_text(const char *text);
+
+namespace hitcon {
+class TextEditorDisplay;
+}
 
 // Set the display to the text editor mode. The logic is outsourced to the
 // `TextEditorDisplay` class.

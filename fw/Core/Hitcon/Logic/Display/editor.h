@@ -3,6 +3,7 @@
 
 #include <Logic/Display/display.h>
 #include <Logic/Display/font.h>
+#include <cstdint>
 
 namespace hitcon {
 
