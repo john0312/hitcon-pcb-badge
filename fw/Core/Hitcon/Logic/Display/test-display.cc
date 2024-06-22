@@ -9,7 +9,8 @@ void print_buf(int frame, uint8_t *buf) {
   for (int y = 0; y < DISPLAY_HEIGHT; y++) {
     for (int x = 0; x < DISPLAY_WIDTH; x++) {
       uint8_t ch = buf[y * DISPLAY_WIDTH + x];
-      printf("%c%c", ch == 0 ? '.' : '0' + ch, x == DISPLAY_WIDTH - 1 ? '\n' : ' ');
+      printf("%c%c", ch == 0 ? '.' : '0' + ch,
+             x == DISPLAY_WIDTH - 1 ? '\n' : ' ');
     }
   }
 }
