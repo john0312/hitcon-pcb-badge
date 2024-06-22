@@ -70,8 +70,8 @@ void TextEditorDisplay::draw(uint8_t *display_buf, int frame) const {
   char text_to_display[max_text_num + 1] = {0};
   int cursor_index_in_display;
 
-  if (cursor <= max_text_num) {
-    // case: cursor <= maximum displayable text length
+  if (cursor < max_text_num) {
+    // case: cursor < maximum displayable text length
     // Just display all characters.
     strncpy(text_to_display, text, max_text_num);
     cursor_index_in_display = cursor;
