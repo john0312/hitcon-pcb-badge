@@ -2,7 +2,7 @@
 #define BADGE_CONTROLLER_H
 
 #include <App/app.h>
-#include <Service/ButtonService.h>
+#include <Logic/ButtonLogic.h>
 
 namespace hitcon {
 

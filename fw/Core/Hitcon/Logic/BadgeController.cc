@@ -9,7 +9,7 @@ BadgeController::BadgeController() :
 }
 
 void BadgeController::Init() {
-  button_service.SetCallback((callback_t)&BadgeController::OnButton, this);
+  button_logic.SetCallback((callback_t)&BadgeController::OnButton, this);
   current_app = &show_name_app;
   current_app->OnEntry();
 }

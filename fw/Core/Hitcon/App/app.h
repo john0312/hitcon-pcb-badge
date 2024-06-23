@@ -1,7 +1,7 @@
 #ifndef HITCON_APP_APP_H_
 #define HITCON_APP_APP_H_
 
-#include <Service/ButtonService.h>
+#include <Logic/ButtonLogic.h>
 #include <Util/callback.h>
 
 namespace hitcon {
