@@ -57,21 +57,19 @@ void DisplayService::SetRequestFrameCallback(callback_t callback, void* callback
 
 void DisplayService::PopulateFrames(uint8_t* buffer) {
   const uint16_t gpio_pin[8] = { 15, 14, 13, 12, 11, 10, 2, 1 };
-  uint8_t test[16] = {8, 0, 9, 1, 10, 2, 11, 3, 12, 4, 13, 5, 14, 6, 15, 7};
+  uint8_t frame_map[16] = {8, 0, 9, 1, 10, 2, 11, 3, 12, 4, 13, 5, 14, 6, 15, 7};
   for(uint8_t k = 0; k < DISPLAY_FRAME_BATCH; k++) {
     for (uint8_t i = 0; i < DISPLAY_WIDTH; i++) {
 	uint32_t temp = 0;
 	for (uint8_t j = 0; j < DISPLAY_HEIGHT; j++) {
 	    uint8_t index = i * DISPLAY_HEIGHT + j;
-//	    if (i >= 8)
-//	      index -= 8+16*8;
 	    if (buffer[index] == 0)
 	      temp |= (1 << 16 << gpio_pin[j]);
 	    else
 	      temp |= (1 << gpio_pin[j]);
 	}
 	for (uint8_t j = 0; j < 4; j++) {
-	    if ((test[i] >> (3 - j) & 1) == 0)
+	    if ((frame_map[i] >> (3 - j) & 1) == 0)
 	      temp |= (1 << 16 << (9 - j));
 	    else
 	      temp |= (1 << (9 - j));
