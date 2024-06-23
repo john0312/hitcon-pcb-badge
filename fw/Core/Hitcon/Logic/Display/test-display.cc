@@ -18,6 +18,9 @@ void print_buf(int frame, uint8_t *buf) {
 
 int main() {
   display_init();
+
+  // display_toggle_orientation();
+
   uint8_t buf[DISPLAY_HEIGHT * DISPLAY_WIDTH];
   int frame = 0;
 
