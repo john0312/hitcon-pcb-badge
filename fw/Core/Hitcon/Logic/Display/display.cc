@@ -10,6 +10,7 @@ static int display_mode;
 // will be updated when display_get_frame is called
 static int display_current_frame;
 static hitcon::TextEditorDisplay *text_editor_display;
+static int display_orientation = 0; // 0: normal, 1: upside down
 
 // TODO: use union to save memory if we want to store other info for other modes
 struct {
@@ -77,6 +78,10 @@ void display_init() {
   memset(__display_buf, 0, sizeof(__display_buf));
 }
 
+void display_toggle_orientation() {
+  display_orientation = 1 - display_orientation;
+}
+
 void display_get_frame(uint8_t *buf, int frame) {
   display_buf_t display_buf[DISPLAY_WIDTH];
   display_get_frame_packed(display_buf, frame);
@@ -100,6 +105,16 @@ void display_get_frame_packed(display_buf_t *buf, int frame) {
     case DISPLAY_MODE_TEXT_EDITOR:
       text_editor_display->draw_packed(buf, frame);
       break;
+  }
+
+  if (display_orientation) {
+    uint8_t tmp[DISPLAY_HEIGHT][DISPLAY_WIDTH];
+    for (int y = 0; y < DISPLAY_HEIGHT; y++) {
+      for (int x = 0; x < DISPLAY_WIDTH; x++) {
+        tmp[y][x] = buf[sizeof(tmp) - 1 - (y * DISPLAY_WIDTH + x)];
+      }
+    }
+    memcpy(buf, tmp, sizeof(tmp));
   }
 
   display_current_frame = frame;
