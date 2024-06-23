@@ -4033,7 +4033,7 @@
 	)
 	(wire
 		(pts
-			(xy 106.68 82.55) (xy 121.92 82.55)
+			(xy 154.94 67.31) (xy 170.18 67.31)
 		)
 		(stroke
 			(width 0)
@@ -6168,7 +6168,7 @@
 		(uuid "7227a4c2-4244-495b-9280-8422f53b965e")
 	)
 	(label "NOISE_IN"
-		(at 111.76 82.55 0)
+		(at 156.21 67.31 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
