@@ -4,21 +4,24 @@
 
 namespace hitcon {
 
-BadgeController::BadgeController() {
-  button_service.SetCallback(OnButton, this);
+BadgeController::BadgeController() :
+  current_app(nullptr) {
+}
+
+void BadgeController::Init() {
+  button_service.SetCallback((callback_t)&BadgeController::OnButton, this);
   current_app = &show_name_app;
   current_app->OnEntry();
 }
 
 void BadgeController::change_app(App *new_app) {
-  current_app->OnExit();
+  if (current_app) current_app->OnExit();
   current_app = new_app;
-  current_app->OnEntry();
+  if (current_app) current_app->OnEntry();
 }
 
-void BadgeController::OnButton(void *arg1, void *arg2) {
-  BadgeController *this_ = static_cast<BadgeController *>(arg1);
-  button_t button = static_cast<button_t>(reinterpret_cast<uintptr_t>(arg2));
+void BadgeController::OnButton(void *arg1) {
+  button_t button = static_cast<button_t>(reinterpret_cast<uintptr_t>(arg1));
 
   switch (button) {
   case BUTTON_BRIGHTNESS:
@@ -28,7 +31,7 @@ void BadgeController::OnButton(void *arg1, void *arg2) {
 
   default:
     // forward the button to the current app
-    this_->current_app->OnButton(button);
+    current_app->OnButton(button);
     break;
   }
 }
