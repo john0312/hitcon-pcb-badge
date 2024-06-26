@@ -7036,7 +7036,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "NC"
+		(property "Value" "110R"
 			(at 238.76 209.5499 0)
 			(effects
 				(font
@@ -7381,7 +7381,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "NC"
+		(property "Value" "110R"
 			(at 251.46 209.5499 0)
 			(effects
 				(font
@@ -7516,7 +7516,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "220"
+		(property "Value" "NC"
 			(at 102.87 212.0899 0)
 			(effects
 				(font
@@ -8339,7 +8339,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "NC"
+		(property "Value" "110R"
 			(at 226.06 209.5499 0)
 			(effects
 				(font
@@ -8693,7 +8693,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "NC"
+		(property "Value" "110R"
 			(at 187.96 209.5499 0)
 			(effects
 				(font
@@ -9305,7 +9305,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "NC"
+		(property "Value" "110R"
 			(at 200.66 209.5499 0)
 			(effects
 				(font
@@ -9592,7 +9592,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "NC"
+		(property "Value" "110R"
 			(at 213.36 209.5499 0)
 			(effects
 				(font
@@ -12340,7 +12340,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "STM32F103C8Tx"
+		(property "Value" "STM32F103CBT6"
 			(at 141.8941 140.97 0)
 			(effects
 				(font
