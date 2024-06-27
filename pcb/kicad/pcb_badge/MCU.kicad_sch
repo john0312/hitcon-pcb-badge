@@ -7241,7 +7241,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "4.7M"
+		(property "Value" "8.2M"
 			(at 306.07 48.2599 0)
 			(effects
 				(font
@@ -7586,7 +7586,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "4.7M"
+		(property "Value" "8.2M"
 			(at 306.07 60.9599 0)
 			(effects
 				(font
