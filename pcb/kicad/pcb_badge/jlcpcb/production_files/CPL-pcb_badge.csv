@@ -1,5 +1,5 @@
 Designator,Val,Package,Mid X,Mid Y,Rotation,Layer
-BT1,MYOUNG BH-AAA-B5BA021,BH-AAA-B5BA021,115.000002,-127.0,180.0,bottom
+BT1,BAT_2,BH-AAA-B5AK001,115.0,-119.0,0.0,bottom
 C1,0.1u,C_0402_1005Metric_Pad0.74x0.62mm_HandSolder,88.300002,-149.25,180.0,bottom
 C10,1u,C_0603_1608Metric_Pad1.08x0.95mm_HandSolder,80.5,-158.0,180.0,bottom
 C11,1u,C_0603_1608Metric_Pad1.08x0.95mm_HandSolder,78.0,-154.5,270.0,bottom
@@ -177,7 +177,7 @@ Q98,2N7002,SOT-23,113.000002,-49.0,90.0,bottom
 Q99,2N7002,SOT-23,116.500002,-49.0,90.0,bottom
 R1,20R,R_0402_1005Metric_Pad0.72x0.64mm_HandSolder,84.0,-68.1,270.0,bottom
 R10,0,R_0402_1005Metric_Pad0.72x0.64mm_HandSolder,85.600002,-151.6,180.0,bottom
-R11,4.7M,R_0402_1005Metric_Pad0.72x0.64mm_HandSolder,92.3,-39.8,180.0,bottom
+R11,8.2M,R_0402_1005Metric_Pad0.72x0.64mm_HandSolder,92.3,-39.8,180.0,bottom
 R14,220,R_0402_1005Metric_Pad0.72x0.64mm_HandSolder,149.7,-129.1,180.0,bottom
 R16,33k,R_0402_1005Metric_Pad0.72x0.64mm_HandSolder,82.300002,-59.4,180.0,bottom
 R162,110R,R_1206_3216Metric_Pad1.30x1.75mm_HandSolder,150.5,-122.0,0.0,bottom
@@ -200,7 +200,7 @@ R31,470,R_0402_1005Metric_Pad0.72x0.64mm_HandSolder,149.6,-131.5,90.0,bottom
 R32,470,R_0402_1005Metric_Pad0.72x0.64mm_HandSolder,148.5,-131.5,90.0,bottom
 R33,470,R_0402_1005Metric_Pad0.72x0.64mm_HandSolder,154.0,-131.5,90.0,bottom
 R34,470,R_0402_1005Metric_Pad0.72x0.64mm_HandSolder,152.9,-131.5,90.0,bottom
-R4,4.7M,R_0402_1005Metric_Pad0.72x0.64mm_HandSolder,93.3,-41.9,90.0,bottom
+R4,8.2M,R_0402_1005Metric_Pad0.72x0.64mm_HandSolder,93.3,-41.9,90.0,bottom
 R5,100k,R_0402_1005Metric_Pad0.72x0.64mm_HandSolder,92.000002,-137.6,0.0,bottom
 R6,100k,R_0402_1005Metric_Pad0.72x0.64mm_HandSolder,99.1,-34.5,90.0,bottom
 R61,100,R_0402_1005Metric_Pad0.72x0.64mm_HandSolder,118.050002,-153.9,90.0,top
