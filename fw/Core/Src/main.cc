@@ -58,6 +58,16 @@ void SystemClock_Config(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+#include <Service/ButtonService.h>
+#include <Logic/ButtonLogic.h>
+#include <Service/DisplayService.h>
+#include <Logic/DisplayLogic.h>
+#include <Service/Sched/Scheduler.h>
+#include <Logic/BadgeController.h>
+
+using namespace hitcon::service::sched;
+using namespace hitcon;
+
 /* USER CODE END 0 */
 
 /**
@@ -95,7 +105,17 @@ int main(void)
   MX_TIM1_Init();
   MX_TIM3_Init();
   MX_TIM2_Init();
+  MX_TIM4_Init();
   /* USER CODE BEGIN 2 */
+  display_init();
+  g_display_logic.Init();
+  g_display_service.Init();
+  g_display_service.SetBrightness(3);
+  g_button_logic.Init();
+  g_button_service.Init();
+
+  scheduler.Run();
+
   /* USER CODE END 2 */
 
   /* Infinite loop */

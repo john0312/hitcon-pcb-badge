@@ -3,6 +3,7 @@
 #include <main.h>
 
 namespace hitcon {
+ButtonLogic g_button_logic;
 
 ButtonLogic::ButtonLogic() {}
 
@@ -31,10 +32,10 @@ void ButtonLogic::OnReceiveData(uint8_t* data) {
 	  _fire = 0;
 	if(3 < _count[j] &&_count[j] <= 80) { //handle short press
 	    temp = BUTTON_MODE + j;
-	    callback(callback_arg1, (void *) &temp);
+	    callback(callback_arg1, reinterpret_cast<void*>(static_cast<size_t>((temp))));
 	} else if(80 < _count[j]) {
 	    temp = BUTTON_LONG_MODE + j;
-	    callback(callback_arg1, (void *) &temp);
+	    callback(callback_arg1, reinterpret_cast<void*>(static_cast<size_t>((temp))));
 	}
 	_count[j] = 0;
       }
@@ -43,8 +44,8 @@ void ButtonLogic::OnReceiveData(uint8_t* data) {
   if(_fire != 0) {
     if(counter == 5) {
       counter = 0;
-      temp = BUTTON_LONG_MODE + _fire;
-      callback(callback_arg1, (void *) &temp);
+      temp = BUTTON_MODE + _fire;
+      callback(callback_arg1, reinterpret_cast<void*>(static_cast<size_t>((temp))));
     }
     counter++;
   }

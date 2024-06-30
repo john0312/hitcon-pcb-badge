@@ -58,7 +58,7 @@ private:
   uint8_t _fire;
 };
 
-extern ButtonLogic button_logic;
+extern ButtonLogic g_button_logic;
 
 } // namespace hitcon
 

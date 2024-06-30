@@ -1,15 +1,17 @@
 #include "BadgeController.h"
 #include <App/ShowNameApp.h>
+#include <App/EditNameApp.h>
 #include <cstdint>
 
 namespace hitcon {
+BadgeController badge_controller;
 
 BadgeController::BadgeController() :
   current_app(nullptr) {
 }
 
 void BadgeController::Init() {
-  button_logic.SetCallback((callback_t)&BadgeController::OnButton, this);
+  g_button_logic.SetCallback((callback_t)&BadgeController::OnButton, this);
   current_app = &show_name_app;
   current_app->OnEntry();
 }

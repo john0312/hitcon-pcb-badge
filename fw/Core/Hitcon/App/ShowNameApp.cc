@@ -5,6 +5,7 @@
 #include <cstring>
 
 namespace hitcon {
+ShowNameApp show_name_app;
 
 ShowNameApp::ShowNameApp() { strcpy(name, DEFAULT_NAME); }
 

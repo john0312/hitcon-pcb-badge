@@ -27,7 +27,7 @@ class DisplayLogic {
   // How many frames have we pushed to DisplayService?
   int frame_;
 };
-
+extern DisplayLogic g_display_logic;
 }  // namespace hitcon
 
 #endif  // #ifndef SERVICE_DISPLAY_SERVICE_H_

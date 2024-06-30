@@ -5,6 +5,7 @@
 #include <Service/ButtonService.h>
 
 namespace hitcon {
+EditNameApp edit_name_app;
 
 EditNameApp::EditNameApp() {}
 

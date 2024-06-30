@@ -4,6 +4,7 @@
 #include <Logic/Display/display.h>
 
 namespace hitcon {
+DisplayLogic g_display_logic;
 
 DisplayLogic::DisplayLogic() {
 }

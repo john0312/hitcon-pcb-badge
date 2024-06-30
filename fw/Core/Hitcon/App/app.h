@@ -8,7 +8,7 @@ namespace hitcon {
 
 class App {
 public:
-  App();
+  App() = default;
   virtual ~App() = default;
 
   // Once the app is activated, OnEntry will be called.
