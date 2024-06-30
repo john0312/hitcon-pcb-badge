@@ -45,6 +45,7 @@ void DisplayService::Init() {
   HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_1);
   hdma_tim2_ch1.XferHalfCpltCallback = &HalfTransferComplete;
   HAL_DMA_Start_IT(&hdma_tim2_ch1, (uint32_t) this->double_buffer, (uint32_t) &GPIOB->BSRR, DISPLAY_FRAME_SIZE*DISPLAY_FRAME_BATCH*2);
+
   current_buffer_index = 0;
 }
 

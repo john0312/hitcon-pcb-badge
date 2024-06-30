@@ -38,14 +38,18 @@ extern TIM_HandleTypeDef htim2;
 
 extern TIM_HandleTypeDef htim3;
 
+extern TIM_HandleTypeDef htim4;
+
 /* USER CODE BEGIN Private defines */
 extern DMA_HandleTypeDef hdma_tim2_ch3;
 extern DMA_HandleTypeDef hdma_tim2_ch1;
+extern DMA_HandleTypeDef hdma_tim4_ch2;
 /* USER CODE END Private defines */
 
 void MX_TIM1_Init(void);
 void MX_TIM2_Init(void);
 void MX_TIM3_Init(void);
+void MX_TIM4_Init(void);
 
 void HAL_TIM_MspPostInit(TIM_HandleTypeDef *htim);
 
