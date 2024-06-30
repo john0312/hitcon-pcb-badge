@@ -35,14 +35,20 @@ execute `fw/merge.py` to merge STM32CubeIDE generated `main.c` with user code in
 | Increment Address | X          | V      |
 | Data Width        | Word       | Word   |
 - [x] Led Brightness control: PWM Output from TIM3_CH2
-- [ ] Buttons: Reads Input PA4-10, PA15 through DMA1. Possible triggers.
-  * Triggered through TIM3_CH4, DMA1 Ch3
-  * Read together with IR Rx
-  * Triggered through TIM4_CH2, DMA1 Ch4
+- [x] Buttons: Reads Input PA4-10, PA15 through TIM4_CH2, DMA1 Ch4
+  * Compare: 5
+  * Mode: Circular Peripheral to Memory
+  
+|                   | Peripheral | Memory    |
+| ----------------- | ---------- | --------- |
+| Increment Address | X          | V         |
+| Data Width        | Half Word  | Half Word |
 - [x] Cross-board communication TX: USART2 TX, DMA1 Ch7
 - [x] Cross-board communication RX: USART2 RX, DMA1 Ch6
 
-- [ ] TIM4: Possibly operates the button at 500Hz.
+- [x] TIM4: Operates at 100Hz for Button
+  * Prescaler: 12000-1
+  * Counter Period: 10-1
 - [x] TIM3: Operates at 38kHz for PWM out.
   * Prescaler: 5-1
   * Counter Period: 63-1
