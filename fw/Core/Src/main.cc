@@ -115,7 +115,8 @@ int main(void)
   g_button_logic.Init();
   g_button_service.Init();
 
-  hitcon_run();
+  scheduler.Run();
+  //hitcon_run();
 
   /* USER CODE END 2 */
 
