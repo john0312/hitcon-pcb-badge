@@ -13,7 +13,7 @@ XBoardService::XBoardService()
     : _on_rx_callback(nullptr),
       _on_rx_callback_arg1(nullptr),
       _rx_task(480, (callback_t)&XBoardService::OnRxWrapper, this),
-	  _routine_task(490, (task_callback_t)&XBoardService::Routine, this, 10) {}
+      _routine_task(490, (task_callback_t)&XBoardService::Routine, this, 10) {}
 
 void XBoardService::Init() {
     scheduler.Queue(&_routine_task, nullptr);
@@ -36,7 +36,6 @@ void XBoardService::QueueDataForTx(uint8_t* data, size_t len) {
 void XBoardService::SetOnByteRx(callback_t callback, void* callback_arg1) {
     _on_rx_callback = callback;
     _on_rx_callback_arg1 = callback_arg1;
-    _rx_task = Task(480, callback, callback_arg1);
 }
 
 void XBoardService::NotifyTxFinish() { _tx_busy = false; }
