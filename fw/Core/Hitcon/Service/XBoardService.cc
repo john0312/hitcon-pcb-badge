@@ -25,7 +25,7 @@ void XBoardService::Init() {
 
 void XBoardService::QueueDataForTx(uint8_t* data, size_t len) {
     for (size_t i = 0; i < len; i++) {
-        if (_tx_buffer_tail + 1 == _tx_buffer_head) {
+        if ((_tx_buffer_tail + 1)%kTxBufferSize == _tx_buffer_head) {
             // Overflow, we're dropping data.
             AssertOverflow();
             break;
