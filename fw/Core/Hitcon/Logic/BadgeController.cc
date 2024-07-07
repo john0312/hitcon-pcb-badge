@@ -33,9 +33,9 @@ void BadgeController::OnButton(void *arg1) {
 
   default:
     // forward the button to the current app
-    current_app->OnButton(button);
     break;
   }
+  current_app->OnButton(button);
 }
 
 } // namespace hitcon

@@ -68,7 +68,7 @@ void SystemClock_Config(void);
 #include <Logic/DisplayLogic.h>
 #include <Service/Sched/Scheduler.h>
 #include <Logic/BadgeController.h>
-
+#include <App/HardwareTestApp.h>
 using namespace hitcon::service::sched;
 using namespace hitcon;
 using namespace hitcon::service::xboard;
@@ -112,7 +112,6 @@ int main(void)
   MX_TIM2_Init();
   MX_TIM4_Init();
   /* USER CODE BEGIN 2 */
-
   display_init();
   g_display_logic.Init();
   g_display_service.Init();
@@ -120,7 +119,9 @@ int main(void)
   g_button_logic.Init();
   g_button_service.Init();
   g_xboard_service.Init();
-
+  badge_controller.Init();
+  hardware_test_app.Init();
+  badge_controller.change_app(&hardware_test_app);
   scheduler.Run();
   //hitcon_run();
 
