@@ -8,6 +8,8 @@
 #ifndef HITCON_SERVICE_SCHED_TASK_H_
 #define HITCON_SERVICE_SCHED_TASK_H_
 
+#include <Service/Sched/Checks.h>
+
 namespace hitcon {
 namespace service {
 namespace sched {
@@ -19,9 +21,10 @@ protected:
 	unsigned prio;
 	task_callback_t callback;
 	void *thisptr, *arg;
+	bool in_queue = false;
 public:
 	// For prio, see Scheduler.h
-	constexpr Task(unsigned prio, task_callback_t callback, void *thisptr) : prio(prio), callback(callback), thisptr(thisptr), arg(nullptr) {
+	constexpr Task(unsigned prio, task_callback_t callback, void *thisptr) : prio(prio), callback(callback), thisptr(thisptr), arg(nullptr), in_queue(false) {
 	}
 
 	// No copy
@@ -37,6 +40,20 @@ public:
 	virtual bool operator <(Task &task);
 	void Run();
 	void SetArg(void *arg);
+
+	// Must be called whenever entering task or delayedTask queue.
+	// This is for debugging double Add() or Remove().
+	inline void EnterQueue() {
+		if (in_queue) AssertOverflow();
+		in_queue = true;
+	}
+
+	// Must be called whenever leaving task or delayedTask queue.
+	// This is for debugging double Add() or Remove().
+	inline void ExitQueue() {
+		if (!in_queue) AssertOverflow();
+		in_queue = false;
+	}
 };
 
 } /* namespace sched */
