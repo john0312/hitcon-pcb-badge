@@ -1,4 +1,5 @@
 #include <Service/XBoardService.h>
+#include <Service/Sched/Checks.h>
 
 using namespace hitcon::service::sched;
 using namespace hitcon::service::xboard;
@@ -26,6 +27,7 @@ void XBoardService::QueueDataForTx(uint8_t* data, size_t len) {
     for (size_t i = 0; i < len; i++) {
         if (_tx_buffer_tail + 1 == _tx_buffer_head) {
             // Overflow, we're dropping data.
+            AssertOverflow();
             break;
         }
         _tx_buffer[_tx_buffer_tail] = data[i];
