@@ -24,6 +24,14 @@ public:
 	constexpr Task(unsigned prio, task_callback_t callback, void *thisptr) : prio(prio), callback(callback), thisptr(thisptr), arg(nullptr) {
 	}
 
+	// No copy
+	Task(const Task&) = delete;
+	Task& operator=(const Task&) = delete;
+
+	// No move constructor
+	Task(Task&&) = delete;
+	Task& operator=(Task&&) = delete;
+
 	virtual ~Task();
 	bool operator ==(Task &task);
 	virtual bool operator <(Task &task);

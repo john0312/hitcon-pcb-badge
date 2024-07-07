@@ -64,7 +64,7 @@ private:
 				smallest = i2;
 			if (i == smallest)
 				break;
-			swap(*storage[i], *storage[smallest]);
+			swap(storage[i], storage[smallest]);
 			i = smallest;
 		}
 	}
