@@ -7,7 +7,7 @@
 
 #include "Scheduler.h"
 #include "SysTimer.h"
-
+#include "main.h"
 namespace hitcon {
 namespace service {
 namespace sched {
@@ -31,6 +31,7 @@ bool Scheduler::Queue(Task *task, void *arg) {
 	task->SetArg(arg);
 	bool result = true;
 	// TODO: Disable Interrupt.
+	__disable_irq();
 	if ((tasksAddQueueTail + 1)%kAddQueueSize == tasksAddQueueHead) {
 		// Overflow, we need to drop this request.
 		result = false;
@@ -39,6 +40,7 @@ bool Scheduler::Queue(Task *task, void *arg) {
 		tasksAddQueueTail = (tasksAddQueueTail+1)%kAddQueueSize;
 	}
 	// TODO: Enable Interrupt.
+	__enable_irq();
 	return result;
 }
 
@@ -47,6 +49,7 @@ bool Scheduler::Queue(DelayedTask *task, void *arg) {
 	task->SetArg(arg);
 	bool result = true;
 	// TODO: Disable Interrupt.
+	__disable_irq();
 	if ((delayedTasksAddQueueTail+1)%kAddQueueSize == delayedTasksAddQueueHead) {
 		// Overflow, we need to drop this request.
 		result = false;
@@ -55,6 +58,7 @@ bool Scheduler::Queue(DelayedTask *task, void *arg) {
 		delayedTasksAddQueueTail = (delayedTasksAddQueueTail+1)%kAddQueueSize;
 	}
 	// TODO: Enable Interrupt.
+	__enable_irq();
 	return result;
 }
 
