@@ -1,4 +1,5 @@
 #include <Logic/IrLogic.h>
+#include <Service/IrService.h>
 
 namespace hitcon {
 
@@ -7,7 +8,7 @@ IrLogic::IrLogic() {}
 void IrLogic::Init() {
   // TODO
   // Set callback
-  irService.SetOnBufferReceived(static_cast<callback_t>(IrLogic::OnBufferReceived, IrLogic));
+  irService.SetOnBufferReceived((callback_t)&IrLogic::OnBufferReceived, this);
 }
 
 void IrLogic::OnBufferReceived(uint8_t* buffer) {
