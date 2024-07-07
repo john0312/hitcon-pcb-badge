@@ -7,7 +7,7 @@
 
 #include "Scheduler.h"
 #include "SysTimer.h"
-
+#include <main.h>
 namespace hitcon {
 namespace service {
 namespace sched {
@@ -29,13 +29,17 @@ void my_assert(bool expr) {
 bool Scheduler::Queue(Task *task, void *arg) {
 	my_assert(task);
 	task->SetArg(arg);
+	HAL_NVIC_DisableIRQ(DMA1_Channel5_IRQn);
 	return tasks.Add(task);
+	HAL_NVIC_EnableIRQ(DMA1_Channel5_IRQn);
 }
 
 bool Scheduler::Queue(DelayedTask *task, void *arg) {
   my_assert(task);
 	task->SetArg(arg);
+	HAL_NVIC_DisableIRQ(DMA1_Channel5_IRQn);
 	return delayedTasks.Add(task);
+	HAL_NVIC_EnableIRQ(DMA1_Channel5_IRQn);
 }
 
 bool Scheduler::Queue(PeriodicTask *task, void *arg) {
@@ -66,22 +70,26 @@ bool Scheduler::DisablePeriodic(PeriodicTask *task) {
 void Scheduler::DelayedHouseKeeping() {
 	unsigned now = SysTimer::GetTime();
 	while (delayedTasks.size()) {
+		HAL_NVIC_DisableIRQ(DMA1_Channel5_IRQn);
 		DelayedTask &top = delayedTasks.Top();
 		unsigned wake = top.WakeTime();
 		if (wake > now)
 			break;
 		delayedTasks.Remove(&top);
 		tasks.Add(&top);
+		HAL_NVIC_EnableIRQ(DMA1_Channel5_IRQn);
 	}
 }
 
 void Scheduler::Run() {
 	while (1) {
 		DelayedHouseKeeping();
+		HAL_NVIC_DisableIRQ(DMA1_Channel5_IRQn);
 		if (!tasks.size())
 			continue;
 		Task &top = tasks.Top();
 		tasks.Remove(&top);
+		HAL_NVIC_EnableIRQ(DMA1_Channel5_IRQn);
 		top.Run();
 	}
 }
