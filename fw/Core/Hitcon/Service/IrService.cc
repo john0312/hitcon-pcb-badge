@@ -30,10 +30,11 @@ void IrService::TransmitBuffer(const void *_slot) {
 }
 
 void IrService::Init() {
+  // TODO
 }
 
 void unpackPacket(uint8_t *packet, size_t packet_len) {
-
+  // TODO
 }
 
 void IrService::TryQueueTransmitter(size_t slot) {
@@ -66,7 +67,8 @@ bool IrService::SendBuffer(uint8_t* data, size_t len) {
 }
 
 void IrService::SetOnBufferReceived(callback_t callback, void* callback_arg1) {
-  // TODO
+  this->callback = callback;
+  this->callback_arg = callback_arg1;
 }
 
 }  // namespace hitcon

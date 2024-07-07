@@ -6,14 +6,17 @@ IrLogic::IrLogic() {}
 
 void IrLogic::Init() {
   // TODO
+  // Set callback
+  irService.SetOnBufferReceived(static_cast<callback_t>(IrLogic::OnBufferReceived, IrLogic));
 }
 
 void IrLogic::OnBufferReceived(uint8_t* buffer) {
-  // TODO
+  // TODO: receive buffer -> check if packet_end -> call callback
 }
 
 void IrLogic::SetOnPacketReceived(callback_t callback, void* callback_arg1) {
-  // TODO
+  this->callback = callback;
+  this->callback_arg = callback_arg1;
 }
 
 void IrLogic::EncodePacket(uint8_t *data, size_t len, IrPacket &packet) {
@@ -37,15 +40,6 @@ void IrLogic::EncodePacket(uint8_t *data, size_t len, IrPacket &packet) {
   }
   packet.size_ = i;
 }
-
-#define QUEUE_MAX_SIZE ((PACKET_MAX_LEN + 10) * DECODE_SAMPLE_RATIO)
-typedef struct {
-  uint8_t buf[QUEUE_MAX_SIZE];
-  size_t start, end; // data is in [start, end), circular buffer
-  size_t size() {
-	  return (QUEUE_MAX_SIZE + end - start) % QUEUE_MAX_SIZE;
-  }
-} queue_t;
 
 // Return -1 if the bit at pos is invalid.
 // Return 1 if the bit at pos is 1.

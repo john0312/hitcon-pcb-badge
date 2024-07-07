@@ -53,6 +53,11 @@ private:
   bool TransmitterActive;
   IrBuffer PwmBuffer;
   IrBuffer RxBuffer;
+
+  // TODO: check if we need >1 callbacks
+  // OnBufferReceived callback
+  callback_t callback;
+  void *callback_arg;
 };
 
 extern IrService irService;

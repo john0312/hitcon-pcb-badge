@@ -29,6 +29,16 @@
 
 namespace hitcon {
 
+// Ring buffer
+#define QUEUE_MAX_SIZE ((PACKET_MAX_LEN + 10) * DECODE_SAMPLE_RATIO)
+struct queue_t{
+  uint8_t buf[QUEUE_MAX_SIZE];
+  size_t start, end; // data is in [start, end), circular buffer
+  inline size_t size() {
+	  return (QUEUE_MAX_SIZE + end - start) % QUEUE_MAX_SIZE;
+  }
+};
+
 class IrPacket {
  friend class IrLogic;
  public:
@@ -68,6 +78,14 @@ class IrLogic
 
   void EncodePacket(uint8_t *data, size_t len, IrPacket &packet);
   int DecodePacket(IrPacket &packet, size_t *len, uint8_t *decodedData);
+
+  // ring buffer
+  queue_t packet_queue;
+
+  // TODO: check if we need >1 callbacks
+  // OnPacketReceived callback
+  callback_t callback;
+  void *callback_arg;
 };
 
 }  // namespace hitcon
