@@ -12,11 +12,11 @@ void HAL_TIM_PWM_PulseFinishedCallback(TIM_HandleTypeDef *htim)
 using namespace hitcon::service::sched;
 
 namespace hitcon {
+namespace ir {
 
 IrService irService;
-IrLogic IrLogic;
 
-IrService::IrService() : Transmitter(100, (task_callback_t)&IrService::TransmitBuffer, this), TransmitterActive(false) {
+IrService::IrService() : Transmitter(100, (task_callback_t)&IrService::TransmitBuffer, this), TransmitterActive(false), CurrentSlot(0) {
 }
 
 void IrService::TransmitBuffer(const void *_slot) {
@@ -43,27 +43,16 @@ void IrService::TryQueueTransmitter(size_t slot) {
 	scheduler.Queue(&Transmitter, (void *)slot);
 }
 
-bool IrService::SendPacket(IrPacket &packet) {
-	static size_t currentSlot = 0;
-
-	if (PwmBuffer.size[currentSlot])
+bool IrService::SendBuffer(uint8_t* data, size_t len) {
+    if (PwmBuffer.size[CurrentSlot])
 		return false;
 
-	uint8_t *data = packet.data();
-	uint8_t size = packet.size();
-	for (size_t i = 0; i < size; ++i)
-		PwmBuffer.buffer[currentSlot][i] = PWM_PULSE * data[i];
+	for (size_t i = 0; i < len; ++i)
+		PwmBuffer.buffer[CurrentSlot][i] = PWM_PULSE * data[i];
 
-	TryQueueTransmitter(currentSlot);
-	currentSlot = !currentSlot;
+	TryQueueTransmitter(CurrentSlot);
+	CurrentSlot = !CurrentSlot;
 	return true;
-}
-
-bool IrService::SendBuffer(uint8_t* data, size_t len) {
-	IrPacket packet;
-	IrLogic.EncodePacket(data, len, packet);
-
-	return SendPacket(packet);
 }
 
 void IrService::SetOnBufferReceived(callback_t callback, void* callback_arg1) {
@@ -71,4 +60,5 @@ void IrService::SetOnBufferReceived(callback_t callback, void* callback_arg1) {
   this->callback_arg = callback_arg1;
 }
 
+}  // namespace ir
 }  // namespace hitcon

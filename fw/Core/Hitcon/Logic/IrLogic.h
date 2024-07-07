@@ -4,33 +4,13 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <Util/callback.h>
-
-#define PACKET_START                                                           \
-  (uint8_t[]) { 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1 }
-#define PACKET_START_LEN (sizeof(PACKET_START) / sizeof(uint8_t))
-#define PACKET_SIZE_LEN 5
-#define PACKET_DATA_MAX_BYTE 32
-#define PACKET_DATA_MAX_BIT (PACKET_DATA_MAX_BYTE * 8)
-#define PACKET_PARITY_LEN 1
-#define PACKET_END                                                             \
-  (uint8_t[]) { 1, 1, 1, 1, 1, 1, 1 }
-#define PACKET_END_LEN (sizeof(PACKET_END) / sizeof(uint8_t))
-#define PACKET_MAX_LEN                                                         \
-  (PACKET_START_LEN + PACKET_SIZE_LEN + PACKET_DATA_MAX_BIT +                  \
-   PACKET_PARITY_LEN + PACKET_END_LEN)
-
-// This value means that the hardware samples DECODE_SAMPLE_RATIO times within a
-// bit-time. Higher value reduces the chance of hardware error but increases the
-// time to decode a packet.
-#define DECODE_SAMPLE_RATIO 4
-// The number of 0s or 1s to be considered as a valid bit. If the number of 0s
-// and 1s are both less than this value, the bit is considered as invalid.
-#define DECODE_SAMPLE_RATIO_THRESHOLD 3
+#include <Service/IrParam.h>
 
 namespace hitcon {
 
+namespace ir {
+
 // Ring buffer
-#define QUEUE_MAX_SIZE ((PACKET_MAX_LEN + 10) * DECODE_SAMPLE_RATIO)
 struct queue_t{
   uint8_t buf[QUEUE_MAX_SIZE];
   size_t start, end; // data is in [start, end), circular buffer
@@ -76,6 +56,8 @@ class IrLogic
   // is received the callback will be called.
   void SetOnPacketReceived(callback_t callback, void* callback_arg1);
 
+  bool SendPacket(uint8_t *data, size_t len);
+
   void EncodePacket(uint8_t *data, size_t len, IrPacket &packet);
   int DecodePacket(IrPacket &packet, size_t *len, uint8_t *decodedData);
 
@@ -88,6 +70,9 @@ class IrLogic
   void *callback_arg;
 };
 
+extern IrLogic irLogic;
+
+}  // namespace ir
 }  // namespace hitcon
 
 #endif  // #ifndef HITCON_LOGIC_IR_LOGIC_H_

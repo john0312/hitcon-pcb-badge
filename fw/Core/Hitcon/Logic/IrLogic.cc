@@ -2,6 +2,9 @@
 #include <Service/IrService.h>
 
 namespace hitcon {
+namespace ir {
+
+IrLogic irLogic;
 
 IrLogic::IrLogic() {}
 
@@ -18,6 +21,12 @@ void IrLogic::OnBufferReceived(uint8_t* buffer) {
 void IrLogic::SetOnPacketReceived(callback_t callback, void* callback_arg1) {
   this->callback = callback;
   this->callback_arg = callback_arg1;
+}
+
+bool IrLogic::SendPacket(uint8_t* data, size_t len) {
+  IrPacket packet;
+  EncodePacket(data, len, packet);
+  return irService.SendBuffer(packet.data(), packet.size());
 }
 
 void IrLogic::EncodePacket(uint8_t *data, size_t len, IrPacket &packet) {
@@ -134,4 +143,5 @@ int IrLogic::DecodePacket(IrPacket &packet, size_t *len, uint8_t *decodedData) {
   }
 }
 
+}  // namespace ir
 }  // namespace hitcon

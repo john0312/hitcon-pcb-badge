@@ -16,14 +16,14 @@ using namespace hitcon::service::sched;
 void cb(void *unused1, void *unused2) {
 	uint8_t data[] {0xa, 0xb, 0xc, 0xd, 0xe, 0xf};
 	size_t len = 6;
-	irService.SendBuffer(data, len);
+	hitcon::ir::irService.SendBuffer(data, len);
 }
 
 Task InitTask(1, (task_callback_t)&cb, nullptr);
 
 
 void hitcon_run() {
-	irService.Init();
+	hitcon::ir::irService.Init();
 	scheduler.Queue(&InitTask, nullptr);
 	scheduler.Run();
 }
