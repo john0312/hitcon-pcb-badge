@@ -8,6 +8,7 @@
 #ifndef HITCON_SERVICE_SCHED_SCHEDULER_H_
 #define HITCON_SERVICE_SCHED_SCHEDULER_H_
 
+#include <stddef.h>
 #include "Ds/Heap.h"
 #include "Ds/Array.h"
 #include "Scheduler.h"
@@ -36,17 +37,35 @@ we use priority 100-200.
 */
 
 class Scheduler {
+private:
+	static constexpr size_t kAddQueueSize = 8;
+
 	Heap<Task, 50> tasks;
 	Heap<DelayedTask, 50> delayedTasks;
 	Array<PeriodicTask, 50> enabledPeriodicTasks, disabledPeriodicTasks;
+
+	// Queue used to temporarily hold calls to Queue() so we can defer heap
+	// operations to later.
+	Task* tasksAddQueue[kAddQueueSize];
+	size_t tasksAddQueueHead = 0;
+	size_t tasksAddQueueTail = 0;
+	DelayedTask* delayedTasksAddQueue[kAddQueueSize];
+	size_t delayedTasksAddQueueHead = 0;
+	size_t delayedTasksAddQueueTail = 0;
+
 	void DelayedHouseKeeping();
 public:
 	Scheduler();
 	virtual ~Scheduler();
+	// Can be called during interrupt.
 	bool Queue(Task *task, void *arg);
+	// Can be called during interrupt.
 	bool Queue(DelayedTask *task, void *arg);
+	// Can NOT be called during interrupt.
 	bool Queue(PeriodicTask *task, void *arg); // Queued tasks are disabled by default
+	// Can NOT be called during interrupt.
 	bool EnablePeriodic(PeriodicTask *task);
+	// Can NOT be called during interrupt.
 	bool DisablePeriodic(PeriodicTask *task);
 	void Run();
 };
