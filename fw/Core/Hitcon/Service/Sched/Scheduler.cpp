@@ -29,17 +29,37 @@ void my_assert(bool expr) {
 bool Scheduler::Queue(Task *task, void *arg) {
 	my_assert(task);
 	task->SetArg(arg);
-	return tasks.Add(task);
+	bool result = true;
+	// TODO: Disable Interrupt.
+	if ((tasksAddQueueTail + 1)%kAddQueueSize == tasksAddQueueHead) {
+		// Overflow, we need to drop this request.
+		result = false;
+	} else {
+		tasksAddQueue[tasksAddQueueTail] = task;
+		tasksAddQueueTail = (tasksAddQueueTail+1)%kAddQueueSize;
+	}
+	// TODO: Enable Interrupt.
+	return result;
 }
 
 bool Scheduler::Queue(DelayedTask *task, void *arg) {
-  my_assert(task);
+	my_assert(task);
 	task->SetArg(arg);
-	return delayedTasks.Add(task);
+	bool result = true;
+	// TODO: Disable Interrupt.
+	if ((delayedTasksAddQueueTail+1)%kAddQueueSize == delayedTasksAddQueueHead) {
+		// Overflow, we need to drop this request.
+		result = false;
+	} else {
+		delayedTasksAddQueue[delayedTasksAddQueueTail] = task;
+		delayedTasksAddQueueTail = (delayedTasksAddQueueTail+1)%kAddQueueSize;
+	}
+	// TODO: Enable Interrupt.
+	return result;
 }
 
 bool Scheduler::Queue(PeriodicTask *task, void *arg) {
-  my_assert(task);
+	my_assert(task);
 	task->SetArg(arg);
 	return disabledPeriodicTasks.Add(task);
 }
@@ -64,6 +84,23 @@ bool Scheduler::DisablePeriodic(PeriodicTask *task) {
 }
 
 void Scheduler::DelayedHouseKeeping() {
+	// Handle all Queue operations.
+	while (tasksAddQueueHead != tasksAddQueueTail) {
+		bool ret = tasks.Add(tasksAddQueue[tasksAddQueueHead]);
+		if (!ret) {
+			// Heap is full.
+			break;
+		}
+		tasksAddQueueHead = (tasksAddQueueHead+1)%kAddQueueSize;
+	}
+	while (delayedTasksAddQueueHead != delayedTasksAddQueueTail) {
+		bool ret = delayedTasks.Add(delayedTasksAddQueue[delayedTasksAddQueueHead]);
+		if (!ret) {
+			// Heap is full.
+			break;
+		}
+		delayedTasksAddQueueHead = (delayedTasksAddQueueHead+1)%kAddQueueSize;
+	}
 	unsigned now = SysTimer::GetTime();
 	while (delayedTasks.size()) {
 		DelayedTask &top = delayedTasks.Top();
