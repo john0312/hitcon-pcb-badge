@@ -4,11 +4,21 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <Util/callback.h>
+#include <Logic/IrLogic.h>
+#include <Service/Sched/PeriodicTask.h>
+#include <Service/Sched/Scheduler.h>
 
 namespace hitcon {
 
 constexpr size_t IR_SERVICE_TX_SIZE = 32;
 constexpr size_t IR_SERVICE_RX_SIZE = 32;
+constexpr size_t IR_SERVICE_BUFFER_SIZE = PACKET_MAX_LEN;
+constexpr uint16_t PWM_PULSE = 16;
+
+struct IrBuffer {
+	size_t size[2] {0, 0};
+	uint32_t buffer[2][IR_SERVICE_BUFFER_SIZE];
+};
 
 class IrService {
  public:
@@ -27,7 +37,7 @@ class IrService {
 
   // Call to send an IR packet.
   // This is a bit stream at 38kHz. Each bit represents 1 pulse at 38kHz.
-  void TransmitBuffer(uint8_t* packet, size_t packet_len);
+  bool SendBuffer(uint8_t* data, size_t len);
 
   // Whenever IR_SERVICE_RX_SIZE bytes of bit array is received from IR,
   // the callback is called with uint8_t buffer[IR_SERVICE_RX_SIZE) of
@@ -36,9 +46,16 @@ class IrService {
   void SetOnBufferReceived(callback_t callback, void* callback_arg1);
 
 private:
-  uint16_t pwm_buffer_[IR_SERVICE_TX_SIZE*2];
-  uint16_t rx_buffer_[IR_SERVICE_RX_SIZE*2];
+  bool SendPacket(IrPacket &packet);
+  void TransmitBuffer(const void *_slot);
+  void TryQueueTransmitter(size_t slot);
+  hitcon::service::sched::Task Transmitter;
+  bool TransmitterActive;
+  IrBuffer PwmBuffer;
+  IrBuffer RxBuffer;
 };
+
+extern IrService irService;
 
 }  // namespace hitcon
 
