@@ -26,7 +26,11 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include <Logic/BadgeController.h>
+#include <Service/XBoardService.h>
 #include <Hitcon.h>
+
+using namespace hitcon;
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -67,6 +71,7 @@ void SystemClock_Config(void);
 
 using namespace hitcon::service::sched;
 using namespace hitcon;
+using namespace hitcon::service::xboard;
 
 /* USER CODE END 0 */
 
@@ -114,6 +119,7 @@ int main(void)
   g_display_service.SetBrightness(3);
   g_button_logic.Init();
   g_button_service.Init();
+  g_xboard_service.Init();
 
   scheduler.Run();
   //hitcon_run();
