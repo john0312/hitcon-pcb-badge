@@ -26,7 +26,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include <Hitcon.h>
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -107,6 +107,7 @@ int main(void)
   MX_TIM2_Init();
   MX_TIM4_Init();
   /* USER CODE BEGIN 2 */
+
   display_init();
   g_display_logic.Init();
   g_display_service.Init();
@@ -114,7 +115,7 @@ int main(void)
   g_button_logic.Init();
   g_button_service.Init();
 
-  scheduler.Run();
+  hitcon_run();
 
   /* USER CODE END 2 */
 
