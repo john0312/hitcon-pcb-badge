@@ -1,4 +1,4 @@
-#define CHAR_WIDTH 5
+#define CHAR_WIDTH 6
 #define CHAR_HEIGHT 8
 #define PRINTABLE_START 32
 #define PRINTABLE_END 127
