@@ -16,9 +16,15 @@ HardwareTestApp::HardwareTestApp() : task(30, (task_callback_t)&HardwareTestApp:
 unsigned char _xboard_data[2] = {'R', 'A'};
 void HardwareTestApp::CheckXBoard(void* arg1) {
   uint8_t b = static_cast<uint8_t>(reinterpret_cast<size_t>(arg1));
-  if(b == _xboard_data[0] && current_state == TS_XBOARD_1) {
-    next_state = TS_XBOARD_2;
-  } else if(b == _xboard_data[1] && current_state == TS_XBOARD_2) {
+  if(current_state != TS_XBOARD) {
+    next_state = TS_FAIL;
+    return;
+  }
+
+  if(b == _xboard_data[0] && xboard_count == 0) {
+    xboard_count = 1;
+  } else if(b == _xboard_data[1] && xboard_count == 1) {
+    xboard_count = 2;
     next_state = TS_IR;
   } else {
     next_state = TS_FAIL;
@@ -79,11 +85,12 @@ void HardwareTestApp::OnButton(button_t button) {
       break;
     case TS_BTN_DOWN:
       if(button == BUTTON_DOWN) {
-	next_state = TS_XBOARD_1;
+	next_state = TS_XBOARD;
       }
       break;
-    case TS_XBOARD_1:
+    case TS_XBOARD:
       if(button == BUTTON_OK) {
+	xboard_count = 0;
 	g_xboard_service.QueueDataForTx(_xboard_data, 2);
       }
       break;

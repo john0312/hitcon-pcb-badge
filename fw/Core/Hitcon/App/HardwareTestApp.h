@@ -27,8 +27,7 @@ enum TEST_APP_STATE{ //TODO: add display: checkerboard and brightness
 //  TS_BTN_LONG_OK,
 //  TS_BTN_LONG_RIGHT,
 //  TS_BTN_LONG_DOWN,
-  TS_XBOARD_1,
-  TS_XBOARD_2,
+  TS_XBOARD,
   TS_IR,
   TS_FAIL=99,
 };
@@ -49,6 +48,7 @@ private:
   uint32_t current_state;
   uint32_t next_state;
   uint32_t start_tick;
+  uint8_t xboard_count;
 };
 
 extern HardwareTestApp hardware_test_app;
