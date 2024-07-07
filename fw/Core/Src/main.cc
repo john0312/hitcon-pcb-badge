@@ -120,8 +120,11 @@ int main(void)
   g_button_service.Init();
   g_xboard_service.Init();
   badge_controller.Init();
-  hardware_test_app.Init();
-  badge_controller.change_app(&hardware_test_app);
+  // run hardware test mode if MODE/SETTINGS Button is pressed during initializing
+  if(HAL_GPIO_ReadPin(BtnA_GPIO_Port, BtnA_Pin) == GPIO_PIN_RESET) {
+    hardware_test_app.Init();
+    badge_controller.change_app(&hardware_test_app);
+  }
   scheduler.Run();
   //hitcon_run();
 
