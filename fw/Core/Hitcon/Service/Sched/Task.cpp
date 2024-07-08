@@ -11,25 +11,15 @@ namespace hitcon {
 namespace service {
 namespace sched {
 
-Task::~Task() {
+Task::~Task() {}
 
-}
+bool Task::operator==(Task &task) { return &task == this; }
 
-bool Task::operator ==(Task &task) {
-	return &task == this;
-}
+bool Task::operator<(Task &task) { return prio < task.prio; }
 
-bool Task::operator <(Task &task) {
-	return prio < task.prio;
-}
+void Task::Run() { callback(thisptr, arg); }
 
-void Task::Run() {
-	callback(thisptr, arg);
-}
-
-void Task::SetArg(void *arg) {
-	this->arg = arg;
-}
+void Task::SetArg(void *arg) { this->arg = arg; }
 
 } /* namespace sched */
 } /* namespace service */

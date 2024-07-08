@@ -6,6 +6,7 @@
  */
 
 #include "SysTimer.h"
+
 #include <main.h>
 
 namespace hitcon {
@@ -13,18 +14,17 @@ namespace service {
 namespace sched {
 
 SysTimer::SysTimer() {
-	// TODO Auto-generated constructor stub
-
+  // TODO Auto-generated constructor stub
 }
 
 SysTimer::~SysTimer() {
-	// TODO Auto-generated destructor stub
+  // TODO Auto-generated destructor stub
 }
 
 unsigned SysTimer::GetTime() {
-//	static unsigned x = 0;
-//	return x++;
-	return HAL_GetTick();
+  //	static unsigned x = 0;
+  //	return x++;
+  return HAL_GetTick();
 }
 
 } /* namespace sched */

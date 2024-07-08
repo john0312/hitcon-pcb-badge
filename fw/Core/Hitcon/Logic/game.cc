@@ -53,11 +53,11 @@ void __game_receive_and_update_column(int column, void *event_data) {
   // TODO
 }
 
-#define FUNC_GENERATE_RANDOM_AND_UPDATE_COLUMN(name, column)                   \
+#define FUNC_GENERATE_RANDOM_AND_UPDATE_COLUMN(name, column) \
   void name() { __game_generate_random_and_update_column(column); }
-#define FUNC_RECEIVE_AND_UPDATE_COLUMN(name, column)                           \
-  void name(void *event_data) {                                                \
-    __game_receive_and_update_column(column, event_data);                      \
+#define FUNC_RECEIVE_AND_UPDATE_COLUMN(name, column)      \
+  void name(void *event_data) {                           \
+    __game_receive_and_update_column(column, event_data); \
   }
 
 FUNC_GENERATE_RANDOM_AND_UPDATE_COLUMN(game_update_unshared,
@@ -84,7 +84,6 @@ void register_callbacks(void (*register_callback_no_arg)(
                             int period, callback_no_arg_t callback_no_arg),
                         void (*register_callback_event_data)(
                             callback_event_data_t callback_event_data)) {
-
   register_callback_no_arg(GAME_UPDATE_UNSHARED_PERIOD, game_update_unshared);
   register_callback_no_arg(GAME_UPDATE_SHARED_PERIOD,
                            game_update_shared_periodic);

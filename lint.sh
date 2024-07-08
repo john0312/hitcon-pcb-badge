@@ -1,39 +1,39 @@
 #!/bin/bash
 
 # Parse Argument
+auto_fmt=false
 while getopts ":i" opt; do
   case "$opt" in
     i)
       auto_fmt=true
       shift
       ;;
-    *)
-      echo "Option $opt not exists."
-      exit 1
-      ;;
   esac
 done
 
 if [[ "$1" == "" ]]; then
-  TARGET_DIR="./fw/Core"
+  TARGET_DIR="./fw/Core/Hitcon"
 else
-  TARGET_DIR="$1/fw/Core"
+  TARGET_DIR="$1/fw/Core/Hitcon"
 fi
 
 TARGET_FILES=$(find $TARGET_DIR -type f -name "*.cc" -o -name "*.cpp" -o -name "*.c")
 
 if $auto_fmt; then 
-  for file in "${TARGET_FILES[@]}"; do
-    echo "Formatting $file"
-    clang-format -i $file &> /dev/null
-  done
+  echo "Auto format"
+  while read file; do
+      echo "Formatting $file"
+      clang-format -i $file &> /dev/null
+  done <<< "$TARGET_FILES"
 else
-  for file in "${TARGET_FILES[@]}"; do
-    clang-format --dry-run --Werror $file &> /dev/null
+  echo "Check format"
+  while read file; do
+    echo $file
+    clang-format --dry-run --Werror $file
     ret=$?
     if [[ $ret -ne 0 ]]; then
       echo "Fail on $file"
       exit $ret
     fi
-  done
+  done <<< "$TARGET_FILES"
 fi

@@ -1,6 +1,8 @@
 #include "editor.h"
+
 #include <Logic/Display/display.h>
 #include <Logic/Display/font.h>
+
 #include <cstring>
 
 namespace hitcon {
@@ -35,27 +37,27 @@ void TextEditorDisplay::move_cursor_right() {
 
 void TextEditorDisplay::incr_current_char() {
   switch (text[cursor]) {
-  case 0:
-    text[cursor] = PRINTABLE_START;
-    break;
-  case PRINTABLE_END - 1:
-    text[cursor] = 0;
-    break;
-  default:
-    text[cursor]++;
+    case 0:
+      text[cursor] = PRINTABLE_START;
+      break;
+    case PRINTABLE_END - 1:
+      text[cursor] = 0;
+      break;
+    default:
+      text[cursor]++;
   }
 }
 
 void TextEditorDisplay::decr_current_char() {
   switch (text[cursor]) {
-  case 0:
-    text[cursor] = PRINTABLE_END - 1;
-    break;
-  case PRINTABLE_START:
-    text[cursor] = 0;
-    break;
-  default:
-    text[cursor]--;
+    case 0:
+      text[cursor] = PRINTABLE_END - 1;
+      break;
+    case PRINTABLE_START:
+      text[cursor] = 0;
+      break;
+    default:
+      text[cursor]--;
   }
 }
 
@@ -105,4 +107,4 @@ void TextEditorDisplay::draw(uint8_t *display_buf, int frame) const {
   }
 }
 
-} // namespace hitcon
+}  // namespace hitcon

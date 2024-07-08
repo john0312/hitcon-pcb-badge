@@ -6,6 +6,7 @@
  */
 
 #include "PeriodicTask.h"
+
 #include "Scheduler.h"
 #include "SysTimer.h"
 
@@ -14,24 +15,18 @@ namespace service {
 namespace sched {
 
 void PeriodicTask::AutoRequeueCb(void *arg) {
-	savedCallback(savedThisptr, arg);
-	if (enabled) {
-		wakeTime = SysTimer::GetTime() + interval;
-		scheduler.Queue((DelayedTask *)this, arg);
-	}
+  savedCallback(savedThisptr, arg);
+  if (enabled) {
+    wakeTime = SysTimer::GetTime() + interval;
+    scheduler.Queue((DelayedTask *)this, arg);
+  }
 }
 
-PeriodicTask::~PeriodicTask() {
-}
+PeriodicTask::~PeriodicTask() {}
 
-void PeriodicTask::Enable() {
-	enabled = true;
-}
+void PeriodicTask::Enable() { enabled = true; }
 
-void PeriodicTask::Disable() {
-	enabled = false;
-}
-
+void PeriodicTask::Disable() { enabled = false; }
 
 } /* namespace sched */
 } /* namespace service */
