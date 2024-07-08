@@ -3,6 +3,8 @@
 #include <App/EditNameApp.h>
 #include <Service/Sched/Scheduler.h>
 #include <Service/XBoardService.h>
+#include <Service/DisplayService.h>
+#include <Service/IrService.h>
 #include <cstring>
 
 using namespace hitcon::service::sched;
@@ -21,10 +23,10 @@ void HardwareTestApp::CheckXBoard(void* arg1) {
     return;
   }
 
-  if(b == _xboard_data[0] && xboard_count == 0) {
-    xboard_count = 1;
-  } else if(b == _xboard_data[1] && xboard_count == 1) {
-    xboard_count = 2;
+  if(b == _xboard_data[0] && _count == 0) {
+    _count = 1;
+  } else if(b == _xboard_data[1] && _count == 1) {
+    _count = 2;
     next_state = TS_IR;
   } else {
     next_state = TS_FAIL;
@@ -34,11 +36,13 @@ void HardwareTestApp::CheckXBoard(void* arg1) {
 void HardwareTestApp::Init() {
   scheduler.Queue(&task, nullptr);
   g_xboard_service.SetOnByteRx((callback_t)&HardwareTestApp::CheckXBoard, this);
+
 }
 
 void HardwareTestApp::OnEntry() {
   next_state = TS_DISPLAY_SET_ALL;
   start_tick = HAL_GetTick();
+  _count = 0;
   scheduler.EnablePeriodic(&task);
 }
 
@@ -90,8 +94,13 @@ void HardwareTestApp::OnButton(button_t button) {
       break;
     case TS_XBOARD:
       if(button == BUTTON_OK) {
-	xboard_count = 0;
+	_count = 0;
 	g_xboard_service.QueueDataForTx(_xboard_data, 2);
+      }
+      break;
+    case TS_IR:
+      if(button == BUTTON_OK) {
+	_count = 0;
       }
       break;
   }
@@ -106,7 +115,8 @@ void HardwareTestApp::Routine(void* unused) {
     temp[2] = 0;
     display_set_mode_scroll_text(temp);
   }
-  if(current_state == TS_DISPLAY_SET_ALL) {
+  //TEST DISPLAY
+  if(current_state < TS_BTN_BRIGHTNESS) {
     uint8_t buf_fixed[DISPLAY_HEIGHT * DISPLAY_WIDTH] = {
       1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
       1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
@@ -117,9 +127,51 @@ void HardwareTestApp::Routine(void* unused) {
       1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
       1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
     };
-    display_set_mode_fixed(buf_fixed);
-    if(HAL_GetTick() - start_tick > 2000)
-      next_state = TS_BTN_BRIGHTNESS;
+
+    uint8_t buf_fixed2[DISPLAY_HEIGHT * DISPLAY_WIDTH] = {
+	1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0,
+	0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1,
+	1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0,
+	0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1,
+	1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0,
+	0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1,
+	1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0,
+	0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1,
+    };
+    switch(current_state) {
+    case TS_DISPLAY_SET_ALL:
+      display_set_mode_fixed(buf_fixed);
+      if(HAL_GetTick() - start_tick > PERIOD) {
+	next_state = TS_DISPLAY_RESET_ALL;
+	start_tick = HAL_GetTick();
+      }
+      break;
+    case TS_DISPLAY_RESET_ALL:
+      display_set_mode_blank();
+      if(HAL_GetTick() - start_tick > PERIOD) {
+	next_state = TS_DISPLAY_CHECKER;
+	start_tick = HAL_GetTick();
+      }
+      break;
+    case TS_DISPLAY_CHECKER:
+      display_set_mode_fixed(buf_fixed2);
+      if(HAL_GetTick() - start_tick > PERIOD) {
+	next_state = TS_DISPLAY_BRIGHTNESS;
+	start_tick = HAL_GetTick();
+      }
+      break;
+    case TS_DISPLAY_BRIGHTNESS://fix this
+      if(_count > 10)
+	next_state = TS_BTN_BRIGHTNESS;
+      g_display_service.SetBrightness(_count);
+      if(HAL_GetTick() - start_tick > PERIOD) {
+	_count++;
+	start_tick = HAL_GetTick();
+      }
+      break;
+    default:
+      break;
+    }
   }
 }
 

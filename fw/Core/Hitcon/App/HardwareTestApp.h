@@ -31,6 +31,9 @@ enum TEST_APP_STATE{ //TODO: add display: checkerboard and brightness
   TS_IR,
   TS_FAIL=99,
 };
+
+constexpr int PERIOD = 1000;
+
 class HardwareTestApp : public App {
 public:
   HardwareTestApp();
@@ -48,7 +51,7 @@ private:
   uint32_t current_state;
   uint32_t next_state;
   uint32_t start_tick;
-  uint8_t xboard_count;
+  uint8_t _count;
 };
 
 extern HardwareTestApp hardware_test_app;
