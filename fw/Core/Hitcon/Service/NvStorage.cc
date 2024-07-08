@@ -2,8 +2,7 @@
 
 namespace hitcon {
 
-NvStorage::NvStorage() {
-}
+NvStorage::NvStorage() {}
 
 void NvStorage::Init() {
   // TODO

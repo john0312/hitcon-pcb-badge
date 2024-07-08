@@ -11,16 +11,13 @@ namespace hitcon {
 namespace service {
 namespace sched {
 
-DelayedTask::~DelayedTask() {
+DelayedTask::~DelayedTask() {}
+
+bool DelayedTask::operator<(DelayedTask &task) {
+  return wakeTime < task.wakeTime;
 }
 
-bool DelayedTask::operator <(DelayedTask &task) {
-	return wakeTime < task.wakeTime;
-}
-
-unsigned DelayedTask::WakeTime() {
-	return wakeTime;
-}
+unsigned DelayedTask::WakeTime() { return wakeTime; }
 
 } /* namespace sched */
 } /* namespace service */

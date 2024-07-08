@@ -1,4 +1,5 @@
 #include "display.h"
+
 #include <Logic/Display/editor.h>
 #include <Logic/Display/font.h>
 #include <string.h>
@@ -7,7 +8,7 @@ static uint8_t display_buf[DISPLAY_HEIGHT][DISPLAY_WIDTH];
 
 static int display_mode;
 static int
-    display_current_frame; // will be updated when display_get_frame is called
+    display_current_frame;  // will be updated when display_get_frame is called
 static hitcon::TextEditorDisplay *text_editor_display;
 
 // TODO: use union to save memory if we want to store other info for other modes
@@ -76,21 +77,21 @@ void display_init() {
 
 void display_get_frame(uint8_t *buf, int frame) {
   switch (display_mode) {
-  case DISPLAY_MODE_BLANK:
-    memset(buf, 0, sizeof(display_buf));
-    break;
+    case DISPLAY_MODE_BLANK:
+      memset(buf, 0, sizeof(display_buf));
+      break;
 
-  case DISPLAY_MODE_FIXED:
-    memcpy(buf, display_buf, sizeof(display_buf));
-    break;
+    case DISPLAY_MODE_FIXED:
+      memcpy(buf, display_buf, sizeof(display_buf));
+      break;
 
-  case DISPLAY_MODE_SCROLL:
-    get_scroll_frame(buf, frame);
-    break;
+    case DISPLAY_MODE_SCROLL:
+      get_scroll_frame(buf, frame);
+      break;
 
-  case DISPLAY_MODE_TEXT_EDITOR:
-    text_editor_display->draw(buf, frame);
-    break;
+    case DISPLAY_MODE_TEXT_EDITOR:
+      text_editor_display->draw(buf, frame);
+      break;
   }
 
   display_current_frame = frame;

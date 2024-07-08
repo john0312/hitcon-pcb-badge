@@ -1,8 +1,9 @@
 #ifdef HITCON_TEST_MODE
 
-#include "infrared.h"
 #include <stdio.h>
 #include <stdlib.h>
+
+#include "infrared.h"
 
 void test_encode() {
   uint8_t data[16] = {0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef,
@@ -60,7 +61,7 @@ void test_decode() {
 
   size_t decoded_byte_size;
   uint8_t decoded_data[32];
-  size_t batch_size = 5; // change me
+  size_t batch_size = 5;  // change me
   size_t i = 0;
   for (; i < 2 * PACKET_MAX_LEN * DECODE_SAMPLE_RATIO; i += batch_size) {
     raw_packet_t batch;

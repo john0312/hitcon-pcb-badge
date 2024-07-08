@@ -1,8 +1,9 @@
 #ifdef HITCON_TEST_MODE
 
-#include "display.h"
 #include <stdio.h>
 #include <unistd.h>
+
+#include "display.h"
 
 void print_buf(int frame, uint8_t *buf) {
   printf("frame %d\n", frame);
