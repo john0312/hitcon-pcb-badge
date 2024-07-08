@@ -16,8 +16,7 @@ IrService irService;
 
 IrService::IrService()
     : Transmitter(100, (task_callback_t)&IrService::TransmitBuffer, this),
-      TransmitterActive(false),
-      CurrentSlot(0) {}
+      TransmitterActive(false), CurrentSlot(0) {}
 
 void IrService::TransmitBuffer(const void *_slot) {
   const size_t slot = (size_t)_slot;

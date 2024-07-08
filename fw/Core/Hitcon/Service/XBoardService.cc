@@ -11,8 +11,7 @@ namespace xboard {
 XBoardService g_xboard_service;
 
 XBoardService::XBoardService()
-    : _on_rx_callback(nullptr),
-      _on_rx_callback_arg1(nullptr),
+    : _on_rx_callback(nullptr), _on_rx_callback_arg1(nullptr),
       _rx_task(480, (callback_t)&XBoardService::OnRxWrapper, this),
       _routine_task(490, (task_callback_t)&XBoardService::Routine, this, 10) {}
 
