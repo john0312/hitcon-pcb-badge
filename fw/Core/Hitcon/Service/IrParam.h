@@ -13,7 +13,9 @@ constexpr size_t PACKET_DATA_MAX_BYTE = 32;
 constexpr size_t PACKET_DATA_MAX_BIT = PACKET_DATA_MAX_BYTE * 8;
 constexpr size_t PACKET_PARITY_LEN = 1;
 constexpr uint8_t PACKET_END[] = { 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
+constexpr size_t PACKET_END_ = 0b111'1111'0000'0000;
 constexpr size_t PACKET_END_LEN = sizeof(PACKET_END) / sizeof(uint8_t);
+constexpr size_t PACKET_END_MASK = (1LL << PACKET_END_LEN) - 1;
 constexpr size_t PACKET_MAX_LEN = (PACKET_START_LEN + PACKET_SIZE_LEN + PACKET_DATA_MAX_BIT + 
    PACKET_PARITY_LEN + PACKET_END_LEN);
 

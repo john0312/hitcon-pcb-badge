@@ -17,6 +17,14 @@ struct queue_t{
   inline size_t size() {
 	  return (QUEUE_MAX_SIZE + end - start) % QUEUE_MAX_SIZE;
   }
+  inline void push(uint8_t ch) {
+    if (QUEUE_MAX_SIZE == end + 1) {
+      buf[0] = ch;
+      end = 0;
+    } else {
+      buf[end++] = ch;
+    }
+  }
 };
 
 class IrPacket {

@@ -9,13 +9,33 @@ IrLogic irLogic;
 IrLogic::IrLogic() {}
 
 void IrLogic::Init() {
-  // TODO
   // Set callback
   irService.SetOnBufferReceived((callback_t)&IrLogic::OnBufferReceived, this);
 }
 
 void IrLogic::OnBufferReceived(uint8_t* buffer) {
-  // TODO: receive buffer -> check if packet_end -> call callback
+  // receive buffer -> check if packet_end -> call callback
+  decltype(PACKET_END_) check = 0;
+  for (size_t i = 0; i < PACKET_END_LEN - 1; i++) {
+	check <<= 1;
+	check |= buffer[i];
+	packet_queue.push(buffer[i]);
+  }
+
+  // TODO: check if the buffer size is IR_SERVICE_BUFFER_SIZE
+  for (size_t i = PACKET_END_LEN - 1; i < IR_SERVICE_BUFFER_SIZE; i++) {
+	check <<= 1;
+	check |= buffer[i];
+	check &= PACKET_END_MASK;
+	packet_queue.push(buffer[i]);
+
+	if (check == PACKET_END_) {
+		// get a packet
+		// TODO: make a packet from queue_t
+		IrPacket packet;
+		this->callback(this->callback_arg, packet);
+	}
+  }
 }
 
 void IrLogic::SetOnPacketReceived(callback_t callback, void* callback_arg1) {
