@@ -5,9 +5,7 @@ on: [push, pull_request]
 jobs:
   lint:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
     steps:
-      run: |
-        apt install clang-format
-        echo $(pwd)
-        ./lint.sh ${{ github.workspace }}
+      - uses: actions/checkout@v2
+      - run: ./lint.sh ${{ github.workspace }}
+      - run: echo "Job's status ${{ job.status }}."
