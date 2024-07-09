@@ -52,7 +52,7 @@ void ButtonLogic::OnReceiveData(uint8_t* data) {
     counter++;
   }
 
-  if (_count[pressed_btn] > 300) {
+  if (_count[pressed_btn] > 150) {
     _fire = pressed_btn;
   }
 }

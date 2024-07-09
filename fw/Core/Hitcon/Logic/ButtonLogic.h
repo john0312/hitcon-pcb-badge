@@ -10,8 +10,8 @@ namespace hitcon {
 /**
  * - If a button is pressed for <30ms or within 100ms of the last release, it is filtered as bounce.
  * - If a button is pressed for >30ms but <800ms, on release it'll be considered a press.
- * - If a button is pressed for >800ms but <3000ms, on release it'll be considered a long press.
- * - If a button is pressed for >3000ms, then repeat firing of press event will happen every 200ms until released.
+ * - If a button is pressed for >800ms but <1500ms, on release it'll be considered a long press.
+ * - If a button is pressed for >1500ms, then repeat firing of press event will happen every 200ms until released.
  */
 
 constexpr int BUTTON_VALUE_MASK = 0b1111;
