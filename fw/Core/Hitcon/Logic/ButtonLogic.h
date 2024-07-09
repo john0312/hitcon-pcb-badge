@@ -2,6 +2,7 @@
 #define HITCON_LOGIC_BUTTON_LOGIC_H_
 
 #include <Service/ButtonService.h>
+#include <Service/Sched/Task.h>
 #include <Util/callback.h>
 #include <main.h>
 
@@ -51,11 +52,17 @@ public:
 
   void OnReceiveData(uint8_t* arr);
 
+  void CallbackWrapper(void* arg2);
+
 private:
   callback_t callback;
   void* callback_arg1;
+
+  hitcon::service::sched::Task _callback_task;
+
   uint16_t _count[BUTTON_AMOUNT];
   uint8_t _fire;
+  uint16_t _out;
 };
 
 extern ButtonLogic g_button_logic;
