@@ -6,8 +6,8 @@ Created on Sun Jul  7 19:07:46 2024
 """
 
 from enum import Enum, auto
-import os
 import subprocess
+import re
 
 # status enum class
 class ST_STATUS(Enum):
@@ -17,6 +17,13 @@ class ST_STATUS(Enum):
     TRIGGER_EXEC = auto()
     FINISHED = auto()
     
+#--- interface to use STM32CubeProgrammer by command---
+def run_command(cmd) -> [str, str]:
+    process = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+    stdout, stderr = process.communicate()
+    return stdout, stderr
+
+
 # data class
 class ST_CONFIG():
     def __init__(self, PORT, ELF_PATH, ST_PRO_PATH, ST_PRO_EXE):
@@ -24,13 +31,34 @@ class ST_CONFIG():
         self.FW_ELF_PATH = ELF_PATH
         self.ST_PRO_PATH = ST_PRO_PATH
         self.ST_PRO_EXE = ST_PRO_EXE
+        
+    #--- commands to STM32CubeProgrammer, sn unrelated ---
+    def gen_bin_path_command(self) -> str:
+        cmd = f"{self.ST_PRO_PATH}\\{self.ST_PRO_EXE}"
+        cmd = cmd.replace('Program Files', '"Program Files"')  # prevent " 'C:\Program' is not recognized..." error caused by space
+        return cmd
+    
+    def gen_stlink_list_command(self) -> str:
+        cmd = self.gen_bin_path_command() + " -l"
+        return cmd
+    
+    #--- ---
+    def list_stlink(self) -> list:
+        out, err = run_command(self.gen_stlink_list_command())
+        
+        # regex
+        pattern = r"ST-LINK SN\s+:\s+(\S+)"
+        matches = re.findall(pattern, out)
+        
+        return matches
+
     
 # The class of each STLINK
 class STLINK():
     #--- shared variables ---
     _config = None
     @classmethod
-    def initialize_shared_var(cls, value):
+    def initialize_shared(cls, value):
         if cls._config is None: 
             cls._config = value
     
@@ -48,39 +76,31 @@ class STLINK():
     def state_reset(self) -> None:
         self.current_state = ST_STATUS.NO_DEVICE
 
-    #--- commands to STM32CubeProgrammer ---
-    def basic_command(self) -> str:
+    #--- commands to STM32CubeProgrammer, !! SN related !! ---
+    def gen_connection_command(self) -> str:
         # command : STM32_Programmer_CLI.exe -c port=SWD SN=56FF6F066682495259282187
-        cmd = f"{self._config.ST_PRO_PATH}\\{self._config.ST_PRO_EXE} -c port={self._config.STLINK_PORT} SN={self.SN}"
+        cmd = self._config.gen_bin_path_command() + f" -c port={self._config.STLINK_PORT} SN={self.SN}"
         return cmd
 
-    def upload_command(self) -> str:
+    def gen_upload_command(self) -> str:
         # command : STM32_Programmer_CLI.exe -c port=SWD SN=56FF6F066682495259282187 -w "C:\Users\Arthur\Desktop\test\fw.elf"
-        cmd = self.basic_command() + f" -w {self._config.FW_ELF_PATH}"
+        cmd = self.gen_connection_command() + f" -w {self._config.FW_ELF_PATH}"
         return cmd
     
-    def verify_command(self) -> str:
+    def gen_verify_command(self) -> str:
         # command : STM32_Programmer_CLI.exe -c port=SWD SN=56FF6F066682495259282187 -v
-        cmd = self.basic_command() + " -v"
+        cmd = self.gen_connection_command() + " -v"
         return cmd
     
-    def trigger_exec_command(self) -> str:
+    def gen_trigger_exec_command(self) -> str:
         # command : STM32_Programmer_CLI.exe -c port=SWD SN=56FF6F066682495259282187 -s 0x08000000
-        cmd = self.basic_command() + " -s 0x08000000"
+        cmd = self.gen_connection_command() + " -s 0x08000000"
         return cmd
     
-    #--- interface to use STM32CubeProgrammer ---
-    def run_command(cmd):
-        # prevent " 'C:\Program' is not recognized..." error caused by space
-        cmd = cmd.replace('Program Files', '"Program Files"')
-        process = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-        stdout, stderr = process.communicate()
-        return stdout, stderr
-
     #--- ---
     def check_board(self) -> bool:
         is_connceted = None
-        cmd = self.basic_command()
+        cmd = self._config.gen_connection_command()
         
         # board check
         ## ping the board
@@ -132,7 +152,7 @@ class STLINK():
 
 if __name__ == "__main__":
     import time
-    
+
     STLINK_SN = "56FF6F066682495259282187"
     STLINK_PORT = "SWD"
     FW_ELF_PATH = "C:\\Users\\Arthur\\Desktop\\test\\fw.elf"
@@ -140,21 +160,31 @@ if __name__ == "__main__":
     ST_PRO_EXE = "STM32_Programmer_CLI.exe"
     
     # setup shared value to class
-    shared_config = ST_CONFIG(
+    shared_info = ST_CONFIG(
         PORT=STLINK_PORT, 
         ELF_PATH=FW_ELF_PATH, 
         ST_PRO_PATH=ST_PRO_PATH, 
         ST_PRO_EXE=ST_PRO_EXE
         )
-    STLINK.initialize_shared_var(shared_config)
+    STLINK.initialize_shared(shared_info)
+    
+    # test command print (sn unrelated)
+    print("[gen_stlink_list_command] : " + shared_info.gen_stlink_list_command())
+    
+    # list stlink
+    stlink_sn_list = shared_info.list_stlink()
     
     # init all object, depend on how many STLINK(SN) we have
-    stlink_list = [STLINK(STLINK_SN)]
+    st_obj = []
+    for STLINK_SN in stlink_sn_list:
+        st_obj.append(STLINK(STLINK_SN))
     
-    print(stlink_list[0].basic_command())
-    print(stlink_list[0].upload_command())
-    print(stlink_list[0].verify_command())
-    print(stlink_list[0].trigger_exec_command())
+    # test command print (sn related)
+    if len(st_obj) > 0:
+        print("[gen_board_check_command]" + st_obj[0].gen_connection_command())
+        print("[gen_upload_command]" + st_obj[0].gen_upload_command())
+        print("[gen_verify_command]" + st_obj[0].gen_verify_command())
+        print("[gen_trigger_exec_command]" + st_obj[0].gen_trigger_exec_command())
     pass
 
     while(1):
