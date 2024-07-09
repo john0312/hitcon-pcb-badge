@@ -11,6 +11,7 @@
 
 using namespace hitcon::service::sched;
 using namespace hitcon::service::xboard;
+
 namespace hitcon {
 HardwareTestApp hardware_test_app;
 HardwareTestApp::HardwareTestApp()

@@ -69,8 +69,8 @@ void SystemClock_Config(void);
 #include <Service/Sched/Scheduler.h>
 #include <Logic/BadgeController.h>
 #include <App/HardwareTestApp.h>
-using namespace hitcon::service::sched;
 using namespace hitcon;
+using namespace hitcon::service::sched;
 using namespace hitcon::service::xboard;
 
 /* USER CODE END 0 */
@@ -123,10 +123,10 @@ int main(void)
   // run hardware test mode if MODE/SETTINGS Button is pressed during initializing
   if(HAL_GPIO_ReadPin(BtnA_GPIO_Port, BtnA_Pin) == GPIO_PIN_RESET) {
     hardware_test_app.Init();
-    badge_controller.change_app(&hardware_test_app);
+  badge_controller.change_app(&hardware_test_app);
   }
   scheduler.Run();
-  //hitcon_run();
+//  hitcon_run();
 
   /* USER CODE END 2 */
 

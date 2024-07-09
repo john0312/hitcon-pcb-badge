@@ -10,11 +10,11 @@
 using namespace hitcon::service::sched;
 using namespace hitcon;
 namespace hitcon {
-
 DisplayService g_display_service;
 
 DisplayService::DisplayService()
-    : task(15, (task_callback_t)&DisplayService::cb, (void*)this) {}
+    : task(15, (task_callback_t)&DisplayService::RequestFrameWrapper,
+           (void*)this) {}
 
 /*
  * DMA Mode: Circular
@@ -27,23 +27,32 @@ DisplayService::DisplayService()
  */
 
 request_cb_param tmp;
-void HalfTransferComplete(DMA_HandleTypeDef* hdma) {
+void DisplayTransferHalfComplete(DMA_HandleTypeDef* hdma) {
   if (hdma == &hdma_tim2_ch1) {
     tmp.p1 = g_display_service.request_frame_callback_arg1;
-    tmp.p2 = nullptr;
+    tmp.p2 = 0;
+    scheduler.Queue(&(g_display_service.task), &tmp);
+  }
+}
+
+void DisplayTransferComplete(DMA_HandleTypeDef* hdma) {
+  if (hdma == &hdma_tim2_ch1) {
+    tmp.p1 = g_display_service.request_frame_callback_arg1;
+    tmp.p2 = 1;
     scheduler.Queue(&(g_display_service.task), &tmp);
   }
 }
 
 void DisplayService::Init() {
   tmp.p1 = request_frame_callback_arg1;
-  tmp.p2 = nullptr;
+  tmp.p2 = 0;
   scheduler.Queue(&task, &tmp);
   HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_2);
   __HAL_TIM_ENABLE_DMA(&htim2, TIM_DMA_CC1);
 
   HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_1);
-  hdma_tim2_ch1.XferHalfCpltCallback = &HalfTransferComplete;
+  hdma_tim2_ch1.XferHalfCpltCallback = &DisplayTransferHalfComplete;
+  hdma_tim2_ch1.XferCpltCallback = &DisplayTransferComplete;
   HAL_DMA_Start_IT(&hdma_tim2_ch1, (uint32_t)this->double_buffer,
                    (uint32_t)&GPIOB->BSRR,
                    DISPLAY_FRAME_SIZE * DISPLAY_FRAME_BATCH * 2);
@@ -86,55 +95,13 @@ void DisplayService::PopulateFrames(uint8_t* buffer) {
   }
 }
 
-// void ConvertFrameToGpioState() {
-//
-// }
+void DisplayService::RequestFrameWrapper(request_cb_param* arg) {
+  request_frame_callback(arg->p1, nullptr);
+  current_buffer_index = arg->p2;
+}
 
 void DisplayService::SetBrightness(uint8_t brightness) {
   uint8_t value = brightness / 10.0 * (htim3.Init.Period);
   __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_2, value);
 }
 }  // namespace hitcon
-
-/*
- #include <stdio.h>
-
-int
-main ()
-{
-  int row = 1;
-  int frame[64] = {
-  0, 0, 0, 0, 1, 1, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1,
-  1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 1, 0, 1,
-  1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 1, 0, 1,
-  1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 1, 0, 1,
-  1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 1, 0, 1,
-  0, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 1, 0, 1,
-  1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 1, 0, 1,
-  1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 1, 0, 1,
-  1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 1, 0, 1,
-  1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 1, 0, 1};
-  int gpio_pin[8] = { 15, 14, 13, 12, 11, 10, 2, 1 };
-  int data = 0;
-  for(int j =0 ; j<8; j++) {
-    row = j;
-    for (int i = 0; i < 8; i++) {
-      if (frame[i + row*8] == 0)
-        data |= (1 << 16 << gpio_pin[i]);
-      else
-        data |= (1 << gpio_pin[i]);
-    }
-    for (int i = 0; i < 4; i++) { // 9 ~ 6
-      int tmp = row >> (3 - i) & 1;
-      if (tmp == 0)
-      data |= (1 << 16 << (9 - i));
-      else
-      data |= (1 << (9 - i));
-    }
-    data |= (1<<16<<5);
-    printf ("Row %d : %X\n", row, data);
-    data=0;
-  }
-  return 0;
-}
- */

@@ -1,6 +1,6 @@
 #ifndef SERVICE_DISLAY_INFO_H_
 #define SERVICE_DISLAY_INFO_H_
-
+#include <stddef.h>
 namespace hitcon {
 
 namespace {
