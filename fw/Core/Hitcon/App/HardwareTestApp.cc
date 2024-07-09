@@ -14,23 +14,18 @@ using namespace hitcon::service::xboard;
 namespace hitcon {
 HardwareTestApp hardware_test_app;
 HardwareTestApp::HardwareTestApp()
-    : task(30, (task_callback_t)&HardwareTestApp::Routine, (void*)this, 500) {}
+    : task(30, (task_callback_t)&HardwareTestApp::Routine, (void*)this,
+           PERIOD / 5) {}
 
 unsigned char _xboard_data[2] = {'R', 'A'};
 void HardwareTestApp::CheckXBoard(void* arg1) {
   uint8_t b = static_cast<uint8_t>(reinterpret_cast<size_t>(arg1));
-  if (current_state != TS_XBOARD) {
-    next_state = TS_FAIL;
-    return;
-  }
 
   if (b == _xboard_data[0] && _count == 0) {
     _count = 1;
   } else if (b == _xboard_data[1] && _count == 1) {
     _count = 2;
     next_state = TS_IR;
-  } else {
-    next_state = TS_FAIL;
   }
 }
 
@@ -161,10 +156,10 @@ void HardwareTestApp::Routine(void* unused) {
           start_tick = HAL_GetTick();
         }
         break;
-      case TS_DISPLAY_BRIGHTNESS:  // fix this
+      case TS_DISPLAY_BRIGHTNESS:
         if (_count > 10) next_state = TS_BTN_BRIGHTNESS;
-        g_display_service.SetBrightness(_count);
-        if (HAL_GetTick() - start_tick > PERIOD) {
+        if (HAL_GetTick() - start_tick > PERIOD / 5) {
+          g_display_service.SetBrightness(_count);
           _count++;
           start_tick = HAL_GetTick();
         }
