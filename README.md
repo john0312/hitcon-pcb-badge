@@ -16,15 +16,21 @@ ref: [Eclipse Community Forums: C / C++ IDE (CDT) &raquo; Keeping language.setti
 execute `fw/merge.py` to merge STM32CubeIDE generated `main.c` with user code in `main.cc` into `main.cc`.
 
 ## Timers and DMA Channels
-- [ ] IR Tx: PWM Output from TIM3_CH3, Output PB0, DMA1 Ch2
+- [x] IR Tx: PWM Output from TIM3_CH3, Output PB0, DMA1 Ch2
   * Compare: 63/4 = 16
+  * Mode: Normal Peripheral to Memory
+
+|                   | Peripheral | Memory |
+| ----------------- | ---------- | ------ |
+| Increment Address | X          | V      |
+| Data Width        | Byte       | Byte   |
 - [x] IR Rx: DMA Triggered through TIM2_CH3, Input PA0 read by DMA1 Ch1
   * Compare: 105
-  * Mode: Normal Peripheral to Memory
+  * Mode: Circular Peripheral to Memory
 
 |                   | Peripheral | Memory    |
 | ----------------- | ---------- | --------- |
-| Increment Address | X          | X         |
+| Increment Address | X          | V         |
 | Data Width        | Half Word  | Half Word |
 - [x] Led Rows/Cols: DMA Triggered through TIM2_CH1, Output PB6-9(Rows), Output PB1-2/10-15(Cols), written by DMA1 Ch5
   * Compare: 315 
