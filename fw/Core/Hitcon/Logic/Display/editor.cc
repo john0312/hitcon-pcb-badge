@@ -94,8 +94,8 @@ void TextEditorDisplay::draw(uint8_t *display_buf, int frame) const {
 
   // blink the cursor
   if (frame % BLINK_CURSOR_PERIOD < BLINK_CURSOR_PERIOD / 2) {
-    for (int x = 0; x < CHAR_WIDTH; ++x) {
-      buf_2d[CHAR_HEIGHT - 1][cursor_index_in_display * CHAR_WIDTH + x] ^= 1;
+    for (int x = 0; x < CHAR_WIDTH - 1; ++x) {
+      buf_2d[CHAR_HEIGHT - 1][cursor_index_in_display * CHAR_WIDTH + x] = 1;
     }
   }
 

@@ -3,15 +3,16 @@
 
 #include <Logic/Display/display.h>
 #include <Logic/Display/font.h>
+
 #include <cstdint>
 
 namespace hitcon {
 
 class TextEditorDisplay {
-public:
+ public:
   constexpr static int MAX_TEXT_LENGTH =
       DISPLAY_SCROLL_MAX_COLUMNS / CHAR_WIDTH;
-  constexpr static int BLINK_CURSOR_PERIOD = 10;
+  constexpr static int BLINK_CURSOR_PERIOD = 350;
 
   char text[MAX_TEXT_LENGTH + 1] = {0};
   int cursor;
@@ -28,6 +29,6 @@ public:
   void draw(uint8_t *display_buf, int frame) const;
 };
 
-} // namespace hitcon
+}  // namespace hitcon
 
-#endif // EDITOR_H
+#endif  // EDITOR_H
