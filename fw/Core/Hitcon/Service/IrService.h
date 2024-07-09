@@ -42,20 +42,25 @@ class IrService {
   // considered invalid.
   void SetOnBufferReceived(callback_t callback, void* callback_arg1);
 
-private:
-  void TransmitBuffer(const void *_slot);
-  void TryQueueTransmitter(size_t slot);
-  hitcon::service::sched::Task Transmitter;
-  bool TransmitterActive;
-  IrBuffer PwmBuffer;
-  IrBuffer RxBuffer;
-
-  size_t CurrentSlot;
+  uint16_t dma_buffer[2*IR_SERVICE_RX_SIZE];
+  uint8_t calllback_pass_arr[IR_SERVICE_RX_SIZE];
+  hitcon::service::sched::Task on_buf_recv_task;
 
   // TODO: check if we need >1 callbacks
   // OnBufferReceived callback
   callback_t callback;
   void *callback_arg;
+
+private:
+  void TransmitBuffer(const void *_slot);
+  void TryQueueTransmitter(size_t slot);
+  void OnBufferRecvWrapper(void* arg2);
+  hitcon::service::sched::Task Transmitter;
+  bool TransmitterActive;
+  IrBuffer PwmBuffer;
+  IrBuffer RxBuffer;
+  size_t CurrentSlot;
+
 };
 
 extern IrService irService;
