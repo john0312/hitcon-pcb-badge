@@ -19,10 +19,12 @@ class ST_STATUS(Enum):
     
 #--- interface to use STM32CubeProgrammer by command---
 def run_command(cmd) -> [str, str]:
-    process = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+    process = subprocess.Popen(
+        cmd, shell=True, stdout=subprocess.PIPE, 
+        stderr=subprocess.PIPE, text=True)
+    process.communicate()
     stdout, stderr = process.communicate()
     return stdout, stderr
-
 
 # data class
 class ST_CONFIG():
@@ -34,8 +36,7 @@ class ST_CONFIG():
         
     #--- commands to STM32CubeProgrammer, sn unrelated ---
     def gen_bin_path_command(self) -> str:
-        cmd = f"{self.ST_PRO_PATH}\\{self.ST_PRO_EXE}"
-        cmd = cmd.replace('Program Files', '"Program Files"')  # prevent " 'C:\Program' is not recognized..." error caused by space
+        cmd = f'"{self.ST_PRO_PATH}\\{self.ST_PRO_EXE}"'
         return cmd
     
     def gen_stlink_list_command(self) -> str:
@@ -79,32 +80,32 @@ class STLINK():
     #--- commands to STM32CubeProgrammer, !! SN related !! ---
     def gen_connection_command(self) -> str:
         # command : STM32_Programmer_CLI.exe -c port=SWD SN=56FF6F066682495259282187
-        cmd = self._config.gen_bin_path_command() + f" -c port={self._config.STLINK_PORT} SN={self.SN}"
+        cmd = self._config.gen_bin_path_command() + f' -c port={self._config.STLINK_PORT} SN={self.SN}'
         return cmd
 
     def gen_upload_command(self) -> str:
         # command : STM32_Programmer_CLI.exe -c port=SWD SN=56FF6F066682495259282187 -w "C:\Users\Arthur\Desktop\test\fw.elf"
-        cmd = self.gen_connection_command() + f" -w {self._config.FW_ELF_PATH}"
+        cmd = self.gen_connection_command() + f' -w "{self._config.FW_ELF_PATH}"'
         return cmd
     
-    def gen_verify_command(self) -> str:
+    def gen_upload_verify_command(self) -> str:
         # command : STM32_Programmer_CLI.exe -c port=SWD SN=56FF6F066682495259282187 -v
-        cmd = self.gen_connection_command() + " -v"
+        cmd = self.gen_upload_command() + ' -v'
         return cmd
     
     def gen_trigger_exec_command(self) -> str:
         # command : STM32_Programmer_CLI.exe -c port=SWD SN=56FF6F066682495259282187 -s 0x08000000
-        cmd = self.gen_connection_command() + " -s 0x08000000"
+        cmd = self.gen_connection_command() + ' -s 0x08000000'
         return cmd
     
     #--- ---
     def check_board(self) -> bool:
         is_connceted = None
-        cmd = self._config.gen_connection_command()
+        cmd = self.gen_connection_command()
         
         # board check
-        ## ping the board
-        out, err = self.run_command(cmd)
+        ## send cmd to the board
+        out, err = run_command(cmd)
         ## parse the return val
         if "Error" in out:
             ### Two type of error, 
@@ -113,20 +114,32 @@ class STLINK():
             is_connceted = False
         else : 
             is_connceted = True
-        
         return is_connceted
     
-    def upload(self):
+    def upload_n_verify(self):
+        cmd = self.gen_upload_verify_command()
         
-        pass
-    
-    def verify(self):
+        # trigger upload
+        ## send cmd to the board
+        out, err = run_command(cmd)  
+        #### ---------------------------------
+        #### out : 
+        #### File download complete
+        #### Time elapsed during download operation: 00:00:01.440
+        #### Verifying ...
+        #### Download verified successfully 
+        #### ---------------------------------
         
-        pass
+        ## parse the return val
+        
     
     def trigger_exec(self):
+        cmd = self.gen_trigger_exec_command()
         
-        pass
+        # trigger exec
+        ## send cmd to the board
+        out, err = run_command(cmd)  # out : Start operation achieved successfully
+        ## parse the return val
 
 
     def do_next(self):
@@ -140,9 +153,9 @@ class STLINK():
             if self.current_state == ST_STATUS.NO_DEVICE:
                 pass
             elif self.current_state == ST_STATUS.UPLOADING:
-                self.upload()
+                self.upload_n_verify()
             elif self.current_state == ST_STATUS.VERIFYING:
-                self.verify()
+                pass
             elif self.current_state == ST_STATUS.TRIGGER_EXEC:
                 self.trigger_exec()
             elif self.current_state == ST_STATUS.FINISHED:
@@ -153,11 +166,11 @@ class STLINK():
 if __name__ == "__main__":
     import time
 
-    STLINK_SN = "56FF6F066682495259282187"
-    STLINK_PORT = "SWD"
-    FW_ELF_PATH = "C:\\Users\\Arthur\\Desktop\\test\\fw.elf"
-    ST_PRO_PATH = "C:\\Program Files\\STMicroelectronics\\STM32Cube\\STM32CubeProgrammer\\bin"
-    ST_PRO_EXE = "STM32_Programmer_CLI.exe"
+    STLINK_SN = '56FF6F066682495259282187'
+    STLINK_PORT = 'SWD'
+    FW_ELF_PATH = 'C:\\Users\\Arthur\\Desktop\\test\\fw.elf'
+    ST_PRO_PATH = 'C:\\Program Files\\STMicroelectronics\\STM32Cube\\STM32CubeProgrammer\\bin'
+    ST_PRO_EXE = 'STM32_Programmer_CLI.exe'
     
     # setup shared value to class
     shared_info = ST_CONFIG(
@@ -169,7 +182,7 @@ if __name__ == "__main__":
     STLINK.initialize_shared(shared_info)
     
     # test command print (sn unrelated)
-    print("[gen_stlink_list_command] : " + shared_info.gen_stlink_list_command())
+    print("[gen_stlink_list_command]\n -- " + shared_info.gen_stlink_list_command() + "\n")
     
     # list stlink
     stlink_sn_list = shared_info.list_stlink()
@@ -181,13 +194,13 @@ if __name__ == "__main__":
     
     # test command print (sn related)
     if len(st_obj) > 0:
-        print("[gen_board_check_command]" + st_obj[0].gen_connection_command())
-        print("[gen_upload_command]" + st_obj[0].gen_upload_command())
-        print("[gen_verify_command]" + st_obj[0].gen_verify_command())
-        print("[gen_trigger_exec_command]" + st_obj[0].gen_trigger_exec_command())
+        print("[gen_board_check_command]\n -- " + st_obj[0].gen_connection_command() + "\n")
+        print("[gen_upload_command]\n -- " + st_obj[0].gen_upload_command() + "\n")
+        print("[gen_verify_command]\n -- " + st_obj[0].gen_verify_command() + "\n")
+        print("[gen_trigger_exec_command]\n -- " + st_obj[0].gen_trigger_exec_command() + "\n")
     pass
 
-    while(1):
-        for st_device in stlink_list:
-            st_device.do_next()
-        time.sleep(1000)
+    # while(1):
+    #     for st_device in stlink_list:
+    #         st_device.do_next()
+    #     time.sleep(1000)
