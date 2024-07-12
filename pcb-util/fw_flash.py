@@ -28,7 +28,7 @@ def run_command(cmd) -> [str, str]:
 
 # data class
 class ST_CONFIG():
-    def __init__(self, PORT, ELF_PATH, ST_PRO_PATH, ST_PRO_EXE):
+    def __init__(self, ELF_PATH, ST_PRO_PATH, ST_PRO_EXE, PORT='SWD'):
         self.STLINK_PORT = PORT
         self.FW_ELF_PATH = ELF_PATH
         self.ST_PRO_PATH = ST_PRO_PATH
@@ -47,12 +47,16 @@ class ST_CONFIG():
     def list_stlink(self) -> list:
         out, err = run_command(self.gen_stlink_list_command())
         
-        # regex
-        pattern = r"ST-LINK SN\s+:\s+(\S+)"
-        matches = re.findall(pattern, out)
+        # stderr check
+        if not err:
+            # regex
+            pattern = r"ST-LINK SN\s+:\s+(\S+)"
+            matches = re.findall(pattern, out)
         
-        return matches
-
+            return matches
+        else:
+            # input command error, e.g. xxx not recognized as an internal or external command
+            raise ValueError(err)
     
 # The class of each STLINK
 class STLINK():
@@ -98,7 +102,8 @@ class STLINK():
         cmd = self.gen_connection_command() + ' -s 0x08000000'
         return cmd
     
-    #--- ---
+    #--- board operate by status ---
+    ## Use connect to check board is exist or not, but it will trigger exec too
     def check_board(self) -> bool:
         is_connceted = None
         cmd = self.gen_connection_command()
@@ -106,18 +111,52 @@ class STLINK():
         # board check
         ## send cmd to the board
         out, err = run_command(cmd)
-        ## parse the return val
-        if "Error" in out:
-            ### Two type of error, 
-            ### No stlink -- Error: No debug probe detected.
-            ### No stm32 -- Error: No STM32 target found!
-            is_connceted = False
-        else : 
-            is_connceted = True
-        return is_connceted
+        
+        # stderr check
+        if not err:
+            # no stderr, only have stdout
+            ## parse the return val
+            if "Error" in out:
+                ## Two type of error in stdout
+                ### No stlink -- Error: No debug probe detected.
+                if "No debug probe detected" in out:
+                    raise Exception("No debug probe detected")
+                ### No stm32 -- Error: No STM32 target found!
+                if "No STM32 target found" in out:
+                    raise Exception("No STM32 target found - check board connection")
+                is_connceted = False
+            else : 
+                is_connceted = True
+            return is_connceted
+        else:
+            # input command error, e.g. xxx not recognized as an internal or external command
+            raise ValueError(err)
+    
+    def upload(self) -> None:
+        cmd = self.gen_upload_command()
+        
+        # trigger exec
+        ## send cmd to the board
+        out, err = run_command(cmd)  # out : Start operation achieved successfully
+        
+        # stderr check
+        if not err:
+            ## parse the return val
+            if "Error" in out:
+                raise Exception("Error when uploading")
+            elif "File download complete" in out: 
+                print("-- File download complete")
+            else : 
+                raise Exception("Unknown situation when uploading")
+        else:
+            # input command error, e.g. xxx not recognized as an internal or external command
+            raise ValueError(err)
     
     def upload_n_verify(self):
         cmd = self.gen_upload_verify_command()
+        def state_move_to_next_callback():
+            self.state_move_to_next()
+        # def _callback
         
         # trigger upload
         ## send cmd to the board
@@ -130,19 +169,36 @@ class STLINK():
         #### Download verified successfully 
         #### ---------------------------------
         
-        ## parse the return val
-        
+        # stderr check
+        if not err:
+            ## parse the return val
+            
+            # before calling verify, change UPLOADING to VERIFYING
+            self.state_move_to_next()
+        else:
+            # input command error, e.g. xxx not recognized as an internal or external command
+            raise ValueError(err)
     
     def trigger_exec(self):
         cmd = self.gen_trigger_exec_command()
-        
         # trigger exec
         ## send cmd to the board
         out, err = run_command(cmd)  # out : Start operation achieved successfully
-        ## parse the return val
+        
+        # stderr check
+        if not err:
+            ## parse the return val
+            if "Error" in out:
+                raise Exception("Error when trigger_exec")
+            ### success msg -- "Start operation achieved successfully"
+        else:
+            # input command error, e.g. xxx not recognized as an internal or external command
+            raise ValueError(err)
+            
 
-
-    def do_next(self):
+    #--- The only thing you should call ---
+    #--- will trigger board check, state move and action start ---
+    def do_next(self, is_need_verify=False):
         # check board still conncted or not at each call
         is_connceted = self.check_board()
         
@@ -153,9 +209,15 @@ class STLINK():
             if self.current_state == ST_STATUS.NO_DEVICE:
                 pass
             elif self.current_state == ST_STATUS.UPLOADING:
-                self.upload_n_verify()
+                if is_need_verify:
+                    self.upload_n_verify()
+                else:
+                    self.upload()
             elif self.current_state == ST_STATUS.VERIFYING:
-                pass
+                if is_need_verify:
+                    print("-- verifying")
+                else:
+                    print("-- skip verify")
             elif self.current_state == ST_STATUS.TRIGGER_EXEC:
                 self.trigger_exec()
             elif self.current_state == ST_STATUS.FINISHED:
@@ -164,17 +226,21 @@ class STLINK():
             self.state_move_to_next()
 
 if __name__ == "__main__":
+    
+    """ ============ Basic feature test (one device) ================ """
+    
     import time
-
-    STLINK_SN = '56FF6F066682495259282187'
-    STLINK_PORT = 'SWD'
+    # import click
+    # import threading
+    
+    #------- this part can be changed by frontend ----------
     FW_ELF_PATH = 'C:\\Users\\Arthur\\Desktop\\test\\fw.elf'
     ST_PRO_PATH = 'C:\\Program Files\\STMicroelectronics\\STM32Cube\\STM32CubeProgrammer\\bin'
     ST_PRO_EXE = 'STM32_Programmer_CLI.exe'
+    #------- this part can be changed by frontend ----------
     
     # setup shared value to class
     shared_info = ST_CONFIG(
-        PORT=STLINK_PORT, 
         ELF_PATH=FW_ELF_PATH, 
         ST_PRO_PATH=ST_PRO_PATH, 
         ST_PRO_EXE=ST_PRO_EXE
@@ -182,7 +248,7 @@ if __name__ == "__main__":
     STLINK.initialize_shared(shared_info)
     
     # test command print (sn unrelated)
-    print("[gen_stlink_list_command]\n -- " + shared_info.gen_stlink_list_command() + "\n")
+    # print("[gen_stlink_list_command]\n -- " + shared_info.gen_stlink_list_command() + "\n")
     
     # list stlink
     stlink_sn_list = shared_info.list_stlink()
@@ -193,14 +259,23 @@ if __name__ == "__main__":
         st_obj.append(STLINK(STLINK_SN))
     
     # test command print (sn related)
+    st_device = None
     if len(st_obj) > 0:
-        print("[gen_board_check_command]\n -- " + st_obj[0].gen_connection_command() + "\n")
-        print("[gen_upload_command]\n -- " + st_obj[0].gen_upload_command() + "\n")
-        print("[gen_verify_command]\n -- " + st_obj[0].gen_verify_command() + "\n")
-        print("[gen_trigger_exec_command]\n -- " + st_obj[0].gen_trigger_exec_command() + "\n")
-    pass
-
-    # while(1):
-    #     for st_device in stlink_list:
-    #         st_device.do_next()
-    #     time.sleep(1000)
+        st_device = st_obj[0]
+        # print("[gen_board_check_command]\n -- " + st_device.gen_connection_command() + "\n")
+        # print("[gen_upload_command]\n -- " + st_device.gen_upload_command() + "\n")
+        # print("[gen_upload_verify_command]\n -- " + st_device.gen_upload_verify_command() + "\n")
+        # print("[gen_trigger_exec_command]\n -- " + st_device.gen_trigger_exec_command() + "\n")
+        while(1):
+            # trigger every device do next, then repeat again and again
+            print("\nSN : " + str(st_device.SN))
+            print("State : " + str(st_device.current_state))
+            if st_device.current_state is ST_STATUS.FINISHED:
+                print("-- All finished !!")
+                break
+            st_device.do_next()
+            time.sleep(2)
+            
+    else:
+        print("!! No stlink !!")
+    
