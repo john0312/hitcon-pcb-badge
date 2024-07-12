@@ -76,6 +76,7 @@ void display_init() {
 }
 
 void display_get_frame(uint8_t *buf, int frame) {
+  frame /= 8;
   switch (display_mode) {
     case DISPLAY_MODE_BLANK:
       memset(buf, 0, sizeof(display_buf));
