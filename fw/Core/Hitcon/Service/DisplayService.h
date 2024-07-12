@@ -38,6 +38,7 @@ class DisplayService {
   void SetBrightness(uint8_t brightness);
 
   void* request_frame_callback_arg1;
+  uint8_t count;
   Task task;
 
  private:
