@@ -13,7 +13,7 @@ namespace hitcon {
 DisplayService g_display_service;
 
 DisplayService::DisplayService()
-    : task(15, (task_callback_t)&DisplayService::RequestFrameWrapper,
+    : task(105, (task_callback_t)&DisplayService::RequestFrameWrapper,
            (void*)this) {}
 
 /*

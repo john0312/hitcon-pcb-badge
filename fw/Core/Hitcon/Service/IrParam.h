@@ -37,6 +37,8 @@ constexpr size_t IR_SERVICE_RX_SIZE = 32;
 constexpr size_t IR_SERVICE_BUFFER_SIZE = PACKET_MAX_LEN;
 constexpr int16_t IR_PWM_TIM_CCR = 16;
 
+constexpr size_t IR_SERVICE_RX_ON_BUFFER_SIZE = 32;
+
 // Two elements represents a data bit, see PULSE_PER_HEADER_BIT.
 constexpr uint8_t IR_PACKET_HEADER[] = {
    0, 0, 0, 0,
@@ -60,6 +62,10 @@ static_assert((IR_PACKET_HEADER_SIZE*8)%(IR_SERVICE_TX_SIZE) == 0);
 
 constexpr size_t IR_BITS_PER_TX_RUN = (IR_SERVICE_TX_SIZE)/PULSE_PER_DATA_BIT;
 static_assert((IR_SERVICE_TX_SIZE/2)%PULSE_PER_DATA_BIT == 0);
+
+constexpr size_t IR_BYTE_PER_RUN = IR_SERVICE_RX_SIZE/8;
+// An integer number of run is needed to fulfill the OnBufferRecv().
+static_assert(IR_SERVICE_RX_ON_BUFFER_SIZE%IR_BYTE_PER_RUN == 0);
 
 }  // namespace ir
 }  // namespace hitcon

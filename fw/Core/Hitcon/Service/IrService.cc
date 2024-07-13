@@ -17,26 +17,18 @@ IrService irService;
 IrService::IrService()
     : dma_tx_populate_task(
           100, (task_callback_t)&IrService::PopulateTxDmaBuffer, this),
-      on_buf_recv_task(300, (callback_t)&IrService::OnBufferRecvWrapper, this),
-      routine_task(600, (callback_t)&IrService::Routine, this, 22) {}
+      dma_rx_pull_task(150, (task_callback_t)&IrService::PullRxDmaBuffer, this),
+      routine_task(600, (callback_t)&IrService::Routine, this, 22),
+      on_rx_callback_runner(500, (callback_t)&IrService::OnBufferRecvWrapper,
+                            this),
+      rx_buffer_base(0), rx_on_buffer_callback_finished(true) {}
 
 void ReceiveDmaHalfCplt(DMA_HandleTypeDef *hdma) {
-  for (uint8_t i = 0; i < IR_SERVICE_RX_SIZE; i++)
-    irService.calllback_pass_arr[i] = irService.rx_dma_buffer[i] & IrRx_Pin;
-  //    scheduler.Queue(&irService.on_buf_recv_task,
-  //		    (void*)irService.calllback_pass_arr);
-  irService.callback(irService.callback_arg,
-                     (void *)&(irService.calllback_pass_arr));
+  scheduler.Queue(&irService.dma_rx_pull_task, reinterpret_cast<void *>(0));
 }
 
 void ReceiveDmaCplt(DMA_HandleTypeDef *hdma) {
-  for (uint8_t i = 0; i < IR_SERVICE_RX_SIZE; i++)
-    irService.calllback_pass_arr[i] =
-        irService.rx_dma_buffer[i + IR_SERVICE_RX_SIZE] & IrRx_Pin;
-  //  scheduler.Queue(&irService.on_buf_recv_task,
-  //		    (void*)irService.calllback_pass_arr);
-  irService.callback(irService.callback_arg,
-                     (void *)&irService.calllback_pass_arr);
+  scheduler.Queue(&irService.dma_rx_pull_task, reinterpret_cast<void *>(1));
 }
 
 void TransmitDmaHalfCplt(DMA_HandleTypeDef *hdma) {
@@ -49,8 +41,36 @@ void TransmitDmaCplt(DMA_HandleTypeDef *hdma) {
   //  irService.PopulateTxDmaBuffer(reinterpret_cast<void *>(1));
 }
 
+void IrService::PullRxDmaBuffer(void *ptr_side) {
+  my_assert(rx_on_buffer_callback_finished);
+  int side = reinterpret_cast<intptr_t>(ptr_side);
+
+  size_t k = 0;
+  size_t dma_base = (-side) & static_cast<int>(IR_SERVICE_RX_SIZE);
+  for (size_t i = 0; i < IR_BYTE_PER_RUN; i++) {
+    rx_buffer[rx_buffer_base] = 0;
+    for (size_t j = 0; j < 8; j++, k++) {
+      bool cbit = static_cast<bool>(rx_dma_buffer[dma_base + k] & IrRx_Pin);
+      rx_buffer[rx_buffer_base] |= (-static_cast<int8_t>(cbit)) & (1 << j);
+    }
+    rx_buffer_base++;
+  }
+  rx_buffer_base = rx_buffer_base % (IR_SERVICE_RX_ON_BUFFER_SIZE * 2);
+  if (rx_buffer_base % IR_SERVICE_RX_ON_BUFFER_SIZE == 0) {
+    // Trigger the callback.
+
+    // Are we sending the second half to the callback?
+    bool is_second = !(rx_buffer_base / IR_SERVICE_RX_ON_BUFFER_SIZE);
+    uint8_t *buffer_ptr = &rx_buffer[(-static_cast<size_t>(is_second)) &
+                                     IR_SERVICE_RX_ON_BUFFER_SIZE];
+    rx_on_buffer_callback_finished = false;
+    scheduler.Queue(&on_rx_callback_runner, buffer_ptr);
+  }
+}
+
 void IrService::OnBufferRecvWrapper(void *arg2) {
-  if (callback) callback(callback_arg, arg2);
+  if (on_rx_buffer_cb) on_rx_buffer_cb(on_rx_buffer_arg, arg2);
+  rx_on_buffer_callback_finished = true;
 }
 
 void IrService::Init() {
@@ -90,8 +110,8 @@ bool IrService::SendBuffer(uint8_t *data, size_t len, bool send_header) {
 }
 
 void IrService::SetOnBufferReceived(callback_t callback, void *callback_arg1) {
-  this->callback = callback;
-  this->callback_arg = callback_arg1;
+  on_rx_buffer_cb = callback;
+  on_rx_buffer_arg = callback_arg1;
 }
 
 void IrService::PopulateTxDmaBuffer(void *ptr_side) {
