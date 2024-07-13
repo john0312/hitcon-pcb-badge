@@ -11,8 +11,17 @@
 
 using namespace hitcon::service::sched;
 using namespace hitcon::service::xboard;
+using namespace hitcon::ir;
 
 namespace hitcon {
+
+constexpr uint8_t kIrBuffer1[] = {0x00, 0x00, 0xFF, 0xFF, 0xFF, 0x00, 0x00};
+constexpr size_t kIrBuffer1Size = sizeof(kIrBuffer1) / sizeof(kIrBuffer1[0]);
+
+constexpr uint8_t kIrBuffer2[] = {0x00, 0x00, 0xFF, 0xFF, 0xFF, 0xFF,
+                                  0xFF, 0xFF, 0xFF, 0x00, 0x00};
+constexpr size_t kIrBuffer2Size = sizeof(kIrBuffer2) / sizeof(kIrBuffer2[0]);
+
 HardwareTestApp hardware_test_app;
 HardwareTestApp::HardwareTestApp()
     : task(30, (task_callback_t)&HardwareTestApp::Routine, (void*)this,
@@ -26,6 +35,7 @@ void HardwareTestApp::CheckXBoard(void* arg1) {
     _count = 1;
   } else if (b == _xboard_data[1] && _count == 1) {
     _count = 2;
+    InitIRTest();
     next_state = TS_IR;
   }
 }
@@ -33,6 +43,46 @@ void HardwareTestApp::CheckXBoard(void* arg1) {
 void HardwareTestApp::Init() {
   scheduler.Queue(&task, nullptr);
   g_xboard_service.SetOnByteRx((callback_t)&HardwareTestApp::CheckXBoard, this);
+  irService.SetOnBufferReceived((callback_t)&HardwareTestApp::OnIrRx, this);
+}
+
+void HardwareTestApp::InitIRTest() {
+  ir_found_3ff = ir_found_7ff = false;
+  ir_ff_count = ir_nonff_count = 0;
+  ir_state = 0;
+}
+
+void HardwareTestApp::OnIrRx(void* arg1) {
+  uint8_t* irbuf = reinterpret_cast<uint8_t*>(arg1);
+  for (int i = 0; i < IR_SERVICE_RX_ON_BUFFER_SIZE; i++) {
+    if (irbuf[i] == 0x00) {
+      CheckIrCount(ir_ff_count, ir_nonff_count);
+      ir_ff_count = 0;
+      ir_nonff_count = 0;
+    } else if (irbuf[i] == 0xff) {
+      ir_ff_count++;
+    } else {
+      ir_nonff_count++;
+    }
+  }
+}
+
+void HardwareTestApp::CheckIrCount(uint32_t ff_count, uint32_t ir_nonff_count) {
+  if (ir_nonff_count >= 3) {
+    return;
+  }
+
+  if (ff_count < 10) {
+    return;
+  }
+
+  if (ff_count >= (3 * 4 - 2) && ff_count <= (3 * 4 + 1)) {
+    ir_found_3ff = true;
+  }
+
+  if (ff_count >= (7 * 4 - 2) && ff_count <= (7 * 4 + 1)) {
+    ir_found_7ff = true;
+  }
 }
 
 void HardwareTestApp::OnEntry() {
@@ -109,6 +159,23 @@ void HardwareTestApp::Routine(void* unused) {
     temp[2] = 0;
     display_set_mode_scroll_text(temp);
   }
+  // TEST IR
+  if (current_state == TS_IR) {
+    if (ir_state == 0 && irService.CanSendBufferNow()) {
+      irService.SendBuffer(kIrBuffer1, kIrBuffer1Size, true);
+      ir_state++;
+    } else if (ir_state == 1 && irService.CanSendBufferNow()) {
+      irService.SendBuffer(kIrBuffer2, kIrBuffer2Size, true);
+      ir_state++;
+    } else if (ir_state == 2) {
+      ir_state = 0;
+    }
+
+    if (ir_found_3ff && ir_found_7ff) {
+      next_state = TS_PASS;
+    }
+  }
+
   // TEST DISPLAY
   if (current_state < TS_BTN_BRIGHTNESS) {
     // clang-format off

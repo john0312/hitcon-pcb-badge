@@ -40,7 +40,7 @@ class IrService {
   // Caller must guarantee that the buffer is valid and not changed during the
   // whole transmission process.
   // If send_header is true, we'll prepend the header during transmission.
-  bool SendBuffer(uint8_t* data, size_t len, bool send_header);
+  bool SendBuffer(const uint8_t* data, size_t len, bool send_header);
 
   // Whenever we've collected of IR_SERVICE_RX_ON_BUFFER_SIZE bytes of receive
   // buffer, we'll call the specified function.
@@ -67,7 +67,7 @@ class IrService {
   hitcon::service::sched::Task dma_rx_pull_task;
 
 private:
-  uint8_t* tx_pending_buffer;
+  const uint8_t* tx_pending_buffer;
   uint32_t tx_pending_buffer_len;
   // If false, will skip sending header.
   bool tx_pending_send_header;
