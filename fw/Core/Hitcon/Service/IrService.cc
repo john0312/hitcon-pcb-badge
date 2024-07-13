@@ -30,7 +30,7 @@ void IrService::TransmitBuffer(const void *_slot) {
   TryQueueTransmitter(!slot);
 }
 
-void TransferHalfComplete(DMA_HandleTypeDef *hdma) {
+void ReceiveDmaHalfCplt(DMA_HandleTypeDef *hdma) {
   for (uint8_t i = 0; i < IR_SERVICE_RX_SIZE; i++)
     irService.calllback_pass_arr[i] = irService.dma_buffer[i] & IrRx_Pin;
   //    scheduler.Queue(&irService.on_buf_recv_task,
@@ -39,7 +39,7 @@ void TransferHalfComplete(DMA_HandleTypeDef *hdma) {
                      (void *)&(irService.calllback_pass_arr));
 }
 
-void TransferComplete(DMA_HandleTypeDef *hdma) {
+void ReceiveDmaCplt(DMA_HandleTypeDef *hdma) {
   for (uint8_t i = 0; i < IR_SERVICE_RX_SIZE; i++)
     irService.calllback_pass_arr[i] =
         irService.dma_buffer[i + IR_SERVICE_RX_SIZE] & IrRx_Pin;
@@ -49,6 +49,10 @@ void TransferComplete(DMA_HandleTypeDef *hdma) {
                      (void *)&irService.calllback_pass_arr);
 }
 
+void TransmitDmaHalfCplt(DMA_HandleTypeDef *hdma) {}
+
+void TransmitDmaCplt(DMA_HandleTypeDef *hdma) {}
+
 void IrService::OnBufferRecvWrapper(void *arg2) {
   if (callback) callback(callback_arg, arg2);
 }
@@ -56,8 +60,10 @@ void IrService::OnBufferRecvWrapper(void *arg2) {
 void IrService::Init() {
   __HAL_TIM_ENABLE_DMA(&htim2, TIM_DMA_CC3);
   HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_3);
-  hdma_tim2_ch3.XferHalfCpltCallback = &TransferHalfComplete;
-  hdma_tim2_ch3.XferCpltCallback = &TransferComplete;
+  hdma_tim2_ch3.XferHalfCpltCallback = &ReceiveDmaHalfCplt;
+  hdma_tim2_ch3.XferCpltCallback = &ReceiveDmaCplt;
+  hdma_tim3_ch3.XferCpltCallback = &TransmitDmaCplt;
+  hdma_tim3_ch3.XferHalfCpltCallback = &TransmitDmaHalfCplt;
   HAL_DMA_Start_IT(&hdma_tim2_ch3, (uint32_t)&GPIOA->IDR, (uint32_t)dma_buffer,
                    IR_SERVICE_RX_SIZE * 2);
 }

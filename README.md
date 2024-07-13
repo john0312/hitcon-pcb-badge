@@ -7,12 +7,12 @@ execute `fw/merge.py` to merge STM32CubeIDE generated `main.c` with user code in
 ## Timers and DMA Channels
 - [x] IR Tx: PWM Output from TIM3_CH3, Output PB0, DMA1 Ch2
   * Compare: 63/4 = 16
-  * Mode: Normal Peripheral to Memory
+  * Mode: Circular Normal Peripheral to Memory
 
-|                   | Peripheral | Memory |
-| ----------------- | ---------- | ------ |
-| Increment Address | X          | V      |
-| Data Width        | Byte       | Byte   |
+|                   | Peripheral | Memory    |
+| ----------------- | ---------- | --------- |
+| Increment Address | X          | V         |
+| Data Width        | Half Word  | Half Word |
 - [x] IR Rx: DMA Triggered through TIM2_CH3, Input PA0 read by DMA1 Ch1
   * Compare: 105
   * Mode: Circular Peripheral to Memory
