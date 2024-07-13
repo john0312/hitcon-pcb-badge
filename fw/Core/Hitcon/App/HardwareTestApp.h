@@ -22,6 +22,7 @@ enum TEST_APP_STATE {  // TODO: add display: checkerboard and brightness
   TS_BTN_DOWN,
   TS_XBOARD,
   TS_IR,
+  TS_PASS,
   TS_FAIL = 99,
 };
 
@@ -45,6 +46,16 @@ class HardwareTestApp : public App {
   uint32_t next_state;
   uint32_t start_tick;
   uint8_t _count;
+
+  uint32_t ir_ff_count;
+  uint32_t ir_nonff_count;
+  bool ir_found_3ff;
+  bool ir_found_7ff;
+  uint32_t ir_state;
+
+  void CheckIrCount(uint32_t ff_count, uint32_t ir_nonff_count);
+  void OnIrRx(void* arg1);
+  void InitIRTest();
 };
 
 extern HardwareTestApp hardware_test_app;

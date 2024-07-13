@@ -94,7 +94,7 @@ void IrService::Init() {
 
 bool IrService::CanSendBufferNow() { return tx_state == 0x00000000; }
 
-bool IrService::SendBuffer(uint8_t *data, size_t len, bool send_header) {
+bool IrService::SendBuffer(const uint8_t *data, size_t len, bool send_header) {
   if (tx_state != 0x00000000) {
     // Can't send buffer now, we're handling another buffer.
     return false;
