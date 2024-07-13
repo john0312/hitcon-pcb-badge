@@ -42,25 +42,29 @@ class IrService {
   // If send_header is true, we'll prepend the header during transmission.
   bool SendBuffer(uint8_t* data, size_t len, bool send_header);
 
-  // Whenever IR_SERVICE_RX_SIZE bytes of bit array is received from IR,
-  // the callback is called with uint8_t buffer[IR_SERVICE_RX_SIZE) of
-  // data. After the callback is finished, the passed in buffer should be
+  // Whenever we've collected of IR_SERVICE_RX_ON_BUFFER_SIZE bytes of receive
+  // buffer, we'll call the specified function.
+  // The callback is called with a uint8_t pointer to an array of size IR_SERVICE_RX_ON_BUFFER_SIZE. Each byte in the array is 8 sample points.
+  // Each of the sample point is equivalent to 4 pulse at 38kHz.
+  // After the callback is finished, the passed in buffer should be
   // considered invalid.
   void SetOnBufferReceived(callback_t callback, void* callback_arg1);
 
   uint16_t rx_dma_buffer[2*IR_SERVICE_RX_SIZE];
   uint16_t tx_dma_buffer[2*IR_SERVICE_TX_SIZE];
+  uint8_t rx_buffer[2*IR_SERVICE_RX_ON_BUFFER_SIZE];
+  size_t rx_buffer_base;
 
   uint8_t calllback_pass_arr[IR_SERVICE_RX_SIZE];
-  hitcon::service::sched::Task on_buf_recv_task;
 
-  // TODO: check if we need >1 callbacks
-  // OnBufferReceived callback
-  callback_t callback;
-  void *callback_arg;
+  callback_t on_rx_buffer_cb;
+  void *on_rx_buffer_arg;
 
   // Need to be public to be queued by the callback.
   hitcon::service::sched::Task dma_tx_populate_task;
+
+  // Need to be public to be queued by the callback.
+  hitcon::service::sched::Task dma_rx_pull_task;
 
 private:
   uint8_t* tx_pending_buffer;
@@ -80,12 +84,22 @@ private:
 
   hitcon::service::sched::PeriodicTask routine_task;
 
+  hitcon::service::sched::Task on_rx_callback_runner;
+
+  bool rx_on_buffer_callback_finished;
+
   // Call to populate TX DMA Buffer.
   // ptr_side is to be reinterpret_cast<int>(), and will be 0 or 1.
   void PopulateTxDmaBuffer(void* ptr_side);
 
+  // Call to pull RX DMA Buffer.
+  // ptr_side is to be reinterpret_cast<int>(), and will be 0 or 1.
+  void PullRxDmaBuffer(void* ptr_side);
+
+  // A slow routine function to keep track of states.
   void Routine(void* arg1);
 
+  // Just a wrapper for calling on_rx_buffer_cb.
   void OnBufferRecvWrapper(void* arg2);
 };
 
