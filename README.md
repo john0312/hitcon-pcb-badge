@@ -67,3 +67,12 @@ execute `fw/merge.py` to merge STM32CubeIDE generated `main.c` with user code in
   * Bit time = 4/9.5kHz = 421us (each bit is 16 pulse).
   * LED refreshes at 9.5kHz/16 = 593Hz.
   
+## Format
+
+To check format, please install `clang-format` first.
+
+```sh
+# under hitcon-pcb-badge
+./lint.sh # check format
+./lint.sh -i # auto format
+```
