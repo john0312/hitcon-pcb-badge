@@ -49,7 +49,7 @@ void IrLogic::SetOnPacketReceived(callback_t callback, void *callback_arg1) {
 bool IrLogic::SendPacket(uint8_t *data, size_t len) {
   IrPacket packet;
   EncodePacket(data, len, packet);
-  return irService.SendBuffer(packet.data(), packet.size());
+  return irService.SendBuffer(packet.data(), packet.size(), true);
 }
 
 void IrLogic::EncodePacket(uint8_t *data, size_t len, IrPacket &packet) {

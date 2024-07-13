@@ -31,10 +31,16 @@ class IrService {
   //   (Double buffering should be used)
   void Init();
 
+  // Return true if the IrService is free to send a buffer now.
+  bool CanSendBufferNow();
+
   // Call to send an IR packet.
-  // This is an array of (byte) bool at 38kHz. Each byte represents 1 pulse at 38kHz.
-  // Each byte must be 0 or 1.
-  bool SendBuffer(uint8_t* data, size_t len);
+  // This is a packed bit array, each bit is PULSE_PER_DATA_BIT pulse at 38kHz.
+  // The least significant bit of a byte is the first transmitted bit.
+  // Caller must guarantee that the buffer is valid and not changed during the
+  // whole transmission process.
+  // If send_header is true, we'll prepend the header during transmission.
+  bool SendBuffer(uint8_t* data, size_t len, bool send_header);
 
   // Whenever IR_SERVICE_RX_SIZE bytes of bit array is received from IR,
   // the callback is called with uint8_t buffer[IR_SERVICE_RX_SIZE) of
@@ -42,7 +48,9 @@ class IrService {
   // considered invalid.
   void SetOnBufferReceived(callback_t callback, void* callback_arg1);
 
-  uint16_t dma_buffer[2*IR_SERVICE_RX_SIZE];
+  uint16_t rx_dma_buffer[2*IR_SERVICE_RX_SIZE];
+  uint16_t tx_dma_buffer[2*IR_SERVICE_TX_SIZE];
+
   uint8_t calllback_pass_arr[IR_SERVICE_RX_SIZE];
   hitcon::service::sched::Task on_buf_recv_task;
 
@@ -51,16 +59,34 @@ class IrService {
   callback_t callback;
   void *callback_arg;
 
-private:
-  void TransmitBuffer(const void *_slot);
-  void TryQueueTransmitter(size_t slot);
-  void OnBufferRecvWrapper(void* arg2);
-  hitcon::service::sched::Task Transmitter;
-  bool TransmitterActive;
-  IrBuffer PwmBuffer;
-  IrBuffer RxBuffer;
-  size_t CurrentSlot;
+  // Need to be public to be queued by the callback.
+  hitcon::service::sched::Task dma_tx_populate_task;
 
+private:
+  uint8_t* tx_pending_buffer;
+  uint32_t tx_pending_buffer_len;
+  // If false, will skip sending header.
+  bool tx_pending_send_header;
+
+  /*
+  MSB meaning:
+  0x00 - Ready to accept the next buffer.
+  0x01 - Waiting for air space to silent.
+  0x02 - Waiting for collision to finish.
+  0x03 - Sending header.
+  0x04 - Sending body.
+  */
+  uint32_t tx_state;
+
+  hitcon::service::sched::PeriodicTask routine_task;
+
+  // Call to populate TX DMA Buffer.
+  // ptr_side is to be reinterpret_cast<int>(), and will be 0 or 1.
+  void PopulateTxDmaBuffer(void* ptr_side);
+
+  void Routine(void* arg1);
+
+  void OnBufferRecvWrapper(void* arg2);
 };
 
 extern IrService irService;
