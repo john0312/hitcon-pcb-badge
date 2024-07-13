@@ -42,7 +42,6 @@ void TransmitDmaCplt(DMA_HandleTypeDef *hdma) {
 }
 
 void IrService::PullRxDmaBuffer(void *ptr_side) {
-  my_assert(rx_on_buffer_callback_finished);
   int side = reinterpret_cast<intptr_t>(ptr_side);
 
   size_t k = 0;
@@ -57,6 +56,7 @@ void IrService::PullRxDmaBuffer(void *ptr_side) {
   }
   rx_buffer_base = rx_buffer_base % (IR_SERVICE_RX_ON_BUFFER_SIZE * 2);
   if (rx_buffer_base % IR_SERVICE_RX_ON_BUFFER_SIZE == 0) {
+    my_assert(rx_on_buffer_callback_finished);
     // Trigger the callback.
 
     // Are we sending the second half to the callback?
