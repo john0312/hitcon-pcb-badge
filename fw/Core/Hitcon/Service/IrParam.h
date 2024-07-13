@@ -31,7 +31,7 @@ constexpr size_t DECODE_SAMPLE_RATIO_THRESHOLD = 3;
 constexpr size_t QUEUE_MAX_SIZE = ((PACKET_MAX_LEN + 10) * DECODE_SAMPLE_RATIO);
 
 // Half circular size of the tx dma buffer, this is the number of uint16_t per interrupt (half/full).
-constexpr size_t IR_SERVICE_TX_SIZE = 32;
+constexpr size_t IR_SERVICE_TX_SIZE = 128;
 // Half circular size of the rx dma buffer, this is the number of uint16_t per interrupt (half/full).
 constexpr size_t IR_SERVICE_RX_SIZE = 32;
 constexpr size_t IR_SERVICE_BUFFER_SIZE = PACKET_MAX_LEN;
@@ -39,6 +39,7 @@ constexpr int16_t IR_PWM_TIM_CCR = 16;
 
 // Two elements represents a data bit, see PULSE_PER_HEADER_BIT.
 constexpr uint8_t IR_PACKET_HEADER[] = {
+   0, 0, 0, 0,
    0, // Pad to boundary.
    1, 1, 1, // 1.5x bit time of 1.
    0, 0, 0, 0, 0, // 2.5x bit time of 0.

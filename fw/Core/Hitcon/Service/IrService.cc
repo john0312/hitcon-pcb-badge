@@ -41,10 +41,12 @@ void ReceiveDmaCplt(DMA_HandleTypeDef *hdma) {
 
 void TransmitDmaHalfCplt(DMA_HandleTypeDef *hdma) {
   scheduler.Queue(&irService.dma_tx_populate_task, reinterpret_cast<void *>(0));
+  //  irService.PopulateTxDmaBuffer(reinterpret_cast<void *>(1));
 }
 
 void TransmitDmaCplt(DMA_HandleTypeDef *hdma) {
   scheduler.Queue(&irService.dma_tx_populate_task, reinterpret_cast<void *>(1));
+  //  irService.PopulateTxDmaBuffer(reinterpret_cast<void *>(1));
 }
 
 void IrService::OnBufferRecvWrapper(void *arg2) {
@@ -56,6 +58,8 @@ void IrService::Init() {
   HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_3);
   hdma_tim2_ch3.XferHalfCpltCallback = &ReceiveDmaHalfCplt;
   hdma_tim2_ch3.XferCpltCallback = &ReceiveDmaCplt;
+  __HAL_TIM_ENABLE_DMA(&htim3, TIM_DMA_CC3);
+  HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_3);
   hdma_tim3_ch3.XferCpltCallback = &TransmitDmaCplt;
   hdma_tim3_ch3.XferHalfCpltCallback = &TransmitDmaHalfCplt;
   HAL_DMA_Start_IT(&hdma_tim2_ch3, reinterpret_cast<uint32_t>(&GPIOA->IDR),
@@ -64,6 +68,8 @@ void IrService::Init() {
   HAL_DMA_Start_IT(&hdma_tim3_ch3, reinterpret_cast<uint32_t>(tx_dma_buffer),
                    reinterpret_cast<uint32_t>(&(htim3.Instance->CCR3)),
                    IR_SERVICE_TX_SIZE * 2);
+  scheduler.Queue(&routine_task, nullptr);
+  scheduler.EnablePeriodic(&routine_task);
 }
 
 bool IrService::CanSendBufferNow() { return tx_state == 0x00000000; }
@@ -117,11 +123,11 @@ void IrService::PopulateTxDmaBuffer(void *ptr_side) {
     size_t ctr = tx_state & 0x00FFFFFF;
     size_t base_bit = ctr * IR_BITS_PER_TX_RUN;
     int i = 0;
-    for (int j = 0; j < IR_BITS_PER_TX_RUN; j++) {
+    for (int j = 0; j < IR_BITS_PER_TX_RUN; j++, base_bit++) {
       int cbit = (tx_pending_buffer[base_bit / 8] >> (base_bit % 8)) & 0x01;
       int16_t ccr_val = (-static_cast<int16_t>(cbit)) & IR_PWM_TIM_CCR;
       for (int k = 0; k < PULSE_PER_DATA_BIT; k++, i++) {
-        tx_dma_buffer[i] = ccr_val;
+        tx_dma_buffer[dma_base + i] = ccr_val;
       }
     }
     tx_state++;
@@ -139,7 +145,7 @@ void IrService::Routine(void *arg1) {
   if (tx_cstate == 0x01) {
     tx_state++;
     size_t ctr = tx_state & 0x00FFFFFF;
-    if (ctr == 64) {
+    if (ctr == 1) {
       tx_state = 0x03000000;
     }
   }

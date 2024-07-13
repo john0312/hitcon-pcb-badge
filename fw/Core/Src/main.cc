@@ -126,8 +126,8 @@ int main(void) {
     hardware_test_app.Init();
     badge_controller.change_app(&hardware_test_app);
   }
-  scheduler.Run();
-  //  hitcon_run();
+//  scheduler.Run();
+    hitcon_run();
 
   /* USER CODE END 2 */
 
