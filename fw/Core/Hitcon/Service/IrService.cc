@@ -49,7 +49,7 @@ void IrService::PullRxDmaBuffer(void *ptr_side) {
   for (size_t i = 0; i < IR_BYTE_PER_RUN; i++) {
     rx_buffer[rx_buffer_base] = 0;
     for (size_t j = 0; j < 8; j++, k++) {
-      bool cbit = static_cast<bool>(rx_dma_buffer[dma_base + k] & IrRx_Pin);
+      bool cbit = !static_cast<bool>(rx_dma_buffer[dma_base + k] & IrRx_Pin);
       rx_buffer[rx_buffer_base] |= (-static_cast<int8_t>(cbit)) & (1 << j);
     }
     rx_buffer_base++;
