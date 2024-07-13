@@ -11,8 +11,8 @@ using namespace hitcon::service::sched;
 
 namespace hitcon {
 typedef struct CB_Param {
-  void* p1;
-  uint8_t p2;
+  void* callback;
+  uint8_t buf_index;
 } request_cb_param;
 class DisplayService {
  public:

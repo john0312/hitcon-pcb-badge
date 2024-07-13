@@ -28,32 +28,30 @@ DisplayService::DisplayService()
 
 request_cb_param tmp;
 void DisplayTransferHalfComplete(DMA_HandleTypeDef* hdma) {
-  if (hdma == &hdma_tim2_ch1) {
-    tmp.p1 = g_display_service.request_frame_callback_arg1;
-    tmp.p2 = 0;
-    scheduler.Queue(&(g_display_service.task), &tmp);
-  }
+  tmp.callback = g_display_service.request_frame_callback_arg1;
+  tmp.buf_index = 0;
+  scheduler.Queue(&(g_display_service.task), &tmp);
 }
 
 void DisplayTransferComplete(DMA_HandleTypeDef* hdma) {
-  if (hdma == &hdma_tim2_ch1) {
-    tmp.p1 = g_display_service.request_frame_callback_arg1;
-    tmp.p2 = 1;
-    scheduler.Queue(&(g_display_service.task), &tmp);
-  }
+  tmp.callback = g_display_service.request_frame_callback_arg1;
+  tmp.buf_index = 1;
+  scheduler.Queue(&(g_display_service.task), &tmp);
 }
 
 void DisplayService::Init() {
-  tmp.p1 = request_frame_callback_arg1;
-  tmp.p2 = 0;
+  tmp.callback = request_frame_callback_arg1;
+  tmp.buf_index = 0;
   scheduler.Queue(&task, &tmp);
-  HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_2);
-  __HAL_TIM_ENABLE_DMA(&htim2, TIM_DMA_CC1);
+  HAL_TIM_PWM_Start(&htim3,
+                    TIM_CHANNEL_2);  // decoder enable to control brightness
+  __HAL_TIM_ENABLE_DMA(&htim1, TIM_DMA_UPDATE);
+  HAL_TIM_Base_Start(&htim1);  // start dma trigger dma ch5 to control matrix
 
-  HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_1);
-  hdma_tim2_ch1.XferHalfCpltCallback = &DisplayTransferHalfComplete;
-  hdma_tim2_ch1.XferCpltCallback = &DisplayTransferComplete;
-  HAL_DMA_Start_IT(&hdma_tim2_ch1, (uint32_t)this->double_buffer,
+  htim1.hdma[TIM_DMA_ID_UPDATE]->XferHalfCpltCallback =
+      &DisplayTransferHalfComplete;
+  htim1.hdma[TIM_DMA_ID_UPDATE]->XferCpltCallback = &DisplayTransferComplete;
+  HAL_DMA_Start_IT(htim1.hdma[TIM_DMA_ID_UPDATE], (uint32_t)this->double_buffer,
                    (uint32_t)&GPIOB->BSRR,
                    DISPLAY_FRAME_SIZE * DISPLAY_FRAME_BATCH * 2);
 
@@ -96,8 +94,8 @@ void DisplayService::PopulateFrames(uint8_t* buffer) {
 }
 
 void DisplayService::RequestFrameWrapper(request_cb_param* arg) {
-  request_frame_callback(arg->p1, nullptr);
-  current_buffer_index = arg->p2;
+  request_frame_callback(arg->callback, nullptr);
+  current_buffer_index = arg->buf_index;
 }
 
 void DisplayService::SetBrightness(uint8_t brightness) {

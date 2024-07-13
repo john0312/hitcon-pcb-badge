@@ -21,8 +21,7 @@ execute `fw/merge.py` to merge STM32CubeIDE generated `main.c` with user code in
 | ----------------- | ---------- | --------- |
 | Increment Address | X          | V         |
 | Data Width        | Half Word  | Half Word |
-- [x] Led Rows/Cols: DMA Triggered through TIM2_CH1, Output PB6-9(Rows), Output PB1-2/10-15(Cols), written by DMA1 Ch5
-  * Compare: 315 
+- [x] Led Rows/Cols: DMA Triggered through TIM1_UP, Output PB6-9(Rows), Output PB1-2/10-15(Cols), written by DMA1 Ch5 
   * Mode: Circular Memory to Peripheral
   
 |                   | Peripheral | Memory |
@@ -54,7 +53,10 @@ execute `fw/merge.py` to merge STM32CubeIDE generated `main.c` with user code in
   * Also operates at 1/4 bit time for capturing IR.
   * TIM2 = 38/4 kHz = 9.5kHz.
   * Bit time = 4/9.5kHz = 421us (each bit is 16 pulse).
-  * LED refreshes at 9.5kHz/16 = 593Hz.
+- [x] TIM1:
+  * Prescaler: 5-1
+  * Counter Period: 750-1
+  * LED refreshes at 3200/16 = 200Hz.
   
 ## Format
 

@@ -12,7 +12,7 @@ class TextEditorDisplay {
  public:
   constexpr static int MAX_TEXT_LENGTH =
       DISPLAY_SCROLL_MAX_COLUMNS / CHAR_WIDTH;
-  constexpr static int BLINK_CURSOR_PERIOD = 350;
+  constexpr static int BLINK_CURSOR_PERIOD = 250;
 
   char text[MAX_TEXT_LENGTH + 1] = {0};
   int cursor;
