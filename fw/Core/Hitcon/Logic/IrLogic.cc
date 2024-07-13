@@ -1,6 +1,8 @@
 #include <Logic/IrLogic.h>
 #include <Service/IrService.h>
 
+#include <type_traits>
+
 namespace hitcon {
 namespace ir {
 
@@ -15,7 +17,7 @@ void IrLogic::Init() {
 
 void IrLogic::OnBufferReceived(uint8_t *buffer) {
   // receive buffer -> check if packet_end -> call callback
-  decltype(PACKET_END_) check = 0;
+  std::remove_const<decltype(PACKET_END_)>::type check{0};
   for (size_t i = 0; i < PACKET_END_LEN - 1; i++) {
     check <<= 1;
     check |= buffer[i];
@@ -32,8 +34,9 @@ void IrLogic::OnBufferReceived(uint8_t *buffer) {
     if (check == PACKET_END_) {
       // get a packet
       // TODO: make a packet from queue_t
-      IrPacket packet;
-      this->callback(this->callback_arg, packet);
+      // packet cannot be local var
+      // IrPacket packet;
+      // this->callback(this->callback_arg, packet);
     }
   }
 }
