@@ -29,27 +29,21 @@ DisplayService::DisplayService()
 request_cb_param tmp;
 void DisplayTransferHalfComplete(DMA_HandleTypeDef* hdma) {
   if (hdma == &hdma_tim2_ch1) {
-    if((g_display_service.count & (DISPLAY_UPDATE_PERIOD - 1)) == 0) {
-      tmp.p1 = g_display_service.request_frame_callback_arg1;
-      tmp.p2 = 0;
-      scheduler.Queue(&(g_display_service.task), &tmp);
-    }
+    tmp.p1 = g_display_service.request_frame_callback_arg1;
+    tmp.p2 = 0;
+    scheduler.Queue(&(g_display_service.task), &tmp);
   }
 }
 
 void DisplayTransferComplete(DMA_HandleTypeDef* hdma) {
   if (hdma == &hdma_tim2_ch1) {
-    if((g_display_service.count & (DISPLAY_UPDATE_PERIOD - 1)) == 0) {
-      tmp.p1 = g_display_service.request_frame_callback_arg1;
-      tmp.p2 = 1;
-      scheduler.Queue(&(g_display_service.task), &tmp);
-    }
-    g_display_service.count++;
+    tmp.p1 = g_display_service.request_frame_callback_arg1;
+    tmp.p2 = 1;
+    scheduler.Queue(&(g_display_service.task), &tmp);
   }
 }
 
 void DisplayService::Init() {
-  count = 0;
   tmp.p1 = request_frame_callback_arg1;
   tmp.p2 = 0;
   scheduler.Queue(&task, &tmp);
