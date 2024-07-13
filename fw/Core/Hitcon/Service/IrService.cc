@@ -33,8 +33,8 @@ void IrService::TransmitBuffer(const void *_slot) {
 void TransferHalfComplete(DMA_HandleTypeDef *hdma) {
   for (uint8_t i = 0; i < IR_SERVICE_RX_SIZE; i++)
     irService.calllback_pass_arr[i] = irService.dma_buffer[i] & IrRx_Pin;
-//    scheduler.Queue(&irService.on_buf_recv_task,
-//		    (void*)irService.calllback_pass_arr);
+  //    scheduler.Queue(&irService.on_buf_recv_task,
+  //		    (void*)irService.calllback_pass_arr);
   irService.callback(irService.callback_arg,
                      (void *)&(irService.calllback_pass_arr));
 }
@@ -43,8 +43,8 @@ void TransferComplete(DMA_HandleTypeDef *hdma) {
   for (uint8_t i = 0; i < IR_SERVICE_RX_SIZE; i++)
     irService.calllback_pass_arr[i] =
         irService.dma_buffer[i + IR_SERVICE_RX_SIZE] & IrRx_Pin;
-//  scheduler.Queue(&irService.on_buf_recv_task,
-//		    (void*)irService.calllback_pass_arr);
+  //  scheduler.Queue(&irService.on_buf_recv_task,
+  //		    (void*)irService.calllback_pass_arr);
   irService.callback(irService.callback_arg,
                      (void *)&irService.calllback_pass_arr);
 }

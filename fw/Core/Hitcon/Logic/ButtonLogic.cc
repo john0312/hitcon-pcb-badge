@@ -5,7 +5,8 @@
 namespace hitcon {
 ButtonLogic g_button_logic;
 
-ButtonLogic::ButtonLogic() : _callback_task(642, (callback_t)&ButtonLogic::CallbackWrapper, this) {}
+ButtonLogic::ButtonLogic()
+    : _callback_task(642, (callback_t)&ButtonLogic::CallbackWrapper, this) {}
 
 void ButtonLogic::Init() {
   g_button_service.SetDataInCallback((callback_t)&ButtonLogic::OnReceiveData,
@@ -20,8 +21,7 @@ void ButtonLogic::SetCallback(callback_t callback, void* callback_arg1) {
 }
 
 void ButtonLogic::CallbackWrapper(void* arg2) {
-  if(callback)
-    callback(callback_arg1, arg2);
+  if (callback) callback(callback_arg1, arg2);
 }
 
 void ButtonLogic::OnReceiveData(uint8_t* data) {
@@ -38,8 +38,8 @@ void ButtonLogic::OnReceiveData(uint8_t* data) {
           _out = BUTTON_MODE + j;
           CallbackWrapper(reinterpret_cast<void*>(static_cast<size_t>((_out))));
         } else if (80 < _count[j]) {
-	  _out = BUTTON_LONG_MODE + j;
-	  CallbackWrapper(reinterpret_cast<void*>(static_cast<size_t>((_out))));
+          _out = BUTTON_LONG_MODE + j;
+          CallbackWrapper(reinterpret_cast<void*>(static_cast<size_t>((_out))));
         }
         _count[j] = 0;
       }
