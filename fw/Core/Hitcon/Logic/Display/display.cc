@@ -112,7 +112,7 @@ void display_set_mode_scroll(display_buf_t *buf, int n_col, int speed) {
   display_scroll_info.first_frame = display_current_frame;
   display_scroll_info.n_col = n_col;
   display_scroll_info.speed = speed;
-  memcpy(display_scroll_info.buf, buf, DISPLAY_HEIGHT * n_col);
+  memcpy(display_scroll_info.buf, buf, n_col);
 }
 
 void display_set_mode_scroll_text(const char *text, int speed) {
