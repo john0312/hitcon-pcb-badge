@@ -92,17 +92,17 @@ void IrService::PopulateTxDmaBuffer(void *ptr_side) {
   int side = reinterpret_cast<intptr_t>(ptr_side);
 
   uint32_t cstate = tx_state >> 24;
-  int dma_base = (-side) & static_cast<int>(IR_SERVICE_TX_SIZE / 2);
+  int dma_base = (-side) & static_cast<int>(IR_SERVICE_TX_SIZE);
   if (cstate <= 2) {
     // Not transmitting.
-    for (int i = 0; i < IR_SERVICE_TX_SIZE / 2; i++) {
+    for (int i = 0; i < IR_SERVICE_TX_SIZE; i++) {
       tx_dma_buffer[dma_base + i] = 0;
     }
   } else if (cstate == 3) {
     // Send header.
     size_t ctr = tx_state & 0x00FFFFFF;
     size_t base = ctr * IR_PACKET_PER_RUN;
-    for (int i = 0; i < IR_SERVICE_TX_SIZE / 2; i++) {
+    for (int i = 0; i < IR_SERVICE_TX_SIZE; i++) {
       tx_dma_buffer[dma_base + i] =
           (-static_cast<int16_t>(IR_PACKET_HEADER[base + i / 8])) &
           IR_PWM_TIM_CCR;
