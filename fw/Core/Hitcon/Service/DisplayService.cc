@@ -78,7 +78,8 @@ void DisplayService::SetRequestFrameCallback(callback_t callback,
  */
 void DisplayService::PopulateFrames(display_buf_t* buffer) {
   constexpr uint16_t gpio_pin[8] = {15, 14, 13, 12, 11, 10, 2, 1};
-  constexpr uint32_t row_map[16] = { // row_map[n] => set A3~A0 BSRR register
+  // row_map[n] => set A3~A0 BSRR register
+  constexpr uint32_t row_map[16] = {
       0B0000000111000000 << 16 | 0B0000001000000000,  // 1000
       0B0000001111000000 << 16 | 0B0000000000000000,  // 0000
       0B0000000110000000 << 16 | 0B0000001001000000,  // 1001
