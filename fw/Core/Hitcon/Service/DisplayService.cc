@@ -65,29 +65,53 @@ void DisplayService::SetRequestFrameCallback(callback_t callback,
   callback(callback_arg1, nullptr);
 }
 
+/* LED Matrix Layout
+ *    a b c d e f g  a b c d e f g (const uint16_t gpio_pin[8])
+ * 8               0
+ * 9               1
+ * 10              2
+ * 11              3
+ * 12              4
+ * 13              5
+ * 14              6
+ * 15              7
+ */
 void DisplayService::PopulateFrames(display_buf_t* buffer) {
-  const uint16_t gpio_pin[8] = {15, 14, 13, 12, 11, 10, 2, 1};
-  uint8_t frame_map[16] = {8,  0, 9,  1, 10, 2, 11, 3,
-                           12, 4, 13, 5, 14, 6, 15, 7};
-  for (uint8_t k = 0; k < DISPLAY_FRAME_BATCH; k++) {
-    for (uint8_t i = 0; i < DISPLAY_WIDTH; i++) {
-      uint32_t temp = 0;
-      for (uint8_t j = 0; j < DISPLAY_HEIGHT; j++) {
-        if (buffer[i] & (1 << j))
-          temp |= (1 << gpio_pin[j]);
-        else
-          temp |= (1 << 16 << gpio_pin[j]);
+  constexpr uint16_t gpio_pin[8] = {15, 14, 13, 12, 11, 10, 2, 1};
+  constexpr uint32_t row_map[16] = { // row_map[n] => set A3~A0 BSRR register
+      0B0000000111000000 << 16 | 0B0000001000000000,  // 1000
+      0B0000001111000000 << 16 | 0B0000000000000000,  // 0000
+      0B0000000110000000 << 16 | 0B0000001001000000,  // 1001
+      0B0000001110000000 << 16 | 0B0000000001000000,  // 0001
+      0B0000000101000000 << 16 | 0B0000001010000000,  // 1010
+      0B0000001101000000 << 16 | 0B0000000010000000,  // 0010
+      0B0000000100000000 << 16 | 0B0000001011000000,  // 1011
+      0B0000001100000000 << 16 | 0B0000000011000000,  // 0011
+      0B0000000011000000 << 16 | 0B0000001100000000,  // 1100
+      0B0000001011000000 << 16 | 0B0000000100000000,  // 0100
+      0B0000000010000000 << 16 | 0B0000001101000000,  // 1101
+      0B0000001010000000 << 16 | 0B0000000101000000,  // 0101
+      0B0000000001000000 << 16 | 0B0000001110000000,  // 1110
+      0B0000001001000000 << 16 | 0B0000000110000000,  // 0110
+      0B0000000000000000 << 16 | 0B0000001111000000,  // 1111
+      0B0000001000000000 << 16 | 0B0000000111000000,  // 0111
+  };
+  for (uint8_t x = 0; x < DISPLAY_FRAME_BATCH; x++) {
+    for (uint8_t i = 0; i < 8; i++) {
+      for (int8_t j = 1; j >= 0; j--) {  // j=0 left matrix, j=1 right
+        uint32_t temp = 0;
+        uint8_t current_row = 2 * i + j;
+        for (uint8_t k = 0; k < 8; k++) {  // set A~G pin
+          if (buffer[k + j * 8] & (1 << i))
+            temp |= (1 << gpio_pin[k]);
+          else
+            temp |= (1 << 16 << gpio_pin[k]);
+        }
+        temp |= row_map[current_row];
+        double_buffer[current_row + x * DISPLAY_FRAME_SIZE +
+                      current_buffer_index * DISPLAY_FRAME_SIZE *
+                          DISPLAY_FRAME_BATCH] = temp;
       }
-      for (uint8_t j = 0; j < 4; j++) {
-        if ((frame_map[i] >> (3 - j) & 1) == 0)
-          temp |= (1 << 16 << (9 - j));
-        else
-          temp |= (1 << (9 - j));
-      }
-
-      double_buffer[i + k * DISPLAY_FRAME_SIZE +
-                    current_buffer_index * DISPLAY_FRAME_SIZE *
-                        DISPLAY_FRAME_BATCH] = temp;
     }
   }
 }

@@ -3351,4 +3351,4 @@ constexpr unsigned char console_font_5x8[][8] = {
     },
 };
 
-#endif // HITCON_DISPLAY_FONT_H_
+#endif  // HITCON_DISPLAY_FONT_H_
