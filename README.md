@@ -55,7 +55,7 @@ execute `fw/merge.py` to merge STM32CubeIDE generated `main.c` with user code in
   * Bit time = 4/9.5kHz = 421us (each bit is 16 pulse).
 - [x] TIM1:
   * Prescaler: 5-1
-  * Counter Period: 750-1
+  * Counter Period: 1500-1
   * LED refreshes at 3200/16 = 200Hz.
   
 ## Format
