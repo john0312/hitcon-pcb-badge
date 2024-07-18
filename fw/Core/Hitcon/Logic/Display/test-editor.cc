@@ -8,7 +8,6 @@
 
 #define tick(editor, buf, frame)     \
   do {                               \
-    editor.draw(buf, frame);         \
     display_get_frame(buf, frame++); \
     print_buf(frame, buf);           \
     usleep(100000);                  \

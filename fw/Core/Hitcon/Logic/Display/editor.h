@@ -26,7 +26,8 @@ class TextEditorDisplay {
   void decr_current_char();
   void set_current_char(char c);
 
-  void draw(uint8_t *display_buf, int frame) const;
+  void draw(uint8_t *buf, int frame) const;
+  void draw_packed(display_buf_t *display_buf, int frame) const;
 };
 
 }  // namespace hitcon

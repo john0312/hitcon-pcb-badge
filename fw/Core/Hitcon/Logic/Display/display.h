@@ -56,9 +56,9 @@ static_assert(sizeof(display_buf_t) == DISPLAY_HEIGHT / 8,
     buf = (buf & ~(1 << (bit))) | ((val) << (bit)); \
   } while (0)
 
-#define display_buf_toggle(buf, bit) \
-  do {                               \
-    buf ^= (1 << (bit));             \
+#define display_buf_flip(buf, bit) \
+  do {                             \
+    buf ^= (1 << (bit));           \
   } while (0)
 
 #define display_buf_get(buf, bit) (!!(buf & (1 << (bit))))

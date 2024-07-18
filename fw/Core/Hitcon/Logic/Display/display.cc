@@ -19,7 +19,7 @@ struct {
   int speed;
 } display_scroll_info;
 
-void get_scroll_frame(display_buf_t *buf, int frame) {
+void get_scroll_frame_packed(display_buf_t *buf, int frame) {
   /**
    * The content will scroll from right to left, and the first frame of the
    * scrolling is an empty screen.
@@ -94,11 +94,11 @@ void display_get_frame_packed(display_buf_t *buf, int frame) {
       break;
 
     case DISPLAY_MODE_SCROLL:
-      get_scroll_frame(buf, frame);
+      get_scroll_frame_packed(buf, frame);
       break;
 
     case DISPLAY_MODE_TEXT_EDITOR:
-      text_editor_display->draw(buf, frame);
+      text_editor_display->draw_packed(buf, frame);
       break;
   }
 
@@ -152,8 +152,8 @@ void display_set_mode_scroll_text(const char *text, int speed) {
                             DISPLAY_SCROLL_MAX_COLUMNS, DISPLAY_HEIGHT);
   }
   int n_col = (len * CHAR_WIDTH > DISPLAY_SCROLL_MAX_COLUMNS)
-                 ? DISPLAY_SCROLL_MAX_COLUMNS
-                 : len * CHAR_WIDTH;
+                  ? DISPLAY_SCROLL_MAX_COLUMNS
+                  : len * CHAR_WIDTH;
 
   display_set_mode_scroll_packed(buf, n_col, speed);
 }
