@@ -158,5 +158,10 @@ int IrLogic::DecodePacket(IrPacket &packet, size_t *len, uint8_t *decodedData) {
   }
 }
 
+int IrLogic::GetLoadFactor() {
+  // TODO
+  return 10000;
+}
+
 }  // namespace ir
 }  // namespace hitcon

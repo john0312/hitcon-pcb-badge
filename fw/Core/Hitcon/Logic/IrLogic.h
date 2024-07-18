@@ -69,6 +69,11 @@ class IrLogic
   void EncodePacket(uint8_t *data, size_t len, IrPacket &packet);
   int DecodePacket(IrPacket &packet, size_t *len, uint8_t *decodedData);
 
+  // % of time in last 30 second whereby there's a transmission.
+  // 10000 => 100%
+  // 0 => 0%
+  int GetLoadFactor();
+
   // ring buffer
   queue_t packet_queue;
 
