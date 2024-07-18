@@ -34,7 +34,7 @@ class DisplayService {
   // After RequestFrame callback is triggered, this should be called by upper
   // layer to send frame to DisplayService. Each call should contain
   // DISPLAY_FRAME_BATCH of frames.
-  void PopulateFrames(uint8_t* buffer);
+  void PopulateFrames(display_buf_t* buffer);
 
   // 0-10
   void SetBrightness(uint8_t brightness);

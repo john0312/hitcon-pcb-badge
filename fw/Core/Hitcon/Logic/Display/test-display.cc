@@ -47,7 +47,6 @@ int main() {
         1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1,
         // clang-format on
     };
-
     display_set_mode_fixed(buf_fixed);
     display_get_frame(buf, frame++);
     print_buf(frame, buf);
@@ -72,7 +71,6 @@ int main() {
         0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0,
         // clang-format on
     };
-
     int speed = 3;
     display_set_mode_scroll(buf_scroll, sizeof(buf_scroll) / 8, speed);
     for (int i = 0; i < 100; i++) {
