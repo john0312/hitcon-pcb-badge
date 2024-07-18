@@ -127,10 +127,12 @@ void display_set_mode_fixed_packed(const display_buf_t *buf);
 // maximum `n_col` is DISPLAY_SCROLL_MAX_COLUMNS
 // `speed` means how many frames to move one pixel
 void display_set_mode_scroll(const uint8_t *buf, int n_col, int speed);
+void display_set_mode_scroll(const uint8_t *buf, int n_col);
 
 // The memory-efficient version of `display_set_mode_scroll`.
 void display_set_mode_scroll_packed(const display_buf_t *buf, int n_col,
                                     int speed);
+void display_set_mode_scroll_packed(const display_buf_t *buf, int n_col);
 
 // Rasterize `text` to the underlying display buffer.
 // If the text is too long, the output will be truncated.

@@ -127,6 +127,10 @@ void display_set_mode_scroll(const uint8_t *buf, int n_col, int speed) {
   display_set_mode_scroll_packed(display_buf, n_col, speed);
 }
 
+void display_set_mode_scroll(const uint8_t *buf, int n_col) {
+  display_set_mode_scroll(buf, n_col, DISPLAY_SCROLL_DEFAULT_SPEED);
+}
+
 void display_set_mode_scroll_packed(const display_buf_t *buf, int n_col,
                                     int speed) {
   display_mode = DISPLAY_MODE_SCROLL;
@@ -134,6 +138,10 @@ void display_set_mode_scroll_packed(const display_buf_t *buf, int n_col,
   display_scroll_info.n_col = n_col;
   display_scroll_info.speed = speed;
   memcpy(display_scroll_info.buf, buf, n_col);
+}
+
+void display_set_mode_scroll_packed(const display_buf_t *buf, int n_col) {
+  display_set_mode_scroll_packed(buf, n_col, DISPLAY_SCROLL_DEFAULT_SPEED);
 }
 
 void display_set_mode_scroll_text(const char *text, int speed) {
