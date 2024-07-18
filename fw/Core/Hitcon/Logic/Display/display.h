@@ -4,14 +4,27 @@
 #include <Logic/Display/font.h>
 #include <stdint.h>
 
+// clang-format off
 /**
- * The underlying buffer is a 2D array of uint8_t like this:
+ * The original design of display buffer is a 2D array of uint8_t.
+ * This is the default buffer layout used in every API.
  *
- * buf[0][0] buf[0][1] ... buf[0][DISPLAY_WIDTH - 1]
- * buf[1][0] buf[1][1] ... buf[1][DISPLAY_WIDTH - 1]
- * ...
- * buf[DISPLAY_HEIGHT - 1][0] ... buf[DISPLAY_HEIGHT - 1][DISPLAY_WIDTH - 1]
+ *    buf[0][0] buf[0][1] ... buf[0][DISPLAY_WIDTH - 1]
+ *    buf[1][0] buf[1][1] ... buf[1][DISPLAY_WIDTH - 1]
+ *    ...
+ *    buf[DISPLAY_HEIGHT - 1][0] ... buf[DISPLAY_HEIGHT - 1][DISPLAY_WIDTH - 1]
+ *
+ *
+ * However, we want to reduce the memory usage. We know that DISPLAY_HEIGHT
+ * is fixed to 8, so we store each column in a display_buf_t (uint8_t).
+ *
+ *    (buf[0] & 1)   (buf[1] & 1)   ... (buf[DISPLAY_WIDTH - 1] & 1)
+ *    (buf[0] & 2)   (buf[1] & 2)   ... (buf[DISPLAY_WIDTH - 1] & 2)
+ *    (buf[0] & 4)   (buf[1] & 4)   ... (buf[DISPLAY_WIDTH - 1] & 4)
+ *    ...
+ *    (buf[0] & 128) (buf[1] & 128) ... (buf[DISPLAY_WIDTH - 1] & 128)
  */
+// clang-format on
 
 #define DISPLAY_HEIGHT 8  // fixed
 #define DISPLAY_WIDTH 16  // adjustable, maybe 8, 12, 16
@@ -24,46 +37,100 @@
 #define DISPLAY_SCROLL_MAX_COLUMNS 100
 #define DISPLAY_SCROLL_DEFAULT_SPEED 10
 
-// DISPLAY_HEIGHT = 8 fixed -> 1 column/byte to reduce mem usage
 using display_buf_t = uint8_t;
 
-#define DISPLAY_SET(x, bit) \
-  do {                      \
-    (x) |= (1 << (bit));    \
+#define display_buf_set(buf, bit) \
+  do {                            \
+    buf |= (1 << (bit));          \
   } while (0)
 
-#define DISPLAY_UNSET(x, bit)                        \
-  do {                                               \
-    (x) &= (1 << DISPLAY_HEIGHT) - 1 - (1 << (bit)); \
+#define display_buf_unset(buf, bit) \
+  do {                              \
+    buf &= ~(1 << (bit));           \
   } while (0)
 
-#define DISPLAY_render_char(buf, ch, x, y, max_x, max_y)          \
-  do {                                                            \
-    for (int _y = 0; _y < CHAR_HEIGHT && y + _y < max_y; ++_y) {  \
-      for (int _x = 0; _x < CHAR_WIDTH && x + _x < max_x; ++_x) { \
-        if (rasterize_char_5x8(ch, _y, _x))                       \
-          DISPLAY_SET(buf[x + _x], y + _y);                       \
-        else                                                      \
-          DISPLAY_UNSET(buf[x + _x], y + _y);                     \
-      }                                                           \
-    }                                                             \
+#define display_buf_assign(buf, bit, val)           \
+  do {                                              \
+    buf = (buf & ~(1 << (bit))) | ((val) << (bit)); \
   } while (0)
+
+#define display_buf_toggle(buf, bit) \
+  do {                               \
+    buf ^= (1 << (bit));             \
+  } while (0)
+
+#define display_buf_get(buf, bit) (!!(buf & (1 << (bit))))
+
+#define display_buf_render_char(buf, ch, x, y, max_x, max_y)          \
+  do {                                                                \
+    for (int _y = 0; _y < CHAR_HEIGHT && (y) + _y < (max_y); ++_y) {  \
+      for (int _x = 0; _x < CHAR_WIDTH && (x) + _x < (max_x); ++_x) { \
+        display_buf_assign(buf[(x) + _x], (y) + _y,                   \
+                           rasterize_char_5x8((ch), _y, _x));         \
+      }                                                               \
+    }                                                                 \
+  } while (0)
+
+// Pack uint8_t buffer to display_buf_t buffer to save memory.
+inline void display_buf_pack(display_buf_t *dst, const uint8_t *src) {
+  for (int y = 0; y < DISPLAY_HEIGHT; ++y) {
+    for (int x = 0; x < DISPLAY_WIDTH; ++x) {
+      display_buf_assign(dst[x], y, src[y * DISPLAY_WIDTH + x]);
+    }
+  }
+}
+
+inline void display_buf_pack(display_buf_t *dst, const uint8_t *src,
+                             int n_col) {
+  for (int y = 0; y < DISPLAY_HEIGHT; ++y) {
+    for (int x = 0; x < n_col; ++x) {
+      display_buf_assign(dst[x], y, src[y * n_col + x]);
+    }
+  }
+}
+
+inline void display_buf_unpack(uint8_t *dst, const display_buf_t *src) {
+  for (int y = 0; y < DISPLAY_HEIGHT; ++y) {
+    for (int x = 0; x < DISPLAY_WIDTH; ++x) {
+      dst[y * DISPLAY_WIDTH + x] = display_buf_get(src[x], y);
+    }
+  }
+}
+
+inline void display_buf_unpack(uint8_t *dst, const display_buf_t *src,
+                               int n_col) {
+  for (int y = 0; y < DISPLAY_HEIGHT; ++y) {
+    for (int x = 0; x < n_col; ++x) {
+      dst[y * n_col + x] = display_buf_get(src[x], y);
+    }
+  }
+}
 
 void display_init();
 
 // Get the frame of the display at the given frame.
 // The size of `buf` should be DISPLAY_HEIGHT * DISPLAY_WIDTH
-void display_get_frame(display_buf_t *buf, int frame);
+void display_get_frame(uint8_t *buf, int frame);
+
+// The memory-efficient version of `display_get_frame`.
+void display_get_frame_packed(display_buf_t *buf, int frame);
 
 void display_set_mode_blank();
 
 // size of `buf` should be DISPLAY_HEIGHT * DISPLAY_WIDTH
-void display_set_mode_fixed(display_buf_t *buf);
+void display_set_mode_fixed(const uint8_t *buf);
+
+// The memory-efficient version of `display_set_mode_fixed`.
+void display_set_mode_fixed_packed(const display_buf_t *buf);
 
 // size of `buf` should be DISPLAY_HEIGHT * `n_col`
 // maximum `n_col` is DISPLAY_SCROLL_MAX_COLUMNS
 // `speed` means how many frames to move one pixel
-void display_set_mode_scroll(display_buf_t *buf, int n_col, int speed);
+void display_set_mode_scroll(const uint8_t *buf, int n_col, int speed);
+
+// The memory-efficient version of `display_set_mode_scroll`.
+void display_set_mode_scroll_packed(const display_buf_t *buf, int n_col,
+                                    int speed);
 
 // Rasterize `text` to the underlying display buffer.
 // If the text is too long, the output will be truncated.

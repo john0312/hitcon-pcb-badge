@@ -4,7 +4,7 @@
 #include <Logic/Display/font.h>
 #include <string.h>
 
-static display_buf_t display_buf[DISPLAY_WIDTH];
+static display_buf_t __display_buf[DISPLAY_WIDTH];
 
 static int display_mode;
 // will be updated when display_get_frame is called
@@ -61,28 +61,36 @@ void get_scroll_frame(display_buf_t *buf, int frame) {
 
   for (int y = 0; y < DISPLAY_HEIGHT; y++) {
     for (int x = 0; x < DISPLAY_WIDTH; x++) {
-      if (0 <= current_x + x && current_x + x < display_scroll_info.n_col &&
-          display_scroll_info.buf[current_x + x] & (1 << y))
-        DISPLAY_SET(buf[x], y);
-      else
-        DISPLAY_UNSET(buf[x], y);
+      int inside_window =
+          (0 <= current_x + x && current_x + x < display_scroll_info.n_col);
+      display_buf_assign(
+          buf[x], y,
+          inside_window
+              ? display_buf_get(display_scroll_info.buf[current_x + x], y)
+              : 0);
     }
   }
 }
 
 void display_init() {
   display_mode = DISPLAY_MODE_BLANK;
-  memset(display_buf, 0, sizeof(display_buf));
+  memset(__display_buf, 0, sizeof(__display_buf));
 }
 
-void display_get_frame(display_buf_t *buf, int frame) {
+void display_get_frame(uint8_t *buf, int frame) {
+  display_buf_t display_buf[DISPLAY_WIDTH];
+  display_get_frame_packed(display_buf, frame);
+  display_buf_unpack(buf, display_buf);
+}
+
+void display_get_frame_packed(display_buf_t *buf, int frame) {
   switch (display_mode) {
     case DISPLAY_MODE_BLANK:
-      memset(buf, 0, sizeof(display_buf));
+      memset(buf, 0, sizeof(__display_buf));
       break;
 
     case DISPLAY_MODE_FIXED:
-      memcpy(buf, display_buf, sizeof(display_buf));
+      memcpy(buf, __display_buf, sizeof(__display_buf));
       break;
 
     case DISPLAY_MODE_SCROLL:
@@ -99,15 +107,28 @@ void display_get_frame(display_buf_t *buf, int frame) {
 
 void display_set_mode_blank() {
   display_mode = DISPLAY_MODE_BLANK;
-  memset(display_buf, 0, sizeof(display_buf));
+  memset(__display_buf, 0, sizeof(__display_buf));
 }
 
-void display_set_mode_fixed(display_buf_t *buf) {
+void display_set_mode_fixed(const uint8_t *buf) {
+  display_buf_t display_buf[DISPLAY_WIDTH];
+  display_buf_pack(display_buf, buf);
+  display_set_mode_fixed_packed(display_buf);
+}
+
+void display_set_mode_fixed_packed(const display_buf_t *buf) {
   display_mode = DISPLAY_MODE_FIXED;
-  memcpy(display_buf, buf, sizeof(display_buf));
+  memcpy(__display_buf, buf, sizeof(__display_buf));
 }
 
-void display_set_mode_scroll(display_buf_t *buf, int n_col, int speed) {
+void display_set_mode_scroll(const uint8_t *buf, int n_col, int speed) {
+  display_buf_t display_buf[DISPLAY_SCROLL_MAX_COLUMNS];
+  display_buf_pack(display_buf, buf, n_col);
+  display_set_mode_scroll_packed(display_buf, n_col, speed);
+}
+
+void display_set_mode_scroll_packed(const display_buf_t *buf, int n_col,
+                                    int speed) {
   display_mode = DISPLAY_MODE_SCROLL;
   display_scroll_info.first_frame = display_current_frame;
   display_scroll_info.n_col = n_col;
@@ -119,14 +140,14 @@ void display_set_mode_scroll_text(const char *text, int speed) {
   display_buf_t buf[DISPLAY_SCROLL_MAX_COLUMNS];
   int len = strlen(text);
   for (int i = 0; i < len && i * CHAR_WIDTH < DISPLAY_SCROLL_MAX_COLUMNS; ++i) {
-    DISPLAY_render_char(buf, text[i], i * CHAR_WIDTH, 0,
-                        DISPLAY_SCROLL_MAX_COLUMNS, DISPLAY_HEIGHT);
+    display_buf_render_char(buf, text[i], i * CHAR_WIDTH, 0,
+                            DISPLAY_SCROLL_MAX_COLUMNS, DISPLAY_HEIGHT);
   }
   int cols = (len * CHAR_WIDTH > DISPLAY_SCROLL_MAX_COLUMNS)
                  ? DISPLAY_SCROLL_MAX_COLUMNS
                  : len * CHAR_WIDTH;
 
-  display_set_mode_scroll(buf, cols, speed);
+  display_set_mode_scroll_packed(buf, cols, speed);
 }
 
 void display_set_mode_scroll_text(const char *text) {
