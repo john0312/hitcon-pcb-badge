@@ -151,11 +151,11 @@ void display_set_mode_scroll_text(const char *text, int speed) {
     display_buf_render_char(buf, text[i], i * CHAR_WIDTH, 0,
                             DISPLAY_SCROLL_MAX_COLUMNS, DISPLAY_HEIGHT);
   }
-  int cols = (len * CHAR_WIDTH > DISPLAY_SCROLL_MAX_COLUMNS)
+  int n_col = (len * CHAR_WIDTH > DISPLAY_SCROLL_MAX_COLUMNS)
                  ? DISPLAY_SCROLL_MAX_COLUMNS
                  : len * CHAR_WIDTH;
 
-  display_set_mode_scroll_packed(buf, cols, speed);
+  display_set_mode_scroll_packed(buf, n_col, speed);
 }
 
 void display_set_mode_scroll_text(const char *text) {

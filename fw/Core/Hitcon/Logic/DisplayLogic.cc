@@ -18,7 +18,7 @@ void DisplayLogic::Init() {
 void DisplayLogic::OnRequestFrame(void* unused) {
   // TODO: Verify this.
   for (uint8_t i = 0; i < static_cast<int>(DISPLAY_FRAME_BATCH); i++) {
-    display_get_frame(&buffer_[DISPLAY_WIDTH * i], frame_);
+    display_get_frame_packed(&buffer_[DISPLAY_WIDTH * i], frame_);
     frame_++;
   }
   g_display_service.PopulateFrames(buffer_);
