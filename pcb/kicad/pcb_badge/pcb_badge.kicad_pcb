@@ -55945,12 +55945,11 @@
 			(layer "B.Fab")
 			(uuid "69043761-9890-477c-9568-1ebfef836b2c")
 		)
-		(pad "" thru_hole circle
+		(pad "" np_thru_hole circle
 			(at -23.45 10.45 180)
 			(size 1.8 1.8)
 			(drill 1.8)
-			(layers "*.Cu" "*.Mask")
-			(remove_unused_layers no)
+			(layers "F&B.Cu" "*.Mask")
 			(uuid "0553056a-c174-409c-9971-f6248e12a5b0")
 		)
 		(pad "1" smd rect
