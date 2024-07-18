@@ -1,5 +1,5 @@
 Designator,Val,Package,Mid X,Mid Y,Rotation,Layer
-BT1,BAT_2,BH-AAA-B5AK001,115.0,-117.6,0.0,bottom
+BT1,BAT_2,BH-AAA-B5AK001,115.0,-119.0,0.0,bottom
 C1,0.1u,C_0402_1005Metric_Pad0.74x0.62mm_HandSolder,88.300002,-149.25,180.0,bottom
 C10,1u,C_0603_1608Metric_Pad1.08x0.95mm_HandSolder,80.5,-158.0,180.0,bottom
 C11,1u,C_0603_1608Metric_Pad1.08x0.95mm_HandSolder,78.0,-154.5,270.0,bottom
