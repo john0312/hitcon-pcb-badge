@@ -88,13 +88,21 @@ void on_pkt_cb(void *self, PacketCallbackArg* arg) {
 	  cnt += 1;
 	  cnt -= 1;
   }
-  if (cnt / 100 != hund) {
-	  hund = cnt / 100;
+  if (cnt / 10 != hund) {
+	  hund = cnt / 10;
 	  text[1] = hund % 10 + '0';
 	  text[0] = (hund/10) % 10 + '0';
-	  display_set_mode_scroll_text(text);
+	  // display_set_mode_scroll_text(text);
   }
   ++cnt;
+}
+
+void on_disconn(void*self, void*arg) {
+	  display_set_mode_scroll_text("disconn");
+}
+
+void on_conn(void*self, void*arg) {
+	  display_set_mode_scroll_text("conn");
 }
 
 /* USER CODE END 0 */
@@ -154,6 +162,8 @@ int main(void) {
   }
 
   g_xboard_logic.SetOnPacketCallback((hitcon::callback_t)&on_pkt_cb, nullptr);
+  g_xboard_logic.SetOnConnectCallback((hitcon::callback_t)&on_conn, nullptr);
+  g_xboard_logic.SetOnDisconnectCallback((hitcon::callback_t)&on_disconn, nullptr);
   display_set_mode_scroll_text("init");
   // scheduler.Run();
   hitcon_run();

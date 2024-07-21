@@ -23,23 +23,7 @@ enum UsartConnectState { Init, Connect, Disconnect };
 constexpr size_t MAX_XBOARD_PACKET_LEN = 32;
 constexpr size_t RX_BUF_SZ = 512;
 
-void uart_init();
 void send_ping();
-void uart_recv_cb(UART_HandleTypeDef* huart);
-
-// class XBoardPacket {
-//    public:
-//     XBoardPacket() : size_(0){};
-
-//     uint8_t* data() { return data_; }
-
-//     size_t size() { return size_; }
-
-//     void set_size(size_t s) { size_ = s; };
-
-//    private:
-//     size_t size_;
-// };
 
 class XBoardLogic {
    public:
@@ -68,8 +52,18 @@ class XBoardLogic {
     // uint8_t rx_buf[MAX_XBOARD_PACKET_LEN] = {0};
     // size_t prod_head = 0;
     // size_t cons_head = 0;
+    callback_t packet_arrive_handler = nullptr;
+    void *packet_arrive_handler_self = nullptr;
+
+    UsartConnectState connect_state = UsartConnectState::Init;
+    callback_t disconnect_handler = nullptr;
+    void *disconnect_handler_self = nullptr;
+    callback_t connect_handler = nullptr;
+    void *connect_handler_self = nullptr;
 
     void OnByteArrive(void *);
+    void ParsePacket();
+    void CheckPing();
 };
 
 extern XBoardLogic g_xboard_logic;
