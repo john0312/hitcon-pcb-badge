@@ -1,5 +1,6 @@
 #include <Service/IrService.h>
 #include <main.h>
+#include <stm32f1xx_ll_gpio.h>
 #include <tim.h>
 
 void HAL_TIM_PWM_PulseFinishedCallback(TIM_HandleTypeDef *htim) {
@@ -76,6 +77,7 @@ void IrService::OnBufferRecvWrapper(void *arg2) {
 void IrService::Init() {
   __HAL_TIM_ENABLE_DMA(&htim2, TIM_DMA_CC3);
   HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_3);
+  LL_GPIO_AF_RemapPartial2_TIM2();
   hdma_tim2_ch3.XferHalfCpltCallback = &ReceiveDmaHalfCplt;
   hdma_tim2_ch3.XferCpltCallback = &ReceiveDmaCplt;
   __HAL_TIM_ENABLE_DMA(&htim3, TIM_DMA_CC3);
