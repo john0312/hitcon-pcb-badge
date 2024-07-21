@@ -8,8 +8,8 @@ namespace ir {
 
 constexpr uint8_t PACKET_START[] = { 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1 };
 constexpr size_t PACKET_START_LEN = (sizeof(PACKET_START) / sizeof(uint8_t));
-constexpr size_t PACKET_SIZE_LEN = 5;
-constexpr size_t PACKET_DATA_MAX_BYTE = 32;
+constexpr size_t PACKET_SIZE_LEN = 8;
+constexpr size_t PACKET_DATA_MAX_BYTE = 1 << PACKET_SIZE_LEN;
 constexpr size_t PACKET_DATA_MAX_BIT = PACKET_DATA_MAX_BYTE * 8;
 constexpr size_t PACKET_PARITY_LEN = 1;
 constexpr uint8_t PACKET_END[] = { 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
@@ -50,7 +50,7 @@ constexpr uint8_t IR_PACKET_HEADER[] = {
 // 1.5 2.5 1.5 times 4(decode ratio) 
 constexpr size_t IR_PACKET_HEADER_PACKED = 0b111'111'00000'00000'111'111;
 // last bit is don't care
-constexpr size_t IR_PACKET_HEADER_MASK = 0b111'111'11111'11111'111'110;
+constexpr size_t IR_PACKET_HEADER_MASK = 0b111'110'01111'11110'011'110;
 
 constexpr size_t PULSE_PER_DATA_BIT = 16;
 constexpr size_t PULSE_PER_HEADER_BIT = PULSE_PER_DATA_BIT/2;

@@ -74,6 +74,7 @@ class IrLogic {
   // OnPacketReceived callback
   callback_t callback;
   void *callback_arg;
+  IrPacket packet;
 };
 
 extern IrLogic irLogic;
