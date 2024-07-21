@@ -14,18 +14,18 @@
  * end: 1111111 (7*'1')
  */
 
-#define PACKET_START                                                           \
+#define PACKET_START \
   (uint8_t[]) { 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1 }
 #define PACKET_START_LEN (sizeof(PACKET_START) / sizeof(uint8_t))
 #define PACKET_SIZE_LEN 5
 #define PACKET_DATA_MAX_BYTE 32
 #define PACKET_DATA_MAX_BIT (PACKET_DATA_MAX_BYTE * 8)
 #define PACKET_PARITY_LEN 1
-#define PACKET_END                                                             \
+#define PACKET_END \
   (uint8_t[]) { 1, 1, 1, 1, 1, 1, 1 }
 #define PACKET_END_LEN (sizeof(PACKET_END) / sizeof(uint8_t))
-#define PACKET_MAX_LEN                                                         \
-  (PACKET_START_LEN + PACKET_SIZE_LEN + PACKET_DATA_MAX_BIT +                  \
+#define PACKET_MAX_LEN                                        \
+  (PACKET_START_LEN + PACKET_SIZE_LEN + PACKET_DATA_MAX_BIT + \
    PACKET_PARITY_LEN + PACKET_END_LEN)
 
 // This value means that the hardware samples DECODE_SAMPLE_RATIO times within a

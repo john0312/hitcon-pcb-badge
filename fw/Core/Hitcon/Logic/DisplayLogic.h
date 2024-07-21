@@ -1,12 +1,12 @@
 #ifndef SERVICE_DISPLAY_LOGIC_H_
 #define SERVICE_DISPLAY_LOGIC_H_
 
+#include <Logic/Display/display.h>
+#include <Service/DisplayInfo.h>
+#include <Service/DisplayService.h>
+#include <Util/callback.h>
 #include <stddef.h>
 #include <stdint.h>
-#include <Util/callback.h>
-#include <Service/DisplayService.h>
-#include <Service/DisplayInfo.h>
-#include <Logic/Display/display.h>
 
 namespace hitcon {
 
@@ -21,6 +21,7 @@ class DisplayLogic {
 
   // This is called by DisplayService to request for frames.
   void OnRequestFrame(void* unused);
+
  private:
   display_buf_t buffer_[DISPLAY_WIDTH * DISPLAY_FRAME_BATCH];
 

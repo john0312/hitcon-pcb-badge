@@ -7,7 +7,7 @@
 namespace hitcon {
 
 class App {
-public:
+ public:
   App() = default;
   virtual ~App() = default;
 
@@ -22,6 +22,6 @@ public:
   virtual void OnButton(button_t button) = 0;
 };
 
-} // namespace hitcon
+}  // namespace hitcon
 
-#endif // #ifndef HITCON_APP_APP_H_
+#endif  // #ifndef HITCON_APP_APP_H_

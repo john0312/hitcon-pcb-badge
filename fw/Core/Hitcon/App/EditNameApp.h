@@ -1,8 +1,9 @@
 #ifndef EDIT_NAME_APP_H
 #define EDIT_NAME_APP_H
 
-#include "app.h"
 #include <Logic/Display/editor.h>
+
+#include "app.h"
 
 namespace hitcon {
 
@@ -15,10 +16,10 @@ namespace hitcon {
  * - BUTTON_OK will save the name and exit.
  */
 class EditNameApp : public App {
-private:
+ private:
   TextEditorDisplay editor;
 
-public:
+ public:
   EditNameApp();
   virtual ~EditNameApp() = default;
 
@@ -29,6 +30,6 @@ public:
 
 extern EditNameApp edit_name_app;
 
-} // namespace hitcon
+}  // namespace hitcon
 
-#endif // EDIT_NAME_APP_H
+#endif  // EDIT_NAME_APP_H
