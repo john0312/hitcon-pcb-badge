@@ -69,7 +69,9 @@ void SystemClock_Config(void);
 #include <Logic/DisplayLogic.h>
 #include <Service/ButtonService.h>
 #include <Service/DisplayService.h>
+#include <Service/FlashService.h>
 #include <Service/Sched/Scheduler.h>
+
 using namespace hitcon;
 using namespace hitcon::service::sched;
 using namespace hitcon::service::xboard;
@@ -113,6 +115,7 @@ int main(void) {
   MX_TIM4_Init();
   /* USER CODE BEGIN 2 */
   display_init();
+  g_flash_service.Init();
   g_display_logic.Init();
   g_display_service.Init();
   g_display_service.SetBrightness(3);
