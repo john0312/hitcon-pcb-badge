@@ -4,6 +4,7 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#include <Service/Sched/Scheduler.h>
 #include <Util/callback.h>
 
 namespace hitcon {
@@ -84,8 +85,11 @@ class NvStorage {
   // If we've been instructed to force flush.
   bool force_flush;
 
+  // The callback when force flush is done.
   callback_t on_done_cb;
   void* on_done_cb_arg1;
+
+  hitcon::service::sched::PeriodicTask routine_task;
 };
 
 }
