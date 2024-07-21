@@ -26,23 +26,23 @@ DisplayService::DisplayService()
  * 5. if the Task hasn't been executed, then run the second buffer
  */
 
-request_cb_param tmp;
+request_cb_param tmp_request_cb_param;
 void DisplayTransferHalfComplete(DMA_HandleTypeDef* hdma) {
-  tmp.callback = g_display_service.request_frame_callback_arg1;
-  tmp.buf_index = 0;
-  scheduler.Queue(&(g_display_service.task), &tmp);
+  tmp_request_cb_param.callback = g_display_service.request_frame_callback_arg1;
+  tmp_request_cb_param.buf_index = 0;
+  scheduler.Queue(&(g_display_service.task), &tmp_request_cb_param);
 }
 
 void DisplayTransferComplete(DMA_HandleTypeDef* hdma) {
-  tmp.callback = g_display_service.request_frame_callback_arg1;
-  tmp.buf_index = 1;
-  scheduler.Queue(&(g_display_service.task), &tmp);
+  tmp_request_cb_param.callback = g_display_service.request_frame_callback_arg1;
+  tmp_request_cb_param.buf_index = 1;
+  scheduler.Queue(&(g_display_service.task), &tmp_request_cb_param);
 }
 
 void DisplayService::Init() {
-  tmp.callback = request_frame_callback_arg1;
-  tmp.buf_index = 0;
-  scheduler.Queue(&task, &tmp);
+  tmp_request_cb_param.callback = request_frame_callback_arg1;
+  tmp_request_cb_param.buf_index = 0;
+  scheduler.Queue(&task, &tmp_request_cb_param);
   HAL_TIM_PWM_Start(&htim3,
                     TIM_CHANNEL_2);  // decoder enable to control brightness
   __HAL_TIM_ENABLE_DMA(&htim1, TIM_DMA_UPDATE);
