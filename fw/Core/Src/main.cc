@@ -30,6 +30,8 @@
 #include <Hitcon.h>
 #include <Logic/BadgeController.h>
 #include <Service/XBoardService.h>
+#include <Logic/XBoardLogic.h>
+#include <Hitcon.h>
 
 using namespace hitcon;
 /* USER CODE END Includes */
@@ -76,6 +78,24 @@ void SystemClock_Config(void);
 using namespace hitcon;
 using namespace hitcon::service::sched;
 using namespace hitcon::service::xboard;
+
+void on_pkt_cb(void *self, PacketCallbackArg* arg) {
+  char text[] = {'a', 'b', '\0'};
+  text[0] = arg->len % 10 + '0';
+  static int cnt = 0;
+  static int hund = 0;
+  if (cnt > 8) {
+	  cnt += 1;
+	  cnt -= 1;
+  }
+  if (cnt / 100 != hund) {
+	  hund = cnt / 100;
+	  text[1] = hund % 10 + '0';
+	  text[0] = (hund/10) % 10 + '0';
+	  display_set_mode_scroll_text(text);
+  }
+  ++cnt;
+}
 
 /* USER CODE END 0 */
 
@@ -124,6 +144,7 @@ int main(void) {
   g_button_logic.Init();
   g_button_service.Init();
   g_xboard_service.Init();
+  g_xboard_logic.Init();
   badge_controller.Init();
   // run hardware test mode if MODE/SETTINGS Button is pressed during
   // initializing
@@ -132,8 +153,10 @@ int main(void) {
     badge_controller.change_app(&hardware_test_app);
   }
 
-//  scheduler.Run();
-    hitcon_run();
+  g_xboard_logic.SetOnPacketCallback((hitcon::callback_t)&on_pkt_cb, nullptr);
+  display_set_mode_scroll_text("init");
+  // scheduler.Run();
+  hitcon_run();
 
   /* USER CODE END 2 */
 
