@@ -11,12 +11,8 @@ namespace xboard {
 
 XBoardLogic g_xboard_logic;
 
-constexpr size_t PKT_DATA_LEN_MAX = 256;
-static uint8_t packet_data[PKT_DATA_LEN_MAX];
-
-static callback_t packet_cb = nullptr;
-static void *packet_cb_self = nullptr;
-// static PacketCallbackArg *packet_cb_arg;
+constexpr size_t PKT_PAYLOAD_LEN_MAX = 256;
+static uint8_t packet_payload[PKT_PAYLOAD_LEN_MAX];
 
 struct Frame {
   uint64_t preamble;  // 0xD555555555555555
@@ -29,8 +25,8 @@ constexpr size_t HEADER_SZ = sizeof(Frame);
 
 uint8_t tx_buf[] = "Hello World";
 uint8_t rx_buf[RX_BUF_SZ] = {0};
-static int prod_head = 0;
-static int cons_head = 0;
+static uint16_t prod_head = 0;
+static uint16_t cons_head = 0;
 static bool recv_ping = false;
 static uint8_t no_ping_count = 0;
 
@@ -53,19 +49,19 @@ inline uint16_t inc_head(size_t head, size_t offset) {
 // if `head_offset` > 0, start reading from cons_head + head_offset
 // return false if no enough bytes to read
 bool try_read_bytes(uint8_t *dst, size_t size, uint16_t head_offset = 0) {
-  uint16_t _cons_head = ((uint16_t)cons_head + head_offset) % RX_BUF_SZ;
+  uint16_t _cons_head = inc_head(cons_head, head_offset);
   if (cons_head == prod_head) {
     if (_cons_head != cons_head) return false;
   } else if (cons_head < prod_head) {
-    // O: c <= _c <= p
+    // Ok: c <= _c <= p
     if (_cons_head > prod_head) return false;
     if (_cons_head < cons_head) return false;
   } else {
-    // O: p < c <= _c
-    // O: _c <= p < c
+    // Ok: p < c <= _c
+    // Ok: _c <= p < c
     if (prod_head < _cons_head && _cons_head < cons_head) return false;
   }
-  unsigned int remain_size =
+  uint16_t remain_size =
       (_cons_head > prod_head ? 0 : RX_BUF_SZ) - prod_head + _cons_head;
   if (remain_size < size) {
     return false;
@@ -85,12 +81,12 @@ void XBoardLogic::ParsePacket() {
   recv_ping = false;
   while (cons_head != prod_head) {
     if (rx_buf[cons_head] != 0x55) {
-      cons_head = (cons_head + 1) % RX_BUF_SZ;
+      cons_head = inc_head(cons_head, 1);
       continue;
     }
-    unsigned int in_buf_size =
+    uint16_t in_buf_size =
         (prod_head > cons_head ? 0 : RX_BUF_SZ) + prod_head - cons_head;
-    if ((unsigned int)in_buf_size < sizeof(Frame)) {
+    if (in_buf_size < sizeof(Frame)) {
       break;
     }
 
@@ -100,7 +96,8 @@ void XBoardLogic::ParsePacket() {
       cons_head = inc_head(cons_head, 1);
       continue;
     }
-    if (!try_read_bytes((uint8_t *)&packet_data, header.len, sizeof(Frame))) {
+    if (!try_read_bytes((uint8_t *)&packet_payload, header.len,
+                        sizeof(Frame))) {
       // no enough bytes to read, wait more bytes in
       return;
     }
@@ -111,9 +108,9 @@ void XBoardLogic::ParsePacket() {
     }
     if (packet_arrive_handler != nullptr) {
       PacketCallbackArg packet_cb_arg;
-      memcpy(packet_cb_arg.data, &packet_data, header.len);
+      memcpy(packet_cb_arg.data, &packet_payload, header.len);
       packet_cb_arg.len = header.len;
-      packet_cb(packet_cb_self, &packet_cb_arg);
+      packet_arrive_handler(packet_arrive_handler_self, &packet_cb_arg);
     }
   }
 }
@@ -131,18 +128,17 @@ void XBoardLogic::QueuePacketForTx(uint8_t *packet, size_t packet_len) {
   // TODO
 }
 
-void XBoardLogic::SetOnConnectCallback(callback_t callback, void *self) {
+void XBoardLogic::SetOnConnect(callback_t callback, void *self) {
   connect_handler = callback;
   connect_handler_self = self;
 }
 
-void XBoardLogic::SetOnDisconnectCallback(callback_t callback, void *self) {
+void XBoardLogic::SetOnDisconnect(callback_t callback, void *self) {
   disconnect_handler = callback;
   disconnect_handler_self = self;
 }
 
-void XBoardLogic::SetOnPacketCallback(callback_t callback, void *self/*,
-                                      PacketCallbackArg *callback_arg*/) {
+void XBoardLogic::SetOnPacketArrive(callback_t callback, void *self) {
   packet_arrive_handler = callback;
   packet_arrive_handler_self = self;
 }
@@ -158,7 +154,7 @@ void XBoardLogic::OnByteArrive(void *arg1) {
   uint16_t next_prod_head = inc_head(prod_head, 1);
   if (next_prod_head == cons_head) {
     // drop the data
-    AssertOverflow();
+    // AssertOverflow();
     return;
   }
   rx_buf[prod_head] = b;

@@ -161,9 +161,9 @@ int main(void) {
     badge_controller.change_app(&hardware_test_app);
   }
 
-  g_xboard_logic.SetOnPacketCallback((hitcon::callback_t)&on_pkt_cb, nullptr);
-  g_xboard_logic.SetOnConnectCallback((hitcon::callback_t)&on_conn, nullptr);
-  g_xboard_logic.SetOnDisconnectCallback((hitcon::callback_t)&on_disconn, nullptr);
+  g_xboard_logic.SetOnPacketArrive((hitcon::callback_t)&on_pkt_cb, nullptr);
+  g_xboard_logic.SetOnConnect((hitcon::callback_t)&on_conn, nullptr);
+  g_xboard_logic.SetOnDisconnect((hitcon::callback_t)&on_disconn, nullptr);
   display_set_mode_scroll_text("init");
   // scheduler.Run();
   hitcon_run();
