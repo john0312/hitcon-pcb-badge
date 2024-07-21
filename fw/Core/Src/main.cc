@@ -67,6 +67,7 @@ void SystemClock_Config(void);
 #include <Logic/BadgeController.h>
 #include <Logic/ButtonLogic.h>
 #include <Logic/DisplayLogic.h>
+#include <Logic/NvStorage.h>
 #include <Service/ButtonService.h>
 #include <Service/DisplayService.h>
 #include <Service/FlashService.h>
@@ -116,6 +117,7 @@ int main(void) {
   /* USER CODE BEGIN 2 */
   display_init();
   g_flash_service.Init();
+  g_nv_storage.Init();
   g_display_logic.Init();
   g_display_service.Init();
   g_display_service.SetBrightness(3);
@@ -129,6 +131,7 @@ int main(void) {
     hardware_test_app.Init();
     badge_controller.change_app(&hardware_test_app);
   }
+
 //  scheduler.Run();
     hitcon_run();
 

@@ -1,8 +1,8 @@
 #include <Logic/NvStorage.h>
+#include <Logic/crc32.h>
 #include <Service/FlashService.h>
 #include <Service/Sched/Checks.h>
 #include <Service/Sched/Scheduler.h>
-#include <Logic/crc32.h>
 #include <main.h>
 #include <string.h>
 
@@ -10,14 +10,17 @@ using hitcon::service::sched::my_assert;
 using hitcon::service::sched::scheduler;
 
 namespace hitcon {
+NvStorage g_nv_storage;
 
-NvStorage::NvStorage() : routine_task(800, (callback_t)&NvStorage::Routine, this, 100) {}
+NvStorage::NvStorage()
+    : routine_task(800, (callback_t)&NvStorage::Routine, this, 100) {}
 
 void NvStorage::Init() {
-  uint32_t newest_version = -1;
+  int32_t newest_version = -1;
   my_assert(!g_flash_service.IsBusy());
   for (size_t i = 0; i < FLASH_PAGE_COUNT; i++) {
-    uint8_t* page_data = reinterpret_cast<uint8_t*>(g_flash_service.GetPagePointer(i));
+    uint8_t* page_data =
+        reinterpret_cast<uint8_t*>(g_flash_service.GetPagePointer(i));
     nv_storage_content* page_content =
         reinterpret_cast<nv_storage_content*>(page_data);
     if (page_content->version > newest_version &&
@@ -47,6 +50,9 @@ void NvStorage::ForceFlushInternal() {
   if (g_flash_service.IsBusy()) return;
 
   memcpy(&write_buffer_, &content_, sizeof(nv_storage_content));
+  write_buffer_.checksum =
+      crc32(reinterpret_cast<uint8_t*>(&write_buffer_) + sizeof(uint32_t),
+            sizeof(nv_storage_content) - sizeof(uint32_t));
   bool ret = g_flash_service.ProgramPage(
       next_available_page, reinterpret_cast<uint32_t*>(&write_buffer_),
       sizeof(nv_storage_content));

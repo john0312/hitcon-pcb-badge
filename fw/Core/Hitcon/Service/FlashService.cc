@@ -22,7 +22,8 @@ void FlashService::Init() { _busy = false; }
 
 void* FlashService::GetPagePointer(size_t page_id) {
   if (page_id >= 0 && page_id < FLASH_PAGE_COUNT) {
-	size_t res_ptr = FLASH_END_ADDR - (FLASH_PAGE_COUNT - page_id) * FLASH_PAGE_SIZE + 1;
+    size_t res_ptr =
+        FLASH_END_ADDR - (FLASH_PAGE_COUNT - page_id) * FLASH_PAGE_SIZE + 1;
     return reinterpret_cast<void*>(res_ptr);
   }
   return nullptr;
@@ -46,7 +47,8 @@ bool FlashService::IsBusy() { return _busy; }
 
 bool FlashService::ProgramPage(size_t page_id, uint32_t* data, size_t len) {
   if (page_id >= 0 && page_id < FLASH_PAGE_COUNT && len < FLASH_PAGE_SIZE) {
-    size_t addr = reinterpret_cast<size_t>(GetPagePointer(page_id));  // begin address
+    size_t addr =
+        reinterpret_cast<size_t>(GetPagePointer(page_id));  // begin address
 
     len /= 4;  // save in Word (4Bytes)
 

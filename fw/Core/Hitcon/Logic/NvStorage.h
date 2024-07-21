@@ -13,10 +13,11 @@ typedef struct nv_storage_content_t {
   // This is crc32 of whatever data after this.
   uint32_t checksum;
   // Starts at 1 and increments after every page program.
-  uint32_t version;
+  int32_t version;
 
   // Add any needed data that needs to be persisted here.
   uint8_t game_data[16*16];
+  uint8_t test;
 } nv_storage_content;
 
 static_assert(sizeof(nv_storage_content) <= 4096, "nv_storage_content is too large");
@@ -91,7 +92,7 @@ class NvStorage {
 
   hitcon::service::sched::PeriodicTask routine_task;
 };
-
+extern NvStorage g_nv_storage;
 }
 
 #endif  // #ifndef SERVICE_NV_STORAGE_H_
