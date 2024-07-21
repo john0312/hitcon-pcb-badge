@@ -94,7 +94,8 @@ void TextEditorDisplay::draw_packed(display_buf_t *display_buf,
 
   // render the text to display_buf_t
   memset(display_buf, 0, DISPLAY_WIDTH);
-  for (int i = 0; i < strlen(text_to_display); ++i) {
+  size_t len = strlen(text_to_display);
+  for (int i = 0; i < len; ++i) {
     display_buf_render_char(display_buf, text_to_display[i], i * CHAR_WIDTH, 0,
                             DISPLAY_WIDTH, DISPLAY_HEIGHT);
   }
