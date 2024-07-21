@@ -30,15 +30,6 @@ struct queue_t {
 struct IrPacket {
 	IrPacket() : size_(0) {};
 
-  // TODO: later eliminate these
-	uint8_t* data() {
-		return data_;
-	}
-
-  size_t size() { return size_; }
-
-  void set_size(size_t s) { size_ = s; };
-
 	uint8_t data_[PACKET_MAX_LEN];
 	size_t size_;
 };
@@ -60,21 +51,18 @@ class IrLogic {
   bool SendPacket(uint8_t *data, size_t len);
 
   void EncodePacket(uint8_t *data, size_t len, IrPacket &packet);
-  int DecodePacket(IrPacket &packet, size_t *len, uint8_t *decodedData);
 
   // % of time in last 30 second whereby there's a transmission.
   // 10000 => 100%
   // 0 => 0%
   int GetLoadFactor();
 
-  // ring buffer
-  queue_t packet_queue;
-
   // TODO: check if we need >1 callbacks
   // OnPacketReceived callback
   callback_t callback;
   void *callback_arg;
-  IrPacket packet;
+  IrPacket rx_packet;
+  IrPacket tx_packet;
 };
 
 extern IrLogic irLogic;
