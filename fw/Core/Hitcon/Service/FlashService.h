@@ -19,7 +19,7 @@ class FlashService {
   // Return the pointer to read a page.
   // The pointer is only valid if IsPageReadable() returns true.
   // page_id should be between 0 to FLASH_PAGE_COUNT-1.
-  size_t GetPagePointer(size_t page_id);
+  void* GetPagePointer(size_t page_id);
 
   // wrapper for void HAL_FLASH_EndOfOperationCallback(uint32_t ReturnValue);
   void EndOperationCallback(uint32_t value);
@@ -37,7 +37,9 @@ private:
   size_t _data_len;
 };
 
+// Global singleton instance of FlashService.
 extern FlashService g_flash_service;
+
 }  // namespace hitcon
 
 
