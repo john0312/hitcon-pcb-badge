@@ -27,21 +27,20 @@ struct queue_t {
   }
 };
 
-class IrPacket {
-  friend class IrLogic;
+struct IrPacket {
+	IrPacket() : size_(0) {};
 
- public:
-  IrPacket() : size_(0){};
-
-  uint8_t *data() { return data_; }
+  // TODO: later eliminate these
+	uint8_t* data() {
+		return data_;
+	}
 
   size_t size() { return size_; }
 
   void set_size(size_t s) { size_ = s; };
 
- private:
-  uint8_t data_[PACKET_MAX_LEN];
-  size_t size_;
+	uint8_t data_[PACKET_MAX_LEN];
+	size_t size_;
 };
 
 class IrLogic {

@@ -47,6 +47,10 @@ constexpr uint8_t IR_PACKET_HEADER[] = {
    0, 0, 0, 0, 0, // 2.5x bit time of 0.
    1, 1, 1  // 1.5x bit time of 1.
 };
+// 1.5 2.5 1.5 times 4(decode ratio) 
+constexpr size_t IR_PACKET_HEADER_PACKED = 0b111'111'00000'00000'111'111;
+// last bit is don't care
+constexpr size_t IR_PACKET_HEADER_MASK = 0b111'111'11111'11111'111'110;
 
 constexpr size_t PULSE_PER_DATA_BIT = 16;
 constexpr size_t PULSE_PER_HEADER_BIT = PULSE_PER_DATA_BIT/2;
