@@ -20,7 +20,6 @@ struct PacketCallbackArg {
 
 enum UsartConnectState { Init, Connect, Disconnect };
 
-constexpr size_t MAX_XBOARD_PACKET_LEN = 32;
 constexpr size_t RX_BUF_SZ = 512;
 
 void send_ping();
@@ -36,20 +35,19 @@ class XBoardLogic {
     void QueuePacketForTx(uint8_t* packet, size_t packet_len);
 
     // On detected connection from a remote board, this will be called.
-    void SetOnConnectCallback(callback_t callback, void* callback_arg1);
+    void SetOnConnect(callback_t callback, void* callback_arg1);
 
     // On detected disconnection from a remote board, this will be called.
-    void SetOnDisconnectCallback(callback_t callback, void* callback_arg1);
+    void SetOnDisconnect(callback_t callback, void* callback_arg1);
 
     // On received a packet from a remote board, this will be called with a
     // pointer to packet struct.
-    void SetOnPacketCallback(callback_t callback, void *self/*, PacketCallbackArg *callback_arg*/);
+    void SetOnPacketArrive(callback_t callback, void *self);
 
     void Routine(void*);
 
    private:
     hitcon::service::sched::PeriodicTask _routine_task;
-    // uint8_t rx_buf[MAX_XBOARD_PACKET_LEN] = {0};
     // size_t prod_head = 0;
     // size_t cons_head = 0;
     callback_t packet_arrive_handler = nullptr;
