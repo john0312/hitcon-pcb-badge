@@ -13,10 +13,10 @@ IrController::IrController()
     : routine_task(950, (callback_t)&IrController::RoutineTask, this, 1000) {}
 
 void IrController::SendIr2Game(IrPacket& packet) {
-  /*if (packet.size() != sizeof(IrData)) {
+  /*if (packet.size_ != sizeof(IrData)) {
      Error & return;
   }*/
-  IrData* ir_data = reinterpret_cast<IrData*>(packet.data());
+  IrData* ir_data = reinterpret_cast<IrData*>(packet.data_);
   // TODO: Send ir_data to game.cc
 }
 

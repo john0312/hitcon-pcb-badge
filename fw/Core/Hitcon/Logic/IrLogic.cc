@@ -4,6 +4,7 @@
 #include <Service/IrService.h>
 
 #include <cstdint>
+#include <cstring>
 
 namespace hitcon {
 namespace ir {
@@ -79,7 +80,7 @@ void IrLogic::OnBufferReceived(uint8_t *buffer) {
               packet_state = STATE_START;
               return;
             }
-            packet.size_ = ((packet.size_ << 1) | decode_bit(bit));
+            rx_packet.size_ = ((rx_packet.size_ << 1) | decode_bit(bit));
             bit = 0;
           }
           // end of size section (decode ratio * 1 byte)
@@ -101,10 +102,10 @@ void IrLogic::OnBufferReceived(uint8_t *buffer) {
             }
             const uint8_t pos = (packet_buf / DECODE_SAMPLE_RATIO - 1) / 8;
             const uint8_t bitpos = (packet_buf / DECODE_SAMPLE_RATIO - 1) % 8;
-            packet.data_[pos] |= decode_bit(bit) << bitpos;
-            if (packet_buf == (packet.size_ + 1) * DECODE_SAMPLE_RATIO) {
+            rx_packet.data_[pos] |= decode_bit(bit) << bitpos;
+            if (pos == rx_packet.size_) {
               // packet_end
-              callback(callback_arg, reinterpret_cast<void *>(&packet));
+              callback(callback_arg, reinterpret_cast<void *>(&rx_packet));
             }
           }
           break;
@@ -120,10 +121,16 @@ void IrLogic::SetOnPacketReceived(callback_t callback, void *callback_arg1) {
   this->callback_arg = callback_arg1;
 }
 
+void IrLogic::EncodePacket(uint8_t *data, size_t len, IrPacket &packet) {
+  // size included
+  packet.data_[0] = static_cast<uint8_t>(len);
+  memcpy(packet.data_ + 1, data, len * sizeof(data[0]));
+  packet.size_ = len + 1;
+}
+
 bool IrLogic::SendPacket(uint8_t *data, size_t len) {
-  IrPacket packet;
-  EncodePacket(data, len, packet);
-  return irService.SendBuffer(packet.data(), packet.size(), true);
+  EncodePacket(data, len, tx_packet);
+  return irService.SendBuffer(tx_packet.data_, tx_packet.size_, true);
 }
 
 int IrLogic::GetLoadFactor() {
