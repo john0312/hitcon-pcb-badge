@@ -9,16 +9,27 @@
 namespace hitcon {
 
 typedef struct nv_storage_content_t {
+  // This is crc32 of whatever data after this.
   uint32_t checksum;
+  // Starts at 1 and increments after every page program.
   uint32_t version;
 
   // Add any needed data that needs to be persisted here.
+  uint8_t game_data[16*16];
 } nv_storage_content;
 
+static_assert(sizeof(nv_storage_content) <= 4096, "nv_storage_content is too large");
+static_assert(sizeof(nv_storage_content)%4==0);
+
+// This class manages the nv/flash storage, it handles the flushing/write and read of the persistent data.
+// A level lower than this class is the FlashService class, on every flush, this class will pick a new page in a round robin manner and write the data into that page.
+// When writing/flush, it'll also handle the crc32 computation.
 class NvStorage {
  public:
   NvStorage();
 
+  // Start the NV Storage service, this will parse all pages from FlashService and find if there's a valid page, and if so, retain the newest page by version as the current storage.
+  // If no valid page is found, init a new nv_storage_content_t with version=1.
   void Init();
 
   // Return false if we've not decoded a valid NV storage.
@@ -44,15 +55,37 @@ class NvStorage {
   // on_done is invoked once flush is finished.
   void ForceFlush(callback_t on_done, void* callback_arg1);
 
+  // This is called routinely every 100ms.
+  void Routine(void* unused);
+
  private:
+  void ForceFlushInternal();
+
   // Set to true if the current storage is a validly decoded storage content.
   bool storage_valid_;
 
   // The in ram copy of the storage.
   nv_storage_content content_;
+  nv_storage_content write_buffer_;
 
   // True if content_ is dirty and should be flushed.
   bool storage_dirty_;
+
+  // Starts at 1, incremented every Routine() call, used to time flush.
+  // We automatically flush/write to lower level every 30s.
+  int current_cycle;
+
+  // Cycle at last flush.
+  int last_flush_cycle;
+
+  // Next available page to write.
+  int next_available_page;
+
+  // If we've been instructed to force flush.
+  bool force_flush;
+
+  callback_t on_done_cb;
+  void* on_done_cb_arg1;
 };
 
 }
