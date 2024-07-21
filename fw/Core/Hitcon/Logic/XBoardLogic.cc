@@ -22,32 +22,26 @@ struct Frame {
   uint64_t preamble;  // 0xD555555555555555
   uint16_t id;
   uint8_t len;
-  uint8_t type;
+  uint8_t type;  // 8: ping
   uint16_t checksum;
 };
 constexpr size_t HEADER_SZ = sizeof(Frame);
-// struct PostFrame {
-//   uint32_t interpacket_gap_1;
-//   uint32_t interpacket_gap_2;
-//   uint32_t interpacket_gap_3;
-// };
 
-// static uint8_t rx_buf_byte;
 uint8_t tx_buf[] = "Hello World";
-UsartConnectState connect_state = Init;
 uint8_t rx_buf[RX_BUF_SZ] = {0};
 static int prod_head = 0;
 static int cons_head = 0;
+static bool recv_ping = false;
+static uint8_t no_ping_count = 0;
 
 uint8_t alive_message[] = "alive_message";
 void send_ping() {
   uint8_t pkt[sizeof(Frame)] = {0};
-  *(Frame *)pkt = Frame{0xD555555555555555, 0, 0, 1, 0};
+  *(Frame *)pkt = Frame{0xD555555555555555, 0, 0, 8, 0};
   // for (int i = 0; i < sizeof(Frame); i++) {
-	//   pkt[i] = (0x11+i)&0x0FF;
-	//   pkt[i] = 0;
+  //   pkt[i] = (0x11+i)&0x0FF;
+  //   pkt[i] = 0;
   // }
-  // HAL_UART_Transmit(&huart2, (const uint8_t *)&pkt, sizeof(pkt), 100);
   g_xboard_service.QueueDataForTx(pkt, sizeof(pkt));
 }
 
@@ -87,10 +81,8 @@ bool try_read_bytes(uint8_t *dst, size_t size, uint16_t head_offset = 0) {
   return true;
 }
 
-// inline void inc_rx_head(size_t size) { rx_head = (rx_head + size) %
-// RX_BUF_SZ; }
-
-void parse_packet() {
+void XBoardLogic::ParsePacket() {
+  recv_ping = false;
   while (cons_head != prod_head) {
     if (rx_buf[cons_head] != 0x55) {
       cons_head = (cons_head + 1) % RX_BUF_SZ;
@@ -113,7 +105,11 @@ void parse_packet() {
       return;
     }
     cons_head = inc_head(cons_head, HEADER_SZ + header.len);
-    if (packet_cb != nullptr) {
+    if (header.type == 8) {
+      recv_ping = true;
+      continue;
+    }
+    if (packet_arrive_handler != nullptr) {
       PacketCallbackArg packet_cb_arg;
       memcpy(packet_cb_arg.data, &packet_data, header.len);
       packet_cb_arg.len = header.len;
@@ -135,41 +131,57 @@ void XBoardLogic::QueuePacketForTx(uint8_t *packet, size_t packet_len) {
   // TODO
 }
 
-void XBoardLogic::SetOnConnectCallback(callback_t callback,
-                                       void *callback_arg1) {
-  // TODO
+void XBoardLogic::SetOnConnectCallback(callback_t callback, void *self) {
+  connect_handler = callback;
+  connect_handler_self = self;
 }
 
-void XBoardLogic::SetOnDisconnectCallback(callback_t callback,
-                                          void *callback_arg1) {
-  // TODO
+void XBoardLogic::SetOnDisconnectCallback(callback_t callback, void *self) {
+  disconnect_handler = callback;
+  disconnect_handler_self = self;
 }
 
 void XBoardLogic::SetOnPacketCallback(callback_t callback, void *self/*,
                                       PacketCallbackArg *callback_arg*/) {
-  // TODO
-  packet_cb = callback;
-  packet_cb_self = self;
-  // packet_cb_arg = callback_arg;
+  packet_arrive_handler = callback;
+  packet_arrive_handler_self = self;
 }
 
 void XBoardLogic::Routine(void *) {
-  // TODO
   send_ping();
-  parse_packet();
+  ParsePacket();
+  CheckPing();
 }
 
 void XBoardLogic::OnByteArrive(void *arg1) {
-  // TODO
   uint8_t b = static_cast<uint8_t>(reinterpret_cast<size_t>(arg1));
   uint16_t next_prod_head = inc_head(prod_head, 1);
   if (next_prod_head == cons_head) {
     // drop the data
-	 AssertOverflow();
+    AssertOverflow();
     return;
   }
   rx_buf[prod_head] = b;
   prod_head = next_prod_head;
+}
+
+void XBoardLogic::CheckPing() {
+  if (!recv_ping) {
+    if (no_ping_count < 3) {
+      ++no_ping_count;
+    }
+  } else {
+    no_ping_count = 0;
+  }
+  UsartConnectState next_state = no_ping_count >= 3 ? Disconnect : Connect;
+  if (next_state != connect_state) {
+    if (next_state == Disconnect && disconnect_handler != nullptr) {
+      disconnect_handler(disconnect_handler_self, nullptr);
+    } else if (next_state == Connect && connect_handler != nullptr) {
+      connect_handler(connect_handler_self, nullptr);
+    }
+  }
+  connect_state = next_state;
 }
 
 }  // namespace xboard
