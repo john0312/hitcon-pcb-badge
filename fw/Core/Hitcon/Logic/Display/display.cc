@@ -10,7 +10,7 @@ static int display_mode;
 // will be updated when display_get_frame is called
 static int display_current_frame;
 static hitcon::TextEditorDisplay *text_editor_display;
-static int display_orientation = 0; // 0: normal, 1: upside down
+static int display_orientation = 0;  // 0: normal, 1: upside down
 
 // TODO: use union to save memory if we want to store other info for other modes
 struct {
