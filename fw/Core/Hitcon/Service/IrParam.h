@@ -2,6 +2,7 @@
 #define HITCON_SERVICE_IR_PARAMS_H_
 
 #include <stddef.h>
+#include <stdint.h>
 
 namespace hitcon {
 namespace ir {
