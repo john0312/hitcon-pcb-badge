@@ -43,6 +43,10 @@ uint8_t alive_message[] = "alive_message";
 void send_ping() {
   uint8_t pkt[sizeof(Frame)] = {0};
   *(Frame *)pkt = Frame{0xD555555555555555, 0, 0, 1, 0};
+  // for (int i = 0; i < sizeof(Frame); i++) {
+	//   pkt[i] = (0x11+i)&0x0FF;
+	//   pkt[i] = 0;
+  // }
   // HAL_UART_Transmit(&huart2, (const uint8_t *)&pkt, sizeof(pkt), 100);
   g_xboard_service.QueueDataForTx(pkt, sizeof(pkt));
 }
@@ -119,7 +123,7 @@ void parse_packet() {
 }
 
 XBoardLogic::XBoardLogic()
-    : _routine_task(490, (task_callback_t)&XBoardLogic::Routine, this, 10) {}
+    : _routine_task(490, (task_callback_t)&XBoardLogic::Routine, this, 200) {}
 
 void XBoardLogic::Init() {
   scheduler.Queue(&_routine_task, nullptr);
