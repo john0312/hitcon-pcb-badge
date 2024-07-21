@@ -26,7 +26,7 @@ DisplayService::DisplayService()
  * 5. if the Task hasn't been executed, then run the second buffer
  */
 
-RequestCBParam tmp_request_cb_param;
+request_cb_param tmp_request_cb_param;
 void DisplayTransferHalfComplete(DMA_HandleTypeDef* hdma) {
   tmp_request_cb_param.callback = g_display_service.request_frame_callback_arg1;
   tmp_request_cb_param.buf_index = 0;
@@ -117,7 +117,7 @@ void DisplayService::PopulateFrames(display_buf_t* buffer) {
   }
 }
 
-void DisplayService::RequestFrameWrapper(RequestCBParam* arg) {
+void DisplayService::RequestFrameWrapper(request_cb_param* arg) {
   request_frame_callback(arg->callback, nullptr);
   current_buffer_index = arg->buf_index;
 }
