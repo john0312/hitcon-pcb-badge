@@ -1,4 +1,4 @@
-#include <Service/NvStorage.h>
+#include <Logic/NvStorage.h>
 
 namespace hitcon {
 
