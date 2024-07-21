@@ -43,7 +43,7 @@ class DisplayService {
   Task task;
 
  private:
-  void RequestFrameWrapper(RequestCBParam* arg);
+  void RequestFrameWrapper(request_cb_param* arg);
 
   callback_t request_frame_callback;
   uint8_t current_buffer_index;
