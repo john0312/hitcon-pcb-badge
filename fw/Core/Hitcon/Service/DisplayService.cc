@@ -26,7 +26,7 @@ DisplayService::DisplayService()
  * 5. if the Task hasn't been executed, then run the second buffer
  */
 
-request_cb_param tmp_request_cb_param;
+RequestCBParam tmp_request_cb_param;
 void DisplayTransferHalfComplete(DMA_HandleTypeDef* hdma) {
   tmp_request_cb_param.callback = g_display_service.request_frame_callback_arg1;
   tmp_request_cb_param.buf_index = 0;
@@ -65,7 +65,7 @@ void DisplayService::SetRequestFrameCallback(callback_t callback,
   callback(callback_arg1, nullptr);
 }
 
-void DisplayService::PopulateFrames(uint8_t* buffer) {
+void DisplayService::PopulateFrames(display_buf_t* buffer) {
   const uint16_t gpio_pin[8] = {15, 14, 13, 12, 11, 10, 2, 1};
   uint8_t frame_map[16] = {8,  0, 9,  1, 10, 2, 11, 3,
                            12, 4, 13, 5, 14, 6, 15, 7};
@@ -73,11 +73,10 @@ void DisplayService::PopulateFrames(uint8_t* buffer) {
     for (uint8_t i = 0; i < DISPLAY_WIDTH; i++) {
       uint32_t temp = 0;
       for (uint8_t j = 0; j < DISPLAY_HEIGHT; j++) {
-        uint8_t index = i * DISPLAY_HEIGHT + j;
-        if (buffer[index] == 0)
-          temp |= (1 << 16 << gpio_pin[j]);
-        else
+        if (buffer[i] & (1 << j))
           temp |= (1 << gpio_pin[j]);
+        else
+          temp |= (1 << 16 << gpio_pin[j]);
       }
       for (uint8_t j = 0; j < 4; j++) {
         if ((frame_map[i] >> (3 - j) & 1) == 0)
@@ -93,7 +92,7 @@ void DisplayService::PopulateFrames(uint8_t* buffer) {
   }
 }
 
-void DisplayService::RequestFrameWrapper(request_cb_param* arg) {
+void DisplayService::RequestFrameWrapper(RequestCBParam* arg) {
   request_frame_callback(arg->callback, nullptr);
   current_buffer_index = arg->buf_index;
 }

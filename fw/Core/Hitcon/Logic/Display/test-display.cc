@@ -9,7 +9,7 @@ void print_buf(int frame, uint8_t *buf) {
   printf("frame %d\n", frame);
   for (int y = 0; y < DISPLAY_HEIGHT; y++) {
     for (int x = 0; x < DISPLAY_WIDTH; x++) {
-      uint8_t ch = buf[y * DISPLAY_WIDTH + x];
+      uint8_t ch = !!(buf[x] & (1 << y));
       printf("%c%c", ch == 0 ? '.' : '0' + ch,
              x == DISPLAY_WIDTH - 1 ? '\n' : ' ');
     }
@@ -18,7 +18,7 @@ void print_buf(int frame, uint8_t *buf) {
 
 int main() {
   display_init();
-  uint8_t buf[DISPLAY_HEIGHT * DISPLAY_WIDTH];
+  uint8_t buf[DISPLAY_WIDTH];
   int frame = 0;
 
   {
@@ -47,7 +47,17 @@ int main() {
         1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1,
         // clang-format on
     };
-    display_set_mode_fixed(buf_fixed);
+    uint8_t buf_fixed_compressed[DISPLAY_WIDTH];
+    for (int i = 0; i < DISPLAY_HEIGHT; i++) {
+      for (int j = 0; j < DISPLAY_WIDTH; j++) {
+        if (buf_fixed[i * DISPLAY_WIDTH + j])
+          DISPLAY_SET(buf_fixed_compressed[j], i);
+        else
+          DISPLAY_UNSET(buf_fixed_compressed[j], i);
+      }
+    }
+
+    display_set_mode_fixed(buf_fixed_compressed);
     display_get_frame(buf, frame++);
     print_buf(frame, buf);
     display_get_frame(buf, frame++);
@@ -59,7 +69,7 @@ int main() {
 
   {
     puts("[scroll]");
-    uint8_t buf_scroll[] = {
+    constexpr uint8_t buf_scroll[] = {
         // clang-format off
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0,
         0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0,
@@ -71,8 +81,20 @@ int main() {
         0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0,
         // clang-format on
     };
+    constexpr int scroll_n_col =
+        sizeof(buf_scroll) / (sizeof(uint8_t) / sizeof(char));
+    uint8_t buf_scroll_compressed[scroll_n_col];
+    for (int i = 0; i < DISPLAY_HEIGHT; i++) {
+      for (int j = 0; j < scroll_n_col; j++) {
+        if (buf_scroll[i * scroll_n_col + j])
+          DISPLAY_SET(buf_scroll_compressed[j], i);
+        else
+          DISPLAY_UNSET(buf_scroll_compressed[j], i);
+      }
+    }
+
     int speed = 3;
-    display_set_mode_scroll(buf_scroll, sizeof(buf_scroll) / 8, speed);
+    display_set_mode_scroll(buf_scroll_compressed, scroll_n_col, speed);
     for (int i = 0; i < 100; i++) {
       display_get_frame(buf, frame++);
       print_buf(frame, buf);
