@@ -5,14 +5,19 @@
 #include <Service/Sched/Task.h>
 #include <Util/callback.h>
 #include <main.h>
+#include <stdint.h>
 
 namespace hitcon {
 
 /**
- * - If a button is pressed for <30ms or within 100ms of the last release, it is filtered as bounce.
- * - If a button is pressed for >30ms but <800ms, on release it'll be considered a press.
- * - If a button is pressed for >800ms but <1500ms, on release it'll be considered a long press.
- * - If a button is pressed for >1500ms, then repeat firing of press event will happen every 200ms until released.
+ * - If a button is pressed for <30ms or within 100ms of the last release, it is
+ * filtered as bounce.
+ * - If a button is pressed for >30ms but <800ms, on release it'll be considered
+ * a press.
+ * - If a button is pressed for >800ms but <1500ms, on release it'll be
+ * considered a long press.
+ * - If a button is pressed for >1500ms, then repeat firing of press event will
+ * happen every 200ms until released.
  */
 
 constexpr int BUTTON_VALUE_MASK = 0b1111;
@@ -41,20 +46,20 @@ enum button_t {
 };
 
 class ButtonLogic {
-public:
+ public:
   ButtonLogic();
 
   void Init();
 
   // Whenever a button press is pressed, the callback will be called,
   // with callback_arg1 and the button_t (cast to void*).
-  void SetCallback(callback_t callback, void *callback_arg1);
+  void SetCallback(callback_t callback, void* callback_arg1);
 
   void OnReceiveData(uint8_t* arr);
 
   void CallbackWrapper(void* arg2);
 
-private:
+ private:
   callback_t callback;
   void* callback_arg1;
 
@@ -67,6 +72,6 @@ private:
 
 extern ButtonLogic g_button_logic;
 
-} // namespace hitcon
+}  // namespace hitcon
 
 #endif  // #ifndef HITCON_LOGIC_BUTTON_LOGIC_H_

@@ -7,7 +7,7 @@
 namespace hitcon {
 
 class BadgeController {
-public:
+ public:
   App *current_app;
 
   BadgeController();
@@ -30,6 +30,6 @@ public:
 
 extern BadgeController badge_controller;
 
-} // namespace hitcon
+}  // namespace hitcon
 
-#endif // BADGE_CONTROLLER_H
+#endif  // BADGE_CONTROLLER_H

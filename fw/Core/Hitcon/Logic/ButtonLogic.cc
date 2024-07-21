@@ -2,6 +2,8 @@
 #include <Service/ButtonService.h>
 #include <main.h>
 
+#include <cstdint>
+
 namespace hitcon {
 ButtonLogic g_button_logic;
 

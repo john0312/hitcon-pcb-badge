@@ -1,12 +1,12 @@
-#ifndef SHOW_NAME_APP
-#define SHOW_NAME_APP
+#ifndef SHOW_NAME_APP_H
+#define SHOW_NAME_APP_H
 
 #include "app.h"
 
 namespace hitcon {
 
 class ShowNameApp : public App {
-public:
+ public:
   static constexpr int NAME_LEN = 16;
   static constexpr char *DEFAULT_NAME = "HITCON2024";
   char name[NAME_LEN + 1] = {0};
@@ -23,6 +23,6 @@ public:
 
 extern ShowNameApp show_name_app;
 
-} // namespace hitcon
+}  // namespace hitcon
 
-#endif // SHOW_NAME_APP
+#endif  // SHOW_NAME_APP

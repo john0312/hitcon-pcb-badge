@@ -1,21 +1,21 @@
 #ifndef HITCON_LOGIC_IR_LOGIC_H_
 #define HITCON_LOGIC_IR_LOGIC_H_
 
+#include <Service/IrParam.h>
+#include <Util/callback.h>
 #include <stddef.h>
 #include <stdint.h>
-#include <Util/callback.h>
-#include <Service/IrParam.h>
 
 namespace hitcon {
 
 namespace ir {
 
 // Ring buffer
-struct queue_t{
+struct queue_t {
   uint8_t buf[QUEUE_MAX_SIZE];
-  size_t start, end; // data is in [start, end), circular buffer
+  size_t start, end;  // data is in [start, end), circular buffer
   inline size_t size() {
-	  return (QUEUE_MAX_SIZE + end - start) % QUEUE_MAX_SIZE;
+    return (QUEUE_MAX_SIZE + end - start) % QUEUE_MAX_SIZE;
   }
   inline void push(uint8_t ch) {
     if (QUEUE_MAX_SIZE == end + 1) {
@@ -28,29 +28,23 @@ struct queue_t{
 };
 
 class IrPacket {
- friend class IrLogic;
+  friend class IrLogic;
+
  public:
-	IrPacket() : size_(0) {};
+  IrPacket() : size_(0){};
 
-	uint8_t* data() {
-		return data_;
-	}
+  uint8_t *data() { return data_; }
 
-	size_t size() {
-		return size_;
-	}
+  size_t size() { return size_; }
 
-	void set_size(size_t s) {
-		size_ = s;
-	};
+  void set_size(size_t s) { size_ = s; };
 
  private:
-	uint8_t data_[PACKET_MAX_LEN];
-	size_t size_;
+  uint8_t data_[PACKET_MAX_LEN];
+  size_t size_;
 };
 
-class IrLogic
-{
+class IrLogic {
  public:
   IrLogic();
 
@@ -58,11 +52,11 @@ class IrLogic
   void Init();
 
   // Every time IR_SERVICE_RX_SIZE is received, this will be called.
-  void OnBufferReceived(uint8_t* buffer);
+  void OnBufferReceived(uint8_t *buffer);
 
   // Upper layer should call ths function so whenever a well formed packet
   // is received the callback will be called.
-  void SetOnPacketReceived(callback_t callback, void* callback_arg1);
+  void SetOnPacketReceived(callback_t callback, void *callback_arg1);
 
   bool SendPacket(uint8_t *data, size_t len);
 

@@ -25,16 +25,11 @@ void BadgeController::change_app(App *new_app) {
 void BadgeController::OnButton(void *arg1) {
   button_t button = static_cast<button_t>(reinterpret_cast<uintptr_t>(arg1));
 
-  switch (button) {
-    case BUTTON_BRIGHTNESS:
-    case BUTTON_LONG_BRIGHTNESS:
-      // TODO: change brightness
-      break;
-
-    default:
-      // forward the button to the current app
-      break;
+  if (button == BUTTON_BRIGHTNESS || button == BUTTON_LONG_BRIGHTNESS) {
+    // TODO: change brightness
   }
+
+  // forward the button to the current app
   current_app->OnButton(button);
 }
 
