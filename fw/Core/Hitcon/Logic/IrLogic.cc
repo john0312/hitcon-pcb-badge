@@ -78,6 +78,11 @@ void IrLogic::OnBufferReceived(uint8_t *buffer) {
           bit <<= 1;
           bit |= is_on;
           if ((packet_buf & 3) == 0) {
+            if (decode_bit(bit) == BIT_INVALID) {
+              // decode error
+              packet_state = STATE_START;
+              return;
+            }
             packet.size_ = ((packet.size_ << 1) | decode_bit(bit));
             bit = 0;
           }
@@ -91,6 +96,7 @@ void IrLogic::OnBufferReceived(uint8_t *buffer) {
           bit |= is_on;
           if ((packet_buf & 3) == 0) {
             if (decode_bit(bit) == BIT_INVALID) {
+              // decode error
               packet_state = STATE_START;
               return;
             }
