@@ -1,13 +1,17 @@
 #include <Logic/NvStorage.h>
 #include <Service/FlashService.h>
-#include <Logic/crc32.h>
 #include <Service/Sched/Checks.h>
+#include <Service/Sched/Scheduler.h>
+#include <Logic/crc32.h>
 #include <main.h>
 #include <string.h>
 
 using hitcon::service::sched::my_assert;
+using hitcon::service::sched::scheduler;
 
 namespace hitcon {
+
+NvStorage::NvStorage() : routine_task(800, (callback_t)&NvStorage::Routine, this, 100) {}
 
 void NvStorage::Init() {
   uint32_t newest_version = -1;
@@ -33,6 +37,9 @@ void NvStorage::Init() {
     force_flush = true;
   }
   storage_valid_ = true;
+
+  scheduler.Queue(&routine_task, nullptr);
+  scheduler.EnablePeriodic(&routine_task);
 }
 
 void NvStorage::ForceFlushInternal() {
