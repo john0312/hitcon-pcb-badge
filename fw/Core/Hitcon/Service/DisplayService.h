@@ -1,6 +1,7 @@
 #ifndef SERVICE_DISPLAY_SERVICE_H_
 #define SERVICE_DISPLAY_SERVICE_H_
 
+#include <Logic/Display/display.h>
 #include <Service/DisplayInfo.h>
 #include <Service/Sched/Task.h>
 #include <Util/callback.h>
@@ -14,6 +15,7 @@ typedef struct CB_Param {
   void* callback;
   uint8_t buf_index;
 } request_cb_param;
+
 class DisplayService {
  public:
   DisplayService();
@@ -41,7 +43,7 @@ class DisplayService {
   Task task;
 
  private:
-  void RequestFrameWrapper(request_cb_param* arg);
+  void RequestFrameWrapper(RequestCBParam* arg);
 
   callback_t request_frame_callback;
   uint8_t current_buffer_index;
