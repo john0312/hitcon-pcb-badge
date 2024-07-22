@@ -12,13 +12,15 @@ constexpr int IrAllowBroadcastCnt = 5;
 
 IrController::IrController()
     : routine_task(950, (callback_t)&IrController::RoutineTask, this, 1000),
-      recv_lock(true), send_lock(true);
+	  broadcast_task(800, (callback_t)&IrController::BroadcastIr, this),
+	  send2game_task(800, (callback_t)&IrController::Send2Game, this),
+      recv_lock(true), send_lock(true)
     {
       srand(time(NULL));
       Init();
     }
 
-void IrController::Send2Game() {
+void IrController::Send2Game(void* unused) {
   game_accept_data(callback_col, callback_data);
   send_lock = true;
 }
@@ -37,7 +39,7 @@ void IrController::OnPacketReceived(void* arg) {
 
   if (send_lock) {
     send_lock = false;
-    task(800, (task_callback_t)&IrController::Send2Game, (void*)this, 1000);
+    scheduler.Queue(&send2game_task, nullptr);
   }
 }
 
@@ -53,11 +55,11 @@ void IrController::RoutineTask(void* unused) {
   int rand_num = rand() % RAND_MAX;
   if (rand_num > prob_f(lf) && send_lock) {
     send_lock = false;
-    task(800, (callback_t)&IrController::BroadcastIr, (void*)this, 1000);
+    scheduler.Queue(&broadcast_task, nullptr);
   }
 }
 
-void IrController::BroadcastIr() {
+void IrController::BroadcastIr(void* unused) {
   int type = rand() % IrAllowBroadcastCnt;
   send_lock = true;
 }

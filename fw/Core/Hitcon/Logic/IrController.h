@@ -37,7 +37,7 @@ class IrController {
   IrController();
 
   void Init();
-  void Send2Game();
+  void Send2Game(void* unused);
   void InitBroadcastService(uint8_t game_types);
  private:
   bool send_lock;
@@ -48,7 +48,8 @@ class IrController {
   uint8_t *callback_data;
 
   hitcon::service::sched::PeriodicTask routine_task;
-  hitcon::service::sched::Task task;
+  hitcon::service::sched::Task send2game_task;
+  hitcon::service::sched::Task broadcast_task;
 
   // Called every 1s.
   void RoutineTask(void* unused);
@@ -58,7 +59,7 @@ class IrController {
 
   int prob_f(int);
 
-  void BroadcastIr();   
+  void BroadcastIr(void *unused);
 };
 
 }  // namespace ir
