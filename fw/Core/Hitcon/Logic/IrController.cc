@@ -1,55 +1,65 @@
-#include <Logic/IrController.h>
+#include "IrController.h"
+#include "game.h"
+#include <stdlib.h>
+#include <time.h>
 
-namespace {
-
-// constexpr int IrAllowedBroadcastCol[] = {...};
-
-}
-
+using namespace hitcon::service::sched;
 namespace hitcon {
 namespace ir {
 
-IrController::IrController()
-    : routine_task(950, (callback_t)&IrController::RoutineTask, this, 1000) {}
+constexpr int IrAllowedBroadcastCol[] = {0, 2, 3, 4, 7};
+constexpr int IrAllowBroadcastCnt = 5;
 
-void IrController::SendIr2Game(IrPacket& packet) {
-  /*if (packet.size() != sizeof(IrData)) {
-     Error & return;
-  }*/
-  IrData* ir_data = reinterpret_cast<IrData*>(packet.data());
-  // TODO: Send ir_data to game.cc
+IrController::IrController()
+    : routine_task(950, (callback_t)&IrController::RoutineTask, this, 1000),
+      recv_lock(true), send_lock(true);
+    {
+      srand(time(NULL));
+      Init();
+    }
+
+void IrController::Send2Game() {
+  game_accept_data(callback_col, callback_data);
+  send_lock = true;
 }
 
 void IrController::Init() {
   irLogic.SetOnPacketReceived((callback_t)&IrController::OnPacketReceived,
                               this);
+  // Initialize v[0]
 }
+
 
 void IrController::OnPacketReceived(void* arg) {
   IrPacket* packet = reinterpret_cast<IrPacket*>(arg);
+  callback_col = packet->size();
+  callback_data = packet->data();
 
-  // Handle this packet.
+  if (send_lock) {
+    send_lock = false;
+    task(800, (task_callback_t)&IrController::Send2Game, (void*)this, 1000);
+  }
+}
+
+int IrController::prob_f(int lf) {
+  return v[0] * lf * lf + v[1] * lf + v[2];
 }
 
 void IrController::RoutineTask(void* unused) {
   // Update parameters from load factor.
-  // int lf = irLogic.GetLoadFactor();
-  // param_xxx = f(lf);
+  int lf = irLogic.GetLoadFactor();
 
   // Determine if we want to send a packet.
-  // int rand_num = ...
-  // if (rand_num < param_xxx) {
-  // We want to send a packet.
-  // int col = rand...
-
-  // irLogic.SendPacket(..., ...);
-  //}
+  int rand_num = rand() % RAND_MAX;
+  if (rand_num > prob_f(lf) && send_lock) {
+    send_lock = false;
+    task(800, (callback_t)&IrController::BroadcastIr, (void*)this, 1000);
+  }
 }
 
-void IrController::InitBroadcastService(uint8_t game_types) {
-  for (int i = 0; i < game_types; ++i) {
-    // BroadcastIr()
-  }
+void IrController::BroadcastIr() {
+  int type = rand() % IrAllowBroadcastCnt;
+  send_lock = true;
 }
 
 }  // namespace ir
