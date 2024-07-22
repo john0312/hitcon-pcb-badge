@@ -32,8 +32,8 @@ void IrController::Init() {
 
 void IrController::OnPacketReceived(void* arg) {
   IrPacket* packet = reinterpret_cast<IrPacket*>(arg);
-  callback_col = packet->size();
-  callback_data = packet->data();
+  callback_col = packet->size;
+  callback_data = packet->data;
 
   if (send_lock) {
     send_lock = false;

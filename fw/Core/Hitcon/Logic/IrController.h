@@ -12,10 +12,24 @@
 namespace hitcon {
 namespace ir {
 
-/*Definition of IR content.*/
-struct IrData {
+struct GamePacket {
+  uint8_t ttl;
   uint8_t col;
   uint8_t data[GAME_DATA_SIZE];
+};
+
+struct ShowPacket {
+  uint8_t ttl;
+  char message[16];
+};
+
+/*Definition of IR content.*/
+struct IrData {
+  uint8_t packet_type;
+  union {
+    struct GamePacket game;
+    struct ShowPacket show;
+  }
 };
 
 class IrController {
