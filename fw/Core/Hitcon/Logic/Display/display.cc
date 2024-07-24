@@ -108,13 +108,7 @@ void display_get_frame_packed(display_buf_t *buf, int frame) {
   }
 
   if (display_orientation) {
-    uint8_t tmp[DISPLAY_HEIGHT][DISPLAY_WIDTH];
-    for (int y = 0; y < DISPLAY_HEIGHT; y++) {
-      for (int x = 0; x < DISPLAY_WIDTH; x++) {
-        tmp[y][x] = buf[sizeof(tmp) - 1 - (y * DISPLAY_WIDTH + x)];
-      }
-    }
-    memcpy(buf, tmp, sizeof(tmp));
+    display_buf_rotate_180(buf);
   }
 
   display_current_frame = frame;
