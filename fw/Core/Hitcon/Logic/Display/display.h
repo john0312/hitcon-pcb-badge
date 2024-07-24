@@ -3,6 +3,7 @@
 
 #include <Logic/Display/font.h>
 #include <stdint.h>
+#include <string.h>
 
 // clang-format off
 /**
@@ -106,6 +107,17 @@ inline void display_buf_unpack(uint8_t *dst, const display_buf_t *src,
       dst[y * n_col + x] = display_buf_get(src[x], y);
     }
   }
+}
+
+inline void display_buf_rotate_180(display_buf_t *buf) {
+  display_buf_t tmp[DISPLAY_WIDTH];
+  for (int y = 0; y < DISPLAY_HEIGHT; ++y) {
+    for (int x = 0; x < DISPLAY_WIDTH; ++x) {
+      display_buf_assign(tmp[DISPLAY_WIDTH - 1 - x], DISPLAY_HEIGHT - 1 - y,
+                         display_buf_get(buf[x], y));
+    }
+  }
+  memcpy(buf, tmp, sizeof(tmp));
 }
 
 void display_init();
