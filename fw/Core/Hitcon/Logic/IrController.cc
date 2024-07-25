@@ -5,12 +5,13 @@
 #include <time.h>
 
 using namespace hitcon::service::sched;
+using hitcon::game::game_accept_data;
+using hitcon::game::IrAllowBroadcastCnt;
+using hitcon::game::IrAllowedBroadcastCol;
+using hitcon::game::kDataSize;
 
 namespace hitcon {
 namespace ir {
-
-constexpr int IrAllowedBroadcastCol[] = {0, 2, 3, 4, 7};
-constexpr int IrAllowBroadcastCnt = 5;
 
 IrController::IrController()
     : routine_task(950, (callback_t)&IrController::RoutineTask, this, 1000),
@@ -59,9 +60,12 @@ void IrController::RoutineTask(void* unused) {
 }
 
 void IrController::BroadcastIr(void* unused) {
-  int type = rand() % IrAllowBroadcastCnt;
-  for (int i = 0; i < GAME_DATA_SIZE; ++i) {
-    // Get data and send to packet
+  uint8_t cell_data[kDataSize];
+  int col;
+  bool ok =
+      hitcon::game::get_random_cell_data_for_ir_transmission(cell_data, &col);
+  if (ok) {
+    // Package the data and send to IrLogic.
   }
   send_lock = true;
 }
