@@ -102,6 +102,9 @@ class FastRandomPool {
   PCG32 prng;
 };
 
+extern FastRandomPool g_fast_random_pool;
+extern SecureRandomPool g_secure_random_pool;
+
 }  // namespace hitcon
 
 #endif  // LOGIC_RANDOM_POOL_DOT_H_

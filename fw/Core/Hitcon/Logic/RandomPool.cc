@@ -6,6 +6,9 @@ using hitcon::service::sched::task_callback_t;
 
 namespace hitcon {
 
+FastRandomPool g_fast_random_pool;
+SecureRandomPool g_secure_random_pool;
+
 SecureRandomPool::SecureRandomPool()
     : init_finished(false), seed_count(0),
       routine_task(950, (task_callback_t)&SecureRandomPool::Routine, this, 20),
