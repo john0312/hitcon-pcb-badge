@@ -15,7 +15,7 @@ namespace ir {
 /*Definition of IR content.*/
 struct GamePacket {
   uint8_t col;
-  uint8_t data[GAME_DATA_SIZE];
+  uint8_t data[hitcon::game::kDataSize];
 };
 
 struct ShowPacket {

@@ -4,6 +4,7 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#include <Logic/game_param.h>
 #include <Service/Sched/Scheduler.h>
 #include <Util/callback.h>
 
@@ -16,8 +17,8 @@ typedef struct nv_storage_content_t {
   int32_t version;
 
   // Add any needed data that needs to be persisted here.
-  uint8_t game_data[16*16];
-  uint8_t test;
+  hitcon::game::game_storage_t game_storage;
+
 } nv_storage_content;
 
 static_assert(sizeof(nv_storage_content) <= 4096, "nv_storage_content is too large");
