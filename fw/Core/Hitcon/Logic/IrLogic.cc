@@ -6,6 +6,8 @@
 #include <cstdint>
 #include <cstring>
 
+using hitcon::service::sched::my_assert;
+
 namespace hitcon {
 namespace ir {
 
@@ -65,6 +67,7 @@ void IrLogic::OnBufferReceived(uint8_t *buffer) {
           if ((packet_buf & IR_PACKET_HEADER_MASK) ==
               (IR_PACKET_HEADER_PACKED & IR_PACKET_HEADER_MASK)) {
             packet_state = STATE_SIZE;
+            rx_packet.size_ = 0;
             packet_buf = 0;
             bit = 0;
           }
@@ -85,8 +88,13 @@ void IrLogic::OnBufferReceived(uint8_t *buffer) {
           }
           // end of size section (decode ratio * 1 byte)
           if (packet_buf == DECODE_SAMPLE_RATIO * 8) {
-            packet_state = STATE_DATA;
-            packet_buf = 0;
+            if (rx_packet.size_ >= MAX_PACKET_PAYLOAD_BYTES) {
+              // Packet too large.
+              packet_state = STATE_START;
+            } else {
+              packet_state = STATE_DATA;
+              packet_buf = 0;
+            }
           }
           break;
         case STATE_DATA:
@@ -129,6 +137,12 @@ void IrLogic::EncodePacket(uint8_t *data, size_t len, IrPacket &packet) {
 }
 
 bool IrLogic::SendPacket(uint8_t *data, size_t len) {
+  if (len >= MAX_PACKET_PAYLOAD_BYTES) {
+    // Packet too large.
+    my_assert(0);
+    return false;
+  }
+  // TODO: Check if tx_packet is in use.
   EncodePacket(data, len, tx_packet);
   return irService.SendBuffer(tx_packet.data_, tx_packet.size_, true);
 }

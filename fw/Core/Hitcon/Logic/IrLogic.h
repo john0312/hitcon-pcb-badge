@@ -30,7 +30,9 @@ struct queue_t {
 struct IrPacket {
 	IrPacket() : size_(0) {};
 
-	uint8_t data_[PACKET_MAX_LEN];
+	// We need to add 2 bytes because we need at least 1 byte to accomodate
+	// the size.
+	uint8_t data_[MAX_PACKET_PAYLOAD_BYTES+2];
 	size_t size_;
 };
 
