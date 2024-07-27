@@ -40,9 +40,9 @@ class Scheduler {
 private:
 	static constexpr size_t kAddQueueSize = 8;
 
-	Heap<Task, 50> tasks;
-	Heap<DelayedTask, 50> delayedTasks;
-	Array<PeriodicTask, 50> enabledPeriodicTasks, disabledPeriodicTasks;
+	Heap<Task, 32> tasks;
+	Heap<DelayedTask, 16> delayedTasks;
+	Array<PeriodicTask, 16> enabledPeriodicTasks, disabledPeriodicTasks;
 
 	// Queue used to temporarily hold calls to Queue() so we can defer heap
 	// operations to later.
