@@ -1,16 +1,16 @@
 #ifdef HITCON_TEST_MODE
 
-#include "display.h"
-#include "editor.h"
 #include <stdio.h>
 #include <unistd.h>
 
-#define tick(editor, buf, frame)                                               \
-  do {                                                                         \
-    editor.draw(buf, frame);                                                   \
-    display_get_frame(buf, frame++);                                           \
-    print_buf(frame, buf);                                                     \
-    usleep(100000);                                                            \
+#include "display.h"
+#include "editor.h"
+
+#define tick(editor, buf, frame)     \
+  do {                               \
+    display_get_frame(buf, frame++); \
+    print_buf(frame, buf);           \
+    usleep(100000);                  \
   } while (0)
 
 void print_buf(int frame, uint8_t *buf) {
@@ -63,4 +63,4 @@ int main() {
   return 0;
 }
 
-#endif // HITCON_TEST_MODE
+#endif  // HITCON_TEST_MODE

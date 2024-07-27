@@ -1,8 +1,9 @@
 #ifdef HITCON_TEST_MODE
 
-#include "display.h"
 #include <stdio.h>
 #include <unistd.h>
+
+#include "display.h"
 
 void print_buf(int frame, uint8_t *buf) {
   printf("frame %d\n", frame);
@@ -34,7 +35,7 @@ int main() {
 
   {
     puts("[fixed]");
-    uint8_t buf_fixed[DISPLAY_HEIGHT * DISPLAY_WIDTH] = {
+    const uint8_t buf_fixed[DISPLAY_HEIGHT * DISPLAY_WIDTH] = {
         // clang-format off
         1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1,
         0, 1, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 1, 0,
@@ -58,7 +59,7 @@ int main() {
 
   {
     puts("[scroll]");
-    uint8_t buf_scroll[] = {
+    const uint8_t buf_scroll[] = {
         // clang-format off
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0,
         0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0,

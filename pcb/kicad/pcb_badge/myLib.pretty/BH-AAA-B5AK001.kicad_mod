@@ -35,6 +35,7 @@
 		(effects
 			(font
 				(size 1.27 1.27)
+				(thickness 0.15)
 			)
 		)
 	)
@@ -47,6 +48,7 @@
 		(effects
 			(font
 				(size 1.27 1.27)
+				(thickness 0.15)
 			)
 		)
 	)
@@ -59,6 +61,7 @@
 		(effects
 			(font
 				(size 1.27 1.27)
+				(thickness 0.15)
 			)
 		)
 	)
@@ -242,6 +245,14 @@
 		)
 		(layer "F.Fab")
 		(uuid "37853c9c-de72-4777-bb44-3b0fcafbb084")
+	)
+	(pad "" thru_hole circle
+		(at -23.45 -10.45)
+		(size 1.8 1.8)
+		(drill 1.8)
+		(layers "*.Cu" "*.Mask")
+		(remove_unused_layers no)
+		(uuid "79cd9062-d263-4e16-bb67-4a7b51a1b5a3")
 	)
 	(pad "1" smd rect
 		(at 27.875 -5.5)

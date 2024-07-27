@@ -1,33 +1,27 @@
 # HITCON PCB Badge
 
-## Project Setup
-
-After cloning the repository, execute the following commands to prevent the environment from being checked by Git.
-
-```shell
-git config --local filter.eclipse_env_hash.clean "sed 's/env-hash=\"[^\"]*\"/env-hash=\"\"/g'"
-git config --local filter.eclipse_env_hash.smudge cat
-```
-
-ref: [Eclipse Community Forums: C / C++ IDE (CDT) &raquo; Keeping language.settings.xml under source control?](https://www.eclipse.org/forums/index.php/t/1074031/)
-
 ## Firmware Development
 
 execute `fw/merge.py` to merge STM32CubeIDE generated `main.c` with user code in `main.cc` into `main.cc`.
 
 ## Timers and DMA Channels
-- [ ] IR Tx: PWM Output from TIM3_CH3, Output PB0, DMA1 Ch2
+- [x] IR Tx: PWM Output from TIM3_CH3, Output PB0, DMA1 Ch2
   * Compare: 63/4 = 16
-- [x] IR Rx: DMA Triggered through TIM2_CH3, Input PA0 read by DMA1 Ch1
-  * Compare: 105
-  * Mode: Normal Peripheral to Memory
+  * Mode: Circular Normal Peripheral to Memory
 
 |                   | Peripheral | Memory    |
 | ----------------- | ---------- | --------- |
-| Increment Address | X          | X         |
+| Increment Address | X          | V         |
 | Data Width        | Half Word  | Half Word |
-- [x] Led Rows/Cols: DMA Triggered through TIM2_CH1, Output PB6-9(Rows), Output PB1-2/10-15(Cols), written by DMA1 Ch5
-  * Compare: 315 
+- [x] IR Rx: DMA Triggered through TIM2_CH3, Input PA0 read by DMA1 Ch1
+  * Compare: 105
+  * Mode: Circular Peripheral to Memory
+
+|                   | Peripheral | Memory    |
+| ----------------- | ---------- | --------- |
+| Increment Address | X          | V         |
+| Data Width        | Half Word  | Half Word |
+- [x] Led Rows/Cols: DMA Triggered through TIM1_UP, Output PB6-9(Rows), Output PB1-2/10-15(Cols), written by DMA1 Ch5 
   * Mode: Circular Memory to Peripheral
   
 |                   | Peripheral | Memory |
@@ -59,5 +53,17 @@ execute `fw/merge.py` to merge STM32CubeIDE generated `main.c` with user code in
   * Also operates at 1/4 bit time for capturing IR.
   * TIM2 = 38/4 kHz = 9.5kHz.
   * Bit time = 4/9.5kHz = 421us (each bit is 16 pulse).
-  * LED refreshes at 9.5kHz/16 = 593Hz.
+- [x] TIM1:
+  * Prescaler: 5-1
+  * Counter Period: 1500-1
+  * LED refreshes at 3200/16 = 200Hz.
   
+## Format
+
+To check format, please install `clang-format` first.
+
+```sh
+# under hitcon-pcb-badge
+./lint.sh # check format
+./lint.sh -i # auto format
+```

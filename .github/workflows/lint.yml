@@ -1,0 +1,18 @@
+name: Lint
+
+on: 
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - run: clang-format --version
+      - run: ./lint.sh ${{ github.workspace }}
+      - run: echo "Job's status ${{ job.status }}."

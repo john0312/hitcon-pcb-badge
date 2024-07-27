@@ -47,8 +47,11 @@ private:
 		while (i > 0) {
 			unsigned parIdx = heap::ParentIdx(i);
 			T **cur = &storage[i], **par = &storage[parIdx];
-			if (**cur < **par)
-				swap(*cur, *par);
+			if (**cur < **par) {
+			    T* tmp1 = *cur;
+			    *cur = *par;
+			    *par = tmp1;
+			}
 			i = parIdx;
 		}
 	}
@@ -58,13 +61,15 @@ private:
 			unsigned i1 = heap::ChildIdx1(i);
 			unsigned i2 = heap::ChildIdx2(i);
 			unsigned smallest = i;
-			if (*storage[i1] < *storage[i])
+			if (i1 < sz && *storage[i1] < *storage[smallest])
 				smallest = i1;
 			if (i2 < sz && *storage[i2] < *storage[smallest])
 				smallest = i2;
 			if (i == smallest)
 				break;
-			swap(*storage[i], *storage[smallest]);
+			T* tmp1 = storage[i];
+			storage[i] = storage[smallest];
+			storage[smallest] = tmp1;
 			i = smallest;
 		}
 	}

@@ -13,12 +13,12 @@ raw_packet_t encode_packet(uint8_t size_byte, uint8_t *data) {
     packet.bits[i] = PACKET_START[i];
   }
   for (size_t j = 0; j < PACKET_SIZE_LEN; j++) {
-    packet.bits[i++] = (size_byte >> j) & 1; // Little-endian
+    packet.bits[i++] = (size_byte >> j) & 1;  // Little-endian
   }
   int parity = 0;
   for (int j = 0; j < size_byte; j++) {
     for (int k = 0; k < 8; k++) {
-      packet.bits[i++] = (data[j] >> k) & 1; // Little-endian
+      packet.bits[i++] = (data[j] >> k) & 1;  // Little-endian
       parity ^= packet.bits[i - 1];
     }
   }
@@ -33,11 +33,11 @@ raw_packet_t encode_packet(uint8_t size_byte, uint8_t *data) {
 #define QUEUE_MAX_SIZE ((PACKET_MAX_LEN + 10) * DECODE_SAMPLE_RATIO)
 typedef struct {
   uint8_t buf[QUEUE_MAX_SIZE];
-  size_t start, end; // data is in [start, end), circular buffer
+  size_t start, end;  // data is in [start, end), circular buffer
 } queue_t;
 
 // TODO: profile and see if using if-else is faster than modulo
-#define queue_size(q)                                                          \
+#define queue_size(q) \
   (((q)->end - (q)->start + QUEUE_MAX_SIZE) % QUEUE_MAX_SIZE)
 
 // Return -1 if the bit at pos is invalid.
@@ -49,10 +49,8 @@ int decode_bit_at_pos(queue_t *buf, size_t pos) {
     num_ones +=
         buf->buf[(buf->start + pos * DECODE_SAMPLE_RATIO + j) % QUEUE_MAX_SIZE];
   }
-  if (num_ones >= DECODE_SAMPLE_RATIO_THRESHOLD)
-    return 1;
-  if (DECODE_SAMPLE_RATIO - num_ones >= DECODE_SAMPLE_RATIO_THRESHOLD)
-    return 0;
+  if (num_ones >= DECODE_SAMPLE_RATIO_THRESHOLD) return 1;
+  if (DECODE_SAMPLE_RATIO - num_ones >= DECODE_SAMPLE_RATIO_THRESHOLD) return 0;
   return -1;
 }
 
@@ -71,35 +69,30 @@ int decode_packet(raw_packet_t *received_bits, size_t *decoded_size_byte,
   // TODO: profile and optimize
   while (1) {
     // Check if buffer has enough data
-    if (queue_size(&buf) < PACKET_MAX_LEN * DECODE_SAMPLE_RATIO)
-      return 0;
+    if (queue_size(&buf) < PACKET_MAX_LEN * DECODE_SAMPLE_RATIO) return 0;
 
     // Find start sequence
     for (size_t i = 0; i < PACKET_START_LEN; i++) {
-      if (decode_bit_at_pos(&buf, i) != PACKET_START[i])
-        goto next;
+      if (decode_bit_at_pos(&buf, i) != PACKET_START[i]) goto next;
     }
 
     // Find size (little-endian)
     size = 0;
     for (size_t i = 0; i < PACKET_SIZE_LEN; i++) {
       int bit = decode_bit_at_pos(&buf, PACKET_START_LEN + i);
-      if (bit == -1)
-        goto next;
+      if (bit == -1) goto next;
       size |= bit << i;
     }
-    if (size == 0)
-      goto next;
+    if (size == 0) goto next;
 
     // Parse data (little-endian)
     parity = 0;
     for (int i = 0; i < size; i++) {
       uint8_t byte = 0;
       for (int j = 0; j < 8; j++) {
-        int bit = decode_bit_at_pos(&buf, PACKET_START_LEN + PACKET_SIZE_LEN +
-                                              i * 8 + j);
-        if (bit == -1)
-          goto next;
+        int bit = decode_bit_at_pos(
+            &buf, PACKET_START_LEN + PACKET_SIZE_LEN + i * 8 + j);
+        if (bit == -1) goto next;
         byte |= bit << j;
         parity ^= bit;
       }

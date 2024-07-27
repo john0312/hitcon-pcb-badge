@@ -6,7 +6,11 @@
  */
 
 #include "Scheduler.h"
+
+#include <Service/Sched/Checks.h>
+
 #include "SysTimer.h"
+#include "main.h"
 
 namespace hitcon {
 namespace service {
@@ -14,76 +18,142 @@ namespace sched {
 
 Scheduler scheduler;
 
-Scheduler::Scheduler() {
-}
+Scheduler::Scheduler() {}
 
-Scheduler::~Scheduler() {
-}
-
-void my_assert(bool expr) {
-  if (!expr) {
-      ((char*)nullptr)[0] = 0;
-  }
-}
+Scheduler::~Scheduler() {}
 
 bool Scheduler::Queue(Task *task, void *arg) {
-	my_assert(task);
-	task->SetArg(arg);
-	return tasks.Add(task);
+  my_assert(task);
+  task->SetArg(arg);
+  bool result = true;
+  // TODO: Disable Interrupt.
+  __disable_irq();
+  if ((tasksAddQueueTail + 1) % kAddQueueSize == tasksAddQueueHead) {
+    // Overflow, we need to drop this request.
+    result = false;
+    AssertOverflow();
+  } else {
+    tasksAddQueue[tasksAddQueueTail] = task;
+    tasksAddQueueTail = (tasksAddQueueTail + 1) % kAddQueueSize;
+  }
+  // TODO: Enable Interrupt.
+  __enable_irq();
+  return result;
 }
 
 bool Scheduler::Queue(DelayedTask *task, void *arg) {
   my_assert(task);
-	task->SetArg(arg);
-	return delayedTasks.Add(task);
+  task->SetArg(arg);
+  bool result = true;
+  // TODO: Disable Interrupt.
+  __disable_irq();
+  if ((delayedTasksAddQueueTail + 1) % kAddQueueSize ==
+      delayedTasksAddQueueHead) {
+    // Overflow, we need to drop this request.
+    result = false;
+    AssertOverflow();
+  } else {
+    delayedTasksAddQueue[delayedTasksAddQueueTail] = task;
+    delayedTasksAddQueueTail = (delayedTasksAddQueueTail + 1) % kAddQueueSize;
+  }
+  // TODO: Enable Interrupt.
+  __enable_irq();
+  return result;
 }
 
 bool Scheduler::Queue(PeriodicTask *task, void *arg) {
   my_assert(task);
-	task->SetArg(arg);
-	return disabledPeriodicTasks.Add(task);
+  task->SetArg(arg);
+  return disabledPeriodicTasks.Add(task);
 }
 
 bool Scheduler::EnablePeriodic(PeriodicTask *task) {
-	if (!disabledPeriodicTasks.Remove(task))
-		return false;
-	if (!enabledPeriodicTasks.Add(task))
-		return false;
-	delayedTasks.Add(task);
-	task->Enable();
-	return true;
+  if (!disabledPeriodicTasks.Remove(task)) {
+    AssertOverflow();
+    return false;
+  }
+  if (!enabledPeriodicTasks.Add(task)) {
+    AssertOverflow();
+    return false;
+  }
+  bool ret = delayedTasks.Add(task);
+  if (!ret) {
+    AssertOverflow();
+  } else {
+    task->EnterQueue();
+  }
+  task->Enable();
+  return true;
 }
 
 bool Scheduler::DisablePeriodic(PeriodicTask *task) {
-	if (!enabledPeriodicTasks.Remove(task))
-		return false;
-	if (!disabledPeriodicTasks.Add(task))
-		return false;
-	task->Disable();
-	return true;
+  if (!enabledPeriodicTasks.Remove(task)) {
+    AssertOverflow();
+    return false;
+  }
+  if (!disabledPeriodicTasks.Add(task)) {
+    AssertOverflow();
+    return false;
+  }
+  task->Disable();
+  return true;
 }
 
 void Scheduler::DelayedHouseKeeping() {
-	unsigned now = SysTimer::GetTime();
-	while (delayedTasks.size()) {
-		DelayedTask &top = delayedTasks.Top();
-		unsigned wake = top.WakeTime();
-		if (wake > now)
-			break;
-		delayedTasks.Remove(&top);
-		tasks.Add(&top);
-	}
+  // Handle all Queue operations.
+  while (tasksAddQueueHead != tasksAddQueueTail) {
+    bool ret = tasks.Add(tasksAddQueue[tasksAddQueueHead]);
+    if (!ret) {
+      // Heap is full.
+      AssertOverflow();
+      break;
+    }
+    tasksAddQueue[tasksAddQueueHead]->EnterQueue();
+    tasksAddQueueHead = (tasksAddQueueHead + 1) % kAddQueueSize;
+  }
+  while (delayedTasksAddQueueHead != delayedTasksAddQueueTail) {
+    bool ret = delayedTasks.Add(delayedTasksAddQueue[delayedTasksAddQueueHead]);
+    if (!ret) {
+      // Heap is full.
+      AssertOverflow();
+      break;
+    }
+    delayedTasksAddQueue[delayedTasksAddQueueHead]->EnterQueue();
+    delayedTasksAddQueueHead = (delayedTasksAddQueueHead + 1) % kAddQueueSize;
+  }
+  unsigned now = SysTimer::GetTime();
+  while (delayedTasks.size()) {
+    DelayedTask &top = delayedTasks.Top();
+    unsigned wake = top.WakeTime();
+    if (wake > now) break;
+    bool ret = delayedTasks.Remove(&top);
+    if (!ret) {
+      AssertOverflow();
+    } else {
+      top.ExitQueue();
+    }
+    ret = tasks.Add(&top);
+    if (!ret) {
+      AssertOverflow();
+    } else {
+      top.EnterQueue();
+    }
+  }
 }
 
 void Scheduler::Run() {
-	while (1) {
-		DelayedHouseKeeping();
-		if (!tasks.size())
-			continue;
-		Task &top = tasks.Top();
-		tasks.Remove(&top);
-		top.Run();
-	}
+  while (1) {
+    DelayedHouseKeeping();
+    if (!tasks.size()) continue;
+    Task &top = tasks.Top();
+    bool ret = tasks.Remove(&top);
+    if (!ret) {
+      AssertOverflow();
+    } else {
+      top.ExitQueue();
+    }
+    top.Run();
+  }
 }
 
 } /* namespace sched */

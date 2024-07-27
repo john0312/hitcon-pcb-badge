@@ -22,7 +22,7 @@ class DisplayLogic {
   // This is called by DisplayService to request for frames.
   void OnRequestFrame(void* unused);
  private:
-  uint8_t buffer_[DISPLAY_HEIGHT*DISPLAY_WIDTH*DISPLAY_FRAME_BATCH];
+  display_buf_t buffer_[DISPLAY_WIDTH * DISPLAY_FRAME_BATCH];
 
   // How many frames have we pushed to DisplayService?
   int frame_;

@@ -55,4 +55,10 @@ void register_callbacks(void (*register_callback_no_arg)(
                         void (*register_callback_event_data)(
                             callback_event_data_t callback_event_data));
 
+// This is the data we received from peer.
+void game_accept_data(int col, uint8_t* data);
+
+// Retrieve the data at particular cell.
+uint8_t* get_data_cell(int col, int row);
+
 #endif // GAME_H

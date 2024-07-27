@@ -1,7 +1,9 @@
 #include "ShowNameApp.h"
-#include <Logic/Display/display.h>
-#include <Logic/BadgeController.h>
+
 #include <App/EditNameApp.h>
+#include <Logic/BadgeController.h>
+#include <Logic/Display/display.h>
+
 #include <cstring>
 
 namespace hitcon {
@@ -23,4 +25,4 @@ void ShowNameApp::OnButton(button_t button) {
 
 void ShowNameApp::SetName(const char *name) { strcpy(this->name, name); }
 
-} // namespace hitcon
+}  // namespace hitcon

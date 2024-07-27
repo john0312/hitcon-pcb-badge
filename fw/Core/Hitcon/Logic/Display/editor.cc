@@ -1,6 +1,9 @@
 #include "editor.h"
+
 #include <Logic/Display/display.h>
 #include <Logic/Display/font.h>
+
+#include <algorithm>
 #include <cstring>
 
 namespace hitcon {
@@ -35,27 +38,27 @@ void TextEditorDisplay::move_cursor_right() {
 
 void TextEditorDisplay::incr_current_char() {
   switch (text[cursor]) {
-  case 0:
-    text[cursor] = PRINTABLE_START;
-    break;
-  case PRINTABLE_END - 1:
-    text[cursor] = 0;
-    break;
-  default:
-    text[cursor]++;
+    case 0:
+      text[cursor] = PRINTABLE_START;
+      break;
+    case PRINTABLE_END - 1:
+      text[cursor] = 0;
+      break;
+    default:
+      text[cursor]++;
   }
 }
 
 void TextEditorDisplay::decr_current_char() {
   switch (text[cursor]) {
-  case 0:
-    text[cursor] = PRINTABLE_END - 1;
-    break;
-  case PRINTABLE_START:
-    text[cursor] = 0;
-    break;
-  default:
-    text[cursor]--;
+    case 0:
+      text[cursor] = PRINTABLE_END - 1;
+      break;
+    case PRINTABLE_START:
+      text[cursor] = 0;
+      break;
+    default:
+      text[cursor]--;
   }
 }
 
@@ -65,44 +68,44 @@ void TextEditorDisplay::set_current_char(char c) {
   }
 }
 
-void TextEditorDisplay::draw(uint8_t *display_buf, int frame) const {
+void TextEditorDisplay::draw(uint8_t *buf, int frame) const {
+  display_buf_t display_buf[DISPLAY_WIDTH];
+  draw_packed(display_buf, frame);
+  display_buf_unpack(buf, display_buf);
+}
+
+void TextEditorDisplay::draw_packed(display_buf_t *display_buf,
+                                    int frame) const {
+  /**
+   * max_text_num is the maximum number of characters that can be
+   * fully-displayed. However, if there is any character after the cursor, it
+   * needs to be displayed. Therefore, we need to display max_text_num + 1
+   * characters but limit the cursor_index_in_display to max_text_num - 1.
+   */
+
   constexpr int max_text_num = DISPLAY_WIDTH / CHAR_WIDTH;
-  char text_to_display[max_text_num + 1] = {0};
+  static_assert(max_text_num >= 2, "max_text_num must be at least 2");
+  char text_to_display[max_text_num + 2] = {0};
   int cursor_index_in_display;
 
-  if (cursor < max_text_num) {
-    // case: cursor < maximum displayable text length
-    // Just display all characters.
-    strncpy(text_to_display, text, max_text_num);
-    cursor_index_in_display = cursor;
-  } else {
-    // case: cursor > maximum displayable text length
-    // Display the last `max_text_num` - 1 characters since we need to display
-    // the cursor.
-    strncpy(text_to_display, text + cursor - max_text_num + 1, max_text_num);
-    cursor_index_in_display = max_text_num - 1;
-  }
+  cursor_index_in_display = std::min(cursor, max_text_num - 1);
+  strncpy(text_to_display, text + cursor - cursor_index_in_display,
+          max_text_num + 1);
 
-  // render the text to the 2D buffer
-  char buf_2d[DISPLAY_HEIGHT][DISPLAY_WIDTH] = {0};
+  // render the text to display_buf_t
+  memset(display_buf, 0, DISPLAY_WIDTH);
   for (int i = 0; i < strlen(text_to_display); ++i) {
-    render_char(buf_2d, text_to_display[i], i * CHAR_WIDTH, 0, DISPLAY_WIDTH,
-                DISPLAY_HEIGHT);
+    display_buf_render_char(display_buf, text_to_display[i], i * CHAR_WIDTH, 0,
+                            DISPLAY_WIDTH, DISPLAY_HEIGHT);
   }
 
   // blink the cursor
   if (frame % BLINK_CURSOR_PERIOD < BLINK_CURSOR_PERIOD / 2) {
-    for (int x = 0; x < CHAR_WIDTH; ++x) {
-      buf_2d[CHAR_HEIGHT - 1][cursor_index_in_display * CHAR_WIDTH + x] ^= 1;
-    }
-  }
-
-  // flatten the 2D buffer to 1D buffer
-  for (int y = 0; y < DISPLAY_HEIGHT; ++y) {
-    for (int x = 0; x < DISPLAY_WIDTH; ++x) {
-      display_buf[y * DISPLAY_WIDTH + x] = buf_2d[y][x];
+    for (int x = 0; x < CHAR_WIDTH - 1; ++x) {
+      display_buf_flip(display_buf[cursor_index_in_display * CHAR_WIDTH + x],
+                       CHAR_HEIGHT - 1);
     }
   }
 }
 
-} // namespace hitcon
+}  // namespace hitcon
