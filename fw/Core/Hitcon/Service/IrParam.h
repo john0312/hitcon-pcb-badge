@@ -7,6 +7,8 @@
 namespace hitcon {
 namespace ir {
 
+// Maximum size of the payload data in a packet.
+constexpr size_t MAX_PACKET_PAYLOAD_BYTES = 32;
 constexpr uint8_t PACKET_START[] = { 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1 };
 constexpr size_t PACKET_START_LEN = (sizeof(PACKET_START) / sizeof(uint8_t));
 constexpr size_t PACKET_SIZE_LEN = 8;
