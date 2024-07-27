@@ -2,8 +2,8 @@
 
 #include <App/EditNameApp.h>
 #include <Logic/Display/display.h>
-#include <Service/DisplayService.h>
 #include <Logic/IrLogic.h>
+#include <Service/DisplayService.h>
 #include <Service/Sched/Scheduler.h>
 #include <Service/XBoardService.h>
 
@@ -20,7 +20,7 @@ HardwareTestApp::HardwareTestApp()
            PERIOD / 5) {}
 
 constexpr uint8_t _xboard_data[] = {'R', 'A'};
-constexpr uint8_t _xboard_data_len = sizeof(_xboard_data)/sizeof(uint8_t);
+constexpr uint8_t _xboard_data_len = sizeof(_xboard_data) / sizeof(uint8_t);
 void HardwareTestApp::CheckXBoard(void* arg1) {
   uint8_t b = static_cast<uint8_t>(reinterpret_cast<size_t>(arg1));
 
@@ -34,19 +34,18 @@ void HardwareTestApp::CheckXBoard(void* arg1) {
 
 void HardwareTestApp::Init() {
   scheduler.Queue(&task, nullptr);
-  g_xboard_service.SetOnByteRx((callback_t)&HardwareTestApp::CheckXBoard, this);//TODO: change to XBoardLogic
+  g_xboard_service.SetOnByteRx((callback_t)&HardwareTestApp::CheckXBoard,
+                               this);  // TODO: change to XBoardLogic
   irLogic.SetOnPacketReceived((callback_t)&HardwareTestApp::CheckIr, this);
 }
 
-
 constexpr uint8_t _ir_data[] = {'T', 'U', 'Z', 'K', 'I'};
-constexpr uint8_t _ir_data_len = sizeof(_ir_data)/sizeof(uint8_t);
+constexpr uint8_t _ir_data_len = sizeof(_ir_data) / sizeof(uint8_t);
 void HardwareTestApp::CheckIr(void* arg1) {
   IrPacket* packet = reinterpret_cast<IrPacket*>(arg1);
   size_t i;
-  for(i = 0; i < _ir_data_len; i++) {
-      if(packet->data_[i] != _ir_data[i])
-	break;
+  for (i = 0; i < _ir_data_len; i++) {
+    if (packet->data_[i] != _ir_data[i]) break;
   }
   next_state = (i == _ir_data_len) ? TS_PASS : TS_FAIL;
 }
@@ -105,7 +104,8 @@ void HardwareTestApp::OnButton(button_t button) {
     case TS_XBOARD:
       if (button == BUTTON_OK) {
         _count = 0;
-        g_xboard_service.QueueDataForTx(const_cast<uint8_t*>(_xboard_data), _xboard_data_len);
+        g_xboard_service.QueueDataForTx(const_cast<uint8_t*>(_xboard_data),
+                                        _xboard_data_len);
       }
       break;
     case TS_IR:
@@ -116,7 +116,7 @@ void HardwareTestApp::OnButton(button_t button) {
       break;
   }
 }
-
+// clang-format off
 uint8_t buf_fixed[DISPLAY_HEIGHT * DISPLAY_WIDTH] = {
   1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
   1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
@@ -149,6 +149,7 @@ uint8_t buf_fixed3[DISPLAY_HEIGHT * DISPLAY_WIDTH] = {
   0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1,
   1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0,
 };
+// clang-format on
 
 void HardwareTestApp::Routine(void* unused) {
   if (current_state != next_state) {
@@ -178,13 +179,13 @@ void HardwareTestApp::Routine(void* unused) {
         }
         break;
       case TS_DISPLAY_CHECKER:
-	display_set_mode_fixed(_count ? buf_fixed2 : buf_fixed3);
+        display_set_mode_fixed(_count ? buf_fixed2 : buf_fixed3);
         if (HAL_GetTick() - start_tick > PERIOD) {
-	  if (_count == 0) {
-	    _count++;
-	  } else {
-	    next_state = TS_DISPLAY_BRIGHTNESS;
-	  }
+          if (_count == 0) {
+            _count++;
+          } else {
+            next_state = TS_DISPLAY_BRIGHTNESS;
+          }
           start_tick = HAL_GetTick();
         }
         break;
