@@ -11,11 +11,6 @@
 namespace hitcon {
 namespace ir {
 
-struct IrBuffer {
-	size_t size[2] {0, 0};
-	uint32_t buffer[2][IR_SERVICE_BUFFER_SIZE];
-};
-
 class IrService {
  public:
   IrService();
