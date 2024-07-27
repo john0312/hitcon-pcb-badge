@@ -152,6 +152,7 @@ void Scheduler::Run() {
     } else {
       top.ExitQueue();
     }
+    totalTasks++;
     top.Run();
   }
 }
