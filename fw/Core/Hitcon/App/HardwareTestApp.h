@@ -7,7 +7,7 @@
 
 using namespace hitcon::service::sched;
 namespace hitcon {
-enum TEST_APP_STATE {  // TODO: add display: checkerboard and brightness
+enum TEST_APP_STATE {  // TODO: add xboard connect/disconnect test
   TS_DISPLAY_SET_ALL = 1,
   TS_DISPLAY_RESET_ALL,
   TS_DISPLAY_CHECKER,
@@ -38,7 +38,7 @@ class HardwareTestApp : public App {
   void OnButton(button_t button) override;
   void Init();
   void Routine(void* unused);
-  void CheckXBoard(void* arg);
+  void CheckXBoard(void* arg1);
   PeriodicTask task;
 
  private:
@@ -47,15 +47,7 @@ class HardwareTestApp : public App {
   uint32_t start_tick;
   uint8_t _count;
 
-  uint32_t ir_ff_count;
-  uint32_t ir_nonff_count;
-  bool ir_found_3ff;
-  bool ir_found_7ff;
-  uint32_t ir_state;
-
-  void CheckIrCount(uint32_t ff_count, uint32_t ir_nonff_count);
-  void OnIrRx(void* arg1);
-  void InitIRTest();
+  void CheckIr(void* arg1);
 };
 
 extern HardwareTestApp hardware_test_app;
