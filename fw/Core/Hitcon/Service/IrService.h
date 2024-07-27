@@ -39,7 +39,7 @@ class IrService {
 
   // Whenever we've collected of IR_SERVICE_RX_ON_BUFFER_SIZE bytes of receive
   // buffer, we'll call the specified function.
-  // The callback is called with a uint8_t pointer to an array of size IR_SERVICE_RX_ON_BUFFER_SIZE. Each byte in the array is 8 sample points.
+  // The callback is called with a uint8_t pointer to an array of size IR_SERVICE_RX_ON_BUFFER_SIZE bytes. Each byte in the array is 8 sample points.
   // Each of the sample point is equivalent to 4 pulse at 38kHz.
   // After the callback is finished, the passed in buffer should be
   // considered invalid.
