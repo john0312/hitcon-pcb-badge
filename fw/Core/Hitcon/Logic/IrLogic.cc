@@ -83,7 +83,8 @@ void IrLogic::OnBufferReceived(uint8_t *buffer) {
               packet_state = STATE_START;
               return;
             }
-            rx_packet.size_ = ((rx_packet.size_ << 1) | decode_bit(bit));
+            const uint8_t bitpos = (packet_buf / DECODE_SAMPLE_RATIO - 1);
+            rx_packet.size_ = (rx_packet.size_) | (decode_bit(bit) << bitpos);
             bit = 0;
           }
           // end of size section (decode ratio * 1 byte)
