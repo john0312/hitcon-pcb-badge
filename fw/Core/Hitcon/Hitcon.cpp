@@ -5,28 +5,60 @@
  *      Author: aoaaceai
  */
 
+#include <App/HardwareTestApp.h>
 #include <Hitcon.h>
+#include <Logic/BadgeController.h>
+#include <Logic/ButtonLogic.h>
+#include <Logic/DisplayLogic.h>
 #include <Logic/IrLogic.h>
+#include <Logic/NvStorage.h>
+#include <Logic/XBoardLogic.h>
+#include <Service/ButtonService.h>
+#include <Service/DisplayService.h>
+#include <Service/FlashService.h>
 #include <Service/IrService.h>
 #include <Service/Sched/Scheduler.h>
+#include <Service/XBoardService.h>
 #include <stdint.h>
 
 using namespace hitcon;
 using namespace hitcon::service::sched;
+using namespace hitcon::service::xboard;
 
-uint8_t hidata[]{2, 3, 5, 7, 11, 13};
-size_t len = 6;
-void cb(void* unused1, void* unused2) {
-  hitcon::ir::irLogic.SendPacket(hidata, len);
+void TestTaskFunc(void* unused1, void* unused2) {}
+
+Task TestTask1(900, (task_callback_t)&TestTaskFunc, nullptr);
+
+void PostSchedInit(void* unused1, void* unused2) {
+  // For any initialization that should happen after scheduler is running.
+  scheduler.Queue(&TestTask1, nullptr);
 }
 
-Task InitTask(1, (task_callback_t)&cb, nullptr);
-
-void test(void* unused1, void* unused2) {}
+Task InitTask(200, (task_callback_t)&PostSchedInit, nullptr);
 
 void hitcon_run() {
+  display_init();
+  g_flash_service.Init();
+  g_nv_storage.Init();
+  g_display_logic.Init();
+  g_display_service.Init();
+  g_display_service.SetBrightness(3);
+  g_button_logic.Init();
+  g_button_service.Init();
+  g_xboard_service.Init();
+  g_xboard_logic.Init();
+  badge_controller.Init();
+
+  // run hardware test mode if MODE/SETTINGS Button is pressed during
+  // initializing
+  if (HAL_GPIO_ReadPin(BtnA_GPIO_Port, BtnA_Pin) == GPIO_PIN_RESET) {
+    hardware_test_app.Init();
+    badge_controller.change_app(&hardware_test_app);
+  }
+
   hitcon::ir::irService.Init();
   hitcon::ir::irLogic.Init();
   scheduler.Queue(&InitTask, nullptr);
+
   scheduler.Run();
 }
