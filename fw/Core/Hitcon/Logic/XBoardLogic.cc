@@ -23,14 +23,12 @@ struct Frame {
 };
 constexpr size_t HEADER_SZ = sizeof(Frame);
 
-uint8_t tx_buf[] = "Hello World";
 uint8_t rx_buf[RX_BUF_SZ] = {0};
 static uint16_t prod_head = 0;
 static uint16_t cons_head = 0;
 static bool recv_ping = false;
 static uint8_t no_ping_count = 0;
 
-uint8_t alive_message[] = "alive_message";
 void send_ping() {
   uint8_t pkt[sizeof(Frame)] = {0};
   *(Frame *)pkt = Frame{0xD555555555555555, 0, 0, 8, 0};
