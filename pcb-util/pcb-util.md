@@ -1,28 +1,47 @@
-# Description
+# pcb-util
+
+## 0x00. Description
+
 pcb-util provides an utility tool for flashing FW to PCBs more effiecient in production.
 
-# Build
-## UI
-[Streamlit](https://streamlit.io/)
-to try it out:
-1. Set up your Python development environment.
-2. Run:
-    ```
-    streamlit hello
-    ```
-3. Validate the installation by running official Hello app:
-    ```
-    streamlit hello
-    ```
-4. Point to directory of \hitcon-pcb-badge\pcb-util and run the UI app for HITCON
-    ```
-    streamlit ui.py
-    ```
+## 0x01. Dev env
+
+### A. Python ver
+
+* python 3.12
+
+### B. Packages ver
+
+#### a. UI
+
+* [Mesop of Python](https://google.github.io/mesop/)
+
+#### b. Upload Process
+
+* 
+
+#### c. exe generation
+
+* pyinstaller
+
+### C. Other requirment
+
+* STM32_Programmer_CLI.exe
 
 
-## Upload Process
-Python 3.12
-### Interface
+
+## 0x02. Process flow
+
+### Pure cli
+
+* You cann see **stm_cli_uploader.drawio**
+
+![alt text](stm_cli_uploader.png)
+
+
+## 0x03. Interface
+
+### ????
 LoadModifier(Modifier, MarkToModify)
 
     Configure the modfier and position to modify in .hex file
@@ -46,106 +65,55 @@ FlashStatus()
     Return the status flashing
 
 
+### fw_flash.py
+TBD
+
 ### Hex operation
 Some part of the FW .HEX file(to be marked by John) to be replaced before flashing
 
 ## Multi-drop
 TBD
 
------------------------
 
-## upload process of a sigle set
+# 常見問題
 
-> the st-link is connected
+* curses 出錯 : 
+![alt text](image.png)
+  * 因留給他的空間不夠，顯示空間拉大就好
+* spyder 終端機跳掉
+  * 用 vscode 執行
+----------------------
+-
 
-1. detect the board is exist or not
-2. if exist, auto trigger upload, verify, start
 
 
-# Some notes
+## Some notes
 
-ref
-https://blog.csdn.net/yxy244/article/details/108453398
+### ref links
 
-## need an exe selector
-* check exe file correct or not
+* [STM32_Programmer_CLI.exe基本命令介绍](https://blog.csdn.net/yxy244/article/details/108453398)
 
-> normal path : 
-> C:\Program Files\STMicroelectronics\STM32Cube\STM32CubeProgrammer\bin\STM32_Programmer_CLI.exe
+### issue list
 
-## list all stlink devices
-```
-PS C:\Program Files\STMicroelectronics\STM32Cube\STM32CubeProgrammer\bin> ./STM32_Programmer_CLI.exe -l
-      -------------------------------------------------------------------
-                       STM32CubeProgrammer v2.17.0
-      -------------------------------------------------------------------
 
-=====  DFU Interface   =====
 
-No STM32 device in DFU mode connected
 
-===== J-Link Interface =====
-Error: No J-link probe detected.
-===== STLink Interface =====
-ST-LINK error (DEV_CONNECT_ERR)
+====
 
--------- Connected ST-LINK Probes List --------
-
-ST-Link Probe 0 :
-   ST-LINK SN  : 5&1E237D3C&0&3
-   ST-LINK FW  :
-   Access Port Number  : 0
-   Board Name  :
-
-ST-Link Probe 1 :
-   ST-LINK SN  : 56FF6F066682495259282187
-   ST-LINK FW  : V2J45S7
-   Access Port Number  : 1
-   Board Name  :
------------------------------------------------
-
-=====  UART Interface  =====
-
-Total number of serial ports available: 0
-
-```
-
-## get device info
-
-### success
-
-```
-PS C:\Program Files\STMicroelectronics\STM32Cube\STM32CubeProgrammer\bin> ./STM32_Programmer_CLI.exe -c port=SWD SN=56FF6F066682495259282187
-      -------------------------------------------------------------------
-                       STM32CubeProgrammer v2.17.0
-      -------------------------------------------------------------------
-
-ST-LINK SN  : 56FF6F066682495259282187
-ST-LINK FW  : V2J45S7
-Board       : --
-Voltage     : 3.23V
-SWD freq    : 4000 KHz
-Connect mode: Normal
-Reset mode  : Software reset
-Device ID   : 0x410
-Revision ID : Rev X
-Device name : STM32F101/F102/F103 Medium-density
-Flash size  : 64 KBytes
-Device type : MCU
-Device CPU  : Cortex-M3
-BL Version  : --
-```
-
-### failed
-```
-./STM32_Programmer_CLI.exe -c port=SWD SN=56FF6F066682495259282187
-      -------------------------------------------------------------------
-                       STM32CubeProgrammer v2.17.0
-      -------------------------------------------------------------------
-
-ST-LINK SN  : 56FF6F066682495259282187
-ST-LINK FW  : V2J45S7
-Board       : --
-Voltage     : 3.23V
-Error: No STM32 target found! If your product embeds Debug Authentication, please perform a discovery using Debug Authentication
-```
+# Build
+## UI
+[Streamlit](https://streamlit.io/)
+to try it out:
+1. Set up your Python development environment.
+2. Run:
+    ```
+    streamlit hello
+    ```
+3. Validate the installation by running official Hello app:
+    ```
+    streamlit hello
+    ```
+4. Point to directory of \hitcon-pcb-badge\pcb-util and run the UI app for HITCON
+    ```
+    streamlit ui.py
+    ```

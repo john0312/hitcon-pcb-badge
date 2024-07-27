@@ -2,12 +2,17 @@
 """
 Created on Sun Jul  7 19:07:46 2024
 
-@author: Arthur
+@author: Arthur (Tora0615)
 """
 
-from enum import Enum, auto
-import subprocess
 import re
+import subprocess
+import threading
+import time
+from enum import Enum, auto
+
+import setting
+
 
 # status enum class
 class ST_STATUS(Enum):
@@ -22,7 +27,6 @@ def run_command(cmd) -> [str, str]:
     process = subprocess.Popen(
         cmd, shell=True, stdout=subprocess.PIPE, 
         stderr=subprocess.PIPE, text=True)
-    process.communicate()
     stdout, stderr = process.communicate()
     return stdout, stderr
 
@@ -71,10 +75,13 @@ class STLINK():
     def __init__(self, SN):
         self.SN = SN
         self.current_state = ST_STATUS.NO_DEVICE
+        self.pause_event = threading.Event()
+        self.pause_event.set()
 
     #--- state relative ---
     def state_move_to_next(self) -> None:
         state_val = self.current_state.value
+        # will stuck at FINISHED
         shift = 0 if (state_val == ST_STATUS.FINISHED.value) else 1
         self.current_state = ST_STATUS(state_val + shift)
         
@@ -119,11 +126,11 @@ class STLINK():
             if "Error" in out:
                 ## Two type of error in stdout
                 ### No stlink -- Error: No debug probe detected.
-                if "No debug probe detected" in out:
-                    raise Exception("No debug probe detected")
+                # if "No debug probe detected" in out:
+                    # raise Exception("No debug probe detected")
                 ### No stm32 -- Error: No STM32 target found!
-                if "No STM32 target found" in out:
-                    raise Exception("No STM32 target found - check board connection")
+                # if "No STM32 target found" in out:
+                    # raise Exception("No STM32 target found - check board connection")
                 is_connceted = False
             else : 
                 is_connceted = True
@@ -196,11 +203,16 @@ class STLINK():
             raise ValueError(err)
             
 
-    #--- The only thing you should call ---
-    #--- will trigger board check, state move and action start ---
-    def do_next(self, is_need_verify=False):
+    def do_next(self, is_need_verify=False) -> None:
+        """
+        Will trigger 
+        1. board check
+        2. action start
+        3. state move
+        """
         # check board still conncted or not at each call
         is_connceted = self.check_board()
+        # is_connceted = True
         
         # update state (if needed)
         if not is_connceted:
@@ -225,14 +237,31 @@ class STLINK():
             
             self.state_move_to_next()
 
+    
+    def bg_daemon(self, stop_event) -> None:
+        """
+        The only function for thread creation.
+
+        Will auto call do_next() then sleep for "setting.THREAD_SLEEP_INTERVAL" sec.
+
+        Args: 
+            stop_event : threading.Event
+        """
+        print("Thread created -- SN : " + str(self.SN))
+        while not stop_event.is_set():
+            # trigger every device do next, then repeat again and again
+            print("\nSN : " + str(self.SN))
+            print("State : " + str(self.current_state))
+            self.do_next(is_need_verify=True)
+            time.sleep(setting.THREAD_SLEEP_INTERVAL)
+        print("Thread stop -- SN : " + str(self.SN))
+        
 if __name__ == "__main__":
     
     """ ============ Basic feature test (one device) ================ """
-    
-    import time
+
     # import click
     # import threading
-    
     #------- this part can be changed by frontend ----------
     FW_ELF_PATH = 'C:\\Users\\Arthur\\Desktop\\test\\fw.elf'
     ST_PRO_PATH = 'C:\\Program Files\\STMicroelectronics\\STM32Cube\\STM32CubeProgrammer\\bin'
@@ -250,16 +279,14 @@ if __name__ == "__main__":
     # test command print (sn unrelated)
     # print("[gen_stlink_list_command]\n -- " + shared_info.gen_stlink_list_command() + "\n")
     
-    # list stlink
-    stlink_sn_list = shared_info.list_stlink()
-    
+
     # init all object, depend on how many STLINK(SN) we have
+    stlink_sn_list = shared_info.list_stlink()
     st_obj = []
     for STLINK_SN in stlink_sn_list:
         st_obj.append(STLINK(STLINK_SN))
-    
+
     # test command print (sn related)
-    st_device = None
     if len(st_obj) > 0:
         st_device = st_obj[0]
         # print("[gen_board_check_command]\n -- " + st_device.gen_connection_command() + "\n")
@@ -278,4 +305,4 @@ if __name__ == "__main__":
             
     else:
         print("!! No stlink !!")
-    
+        
