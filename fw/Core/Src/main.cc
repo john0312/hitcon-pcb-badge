@@ -31,7 +31,6 @@
 #include <Logic/BadgeController.h>
 #include <Service/XBoardService.h>
 #include <Logic/XBoardLogic.h>
-#include <Hitcon.h>
 
 using namespace hitcon;
 /* USER CODE END Includes */
@@ -78,32 +77,6 @@ void SystemClock_Config(void);
 using namespace hitcon;
 using namespace hitcon::service::sched;
 using namespace hitcon::service::xboard;
-
-void on_pkt_cb(void *self, PacketCallbackArg* arg) {
-  char text[] = {'a', 'b', '\0'};
-  text[0] = arg->len % 10 + '0';
-  static int cnt = 0;
-  static int hund = 0;
-  if (cnt > 8) {
-	  cnt += 1;
-	  cnt -= 1;
-  }
-  if (cnt / 10 != hund) {
-	  hund = cnt / 10;
-	  text[1] = hund % 10 + '0';
-	  text[0] = (hund/10) % 10 + '0';
-	  // display_set_mode_scroll_text(text);
-  }
-  ++cnt;
-}
-
-void on_disconn(void*self, void*arg) {
-	  display_set_mode_scroll_text("disconn");
-}
-
-void on_conn(void*self, void*arg) {
-	  display_set_mode_scroll_text("conn");
-}
 
 /* USER CODE END 0 */
 
@@ -161,10 +134,6 @@ int main(void) {
     badge_controller.change_app(&hardware_test_app);
   }
 
-  g_xboard_logic.SetOnPacketArrive((hitcon::callback_t)&on_pkt_cb, nullptr);
-  g_xboard_logic.SetOnConnect((hitcon::callback_t)&on_conn, nullptr);
-  g_xboard_logic.SetOnDisconnect((hitcon::callback_t)&on_disconn, nullptr);
-  display_set_mode_scroll_text("init");
   // scheduler.Run();
   hitcon_run();
 
