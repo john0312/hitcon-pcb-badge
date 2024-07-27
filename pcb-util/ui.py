@@ -2,6 +2,7 @@
 from enum import Enum, auto
 import streamlit as st
 import time
+import os
 
 # status enum class
 class ST_STATUS(Enum):
@@ -11,18 +12,22 @@ class ST_STATUS(Enum):
     TRIGGER_EXEC = auto()
     FINISHED = auto()
 
+# List of color assigned to each ST_STATUS
+color = ["red", "orange", "yellow", "gray", "green"]
+
+# Delcare app Layout
 description = st.container()
 path = st.container()
 
 status = st.empty()
-status_text = st.empty()
+progress_text = st.container()
 progress_bar = st.empty()
+status_text = st.empty()
 
 button = st.container()
 simulation = st.container()
 
-color = ["red", "orange", "yellow", "blue", "green"]
-
+# Define the function to update ST_STATUS display in UI
 def update_state(state_to_update):
     st.session_state.box_color = color[state_to_update]
     
@@ -33,23 +38,25 @@ def update_state(state_to_update):
                 border: 1px solid #ccc;
                 padding: 50px;
                 border-radius: 5px;
-                height: 300px;
+                height: 50px;
                 background-color: {st.session_state.get('box_color', 'red')};
             ">
             </div>
             """,
             unsafe_allow_html=True
         )
+    with progress_bar:
+        if ST_STATUS(state_to_update) == ST_STATUS.FINISHED:
+            st.progress(1.0, text = "FW flash completed")
+        else:
+            st.progress((state_to_update)*(1/(len(ST_STATUS)-1)), text = "FW flashing......")
     with status_text:
         st.write(str(ST_STATUS(state_to_update).name))
-    with progress_bar:
-        st.progress((state_to_update)*(1/(len(ST_STATUS)-1)), text = "FW flashing......")
-        
+
 
 # Display initial message
-
 with description:
-    st.header("HITCON 2024 FW Flasher")
+    st.header("HITCON 2024 FW Flasher(Singledrop)")
     st.write("Click the buttons to flash firmware with ST-Link")
 
 with status:
@@ -59,7 +66,7 @@ with status:
                 border: 1px solid #ccc;
                 padding: 50px;
                 border-radius: 5px;
-                height: 300px;
+                height: 50px;
                 background-color: {st.session_state.get('box_color', 'red')};
             ">
             </div>
@@ -68,16 +75,39 @@ with status:
         )
 with status_text:
     st.write(str(ST_STATUS(0).name))
+with progress_text:
+    st.markdown("### Flash Progress")
 
 # Set path of the files
-
 with path:
-    FW_ELF_PATH = st.text_input("FW .elf Path")
-    ST_PRO_PATH = st.text_input("Directory Path of ST programmer")
-    ST_PRO_EXE = st.text_input("Name of ST programmer(.exe)")
+    FW_ELF_PATH = st.text_input("Path of FW to be flashed (.elf) ")
+    
+    # Check if FW ends with .elf
+    ST_PRO_PATH, ST_PRO_EXE = os.path.split(FW_ELF_PATH)
+    # Check if the file name ends with ".elf"
+    if ST_PRO_EXE.endswith(".elf"):
+        st.success("valid path")
+    else:
+        st.error("FW path should end with .elf")
+    
+    ST_PROGRAMMER_PATH = st.text_input("Directory Path of ST programmer(.exe)")
+    
+    ST_PRO_PATH, ST_PRO_EXE = os.path.split(ST_PROGRAMMER_PATH)
+    # Check if the file name ends with ".exe"
+    if ST_PRO_EXE.endswith(".exe"):
+        st.success("valid path")
+    else:
+        st.error("ST_PROGRAMMER path should end with .exe")
+    
+    # Test if path is correctly parsed
+    # st.markdown("**FW_ELF_PATH**")
+    # st.write(FW_ELF_PATH)
+    # st.markdown("**ST_PRO_PATH**")
+    # st.write(ST_PRO_PATH)
+    # st.markdown("**ST_PRO_EXE**")
+    # st.write(ST_PRO_EXE)
 
 # UI test inputs for different stage
-
 with button:
     col1, col2, col3, col4, col5 = st.columns(5)
     with col1:
@@ -98,7 +128,6 @@ with button:
 
 
 # Simulate the UI action as actual use case
-
 with simulation:
     st.header("Simulation")
     st.write("Simulate progress action")
