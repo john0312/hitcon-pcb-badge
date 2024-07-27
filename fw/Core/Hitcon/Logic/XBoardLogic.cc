@@ -124,7 +124,7 @@ void XBoardLogic::Init() {
   g_xboard_service.SetOnByteRx((callback_t)&XBoardLogic::OnByteArrive, this);
 }
 
-void XBoardLogic::QueuePacketForTx(uint8_t *packet, size_t packet_len) {
+void XBoardLogic::QueueDataForTx(uint8_t *packet, size_t packet_len) {
   // TODO
 }
 
