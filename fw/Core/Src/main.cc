@@ -28,11 +28,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include <Hitcon.h>
-#include <Logic/BadgeController.h>
-#include <Service/XBoardService.h>
-#include <Logic/XBoardLogic.h>
 
-using namespace hitcon;
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -64,19 +60,6 @@ void SystemClock_Config(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-#include <App/HardwareTestApp.h>
-#include <Logic/BadgeController.h>
-#include <Logic/ButtonLogic.h>
-#include <Logic/DisplayLogic.h>
-#include <Logic/NvStorage.h>
-#include <Service/ButtonService.h>
-#include <Service/DisplayService.h>
-#include <Service/FlashService.h>
-#include <Service/Sched/Scheduler.h>
-
-using namespace hitcon;
-using namespace hitcon::service::sched;
-using namespace hitcon::service::xboard;
 
 /* USER CODE END 0 */
 
@@ -116,25 +99,7 @@ int main(void) {
   MX_TIM2_Init();
   MX_TIM4_Init();
   /* USER CODE BEGIN 2 */
-  display_init();
-  g_flash_service.Init();
-  g_nv_storage.Init();
-  g_display_logic.Init();
-  g_display_service.Init();
-  g_display_service.SetBrightness(3);
-  g_button_logic.Init();
-  g_button_service.Init();
-  g_xboard_service.Init();
-  g_xboard_logic.Init();
-  badge_controller.Init();
-  // run hardware test mode if MODE/SETTINGS Button is pressed during
-  // initializing
-  if (HAL_GPIO_ReadPin(BtnA_GPIO_Port, BtnA_Pin) == GPIO_PIN_RESET) {
-    hardware_test_app.Init();
-    badge_controller.change_app(&hardware_test_app);
-  }
 
-  // scheduler.Run();
   hitcon_run();
 
   /* USER CODE END 2 */
