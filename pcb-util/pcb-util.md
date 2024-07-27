@@ -3,7 +3,22 @@ pcb-util provides an utility tool for flashing FW to PCBs more effiecient in pro
 
 # Build
 ## UI
-[Mesop of Python](https://google.github.io/mesop/)
+[Streamlit](https://streamlit.io/)
+to try it out:
+1. Set up your Python development environment.
+2. Run:
+    ```
+    streamlit hello
+    ```
+3. Validate the installation by running official Hello app:
+    ```
+    streamlit hello
+    ```
+4. Point to directory of \hitcon-pcb-badge\pcb-util and run the UI app for HITCON
+    ```
+    streamlit ui.py
+    ```
+
 
 ## Upload Process
 Python 3.12
