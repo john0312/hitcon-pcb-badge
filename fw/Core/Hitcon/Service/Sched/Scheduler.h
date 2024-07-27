@@ -53,6 +53,8 @@ private:
 	size_t delayedTasksAddQueueHead = 0;
 	size_t delayedTasksAddQueueTail = 0;
 
+	size_t totalTasks = 0;
+
 	void DelayedHouseKeeping();
 public:
 	Scheduler();
@@ -68,6 +70,9 @@ public:
 	// Can NOT be called during interrupt.
 	bool DisablePeriodic(PeriodicTask *task);
 	void Run();
+
+	// How many tasks has run?
+	size_t GetTotalTasksRan();
 };
 
 extern Scheduler scheduler;
