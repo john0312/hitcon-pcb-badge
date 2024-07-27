@@ -26,7 +26,7 @@ class IrLogic {
   // For any actions that needs to be done during init.
   void Init();
 
-  // Every time IR_SERVICE_RX_SIZE is received, this will be called.
+  // Every time IR_SERVICE_RX_SIZE byte of buffer is received, this will be called.
   void OnBufferReceived(uint8_t *buffer);
 
   // Upper layer should call ths function so whenever a well formed packet
