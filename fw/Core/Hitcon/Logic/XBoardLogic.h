@@ -30,9 +30,8 @@ class XBoardLogic {
 
     void Init();
 
-    // Call QueuePacketForTx() to queue a packet for transmission on
-    // the XBoard connection.
-    void QueuePacketForTx(uint8_t* packet, size_t packet_len);
+    // Encapsulate data into a packet and then put into the tx queue.
+    void QueueDataForTx(uint8_t* data, size_t data_len);
 
     // On detected connection from a remote board, this will be called.
     void SetOnConnect(callback_t callback, void* callback_arg1);
