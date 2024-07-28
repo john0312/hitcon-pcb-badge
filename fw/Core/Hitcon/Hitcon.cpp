@@ -19,7 +19,6 @@
 #include <Service/IrService.h>
 #include <Service/Sched/Scheduler.h>
 #include <Service/XBoardService.h>
-#include <stdint.h>
 
 using namespace hitcon;
 using namespace hitcon::service::sched;

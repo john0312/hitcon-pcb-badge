@@ -167,6 +167,21 @@ void display_set_mode_scroll_text(const char *text, int speed) {
   display_set_mode_scroll_packed(buf, n_col, speed);
 }
 
+void display_set_mode_text(const char *text) {
+  display_buf_t buf[DISPLAY_WIDTH];
+  int len = strlen(text);
+  int i;
+  for (i = 0; i < len && i * CHAR_WIDTH < DISPLAY_WIDTH; ++i) {
+    display_buf_render_char(buf, text[i], i * CHAR_WIDTH, 0, DISPLAY_WIDTH, DISPLAY_HEIGHT);
+  }
+
+  // clean rest garbage
+  for (i = i * CHAR_WIDTH;i < DISPLAY_WIDTH; ++i)
+    buf[i] = 0;
+
+  display_set_mode_fixed_packed(buf);
+}
+
 void display_set_mode_scroll_text(const char *text) {
   display_set_mode_scroll_text(text, DISPLAY_SCROLL_DEFAULT_SPEED);
 }

@@ -158,7 +158,7 @@ void HardwareTestApp::Routine(void* unused) {
     temp[0] = current_state / 10 + '0';
     temp[1] = current_state % 10 + '0';
     temp[2] = 0;
-    display_set_mode_scroll_text(temp);
+    display_set_mode_text(temp);
   }
 
   // TEST DISPLAY
