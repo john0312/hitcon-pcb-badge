@@ -18,6 +18,7 @@
 #include <Service/DisplayService.h>
 #include <Service/FlashService.h>
 #include <Service/IrService.h>
+#include <Service/NoiseSource.h>
 #include <Service/Sched/Scheduler.h>
 #include <Service/XBoardService.h>
 
@@ -43,6 +44,7 @@ Task InitTask(200, (task_callback_t)&PostSchedInit, nullptr);
 
 void hitcon_run() {
   display_init();
+  g_noise_source.Init();
   g_flash_service.Init();
   g_nv_storage.Init();
   g_display_logic.Init();
@@ -55,6 +57,7 @@ void hitcon_run() {
   badge_controller.Init();
   hitcon::ir::irService.Init();
   hitcon::ir::irLogic.Init();
+  hitcon::ir::irController.Init();
 
   // run hardware test mode if MODE/SETTINGS Button is pressed during
   // initializing

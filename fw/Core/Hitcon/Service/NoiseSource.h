@@ -6,6 +6,21 @@
 namespace hitcon {
 
 class NoiseSource {
+private:
+ void Routine(void* unused);
+ void CallbackWrapper(void* unused);
+
+ hitcon::service::sched::PeriodicTask _routine_task;
+ hitcon::service::sched::task_callback_t on_noise_cb;
+ void* on_noise_cb_arg;
+
+ // three adc channels: noise_in, temperature, Vrefint
+ static constexpr size_t kChannelAmount = 3;
+ static constexpr size_t kNoiseLen = 2 * kChannelAmount;
+ // interval between each on_noise_cb is called
+ static constexpr size_t kRoutinePeriod = 60000; // 1 min
+ uint16_t adc_values[kNoiseLen];
+ size_t current_index = 0;
  public:
   NoiseSource();
 
@@ -18,13 +33,10 @@ class NoiseSource {
     on_noise_cb_arg = callback_arg1;
   }
 
- private:
-  hitcon::service::sched::task_callback_t on_noise_cb;
-  void* on_noise_cb_arg;
-
-  static constexpr size_t kNoiseLen = 2;
+  hitcon::service::sched::Task _cb_task;
 };
 
+extern NoiseSource g_noise_source;
 }  // namespace hitcon
 
 #endif  // SERVICE_NOISE_SOURCE_DOT_H
