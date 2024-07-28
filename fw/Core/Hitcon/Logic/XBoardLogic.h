@@ -20,9 +20,8 @@ struct PacketCallbackArg {
 
 enum UsartConnectState { Init, Connect, Disconnect };
 
-constexpr size_t RX_BUF_SZ = 512;
-
-void send_ping();
+constexpr size_t RX_BUF_SZ = 128;
+constexpr size_t PKT_PAYLOAD_LEN_MAX = 32;
 
 class XBoardLogic {
    public:
@@ -46,6 +45,15 @@ class XBoardLogic {
     void Routine(void*);
 
    private:
+    // buffer variables
+
+    uint8_t rx_buf[RX_BUF_SZ] = {0};
+    uint16_t prod_head = 0;
+    uint16_t cons_head = 0;
+    bool recv_ping = false;
+    uint8_t no_ping_count = 0;
+    uint8_t packet_payload[PKT_PAYLOAD_LEN_MAX];
+
     hitcon::service::sched::PeriodicTask _routine_task;
     // size_t prod_head = 0;
     // size_t cons_head = 0;
@@ -58,6 +66,11 @@ class XBoardLogic {
     callback_t connect_handler = nullptr;
     void *connect_handler_self = nullptr;
 
+    // read `size` bytes from `rx_buf` to `dst`
+    // if `head_offset` > 0, start reading from cons_head + head_offset
+    // return false if no enough bytes to read
+    bool TryReadBytes(uint8_t *dst, size_t size, uint16_t head_offset = 0);
+    void SendPing();
     void OnByteArrive(void *);
     void ParsePacket();
     void CheckPing();
