@@ -61,10 +61,10 @@ void hitcon_run() {
   // run hardware test mode if MODE/SETTINGS Button is pressed during
   // initializing
   if (HAL_GPIO_ReadPin(BtnA_GPIO_Port, BtnA_Pin) == GPIO_PIN_RESET) {
+    // Test app needs to be the last to be initialized because otherwise
+    // irController may override its callbacks.
     hardware_test_app.Init();
     badge_controller.change_app(&hardware_test_app);
-  } else {
-    hitcon::ir::irController.Init();
   }
 
   scheduler.Queue(&InitTask, nullptr);
