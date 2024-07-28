@@ -37,6 +37,8 @@ void PostSchedInit(void* unused1, void* unused2) {
   scheduler.Queue(&TestTask1, nullptr);
   scheduler.Queue(&TestTask2, nullptr);
   scheduler.EnablePeriodic(&TestTask2);
+  g_display_service.Init();
+  g_display_service.SetBrightness(3);
 }
 
 Task InitTask(200, (task_callback_t)&PostSchedInit, nullptr);
@@ -47,8 +49,7 @@ void hitcon_run() {
   g_flash_service.Init();
   g_nv_storage.Init();
   g_display_logic.Init();
-  g_display_service.Init();
-  g_display_service.SetBrightness(3);
+
   g_button_logic.Init();
   g_button_service.Init();
   g_xboard_service.Init();
