@@ -47,6 +47,8 @@ class IrLogic {
   callback_t callback;
   void *callback_arg;
   IrPacket rx_packet;
+  // double buffering to avoid RW same time
+  IrPacket rx_packet_ctrler;
   IrPacket tx_packet;
 };
 

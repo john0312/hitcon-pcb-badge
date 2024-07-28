@@ -114,7 +114,10 @@ void IrLogic::OnBufferReceived(uint8_t *buffer) {
             rx_packet.data_[pos] |= decode_bit(bit) << bitpos;
             if (pos == rx_packet.size_) {
               // packet_end
-              callback(callback_arg, reinterpret_cast<void *>(&rx_packet));
+              // double buffering
+              rx_packet_ctrler = rx_packet;
+              callback(callback_arg,
+                       reinterpret_cast<void *>(&rx_packet_ctrler));
             }
           }
           break;
