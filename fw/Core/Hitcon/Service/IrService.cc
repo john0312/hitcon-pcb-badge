@@ -190,14 +190,14 @@ void IrService::Routine(void *arg1) {
   rx_required_quiet_period = 20 + g_fast_random_pool.GetRandom() % 32;
   if (rx_ctr_since_release >= 100000) rx_ctr_since_release = 100000;
 
-  if (tx_state>>24==0x02) {
-	  // Collision, let's wait randomly.
-	  tx_state++;
-	  int collision_wait = tx_state & 0x00FFFFFF;
-	  if (collision_wait >= (32+g_fast_random_pool.GetRandom() % 64)) {
-		  // Wait's over, retransmit.
-		  tx_state = 0x01000000;
-	  }
+  if (tx_state >> 24 == 0x02) {
+    // Collision, let's wait randomly.
+    tx_state++;
+    int collision_wait = tx_state & 0x00FFFFFF;
+    if (collision_wait >= (32 + g_fast_random_pool.GetRandom() % 64)) {
+      // Wait's over, retransmit.
+      tx_state = 0x01000000;
+    }
   }
 }
 

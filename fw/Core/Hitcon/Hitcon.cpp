@@ -27,8 +27,7 @@ using namespace hitcon::service::sched;
 using namespace hitcon::service::xboard;
 
 void TestTaskFunc(void* unused1, void* unused2) {}
-void TestTask2Func(void* unused1, void* unused2) {
-}
+void TestTask2Func(void* unused1, void* unused2) {}
 
 Task TestTask1(900, (task_callback_t)&TestTaskFunc, nullptr);
 PeriodicTask TestTask2(950, (task_callback_t)&TestTask2Func, nullptr, 201);
