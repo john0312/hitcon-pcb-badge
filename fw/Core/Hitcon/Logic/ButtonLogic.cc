@@ -36,10 +36,10 @@ void ButtonLogic::OnReceiveData(uint8_t* data) {
         pressed_btn = j;
       } else {
         if (_fire == j) _fire = 0;
-        if (3 < _count[j] && _count[j] <= 80) {  // handle short press
+        if (BOUNCE_TIME_THRESHOLD < _count[j] && _count[j] <= LONG_PRESS_TIME_THRESHOLD) {  // handle short press
           _out = BUTTON_MODE + j;
           CallbackWrapper(reinterpret_cast<void*>(static_cast<size_t>((_out))));
-        } else if (80 < _count[j]) {
+        } else if (LONG_PRESS_TIME_THRESHOLD < _count[j]) {
           _out = BUTTON_LONG_MODE + j;
           CallbackWrapper(reinterpret_cast<void*>(static_cast<size_t>((_out))));
         }

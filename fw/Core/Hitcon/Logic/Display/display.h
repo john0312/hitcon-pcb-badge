@@ -36,7 +36,7 @@
 #define DISPLAY_MODE_TEXT_EDITOR 3
 
 #define DISPLAY_SCROLL_MAX_COLUMNS 100
-#define DISPLAY_SCROLL_DEFAULT_SPEED 10
+#define DISPLAY_SCROLL_DEFAULT_SPEED 8
 
 using display_buf_t = uint8_t;
 static_assert(sizeof(display_buf_t) == DISPLAY_HEIGHT / 8,

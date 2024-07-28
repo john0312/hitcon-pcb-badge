@@ -19,6 +19,10 @@ namespace hitcon {
  * - If a button is pressed for >1500ms, then repeat firing of press event will
  * happen every 200ms until released.
  */
+// Long Press Threshold 800ms
+constexpr int LONG_PRESS_TIME_THRESHOLD = 80;
+// Bounce Time Threshold 30ms
+constexpr int BOUNCE_TIME_THRESHOLD = 3;
 
 constexpr int BUTTON_VALUE_MASK = 0b1111;
 constexpr int BUTTON_LONG_PRESS_BIT = 1 << 14;
