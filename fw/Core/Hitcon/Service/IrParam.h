@@ -25,8 +25,9 @@ constexpr size_t IR_SERVICE_RX_SIZE = 64;
 constexpr int16_t IR_PWM_TIM_CCR = 16;
 
 constexpr size_t IR_SERVICE_RX_ON_BUFFER_SIZE = 32;
-constexpr size_t IR_SERVICE_RX_BUFFER_PER_RUN = 4;
 
+// How many rx buffer is processed per task run in IrLogic?
+constexpr size_t IR_SERVICE_RX_BUFFER_PER_RUN = 4;
 static_assert(IR_SERVICE_RX_ON_BUFFER_SIZE % IR_SERVICE_RX_BUFFER_PER_RUN == 0);
 
 // Two elements represents a data bit, see PULSE_PER_HEADER_BIT.

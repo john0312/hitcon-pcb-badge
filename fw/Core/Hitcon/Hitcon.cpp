@@ -26,12 +26,17 @@ using namespace hitcon::service::sched;
 using namespace hitcon::service::xboard;
 
 void TestTaskFunc(void* unused1, void* unused2) {}
+void TestTask2Func(void* unused1, void* unused2) {
+}
 
 Task TestTask1(900, (task_callback_t)&TestTaskFunc, nullptr);
+PeriodicTask TestTask2(950, (task_callback_t)&TestTask2Func, nullptr, 201);
 
 void PostSchedInit(void* unused1, void* unused2) {
   // For any initialization that should happen after scheduler is running.
   scheduler.Queue(&TestTask1, nullptr);
+  scheduler.Queue(&TestTask2, nullptr);
+  scheduler.EnablePeriodic(&TestTask2);
 }
 
 Task InitTask(200, (task_callback_t)&PostSchedInit, nullptr);
@@ -56,11 +61,10 @@ void hitcon_run() {
   if (HAL_GPIO_ReadPin(BtnA_GPIO_Port, BtnA_Pin) == GPIO_PIN_RESET) {
     hardware_test_app.Init();
     badge_controller.change_app(&hardware_test_app);
+  } else {
+    hitcon::ir::irController.Init();
   }
 
-  hitcon::ir::irService.Init();
-  hitcon::ir::irLogic.Init();
-  hitcon::ir::irController.Init();
   scheduler.Queue(&InitTask, nullptr);
 
   scheduler.Run();
