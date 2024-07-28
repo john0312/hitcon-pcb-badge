@@ -3,6 +3,8 @@
 
 #include <Service/IrParam.h>
 #include <Util/callback.h>
+#include <Service/Sched/Scheduler.h>
+#include <Service/Sched/Task.h>
 #include <stddef.h>
 #include <stdint.h>
 
@@ -36,6 +38,8 @@ class IrLogic {
   bool SendPacket(uint8_t *data, size_t len);
 
   void EncodePacket(uint8_t *data, size_t len, IrPacket &packet);
+  // Enqueue the task and reset the counter
+  void OnBufferReceivedEnqueueTask(uint8_t *buffer);
 
   // % of time in last 30 second whereby there's a transmission.
   // 10000 => 100%
@@ -50,6 +54,9 @@ class IrLogic {
   // double buffering to avoid RW same time
   IrPacket rx_packet_ctrler;
   IrPacket tx_packet;
+
+  // To split OnBufferReceived into pieces
+  size_t buffer_received_ctr;
 };
 
 extern IrLogic irLogic;

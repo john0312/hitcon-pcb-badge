@@ -12,12 +12,15 @@ namespace hitcon {
 namespace ir {
 
 IrLogic irLogic;
+service::sched::Task OnBufferReceivedTask(
+    450, (service::sched::task_callback_t)&IrLogic::OnBufferReceived, &irLogic);
 
 IrLogic::IrLogic() {}
 
 void IrLogic::Init() {
   // Set callback
-  irService.SetOnBufferReceived((callback_t)&IrLogic::OnBufferReceived, this);
+  irService.SetOnBufferReceived(
+      (callback_t)&IrLogic::OnBufferReceivedEnqueueTask, this);
 }
 
 size_t packet_buf{0};
@@ -50,6 +53,11 @@ static uint8_t decode_bit(uint8_t x) {
   }
 }
 
+void IrLogic::OnBufferReceivedEnqueueTask(uint8_t *buffer) {
+  buffer_received_ctr = 0;
+  service::sched::scheduler.Queue(&OnBufferReceivedTask, buffer);
+}
+
 void IrLogic::OnBufferReceived(uint8_t *buffer) {
   // receive buffer -> check if packet_end -> call callback
   // buffer starts from LSB
@@ -57,9 +65,11 @@ void IrLogic::OnBufferReceived(uint8_t *buffer) {
   // Here is a DOS feature that if someone send a packet_header
   // then it can cause decode + receive fail
   static uint8_t bit{0};
-  for (size_t i = 0; i < IR_SERVICE_RX_ON_BUFFER_SIZE; i++) {
+  for (size_t i = 0; i < IR_SERVICE_RX_BUFFER_PER_RUN &&
+                     buffer_received_ctr < IR_SERVICE_RX_ON_BUFFER_SIZE;
+       i++) {
     for (uint8_t j = 0; j < 8; j++) {
-      uint8_t is_on = (buffer[i] & (1 << j)) ? 1 : 0;
+      uint8_t is_on = (buffer[buffer_received_ctr] & (1 << j)) ? 1 : 0;
       switch (packet_state) {
         case STATE_START:
           packet_buf <<= 1;
@@ -125,6 +135,9 @@ void IrLogic::OnBufferReceived(uint8_t *buffer) {
           break;
       }
     }
+  }
+  if (buffer_received_ctr < IR_SERVICE_RX_ON_BUFFER_SIZE) {
+    service::sched::scheduler.Queue(&OnBufferReceivedTask, buffer);
   }
 }
 
