@@ -172,12 +172,12 @@ void display_set_mode_text(const char *text) {
   int len = strlen(text);
   int i;
   for (i = 0; i < len && i * CHAR_WIDTH < DISPLAY_WIDTH; ++i) {
-    display_buf_render_char(buf, text[i], i * CHAR_WIDTH, 0, DISPLAY_WIDTH, DISPLAY_HEIGHT);
+    display_buf_render_char(buf, text[i], i * CHAR_WIDTH, 0, DISPLAY_WIDTH,
+                            DISPLAY_HEIGHT);
   }
 
   // clean rest garbage
-  for (i = i * CHAR_WIDTH;i < DISPLAY_WIDTH; ++i)
-    buf[i] = 0;
+  for (i = i * CHAR_WIDTH; i < DISPLAY_WIDTH; ++i) buf[i] = 0;
 
   display_set_mode_fixed_packed(buf);
 }
