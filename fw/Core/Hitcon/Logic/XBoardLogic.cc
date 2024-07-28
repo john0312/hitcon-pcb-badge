@@ -140,7 +140,7 @@ void XBoardLogic::OnByteArrive(void *arg1) {
   uint16_t next_prod_head = inc_head(prod_head, 1);
   if (next_prod_head == cons_head) {
     // drop the data
-    // AssertOverflow();
+    AssertOverflow();
     return;
   }
   rx_buf[prod_head] = b;
