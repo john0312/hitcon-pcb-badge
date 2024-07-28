@@ -17,6 +17,10 @@ void game_init(const game_storage_t *storage);
 // storage).
 game_storage_t& game_get_storage();
 
+// Set the col prefix for col to out.
+// Column prefix is "HITCON" + uint16_t(col)
+void game_get_col_prefix(uint8_t* out, int col);
+
 // This is the data we received from peer.
 void game_accept_data(int col, uint8_t* data);
 

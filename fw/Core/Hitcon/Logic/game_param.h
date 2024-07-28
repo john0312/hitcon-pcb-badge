@@ -44,6 +44,9 @@ typedef struct {
   uint32_t total_score;
 } game_cache_t;
 
+// Column prefix is 8 bytes.
+constexpr size_t kColPrefixLen = 8;
+
 // These columns may be broadcasted by the IrController.
 constexpr int IrAllowedBroadcastCol[] = {0, 2, 3, 4, 7};
 constexpr size_t IrAllowBroadcastCnt = sizeof(IrAllowedBroadcastCol)/sizeof(IrAllowedBroadcastCol[0]);

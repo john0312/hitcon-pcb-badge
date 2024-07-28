@@ -58,6 +58,7 @@ typedef enum SHA3_RETURN sha3_return_t;
 /* For Init or Reset call these: */
 sha3_return_t sha3_Init(void *priv, unsigned bitSize);
 
+// Takes 0.95ms on STM32@12MHz, should only be called once per task.
 void keccakf(uint64_t s[25]);
 
 void sha3_Init256(void *priv);
@@ -66,9 +67,13 @@ void sha3_Init512(void *priv);
 
 enum SHA3_FLAGS sha3_SetFlags(void *priv, enum SHA3_FLAGS);
 
+// Takes 1 keccakf() call.
 void sha3_UpdateWord(void *priv, void const *bufIn);
+
+// Takes multiple keccakf() call and should not be used on STM32.
 void sha3_Update(void *priv, void const *bufIn, size_t len);
 
+// Tajes 1 keccakf() call.
 void const *sha3_Finalize(void *priv);
 
 /* Single-call hashing */
