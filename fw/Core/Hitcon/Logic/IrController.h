@@ -9,6 +9,11 @@
 #include <stddef.h>
 #include <stdint.h>
 
+enum class packet_type: uint8_t {
+  kGame = 0,
+  kShow = 1,
+};
+
 namespace hitcon {
 namespace ir {
 
@@ -25,7 +30,7 @@ struct ShowPacket {
 /*Definition of IR content.*/
 struct IrData {
   uint8_t ttl;
-  uint8_t packet_type;
+  packet_type type;
   union {
     struct GamePacket game;
     struct ShowPacket show;
@@ -43,8 +48,8 @@ class IrController {
  private:
   bool send_lock;
   bool recv_lock;
-  // TODO: Calculate the v[] in Init
-  uint8_t v[3] = {1, 1, 0};
+  // TODO: Tune the quadratic function parameters
+  uint8_t v[3] = {1, 27, 111};
 
   hitcon::service::sched::PeriodicTask routine_task;
   hitcon::service::sched::Task send2game_task;
