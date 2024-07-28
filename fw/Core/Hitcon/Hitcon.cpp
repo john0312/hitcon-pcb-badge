@@ -13,6 +13,7 @@
 #include <Logic/IrLogic.h>
 #include <Logic/NvStorage.h>
 #include <Logic/XBoardLogic.h>
+#include <Logic/IrController.h>
 #include <Service/ButtonService.h>
 #include <Service/DisplayService.h>
 #include <Service/FlashService.h>
@@ -57,7 +58,10 @@ void hitcon_run() {
     badge_controller.change_app(&hardware_test_app);
   }
 
-  //  scheduler.Queue(&InitTask, nullptr);
+  hitcon::ir::irService.Init();
+  hitcon::ir::irLogic.Init();
+  hitcon::ir::irController.Init();
+  scheduler.Queue(&InitTask, nullptr);
 
   scheduler.Run();
 }
