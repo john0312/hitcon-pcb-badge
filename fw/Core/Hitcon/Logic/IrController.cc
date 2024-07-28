@@ -1,8 +1,11 @@
 #include <Logic/IrController.h>
+#include <Logic/RandomPool.h>
 #include <Logic/game.h>
 #include <Service/IrService.h>
 #include <stdlib.h>
 #include <time.h>
+
+#include <cstring>
 
 using namespace hitcon::service::sched;
 using hitcon::game::game_accept_data;
@@ -28,8 +31,6 @@ void IrController::Send2Game(void* arg) {
 void IrController::Init() {
   irLogic.SetOnPacketReceived((callback_t)&IrController::OnPacketReceived,
                               this);
-  // TODO: Remove the srand and time
-  srand(time(NULL));
 }
 
 void IrController::OnPacketReceived(void* arg) {
@@ -37,7 +38,7 @@ void IrController::OnPacketReceived(void* arg) {
   IrData* data = reinterpret_cast<IrData*>(packet->data_);
 
   // Game
-  if (data->packet_type == 0) {
+  if (data->type == packet_type::kGame) {
     if (send_lock) {
       send_lock = false;
       scheduler.Queue(&send2game_task, &data->game);
@@ -52,7 +53,8 @@ void IrController::RoutineTask(void* unused) {
   int lf = irLogic.GetLoadFactor();
 
   // Determine if we want to send a packet.
-  int rand_num = rand() % RAND_MAX;
+  uint32_t prob_max = prob_f(100);
+  uint32_t rand_num = g_fast_random_pool.GetRandom() % prob_max;
   if (rand_num > prob_f(lf) && send_lock) {
     send_lock = false;
     scheduler.Queue(&broadcast_task, nullptr);
@@ -61,12 +63,23 @@ void IrController::RoutineTask(void* unused) {
 
 void IrController::BroadcastIr(void* unused) {
   uint8_t cell_data[kDataSize];
-  int col;
+  int col = g_fast_random_pool.GetRandom() % hitcon::game::kNumCols;
   bool ok =
       hitcon::game::get_random_cell_data_for_ir_transmission(cell_data, &col);
   if (ok) {
-    // Package the data and send to IrLogic.
+    IrData irdata = {
+        .ttl = 0,
+        .type = packet_type::kGame,
+        .game =
+            {
+                .col = col,
+            },
+    };
+    memcpy(irdata.game.data, cell_data, kDataSize);
+    uint8_t irdata_len = sizeof(irdata) / sizeof(uint8_t);
+    irLogic.SendPacket(reinterpret_cast<uint8_t*>(&irdata), irdata_len);
   }
+
   send_lock = true;
 }
 
