@@ -11,6 +11,12 @@ namespace xboard {
 
 XBoardLogic g_xboard_logic;
 
+namespace {
+inline uint16_t inc_head(size_t head, size_t offset) {
+  return (head + offset) % RX_BUF_SZ;
+}
+}  // namespace
+
 struct Frame {
   uint64_t preamble;  // 0xD555555555555555
   uint16_t id;
@@ -28,10 +34,6 @@ void XBoardLogic::SendPing() {
   //   pkt[i] = 0;
   // }
   g_xboard_service.QueueDataForTx(pkt, sizeof(pkt));
-}
-
-inline uint16_t inc_head(size_t head, size_t offset) {
-  return (head + offset) % RX_BUF_SZ;
 }
 
 bool XBoardLogic::TryReadBytes(uint8_t *dst, size_t size,
