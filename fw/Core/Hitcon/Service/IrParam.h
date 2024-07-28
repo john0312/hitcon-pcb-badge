@@ -62,6 +62,27 @@ constexpr size_t IR_BYTE_PER_RUN = IR_SERVICE_RX_SIZE/8;
 // An integer number of run is needed to fulfill the OnBufferRecv().
 static_assert(IR_SERVICE_RX_ON_BUFFER_SIZE%IR_BYTE_PER_RUN == 0);
 
+// How many bytes in the rx buffer to be all zero for us to consider the period
+// as quiet?
+// For period=16, the time is 16 bit, or about 16ms.
+constexpr size_t IR_LOADFACTOR_PERIOD = 16;
+
+// How much periods do we collect for the load factor computation?
+constexpr size_t IR_LOADFACTOR_SAMPLING_COUNT = 128;
+
+// Filter with center frequency of about 10 IR_LOADFACTOR_SAMPLING_COUNT.
+constexpr double LF_FC = 0.1;
+constexpr double LF_ALPHA_F = (2.0*3.14159*LF_FC)/(2.0*3.14159*LF_FC + 1.0);
+
+// Alpha for load factor low pass, in Q21.10 format.
+constexpr uint32_t LF_ALPHA = (static_cast<uint32_t>(LF_ALPHA_F*(1<<10)));
+constexpr uint32_t LF_ALPHA_COMPL = (1<<10)-LF_ALPHA;
+
+// We're scaling the load factor because 100% is impossible, so the actual
+// load factor reported is multiplied by this scale. We assumed the actual
+// maximum load to result in load factor = 1.0/LF_MAX_SCALE.
+constexpr uint32_t LF_MAX_SCALE = 5;
+
 }  // namespace ir
 }  // namespace hitcon
 

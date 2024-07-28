@@ -42,7 +42,7 @@ class IrLogic {
   void OnBufferReceivedEnqueueTask(uint8_t *buffer);
 
   // % of time in last 30 second whereby there's a transmission.
-  // 10000 => 100%
+  // 100 => 100%
   // 0 => 0%
   int GetLoadFactor();
 
@@ -57,6 +57,16 @@ class IrLogic {
 
   // To split OnBufferReceived into pieces
   size_t buffer_received_ctr;
+
+  // Total periods collected for load factor computation.
+  size_t lf_total_period;
+  // Total periods of non-zero (transmission) collected for load factor
+  // computation.
+  size_t lf_nonzero_period;
+
+  // Load factor after low pass filter.
+  // In Q15.16 fixed point.
+  uint32_t lowpass_loadfactor;
 };
 
 extern IrLogic irLogic;

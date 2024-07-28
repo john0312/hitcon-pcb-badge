@@ -15,7 +15,8 @@ IrLogic irLogic;
 service::sched::Task OnBufferReceivedTask(
     490, (service::sched::task_callback_t)&IrLogic::OnBufferReceived, &irLogic);
 
-IrLogic::IrLogic() {}
+IrLogic::IrLogic()
+    : lf_total_period(0), lf_nonzero_period(0), lowpass_loadfactor(0) {}
 
 void IrLogic::Init() {
   // Set callback
@@ -56,6 +57,34 @@ static uint8_t decode_bit(uint8_t x) {
 void IrLogic::OnBufferReceivedEnqueueTask(uint8_t *buffer) {
   buffer_received_ctr = 0;
   service::sched::scheduler.Queue(&OnBufferReceivedTask, buffer);
+
+  static_assert(IR_SERVICE_RX_ON_BUFFER_SIZE % IR_LOADFACTOR_PERIOD == 0);
+  static_assert(IR_LOADFACTOR_PERIOD % sizeof(uint32_t) == 0);
+  size_t pos = 0;
+  uint32_t current_period = 0;
+  uint32_t *u32_buffer = reinterpret_cast<uint32_t *>(buffer);
+  for (int i = 0; i < IR_SERVICE_RX_ON_BUFFER_SIZE / IR_LOADFACTOR_PERIOD;
+       i++) {
+    current_period = 0;
+    for (int j = 0; j < IR_LOADFACTOR_PERIOD / sizeof(uint32_t); j++) {
+      current_period |= u32_buffer[pos];
+      pos++;
+    }
+    if (current_period) {
+      lf_nonzero_period++;
+    }
+    lf_total_period++;
+  }
+  if (lf_total_period >= IR_LOADFACTOR_SAMPLING_COUNT) {
+    // current_lf is in Q15.16 fixed point.
+    uint32_t current_lf = (lf_nonzero_period << 16) / lf_total_period;
+    // Apply a low pass filter.
+    lowpass_loadfactor =
+        ((LF_ALPHA_COMPL * lowpass_loadfactor) + (LF_ALPHA * current_lf)) >> 10;
+    // Reset the counters.
+    lf_nonzero_period = 0;
+    lf_total_period = 0;
+  }
 }
 
 void IrLogic::OnBufferReceived(uint8_t *buffer) {
@@ -165,8 +194,11 @@ bool IrLogic::SendPacket(uint8_t *data, size_t len) {
 }
 
 int IrLogic::GetLoadFactor() {
-  // TODO
-  return 0;
+  int ret = lowpass_loadfactor;
+  ret = ret * 100 * LF_MAX_SCALE;
+  ret = ret >> 16;
+  if (ret > 100) ret = 100;
+  return ret;
 }
 
 }  // namespace ir
