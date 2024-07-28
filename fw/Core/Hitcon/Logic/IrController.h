@@ -66,6 +66,8 @@ class IrController {
   void BroadcastIr(void* unused);
 };
 
+extern IrController irController;
+
 }  // namespace ir
 }  // namespace hitcon
 

@@ -166,7 +166,7 @@ bool IrLogic::SendPacket(uint8_t *data, size_t len) {
 
 int IrLogic::GetLoadFactor() {
   // TODO
-  return 10000;
+  return 0;
 }
 
 }  // namespace ir

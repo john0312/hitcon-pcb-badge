@@ -75,5 +75,15 @@ void __game_generate_random_and_update_column(int column) {
   }
 }
 
+// Parse the received grid (either from other player or broadcaster) and call
+// this function to check if the grid has higher score than the existing grid.
+// If so, replace the existing grid.
+void __game_receive_and_update_column(int column, void *event_data) {
+  // TODO
+}
+
+void game_accept_data(int col, uint8_t* data){}
+bool get_random_cell_data_for_ir_transmission(uint8_t* out_data, int* out_col) {return true;}
+
 }  // namespace game
 }  // namespace hitcon

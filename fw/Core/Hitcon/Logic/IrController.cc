@@ -1,9 +1,10 @@
+#include "IrController.h"
 #include <Logic/IrController.h>
 #include <Logic/RandomPool.h>
 #include <Logic/game.h>
 #include <Service/IrService.h>
+#include <Service/Sched/Scheduler.h>
 #include <stdlib.h>
-#include <time.h>
 
 #include <cstring>
 
@@ -15,6 +16,8 @@ using hitcon::game::kDataSize;
 
 namespace hitcon {
 namespace ir {
+
+IrController irController;
 
 IrController::IrController()
     : routine_task(950, (callback_t)&IrController::RoutineTask, this, 1000),
@@ -31,6 +34,9 @@ void IrController::Send2Game(void* arg) {
 void IrController::Init() {
   irLogic.SetOnPacketReceived((callback_t)&IrController::OnPacketReceived,
                               this);
+  
+  scheduler.Queue(&routine_task, nullptr);
+  scheduler.EnablePeriodic(&routine_task);
 }
 
 void IrController::OnPacketReceived(void* arg) {
