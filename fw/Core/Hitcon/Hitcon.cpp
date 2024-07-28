@@ -48,17 +48,17 @@ void hitcon_run() {
   g_xboard_service.Init();
   g_xboard_logic.Init();
   badge_controller.Init();
+  hitcon::ir::irService.Init();
+  hitcon::ir::irLogic.Init();
 
   // run hardware test mode if MODE/SETTINGS Button is pressed during
   // initializing
-  if (HAL_GPIO_ReadPin(BtnA_GPIO_Port, BtnA_Pin) == GPIO_PIN_RESET) {
+  if (HAL_GPIO_ReadPin(BtnA_GPIO_Port, BtnA_Pin) == GPIO_PIN_SET) {
     hardware_test_app.Init();
     badge_controller.change_app(&hardware_test_app);
   }
 
-  hitcon::ir::irService.Init();
-  hitcon::ir::irLogic.Init();
-  scheduler.Queue(&InitTask, nullptr);
+  //  scheduler.Queue(&InitTask, nullptr);
 
   scheduler.Run();
 }
