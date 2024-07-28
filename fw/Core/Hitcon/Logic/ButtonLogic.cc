@@ -1,9 +1,10 @@
 #include <Logic/ButtonLogic.h>
 #include <Service/ButtonService.h>
+#include <Service/Sched/Scheduler.h>
 #include <main.h>
 
 #include <cstdint>
-
+using namespace hitcon::service::sched;
 namespace hitcon {
 ButtonLogic g_button_logic;
 
@@ -39,10 +40,12 @@ void ButtonLogic::OnReceiveData(uint8_t* data) {
         if (BOUNCE_TIME_THRESHOLD < _count[j] &&
             _count[j] <= LONG_PRESS_TIME_THRESHOLD) {  // handle short press
           _out = BUTTON_MODE + j;
-          CallbackWrapper(reinterpret_cast<void*>(static_cast<size_t>((_out))));
+          scheduler.Queue(&_callback_task,
+                          reinterpret_cast<void*>(static_cast<size_t>((_out))));
         } else if (LONG_PRESS_TIME_THRESHOLD < _count[j]) {
           _out = BUTTON_LONG_MODE + j;
-          CallbackWrapper(reinterpret_cast<void*>(static_cast<size_t>((_out))));
+          scheduler.Queue(&_callback_task,
+                          reinterpret_cast<void*>(static_cast<size_t>((_out))));
         }
         _count[j] = 0;
       }
@@ -52,7 +55,8 @@ void ButtonLogic::OnReceiveData(uint8_t* data) {
     if (counter == 5) {
       counter = 0;
       _out = BUTTON_MODE + _fire;
-      CallbackWrapper(reinterpret_cast<void*>(static_cast<size_t>((_out))));
+      scheduler.Queue(&_callback_task,
+                      reinterpret_cast<void*>(static_cast<size_t>((_out))));
     }
     counter++;
   }
