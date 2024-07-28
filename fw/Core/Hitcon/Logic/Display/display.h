@@ -151,6 +151,8 @@ void display_set_mode_scroll_packed(const display_buf_t *buf, int n_col,
                                     int speed);
 void display_set_mode_scroll_packed(const display_buf_t *buf, int n_col);
 
+void display_set_mode_text(const char *text);
+
 // Rasterize `text` to the underlying display buffer.
 // If the text is too long, the output will be truncated.
 void display_set_mode_scroll_text(const char *text, int speed);
