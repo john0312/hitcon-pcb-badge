@@ -13,7 +13,7 @@ namespace ir {
 
 IrLogic irLogic;
 service::sched::Task OnBufferReceivedTask(
-    450, (service::sched::task_callback_t)&IrLogic::OnBufferReceived, &irLogic);
+    500, (service::sched::task_callback_t)&IrLogic::OnBufferReceived, &irLogic);
 
 IrLogic::IrLogic() {}
 
@@ -67,7 +67,7 @@ void IrLogic::OnBufferReceived(uint8_t *buffer) {
   static uint8_t bit{0};
   for (size_t i = 0; i < IR_SERVICE_RX_BUFFER_PER_RUN &&
                      buffer_received_ctr < IR_SERVICE_RX_ON_BUFFER_SIZE;
-       i++) {
+       i++, buffer_received_ctr++) {
     for (uint8_t j = 0; j < 8; j++) {
       uint8_t is_on = (buffer[buffer_received_ctr] & (1 << j)) ? 1 : 0;
       switch (packet_state) {
