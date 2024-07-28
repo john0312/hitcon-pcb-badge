@@ -82,8 +82,10 @@ void __game_receive_and_update_column(int column, void *event_data) {
   // TODO
 }
 
-void game_accept_data(int col, uint8_t* data){}
-bool get_random_cell_data_for_ir_transmission(uint8_t* out_data, int* out_col) {return true;}
+void game_accept_data(int col, uint8_t *data) {}
+bool get_random_cell_data_for_ir_transmission(uint8_t *out_data, int *out_col) {
+  return true;
+}
 
 }  // namespace game
 }  // namespace hitcon
