@@ -10,10 +10,10 @@
 #include <Logic/BadgeController.h>
 #include <Logic/ButtonLogic.h>
 #include <Logic/DisplayLogic.h>
+#include <Logic/IrController.h>
 #include <Logic/IrLogic.h>
 #include <Logic/NvStorage.h>
 #include <Logic/XBoardLogic.h>
-#include <Logic/IrController.h>
 #include <Service/ButtonService.h>
 #include <Service/DisplayService.h>
 #include <Service/FlashService.h>

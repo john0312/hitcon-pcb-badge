@@ -1,4 +1,5 @@
 #include "IrController.h"
+
 #include <Logic/IrController.h>
 #include <Logic/RandomPool.h>
 #include <Logic/game.h>
@@ -34,7 +35,7 @@ void IrController::Send2Game(void* arg) {
 void IrController::Init() {
   irLogic.SetOnPacketReceived((callback_t)&IrController::OnPacketReceived,
                               this);
-  
+
   scheduler.Queue(&routine_task, nullptr);
   scheduler.EnablePeriodic(&routine_task);
 }
