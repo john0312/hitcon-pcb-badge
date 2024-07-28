@@ -77,6 +77,16 @@ private:
   */
   uint32_t tx_state;
 
+  // How long has rx been quiet?
+  // This is in units of 8/DECODE_SAMPLE_RATIO bit time.
+  size_t rx_quiet_cnt;
+
+  // How long should we wait until we transmit?
+  size_t rx_required_quiet_period;
+
+  // How many RX DMA Run since the tx is released?
+  size_t rx_ctr_since_release;
+
   hitcon::service::sched::PeriodicTask routine_task;
 
   hitcon::service::sched::Task on_rx_callback_runner;

@@ -1,3 +1,4 @@
+#include <Logic/RandomPool.h>
 #include <Service/IrService.h>
 #include <main.h>
 #include <stm32f1xx_ll_gpio.h>
@@ -22,7 +23,8 @@ IrService::IrService()
       routine_task(600, (callback_t)&IrService::Routine, this, 22),
       on_rx_callback_runner(500, (callback_t)&IrService::OnBufferRecvWrapper,
                             this),
-      rx_buffer_base(0), rx_on_buffer_callback_finished(true) {}
+      rx_buffer_base(0), rx_on_buffer_callback_finished(true), rx_quiet_cnt(0),
+      rx_required_quiet_period(500), rx_ctr_since_release(100000) {}
 
 void ReceiveDmaHalfCplt(DMA_HandleTypeDef *hdma) {
   scheduler.Queue(&irService.dma_rx_pull_task, reinterpret_cast<void *>(0));
@@ -53,8 +55,21 @@ void IrService::PullRxDmaBuffer(void *ptr_side) {
       bool cbit = !static_cast<bool>(rx_dma_buffer[dma_base + k] & IrRx_Pin);
       rx_buffer[rx_buffer_base] |= (-static_cast<int8_t>(cbit)) & (1 << j);
     }
+    if (rx_buffer[rx_buffer_base])
+      rx_quiet_cnt = 0;
+    else
+      rx_quiet_cnt++;
+
     rx_buffer_base++;
   }
+  rx_ctr_since_release++;
+  if (rx_ctr_since_release == 1) {
+    if ((rx_buffer[38] & 0x0F0) != 0 || (rx_buffer[39] & 0x0F) != 0) {
+      // Abort transmission.
+      tx_state = 0x02000000;
+    }
+  }
+
   rx_buffer_base = rx_buffer_base % (IR_SERVICE_RX_ON_BUFFER_SIZE * 2);
   if (rx_buffer_base % IR_SERVICE_RX_ON_BUFFER_SIZE == 0) {
     my_assert(rx_on_buffer_callback_finished);
@@ -62,6 +77,14 @@ void IrService::PullRxDmaBuffer(void *ptr_side) {
 
     // Are we sending the second half to the callback?
     bool is_second = !(rx_buffer_base / IR_SERVICE_RX_ON_BUFFER_SIZE);
+
+    if (!is_second && tx_state >> 24 == 0x01 &&
+        rx_quiet_cnt > rx_required_quiet_period) {
+      tx_state = 0x03000000;
+      rx_ctr_since_release = 0;
+    }
+
+    // Compute the buffer.
     uint8_t *buffer_ptr = &rx_buffer[(-static_cast<size_t>(is_second)) &
                                      IR_SERVICE_RX_ON_BUFFER_SIZE];
     rx_on_buffer_callback_finished = false;
@@ -75,15 +98,16 @@ void IrService::OnBufferRecvWrapper(void *arg2) {
 }
 
 void IrService::Init() {
+  hdma_tim2_ch3.XferHalfCpltCallback = &ReceiveDmaHalfCplt;
+  hdma_tim2_ch3.XferCpltCallback = &ReceiveDmaCplt;
+
+  hdma_tim3_ch3.XferCpltCallback = &TransmitDmaCplt;
+  hdma_tim3_ch3.XferHalfCpltCallback = &TransmitDmaHalfCplt;
   __HAL_TIM_ENABLE_DMA(&htim2, TIM_DMA_CC3);
   HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_3);
   LL_GPIO_AF_RemapPartial2_TIM2();
-  hdma_tim2_ch3.XferHalfCpltCallback = &ReceiveDmaHalfCplt;
-  hdma_tim2_ch3.XferCpltCallback = &ReceiveDmaCplt;
   __HAL_TIM_ENABLE_DMA(&htim3, TIM_DMA_CC3);
   HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_3);
-  hdma_tim3_ch3.XferCpltCallback = &TransmitDmaCplt;
-  hdma_tim3_ch3.XferHalfCpltCallback = &TransmitDmaHalfCplt;
   HAL_DMA_Start_IT(&hdma_tim2_ch3, reinterpret_cast<uint32_t>(&GPIOA->IDR),
                    reinterpret_cast<uint32_t>(rx_dma_buffer),
                    IR_SERVICE_RX_SIZE * 2);
@@ -163,13 +187,17 @@ void IrService::PopulateTxDmaBuffer(void *ptr_side) {
 }
 
 void IrService::Routine(void *arg1) {
-  uint32_t tx_cstate = tx_state >> 24;
-  if (tx_cstate == 0x01) {
-    tx_state++;
-    size_t ctr = tx_state & 0x00FFFFFF;
-    if (ctr == 1) {
-      tx_state = 0x03000000;
-    }
+  rx_required_quiet_period = 20 + g_fast_random_pool.GetRandom() % 32;
+  if (rx_ctr_since_release >= 100000) rx_ctr_since_release = 100000;
+
+  if (tx_state>>24==0x02) {
+	  // Collision, let's wait randomly.
+	  tx_state++;
+	  int collision_wait = tx_state & 0x00FFFFFF;
+	  if (collision_wait >= (32+g_fast_random_pool.GetRandom() % 64)) {
+		  // Wait's over, retransmit.
+		  tx_state = 0x01000000;
+	  }
   }
 }
 
