@@ -11,8 +11,11 @@ namespace xboard {
 
 XBoardLogic g_xboard_logic;
 
-constexpr size_t PKT_PAYLOAD_LEN_MAX = 256;
-static uint8_t packet_payload[PKT_PAYLOAD_LEN_MAX];
+namespace {
+inline uint16_t inc_head(size_t head, size_t offset) {
+  return (head + offset) % RX_BUF_SZ;
+}
+}  // namespace
 
 struct Frame {
   uint64_t preamble;  // 0xD555555555555555
@@ -23,15 +26,7 @@ struct Frame {
 };
 constexpr size_t HEADER_SZ = sizeof(Frame);
 
-uint8_t tx_buf[] = "Hello World";
-uint8_t rx_buf[RX_BUF_SZ] = {0};
-static uint16_t prod_head = 0;
-static uint16_t cons_head = 0;
-static bool recv_ping = false;
-static uint8_t no_ping_count = 0;
-
-uint8_t alive_message[] = "alive_message";
-void send_ping() {
+void XBoardLogic::SendPing() {
   uint8_t pkt[sizeof(Frame)] = {0};
   *(Frame *)pkt = Frame{0xD555555555555555, 0, 0, 8, 0};
   // for (int i = 0; i < sizeof(Frame); i++) {
@@ -41,14 +36,8 @@ void send_ping() {
   g_xboard_service.QueueDataForTx(pkt, sizeof(pkt));
 }
 
-inline uint16_t inc_head(size_t head, size_t offset) {
-  return (head + offset) % RX_BUF_SZ;
-}
-
-// read `size` bytes from `rx_buf` to `dst`
-// if `head_offset` > 0, start reading from cons_head + head_offset
-// return false if no enough bytes to read
-bool try_read_bytes(uint8_t *dst, size_t size, uint16_t head_offset = 0) {
+bool XBoardLogic::TryReadBytes(uint8_t *dst, size_t size,
+                               uint16_t head_offset) {
   uint16_t _cons_head = inc_head(cons_head, head_offset);
   if (cons_head == prod_head) {
     if (_cons_head != cons_head) return false;
@@ -91,13 +80,12 @@ void XBoardLogic::ParsePacket() {
     }
 
     Frame header;
-    try_read_bytes((uint8_t *)&header, HEADER_SZ);
+    TryReadBytes((uint8_t *)&header, HEADER_SZ);
     if (header.preamble != 0xD555555555555555) {
       cons_head = inc_head(cons_head, 1);
       continue;
     }
-    if (!try_read_bytes((uint8_t *)&packet_payload, header.len,
-                        sizeof(Frame))) {
+    if (!TryReadBytes((uint8_t *)&packet_payload, header.len, sizeof(Frame))) {
       // no enough bytes to read, wait more bytes in
       return;
     }
@@ -144,7 +132,7 @@ void XBoardLogic::SetOnPacketArrive(callback_t callback, void *self) {
 }
 
 void XBoardLogic::Routine(void *) {
-  send_ping();
+  SendPing();
   ParsePacket();
   CheckPing();
 }
@@ -154,7 +142,7 @@ void XBoardLogic::OnByteArrive(void *arg1) {
   uint16_t next_prod_head = inc_head(prod_head, 1);
   if (next_prod_head == cons_head) {
     // drop the data
-    // AssertOverflow();
+    AssertOverflow();
     return;
   }
   rx_buf[prod_head] = b;

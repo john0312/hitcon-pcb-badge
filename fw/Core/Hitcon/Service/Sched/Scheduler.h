@@ -15,7 +15,7 @@
 #include "Task.h"
 #include "DelayedTask.h"
 #include "PeriodicTask.h"
-
+#include <cstdint>
 
 namespace hitcon {
 namespace service {
@@ -36,9 +36,16 @@ For real time task that has hard deadline, such as display refresh/trigger,
 we use priority 100-200.
 */
 
+struct TaskRecord {
+	Task* task;
+	uint32_t startTime;
+	uint32_t endTime;
+};
+
 class Scheduler {
 private:
 	static constexpr size_t kAddQueueSize = 8;
+	static constexpr size_t kRecordSize = 20;
 
 	Heap<Task, 32> tasks;
 	Heap<DelayedTask, 16> delayedTasks;
@@ -54,6 +61,9 @@ private:
 	size_t delayedTasksAddQueueTail = 0;
 
 	size_t totalTasks = 0;
+
+	TaskRecord taskRecords[kRecordSize];
+	size_t record_index{0};
 
 	void DelayedHouseKeeping();
 public:

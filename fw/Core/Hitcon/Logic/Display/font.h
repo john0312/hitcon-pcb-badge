@@ -3,7 +3,7 @@
 
 #define CHAR_WIDTH 6
 #define CHAR_HEIGHT 8
-#define PRINTABLE_START 33
+#define PRINTABLE_START 32
 #define PRINTABLE_END 127
 
 #define rasterize_char_5x8(ch, row, col) \

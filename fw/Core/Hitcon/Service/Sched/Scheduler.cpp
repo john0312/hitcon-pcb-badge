@@ -153,7 +153,14 @@ void Scheduler::Run() {
       top.ExitQueue();
     }
     totalTasks++;
+    TaskRecord record;
+    record.startTime = SysTimer::GetTime();
+    record.task = &top;
     top.Run();
+    record.endTime = SysTimer::GetTime();
+    taskRecords[record_index] = record;
+    record_index++;
+    if (record_index == kRecordSize) record_index = 0;
   }
 }
 

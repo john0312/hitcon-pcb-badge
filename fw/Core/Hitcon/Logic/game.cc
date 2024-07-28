@@ -26,21 +26,36 @@ score_t grid_score(const grid_cell_t *grid) {
   return 0;
 }
 
-game_storage_t new_storage() {
-  game_storage_t storage;
+static void init_game_storage() {
+  game_storage_t &storage = game_get_storage();
   for (int i = 0; i < kNumCols; i++) {
     for (int j = 0; j < kNumRows; j++) {
-      for (int k = 0; k < kDataSize; k++) {
-        storage.cells[i][j] = random_grid();
-      }
+      storage.cells[i][j] = random_grid();
     }
   }
-  return storage;
 }
 
 void game_init() {
   // Note: If all data cell in game_get_storage() is 0, then it's new and should
   // be inited. Init any tasks here.
+  game_storage_t &storage = game_get_storage();
+
+  // check if the storage is empty
+  bool empty = true;
+  for (int i = 0; i < kNumCols; i++) {
+    for (int j = 0; j < kNumRows; j++) {
+      if (grid_score(&storage.cells[i][j]) != 0) {
+        empty = false;
+      }
+    }
+  }
+
+  // if empty, generate random data
+  if (empty) {
+    init_game_storage();
+  }
+
+  // TODO: init other tasks
 }
 
 game_storage_t &game_get_storage() {
