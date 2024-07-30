@@ -35,6 +35,7 @@
   (zlib format), rfc1951 (deflate format) and rfc1952 (gzip format).
 */
 
+#include <crc.h>
 #include <stddef.h>
 #include <stdint.h>
 
@@ -115,4 +116,13 @@ uint32_t crc32(const uint8_t *buffer, size_t len) {
       DO1(buffer);
     } while (--len);
   return crc ^ 0xffffffffL;
+}
+
+// CRC-32/MPEG-2
+uint32_t fast_crc32(const uint8_t *buffer, size_t len) {
+  len /= 4;
+
+  return HAL_CRC_Calculate(
+      &hcrc, const_cast<uint32_t *>(reinterpret_cast<const uint32_t *>(buffer)),
+      len);
 }

@@ -19,6 +19,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "adc.h"
+#include "crc.h"
 #include "dma.h"
 #include "tim.h"
 #include "usart.h"
@@ -100,6 +101,7 @@ int main(void)
   MX_TIM2_Init();
   MX_TIM4_Init();
   MX_ADC1_Init();
+  MX_CRC_Init();
   /* USER CODE BEGIN 2 */
   hitcon_run();
 
