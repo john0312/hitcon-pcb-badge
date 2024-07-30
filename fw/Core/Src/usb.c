@@ -24,7 +24,6 @@
 
 /* USER CODE END 0 */
 
-PCD_HandleTypeDef hpcd_USB_FS;
 
 /* USB init function */
 
@@ -52,38 +51,6 @@ void MX_USB_PCD_Init(void)
 
   /* USER CODE END USB_Init 2 */
 
-}
-
-void HAL_PCD_MspInit(PCD_HandleTypeDef* pcdHandle)
-{
-
-  if(pcdHandle->Instance==USB)
-  {
-  /* USER CODE BEGIN USB_MspInit 0 */
-
-  /* USER CODE END USB_MspInit 0 */
-    /* USB clock enable */
-    __HAL_RCC_USB_CLK_ENABLE();
-  /* USER CODE BEGIN USB_MspInit 1 */
-
-  /* USER CODE END USB_MspInit 1 */
-  }
-}
-
-void HAL_PCD_MspDeInit(PCD_HandleTypeDef* pcdHandle)
-{
-
-  if(pcdHandle->Instance==USB)
-  {
-  /* USER CODE BEGIN USB_MspDeInit 0 */
-
-  /* USER CODE END USB_MspDeInit 0 */
-    /* Peripheral clock disable */
-    __HAL_RCC_USB_CLK_DISABLE();
-  /* USER CODE BEGIN USB_MspDeInit 1 */
-
-  /* USER CODE END USB_MspDeInit 1 */
-  }
 }
 
 /* USER CODE BEGIN 1 */
