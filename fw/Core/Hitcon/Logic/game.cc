@@ -1,9 +1,12 @@
 #include "game.h"
 
 #include <Logic/NvStorage.h>
+#include <Logic/RandomPool.h>
 
 namespace hitcon {
 namespace game {
+
+GameQueue game_queue;
 
 // Implements the ln() with approximate polynomial.
 // The output is in Q9.22 fixed point number, while the input is in
@@ -15,15 +18,26 @@ int32_t q22_ln(uint32_t) {
 game_cache_t game_cache;
 
 grid_cell_t random_grid() {
-  // TODO
-  return (grid_cell_t){0};
+  grid_cell_t cell;
+  for (uint8_t i = 0; i < kDataSize; i++)
+    cell.data[i] = g_fast_random_pool.GetRandom();
+  return cell;
 }
 
 score_t grid_score(const grid_cell_t *grid) {
   // TODO
   // Note: This probably has to be reimplemented because it spans multiple
   // tasks.
-  return 0;
+  sha3_context priv;
+
+  // TODO: split into tasks
+  if (sha3_Init256(&priv, 256) != SHA3_RETURN_OK) return 0;
+  // TODO: update with col key
+  // sha3_UpdateWord();
+  for (int i = 0; i < kDataSize; i++) sha3_UpdateWord(priv, grid->data[i]);
+
+  // TODO: return what??
+  return q22_ln(priv);
 }
 
 static void init_game_storage() {
@@ -82,7 +96,10 @@ void __game_receive_and_update_column(int column, void *event_data) {
   // TODO
 }
 
-void game_accept_data(int col, uint8_t *data) {}
+void game_accept_data(int col, uint8_t *data) {
+  // TODO: schedule task deal with accepting data
+  game_queue.push(col, data);
+}
 bool get_random_cell_data_for_ir_transmission(uint8_t *out_data, int *out_col) {
   return true;
 }

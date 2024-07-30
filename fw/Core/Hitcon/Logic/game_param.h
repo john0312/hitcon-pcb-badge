@@ -55,6 +55,9 @@ constexpr size_t IrAllowBroadcastCnt = sizeof(IrAllowedBroadcastCol)/sizeof(IrAl
 constexpr int InternalGenCol[] = {0, 1, 2};
 constexpr size_t InternalGenColCnt = sizeof(InternalGenCol)/sizeof(InternalGenCol[0]);
 
+// circular queue size
+constexpr size_t kQueueSize = 32;
+
 }  // namespace game
 }  // namespace hitcon
 
