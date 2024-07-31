@@ -4,7 +4,7 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#include <Logic/game_param.h>
+#include <Logic/GameParam.h>
 #include <Service/Sched/Scheduler.h>
 #include <Util/callback.h>
 
