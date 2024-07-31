@@ -2,7 +2,7 @@
 #define LOGIC_IRCONTROLLER_DOT_H_
 
 #include <Logic/IrLogic.h>
-#include <Logic/game.h>
+#include <Logic/GameLogic.h>
 #include <Service/IrService.h>
 #include <Service/Sched/PeriodicTask.h>
 #include <Service/Sched/Scheduler.h>

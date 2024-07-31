@@ -1,5 +1,5 @@
-#include "game.h"
 
+#include <Logic/GameLogic.h>
 #include <Logic/NvStorage.h>
 #include <Logic/RandomPool.h>
 
