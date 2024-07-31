@@ -2,7 +2,7 @@
 """
 Created on Fri Jul 12 14:16:46 2024
 @author: Arthur (Tora0615)
-
+    
 ============ CLI with auto detect/refresh in multi-devices ================ 
 """
 # TODO : besides board detect, we should also check STLINK connection
@@ -10,15 +10,16 @@ Created on Fri Jul 12 14:16:46 2024
 import curses
 import threading
 import time
+import subprocess
 
 import fw_flash
 import setting
 
 # const value
 # ------- this part can be changed by frontend ----------
-FW_ELF_PATH = "C:\\Users\\Arthur\\Desktop\\test\\fw.elf"
+FW_ELF_PATH = "C:\\Users\\a8701\\Documents\\Development\\hitcon-pcb-badge\\pcb-util\\fw.elf"
 ST_PRO_PATH = (
-    "C:\\Program Files\\STMicroelectronics\\STM32Cube\\STM32CubeProgrammer\\bin"
+    "C:\\Program Files (x86)\\STMicroelectronics\\STM32Cube\\STM32CubeProgrammer\\bin"
 )
 ST_PRO_EXE = "STM32_Programmer_CLI.exe"
 # ------- this part can be changed by frontend ----------
@@ -149,3 +150,4 @@ def main_loop(stdscr):
 
 if __name__ == "__main__":
     curses.wrapper(main_loop)  # type: ignore [attr-defined]
+    

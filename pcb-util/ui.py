@@ -3,6 +3,7 @@ from enum import Enum, auto
 import streamlit as st
 import time
 import os
+import subprocess
 
 # status enum class
 class ST_STATUS(Enum):
@@ -53,7 +54,6 @@ def update_state(state_to_update):
     with status_text:
         st.write(str(ST_STATUS(state_to_update).name))
 
-
 # Display initial message
 with description:
     st.header("HITCON 2024 FW Flasher(Singledrop)")
@@ -82,10 +82,8 @@ with progress_text:
 with path:
     FW_ELF_PATH = st.text_input("Path of FW to be flashed (.elf) ")
     
-    # Check if FW ends with .elf
-    ST_PRO_PATH, ST_PRO_EXE = os.path.split(FW_ELF_PATH)
     # Check if the file name ends with ".elf"
-    if ST_PRO_EXE.endswith(".elf"):
+    if FW_ELF_PATH.endswith(".elf"):
         st.success("valid path")
     else:
         st.error("FW path should end with .elf")
@@ -100,12 +98,12 @@ with path:
         st.error("ST_PROGRAMMER path should end with .exe")
     
     # Test if path is correctly parsed
-    # st.markdown("**FW_ELF_PATH**")
-    # st.write(FW_ELF_PATH)
-    # st.markdown("**ST_PRO_PATH**")
-    # st.write(ST_PRO_PATH)
-    # st.markdown("**ST_PRO_EXE**")
-    # st.write(ST_PRO_EXE)
+    st.markdown("**FW_ELF_PATH**")
+    st.write(FW_ELF_PATH)
+    st.markdown("**ST_PRO_PATH**")
+    st.write(ST_PRO_PATH)
+    st.markdown("**ST_PRO_EXE**")
+    st.write(ST_PRO_EXE)
 
 # UI test inputs for different stage
 with button:
