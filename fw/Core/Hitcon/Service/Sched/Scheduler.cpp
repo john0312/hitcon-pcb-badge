@@ -28,13 +28,10 @@ bool Scheduler::Queue(Task *task, void *arg) {
   bool result = true;
   // TODO: Disable Interrupt.
   __disable_irq();
-  if ((tasksAddQueueTail + 1) % kAddQueueSize == tasksAddQueueHead) {
+  if (!tasksAddQueue.PushBack(task)) {
     // Overflow, we need to drop this request.
     result = false;
     AssertOverflow();
-  } else {
-    tasksAddQueue[tasksAddQueueTail] = task;
-    tasksAddQueueTail = (tasksAddQueueTail + 1) % kAddQueueSize;
   }
   // TODO: Enable Interrupt.
   __enable_irq();
@@ -47,14 +44,10 @@ bool Scheduler::Queue(DelayedTask *task, void *arg) {
   bool result = true;
   // TODO: Disable Interrupt.
   __disable_irq();
-  if ((delayedTasksAddQueueTail + 1) % kAddQueueSize ==
-      delayedTasksAddQueueHead) {
+  if (!delayedTasksAddQueue.PushBack(task)) {
     // Overflow, we need to drop this request.
     result = false;
     AssertOverflow();
-  } else {
-    delayedTasksAddQueue[delayedTasksAddQueueTail] = task;
-    delayedTasksAddQueueTail = (delayedTasksAddQueueTail + 1) % kAddQueueSize;
   }
   // TODO: Enable Interrupt.
   __enable_irq();
@@ -101,25 +94,25 @@ bool Scheduler::DisablePeriodic(PeriodicTask *task) {
 
 void Scheduler::DelayedHouseKeeping() {
   // Handle all Queue operations.
-  while (tasksAddQueueHead != tasksAddQueueTail) {
-    bool ret = tasks.Add(tasksAddQueue[tasksAddQueueHead]);
+  while (!tasksAddQueue.IsEmpty()) {
+    bool ret = tasks.Add(tasksAddQueue.Front());
     if (!ret) {
       // Heap is full.
       AssertOverflow();
       break;
     }
-    tasksAddQueue[tasksAddQueueHead]->EnterQueue();
-    tasksAddQueueHead = (tasksAddQueueHead + 1) % kAddQueueSize;
+    tasksAddQueue.Front()->EnterQueue();
+    tasksAddQueue.PopFront();
   }
-  while (delayedTasksAddQueueHead != delayedTasksAddQueueTail) {
-    bool ret = delayedTasks.Add(delayedTasksAddQueue[delayedTasksAddQueueHead]);
+  while (!delayedTasksAddQueue.IsEmpty()) {
+    bool ret = delayedTasks.Add(delayedTasksAddQueue.Front());
     if (!ret) {
       // Heap is full.
       AssertOverflow();
       break;
     }
-    delayedTasksAddQueue[delayedTasksAddQueueHead]->EnterQueue();
-    delayedTasksAddQueueHead = (delayedTasksAddQueueHead + 1) % kAddQueueSize;
+    delayedTasksAddQueue.Front()->EnterQueue();
+    delayedTasksAddQueue.PopFront();
   }
   unsigned now = SysTimer::GetTime();
   while (delayedTasks.size()) {
