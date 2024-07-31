@@ -1,10 +1,39 @@
 import shutil
 from elftools.elf.elffile import ELFFile
 
+
 def duplicate_elf_file(original_file_path, new_file_path):
     """Duplicate the ELF file."""
     shutil.copy(original_file_path, new_file_path)
     print(f"Duplicated {original_file_path} to {new_file_path}")
+
+# Print the hex content around the specified position
+def print_hex_around_target_array(elf_file_path, array_offset, search_array, context_size=16):
+    with open(elf_file_path, 'rb') as f:
+        # Read the entire ELF file data
+        f.seek(0, 2)  # Move to the end of the file
+        file_size = f.tell()
+        f.seek(0)  # Move back to the start of the file
+
+        # Calculate the start and end offsets for context
+        start_offset = max(0, array_offset - context_size)
+        end_offset = min(file_size, array_offset + len(search_array) + context_size)
+
+        # Read the relevant section of the ELF file
+        f.seek(start_offset)
+        relevant_data = f.read(end_offset - start_offset)
+
+        # Print the hexadecimal representation of the relevant section
+        print(f"Hexadecimal Data around the found array at offset {hex(array_offset)}:")
+        hex_lines = []
+        for i in range(0, len(relevant_data), 16):
+            line_bytes = relevant_data[i:i+16]
+            hex_str = ' '.join(f'{byte:02x}' for byte in line_bytes)
+            offset_str = f'{start_offset + i:08x}'
+            hex_lines.append(f"{offset_str}: {hex_str}")
+
+        # Print all lines
+        print('\n'.join(hex_lines))
 
 def find_array_in_elf(elf_file_path, search_array):
     with open(elf_file_path, 'rb') as f:
@@ -35,33 +64,6 @@ def find_array_in_elf(elf_file_path, search_array):
     # Array not found
     return None, None
 
-def print_hex_around_array(elf_file_path, array_offset, search_array, context_size=16):
-    with open(elf_file_path, 'rb') as f:
-        # Read the entire ELF file data
-        f.seek(0, 2)  # Move to the end of the file
-        file_size = f.tell()
-        f.seek(0)  # Move back to the start of the file
-
-        # Calculate the start and end offsets for context
-        start_offset = max(0, array_offset - context_size)
-        end_offset = min(file_size, array_offset + len(search_array) + context_size)
-
-        # Read the relevant section of the ELF file
-        f.seek(start_offset)
-        relevant_data = f.read(end_offset - start_offset)
-
-        # Print the hexadecimal representation of the relevant section
-        print(f"Hexadecimal Data around the found array at offset {hex(array_offset)}:")
-        hex_lines = []
-        for i in range(0, len(relevant_data), 16):
-            line_bytes = relevant_data[i:i+16]
-            hex_str = ' '.join(f'{byte:02x}' for byte in line_bytes)
-            offset_str = f'{start_offset + i:08x}'
-            hex_lines.append(f"{offset_str}: {hex_str}")
-
-        # Print all lines
-        print('\n'.join(hex_lines))
-
 def replace_array_in_elf(elf_file_path, search_array, replace_array):
     if len(search_array) != len(replace_array):
         raise ValueError("Search and replace arrays must be of the same length.")
@@ -75,7 +77,7 @@ def replace_array_in_elf(elf_file_path, search_array, replace_array):
         # Seek to the offset and replace the array
         f.seek(array_offset)
         f.write(bytes(replace_array))
-        print(f"Replaced array at offset: {hex(array_offset)}")
+        print(f"Replace array at offset: {hex(array_offset)}")
 
 # Example usage
 original_elf_file_path = 'fw.elf'  # Original ELF file path
@@ -98,7 +100,7 @@ duplicate_elf_file(original_elf_file_path, duplicated_elf_file_path)
 array_offset, chunk = find_array_in_elf(elf_file_path, search_array)
 if array_offset is not None:
     print(f"Array found at offset: {hex(array_offset)}")
-    print_hex_around_array(elf_file_path, array_offset, search_array)
+    print_hex_around_target_array(elf_file_path, array_offset, search_array)
     
     # Replace the array
     replace_array_in_elf(elf_file_path, search_array, replace_array)
@@ -107,7 +109,7 @@ if array_offset is not None:
     array_offset, chunk = find_array_in_elf(elf_file_path, replace_array)
     if array_offset is not None:
         print(f"Array replaced at offset: {hex(array_offset)}")
-        print_hex_around_array(elf_file_path, array_offset, replace_array)
+        print_hex_around_target_array(elf_file_path, array_offset, replace_array)
     else:
         print("Array failed to be replaced in the ELF file.")
 
