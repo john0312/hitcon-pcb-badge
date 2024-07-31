@@ -1,9 +1,8 @@
 #ifdef HITCON_TEST_MODE
 
+#include <Logic/GameLogic.h>
 #include <stdio.h>
 #include <unistd.h>
-
-#include "game.h"
 
 #define STORAGE_PATH "/tmp/pcg-game.dat"
 

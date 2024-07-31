@@ -1,8 +1,8 @@
 #include "IrController.h"
 
+#include <Logic/GameLogic.h>
 #include <Logic/IrController.h>
 #include <Logic/RandomPool.h>
-#include <Logic/game.h>
 #include <Service/IrService.h>
 #include <Service/Sched/Scheduler.h>
 #include <stdlib.h>
