@@ -3,6 +3,7 @@
 
 #include <stddef.h>
 #include <stdint.h>
+#include <utility>
 
 #include <Logic/GameParam.h>
 
@@ -42,17 +43,20 @@ struct GameQueue {
   }
   bool push(int col, grid_cell_t data) {
     if (size() == 0) return false;
-    data[queue_end++] = std::make_pair(col, data);
+    datas[queue_end++] = std::make_pair(col, data);
     if(queue_end == kQueueSize)
       queue_end = 0;
     return true;
   }
-  std::pair<int, grid_cell_t> pop() {
-    if (size() == 0) return (grid_cell_t)0;
-    std::pair<int, grid_cell_t> ret = data[queue_start--];
+  std::pair<int, grid_cell_t>& top() {
+    return datas[queue_start];
+  }
+
+  void pop() {
+    if (size() == 0) return;
+    queue_start--;
     if (queue_start < 0)
       queue_start += kQueueSize;
-    return ret;
   }
 };
 

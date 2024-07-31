@@ -31,13 +31,13 @@ score_t grid_score(const grid_cell_t *grid) {
   sha3_context priv;
 
   // TODO: split into tasks
-  if (sha3_Init256(&priv, 256) != SHA3_RETURN_OK) return 0;
+  //if (sha3_Init256(&priv, 256) != SHA3_RETURN_OK) return 0;
   // TODO: update with col key
   // sha3_UpdateWord();
-  for (int i = 0; i < kDataSize; i++) sha3_UpdateWord(priv, grid->data[i]);
+  //for (int i = 0; i < kDataSize; i++) sha3_UpdateWord(priv, grid->data[i]);
 
   // TODO: return what??
-  return q22_ln(priv);
+  //return q22_ln(priv);
 }
 
 static void init_game_storage() {
@@ -98,7 +98,7 @@ void __game_receive_and_update_column(int column, void *event_data) {
 
 void game_accept_data(int col, uint8_t *data) {
   // TODO: schedule task deal with accepting data
-  game_queue.push(col, data);
+  //game_queue.push(col, data);
 }
 bool get_random_cell_data_for_ir_transmission(uint8_t *out_data, int *out_col) {
   return true;
