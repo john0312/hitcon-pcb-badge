@@ -3,10 +3,12 @@
 #include <Logic/NvStorage.h>
 #include <Logic/RandomPool.h>
 
+#include <cstring>
+
 namespace hitcon {
 namespace game {
 
-GameQueue game_queue;
+GameLogic gameLogic;
 
 // Implements the ln() with approximate polynomial.
 // The output is in Q9.22 fixed point number, while the input is in
@@ -40,25 +42,23 @@ score_t grid_score(const grid_cell_t *grid) {
   // return q22_ln(priv);
 }
 
-static void init_game_storage() {
-  game_storage_t &storage = game_get_storage();
+GameLogic::GameLogic() {}
+
+void GameLogic::InitGameStorage() {
   for (int i = 0; i < kNumCols; i++) {
     for (int j = 0; j < kNumRows; j++) {
-      storage.cells[i][j] = random_grid();
+      storage_->cells[i][j] = random_grid();
     }
   }
 }
 
-void game_init() {
-  // Note: If all data cell in game_get_storage() is 0, then it's new and should
-  // be inited. Init any tasks here.
-  game_storage_t &storage = game_get_storage();
-
+void GameLogic::Init(game_storage_t *storage) {
+  storage_ = storage;
   // check if the storage is empty
   bool empty = true;
   for (int i = 0; i < kNumCols; i++) {
     for (int j = 0; j < kNumRows; j++) {
-      if (grid_score(&storage.cells[i][j]) != 0) {
+      if (grid_score(&storage->cells[i][j]) != 0) {
         empty = false;
       }
     }
@@ -66,27 +66,10 @@ void game_init() {
 
   // if empty, generate random data
   if (empty) {
-    init_game_storage();
+    InitGameStorage();
   }
 
   // TODO: init other tasks
-}
-
-game_storage_t &game_get_storage() {
-  return g_nv_storage.GetCurrentStorage().game_storage;
-}
-
-// Generate a new grid and replace existing grid if score is higher.
-// Should be called periodically.
-void __game_generate_random_and_update_column(int column) {
-  grid_cell_t new_grid = random_grid();
-  for (int i = 0; i < kNumRows; i++) {
-    if (grid_score(&new_grid) >
-        grid_score(&game_get_storage().cells[column][i])) {
-      // TODO: sort column and replace the lowest score with the new grid
-      return;
-    }
-  }
 }
 
 // Parse the received grid (either from other player or broadcaster) and call
@@ -96,12 +79,28 @@ void __game_receive_and_update_column(int column, void *event_data) {
   // TODO
 }
 
-void game_accept_data(int col, uint8_t *data) {
+bool GameLogic::AcceptData(int col, uint8_t *data) {
   // TODO: schedule task deal with accepting data
   // game_queue.push(col, data);
 }
-bool get_random_cell_data_for_ir_transmission(uint8_t *out_data, int *out_col) {
+
+bool GameLogic::GetRandomDataForIrTransmission(uint8_t *out_data,
+                                               int *out_col) {
   return true;
+}
+
+void GameLogic::SetColumnPrefix(uint8_t *out, int col) {
+  // Copy "HITCON" to the output buffer
+  memcpy(out, "HITCON", 6);
+
+  // Convert col to uint16_t and split it into MSB and LSB
+  uint16_t col_uint16 = static_cast<uint16_t>(col);
+  uint8_t msb = (col_uint16 >> 8) & 0xFF;  // Most significant byte
+  uint8_t lsb = col_uint16 & 0xFF;         // Least significant byte
+
+  // Set the last 2 bytes of the output buffer to the MSB and LSB of col
+  out[6] = msb;
+  out[7] = lsb;
 }
 
 }  // namespace game
