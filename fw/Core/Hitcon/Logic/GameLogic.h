@@ -41,6 +41,11 @@ class GameLogic {
   game_cache_t cache_;
 
   enum RoutineState {
+    // Check if the cell data is all zero, if it's all zero then we need
+    // go to RANDOM_INIT_CELLS, if not we can go straight to
+    // POPULATING_CACHE_CELLS.
+    // Processes one column at a time, uses populating_cache_col_ to track.
+    CHECK_CELLS_VALID,
     // Sets the cell data to be random.
     // Each run of Routine() in this state populates one column, and uses
     // in_progress_col_.
@@ -82,7 +87,7 @@ class GameLogic {
     UPDATE_COL_PREFIX,
     // In this sub state, we run UpdateWord() on the actual cell data.
     UPDATE_CELL_DATA,
-    // In this sub state, we run Finalize() on the sha3 state.
+    // In this sub state, we run Finalize() on the sha3 state, we run 1 round at a time.
     FINALIZE_SHA3,
     // In this sub state, we comute the number of prefix 0 bit in the output.
     COMPUTE_SCORE
@@ -109,6 +114,9 @@ class GameLogic {
 
   // Computed in progress score for processing of AcceptData.
   int in_progress_cell_score_;
+
+  // Which round are we in, in sha3_Finalize_split()?
+  int sha3_finalize_round_;
 
   CircularQueue<std::pair<int, grid_cell_t>, kQueueSize> queue_;
 

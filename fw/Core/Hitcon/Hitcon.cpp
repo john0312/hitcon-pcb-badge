@@ -25,6 +25,7 @@
 using namespace hitcon;
 using namespace hitcon::service::sched;
 using namespace hitcon::service::xboard;
+using hitcon::game::gameLogic;
 
 void TestTaskFunc(void* unused1, void* unused2) {}
 void TestTask2Func(void* unused1, void* unused2) {}
@@ -54,6 +55,7 @@ void hitcon_run() {
   g_button_service.Init();
   g_xboard_service.Init();
   g_xboard_logic.Init();
+  gameLogic.Init(&(g_nv_storage.GetCurrentStorage().game_storage));
   badge_controller.Init();
   hitcon::ir::irService.Init();
   hitcon::ir::irLogic.Init();
