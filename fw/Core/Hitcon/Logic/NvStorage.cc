@@ -24,8 +24,8 @@ void NvStorage::Init() {
     nv_storage_content* page_content =
         reinterpret_cast<nv_storage_content*>(page_data);
     if (page_content->version > newest_version &&
-        crc32(page_data + sizeof(uint32_t),
-              sizeof(nv_storage_content) - sizeof(uint32_t)) ==
+        fast_crc32(page_data + sizeof(uint32_t),
+                   sizeof(nv_storage_content) - sizeof(uint32_t)) ==
             page_content->checksum) {
       newest_version = page_content->version;
       memcpy(&content_, page_content, sizeof(nv_storage_content));
@@ -50,8 +50,8 @@ void NvStorage::ForceFlushInternal() {
   if (g_flash_service.IsBusy()) return;
   memcpy(&write_buffer_, &content_, sizeof(nv_storage_content));
   write_buffer_.checksum =
-      crc32(reinterpret_cast<uint8_t*>(&write_buffer_) + sizeof(uint32_t),
-            sizeof(nv_storage_content) - sizeof(uint32_t));
+      fast_crc32(reinterpret_cast<uint8_t*>(&write_buffer_) + sizeof(uint32_t),
+                 sizeof(nv_storage_content) - sizeof(uint32_t));
   bool ret = g_flash_service.ProgramPage(
       next_available_page, reinterpret_cast<uint32_t*>(&write_buffer_),
       sizeof(nv_storage_content));
