@@ -58,8 +58,10 @@ typedef enum SHA3_RETURN sha3_return_t;
 /* For Init or Reset call these: */
 sha3_return_t sha3_Init(void *priv, unsigned bitSize);
 
-// Takes 0.95ms on STM32@12MHz, should only be called once per task.
+// Takes 16ms on STM32@12MHz, should be split.
 void keccakf(uint64_t s[25]);
+// Takes 0.7ms on STM32@12MHz, should only be called once per task.
+void keccakf_split(uint64_t s[25], int round);
 
 void sha3_Init256(void *priv);
 void sha3_Init384(void *priv);
@@ -67,14 +69,22 @@ void sha3_Init512(void *priv);
 
 enum SHA3_FLAGS sha3_SetFlags(void *priv, enum SHA3_FLAGS);
 
-// Takes 1 keccakf() call.
+// Takes up to 1 keccakf() call.
 void sha3_UpdateWord(void *priv, void const *bufIn);
 
 // Takes multiple keccakf() call and should not be used on STM32.
 void sha3_Update(void *priv, void const *bufIn, size_t len);
 
-// Tajes 1 keccakf() call.
+// Takes 1 keccakf() call.
 void const *sha3_Finalize(void *priv);
+
+// This is exactly the same as sha3_Finalize() but the caller is expected
+// to call this KECCAK_ROUNDS+2 times, each time giving round = 0 to
+// KECCAK_ROUNDS+1.
+// For round=0, it should handle anything before keccakf().
+// For round=1 to KECCAK_ROUNDS, it should call keccakf(round-1).
+// For round=KECCAK_ROUNDS+1, it should handle anything after keccakf().
+void const *sha3_Finalize_split(void *priv, int round);
 
 /* Single-call hashing */
 sha3_return_t sha3_HashBuffer( 
@@ -84,5 +94,6 @@ sha3_return_t sha3_HashBuffer(
     void *out, unsigned outBytes );     /* up to bitSize/8; truncation OK */
 
 constexpr size_t SHA3_256_HASH_SIZE = 256/8;
+constexpr size_t KECCAK_ROUNDS = 24;
 
 #endif

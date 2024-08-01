@@ -30,44 +30,15 @@ void GameLogic::RandomlySetGridCellValue(int row, int col) {
   }
 }
 
-score_t grid_score(const grid_cell_t *grid) {
-  // TODO
-  // Note: This probably has to be reimplemented because it spans multiple
-  // tasks.
-  sha3_context priv;
-
-  // TODO: split into tasks
-  // if (sha3_Init256(&priv, 256) != SHA3_RETURN_OK) return 0;
-  // TODO: update with col key
-  // sha3_UpdateWord();
-  // for (int i = 0; i < kDataSize; i++) sha3_UpdateWord(priv, grid->data[i]);
-
-  // TODO: return what??
-  // return q22_ln(priv);
-}
-
 GameLogic::GameLogic()
-    : routine_task(1000, (callback_t)&GameLogic::Routine, this, 19) {}
+    : routine_task(1000, (callback_t)&GameLogic::Routine, this, 0) {}
 
 void GameLogic::Init(game_storage_t *storage) {
   storage_ = storage;
-  // check if the storage is empty
-  bool empty = true;
-  for (int i = 0; i < kNumCols; i++) {
-    for (int j = 0; j < kNumRows; j++) {
-      if (grid_score(&storage->cells[i][j]) != 0) {
-        empty = false;
-      }
-    }
-  }
 
   // if empty, generate random data
+  routine_state_ = CHECK_CELLS_VALID;
   populating_cache_col_ = populating_cache_row_ = 0;
-  if (empty) {
-    routine_state_ = RANDOM_INIT_CELLS;
-  } else {
-    routine_state_ = POPULATING_CACHE_CELLS;
-  }
 
   scheduler.Queue(&routine_task, nullptr);
   scheduler.EnablePeriodic(&routine_task);
@@ -148,12 +119,17 @@ bool GameLogic::StepSubRoutine(int col, uint8_t *cell_data, int *out_score) {
     case UPDATE_CELL_DATA:
       sha3_UpdateWord(&routine_sha3_256_context_, cell_data);
       routine_sub_state_ = FINALIZE_SHA3;
+      sha3_finalize_round_ = 0;
       return false;
 
     case FINALIZE_SHA3: {
-      routine_sha3_hash_out_ = reinterpret_cast<const uint8_t *>(
-          sha3_Finalize(&routine_sha3_256_context_));
-      routine_sub_state_ = COMPUTE_SCORE;
+      routine_sha3_hash_out_ =
+          reinterpret_cast<const uint8_t *>(sha3_Finalize_split(
+              &routine_sha3_256_context_, sha3_finalize_round_));
+      sha3_finalize_round_++;
+      if (routine_sha3_hash_out_) {
+        routine_sub_state_ = COMPUTE_SCORE;
+      }
       return false;
     }
 
@@ -188,6 +164,33 @@ void GameLogic::ComputeFinalScore() {
 
 void GameLogic::Routine() {
   switch (routine_state_) {
+    case CHECK_CELLS_VALID: {
+      bool all_zero = true;
+      for (size_t row = 0; row < kNumRows; ++row) {
+        for (size_t byte = 0; byte < kDataSize; ++byte) {
+          if (storage_->cells[populating_cache_col_][row].data[byte] != 0) {
+            all_zero = false;
+            break;
+          }
+        }
+        if (!all_zero) break;
+      }
+
+      if (!all_zero) {
+        routine_state_ = POPULATING_CACHE_CELLS;
+        routine_sub_state_ = INIT_SHA3;
+        populating_cache_col_ = 0;
+        populating_cache_row_ = 0;
+      }
+
+      // Move to the next column for the next run
+      populating_cache_col_ = (populating_cache_col_ + 1) % kNumCols;
+      if (populating_cache_col_ == 0) {
+        routine_state_ = RANDOM_INIT_CELLS;
+        in_progress_col_ = 0;
+      }
+      break;
+    }
     case RANDOM_INIT_CELLS: {
       // Set the cell data to be random for the current column.
       for (size_t row = 0; row < kNumRows; ++row) {
@@ -200,6 +203,7 @@ void GameLogic::Routine() {
         routine_state_ = POPULATING_CACHE_CELLS;
         populating_cache_col_ = 0;
         populating_cache_row_ = 0;
+        routine_sub_state_ = INIT_SHA3;
       }
       break;
     }
