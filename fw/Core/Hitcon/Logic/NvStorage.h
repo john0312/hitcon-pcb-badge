@@ -7,6 +7,7 @@
 #include <Logic/GameParam.h>
 #include <Service/Sched/Scheduler.h>
 #include <Util/callback.h>
+#include <Service/FlashService.h>
 
 namespace hitcon {
 
@@ -21,7 +22,7 @@ typedef struct nv_storage_content_t {
 
 } nv_storage_content;
 
-static_assert(sizeof(nv_storage_content) <= 4096, "nv_storage_content is too large");
+static_assert(sizeof(nv_storage_content) <= MY_FLASH_PAGE_SIZE, "nv_storage_content is too large");
 static_assert(sizeof(nv_storage_content)%4==0);
 
 // This class manages the nv/flash storage, it handles the flushing/write and read of the persistent data.

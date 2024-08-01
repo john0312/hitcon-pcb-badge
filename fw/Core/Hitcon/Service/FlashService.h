@@ -8,6 +8,8 @@ namespace hitcon {
 
 constexpr size_t FLASH_PAGE_COUNT = 16;
 constexpr size_t FLASH_END_ADDR = 0x0801FFFF;
+constexpr size_t MY_FLASH_PAGE_SIZE = 0x800U;
+// actually 0x400U, so it would cost 32 pages
 
 class FlashService {
  public:

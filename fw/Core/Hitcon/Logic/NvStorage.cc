@@ -40,7 +40,7 @@ void NvStorage::Init() {
     force_flush = true;
   }
   storage_valid_ = true;
-
+  content_.version++;
   scheduler.Queue(&routine_task, nullptr);
   scheduler.EnablePeriodic(&routine_task);
 }
@@ -48,7 +48,6 @@ void NvStorage::Init() {
 void NvStorage::ForceFlushInternal() {
   if (!storage_dirty_) return;
   if (g_flash_service.IsBusy()) return;
-
   memcpy(&write_buffer_, &content_, sizeof(nv_storage_content));
   write_buffer_.checksum =
       crc32(reinterpret_cast<uint8_t*>(&write_buffer_) + sizeof(uint32_t),
@@ -60,7 +59,8 @@ void NvStorage::ForceFlushInternal() {
     storage_dirty_ = false;
     next_available_page = (next_available_page + 1) %
                           FLASH_PAGE_COUNT;  // Increment for the next write
-    last_flush_cycle = current_cycle;        // Record the current cycle
+    content_.version++;
+    last_flush_cycle = current_cycle;  // Record the current cycle
   }
 }
 
