@@ -83,4 +83,6 @@ sha3_return_t sha3_HashBuffer(
     const void *in, unsigned inBytes, 
     void *out, unsigned outBytes );     /* up to bitSize/8; truncation OK */
 
+constexpr size_t SHA3_256_HASH_SIZE = 256/8;
+
 #endif
