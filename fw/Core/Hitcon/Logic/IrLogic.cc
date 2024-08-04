@@ -31,6 +31,7 @@ enum PACKET_STATE {
   STATE_START = 0,
   STATE_SIZE = 1,
   STATE_DATA = 2,
+  STATE_RESET = 3
 };
 
 enum BIT_STATE {
@@ -119,7 +120,7 @@ void IrLogic::OnBufferReceived(uint8_t *buffer) {
           if ((packet_buf & 3) == 0) {
             if (decode_bit(bit) == BIT_INVALID) {
               // decode error
-              packet_state = STATE_START;
+              packet_state = STATE_RESET;
               return;
             }
             const uint8_t bitpos = (packet_buf / DECODE_SAMPLE_RATIO - 1);
@@ -130,7 +131,7 @@ void IrLogic::OnBufferReceived(uint8_t *buffer) {
           if (packet_buf == DECODE_SAMPLE_RATIO * 8) {
             if (rx_packet.size_ >= MAX_PACKET_PAYLOAD_BYTES) {
               // Packet too large.
-              packet_state = STATE_START;
+              packet_state = STATE_RESET;
             } else {
               packet_state = STATE_DATA;
               packet_buf = 0;
@@ -145,8 +146,8 @@ void IrLogic::OnBufferReceived(uint8_t *buffer) {
           if ((packet_buf % DECODE_SAMPLE_RATIO) == 0) {
             if (decode_bit(bit) == BIT_INVALID) {
               // decode error
-              packet_state = STATE_START;
-              return;
+              packet_state = STATE_RESET;
+              break;
             }
             const uint8_t pos = (packet_buf / DECODE_SAMPLE_RATIO - 1) / 8;
             const uint8_t bitpos = (packet_buf / DECODE_SAMPLE_RATIO - 1) % 8;
@@ -154,12 +155,21 @@ void IrLogic::OnBufferReceived(uint8_t *buffer) {
             if (pos == rx_packet.size_) {
               // packet_end
               // double buffering
+              // Full packet found, restarting.
+              packet_state = STATE_RESET;
               rx_packet_ctrler = rx_packet;
               callback(callback_arg,
                        reinterpret_cast<void *>(&rx_packet_ctrler));
+              break;
             }
           }
           break;
+        case STATE_RESET:
+          packet_state = STATE_START;
+          packet_buf = 0;
+          bit = 0;
+          break;
+
         default:
           break;
       }
