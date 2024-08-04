@@ -51,6 +51,9 @@ class IrController {
   // TODO: Tune the quadratic function parameters
   uint8_t v[3] = {1, 27, 111};
 
+  // Number of packets received, primarily for debugging.
+  size_t received_packet_cnt;
+  
   hitcon::service::sched::PeriodicTask routine_task;
   hitcon::service::sched::Task send2game_task;
   hitcon::service::sched::Task broadcast_task;

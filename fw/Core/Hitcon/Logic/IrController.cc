@@ -24,7 +24,7 @@ IrController::IrController()
     : routine_task(950, (callback_t)&IrController::RoutineTask, this, 1000),
       broadcast_task(800, (callback_t)&IrController::BroadcastIr, this),
       send2game_task(800, (callback_t)&IrController::Send2Game, this),
-      send_lock(true), recv_lock(true) {}
+      send_lock(true), recv_lock(true), received_packet_cnt(0) {}
 
 void IrController::Send2Game(void* arg) {
   GamePacket* game = reinterpret_cast<GamePacket*>(arg);
@@ -41,6 +41,8 @@ void IrController::Init() {
 }
 
 void IrController::OnPacketReceived(void* arg) {
+  received_packet_cnt++;
+
   IrPacket* packet = reinterpret_cast<IrPacket*>(arg);
   IrData* data = reinterpret_cast<IrData*>(packet->data_);
 

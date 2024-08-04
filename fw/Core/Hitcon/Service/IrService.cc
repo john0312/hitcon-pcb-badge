@@ -24,7 +24,8 @@ IrService::IrService()
       on_rx_callback_runner(500, (callback_t)&IrService::OnBufferRecvWrapper,
                             this),
       rx_buffer_base(0), rx_on_buffer_callback_finished(true), rx_quiet_cnt(0),
-      rx_required_quiet_period(500), rx_ctr_since_release(100000) {}
+      rx_required_quiet_period(500), rx_ctr_since_release(100000),
+      tx_packet_cnt(0) {}
 
 void ReceiveDmaHalfCplt(DMA_HandleTypeDef *hdma) {
   scheduler.Queue(&irService.dma_rx_pull_task, reinterpret_cast<void *>(0));
@@ -180,6 +181,7 @@ void IrService::PopulateTxDmaBuffer(void *ptr_side) {
     if (ctr + 1 == (tx_pending_buffer_len * 8 / IR_BITS_PER_TX_RUN)) {
       // Transmission done.
       tx_state = 0x00000000;
+      tx_packet_cnt++;
     }
   } else {
     my_assert(false);
