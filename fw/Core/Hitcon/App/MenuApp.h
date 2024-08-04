@@ -16,7 +16,7 @@ struct menu_entry_t {
 class MenuApp : public App {
  public:
   MenuApp() = default;
-  MenuApp(menu_entry_t *);
+  MenuApp(const menu_entry_t *, const int);
   virtual ~MenuApp() = default;
 
   void OnEntry() override;
@@ -25,9 +25,9 @@ class MenuApp : public App {
   virtual void OnButtonMode() = 0;
 
  protected:
-  menu_entry_t *menu_entries;
+  const menu_entry_t *menu_entries;
   int menu_entry_index;
-  int menu_entry_size;
+  const int menu_entry_size;
 };
 
 } // namespace hitcon
