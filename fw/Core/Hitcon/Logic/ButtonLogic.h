@@ -30,6 +30,7 @@ constexpr int BUTTON_LONG_PRESS_BIT = 1 << 14;
 // Bit 14 - This is a long press if set.
 // Bit 0-3 - The button pressed. See BUTTON_* constants below.
 enum button_t {
+  BUTTON_NONE = 0,
   BUTTON_MODE = 1,
   BUTTON_DOWN = 2,
   BUTTON_BRIGHTNESS = 3,
