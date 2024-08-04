@@ -13,7 +13,7 @@ namespace ir {
 
 IrLogic irLogic;
 service::sched::Task OnBufferReceivedTask(
-    500, (service::sched::task_callback_t)&IrLogic::OnBufferReceived, &irLogic);
+    490, (service::sched::task_callback_t)&IrLogic::OnBufferReceived, &irLogic);
 
 IrLogic::IrLogic() {}
 
