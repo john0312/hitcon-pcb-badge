@@ -13,7 +13,8 @@ namespace hitcon {
 NvStorage g_nv_storage;
 
 NvStorage::NvStorage()
-    : routine_task(800, (callback_t)&NvStorage::Routine, this, 100) {}
+    : routine_task(800, (callback_t)&NvStorage::Routine, this, 100),
+      last_flush_cycle(0) {}
 
 void NvStorage::Init() {
   int32_t newest_version = -1;
@@ -79,8 +80,11 @@ void NvStorage::Routine(void* unused) {
   }
 
   if ((force_flush || current_cycle - last_flush_cycle >= 300)) {
-    ForceFlushInternal();
-    force_flush = false;
+    // Programming/Erasing within the first 3s may cause issues.
+    if (current_cycle >= 30) {
+      // ForceFlushInternal();
+      force_flush = false;
+    }
   }
 }
 
