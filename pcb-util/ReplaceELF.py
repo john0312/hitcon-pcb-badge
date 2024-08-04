@@ -51,7 +51,7 @@ def find_array_in_elf(elf_file_path, search_array):
             if not chunk:
                 break
 
-            # Search for the array in the current chunk
+            # find for the array in the current chunk
             array_bytes = bytes(search_array)
             index = chunk.find(array_bytes)
             if index != -1:
@@ -67,7 +67,7 @@ def find_array_in_elf(elf_file_path, search_array):
 
 def replace_array_in_elf(elf_file_path, search_array, replace_array):
     if len(search_array) != len(replace_array):
-        raise ValueError("Search and replace arrays must be of the same length.")
+        raise ValueError("find and replace arrays must be of the same length.")
 
     with open(elf_file_path, 'r+b') as f:
         array_offset, _ = find_array_in_elf(elf_file_path, search_array)
@@ -110,16 +110,16 @@ if __name__ == "__main__":
     original_elf_path = 'fw.elf'  # Original ELF file path
     MOD_elf_path = 'fwMOD.elf'  # New duplicated ELF file path
 
-    # Configure the array to search in ELF
+    # Configure the array to find in ELF
     search_array_PerBoardRandom = [
             0xf1, 0xca, 0x4e, 0xa0, 0x48, 0x2f, 0x27, 0x4d,
             0x3d, 0xc2, 0x9c, 0x8c, 0xec, 0x36, 0x83, 0x49
-        ]  # Array to search for PerBoardRandom
+        ]  # Array to find for PerBoardRandom
         
     search_array_PerBoardSecret = [
             0x13, 0xac, 0x76, 0xfc, 0x1a, 0xa7, 0x0f, 0x92,
             0x05, 0x31, 0x1d, 0xa6, 0x28, 0x4c, 0x8e, 0x94
-        ]  # Array to search for PerBoardSecret
+        ]  # Array to find for PerBoardSecret
     
     # Generate Random array
     replace_array_PerBoardRandom = np.random.randint(0, 256, size=16, dtype=np.uint8)
@@ -138,10 +138,10 @@ if __name__ == "__main__":
 
     print("\n Operating fwMOD.elf...... \n")
 
-    # Search and replace PerBoardRandom array
+    # find and replace PerBoardRandom array
     search_and_reaplce_array(MOD_elf_path, search_array_PerBoardRandom, replace_array_PerBoardRandom)
     
-    # Search and replace PerBoardSecret array
+    # find and replace PerBoardSecret array
     search_and_reaplce_array(MOD_elf_path, search_array_PerBoardSecret, replace_array_PerBoardSecret)
     
     print("\n Operation Done \n")    

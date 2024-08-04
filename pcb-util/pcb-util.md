@@ -1,113 +1,59 @@
 # pcb-util
 
-## 0x00. Description
-
 pcb-util provides an utility tool for flashing FW to PCBs more effiecient in production.
 
-## 0x01. Dev env
+## Dev env
+- Python ver
+  * python 3.12
+### Packages ver
+- UI
+  - [Streamlit](https://streamlit.io/)
+      - 1.37.0
+- Upload Process
+  - STM32_Programmer_CLI
+    -  2.17.0
+-  TODO: EXE generation
+   - pyinstaller
+     - 6.9.0
 
-### A. Python ver
+## Application
+The pcb-util consist of several utility scripts describing as follows
+- **ReplaceELF.py (Done)**
+  1. Duplicate the compiled ELF as fwMOD.elf to be modified
+  2. Find & Replace the two uint8 arrays in fwMOD.elf with specific array for individual pcb-badge
+  3. Printe the array around in organized HEX to verify ELF modification
+- **fw_flash.py (Debugging)**
+  - Class definition for automating the interaction with STM32_Programmer_CLI & ST-Link
+- **setting.py**
+  - Some configurations for fw_flash
+- **cli_example.py (Debugging)**
+  - An example of a multi-thread CLI app that handles each ST-Link
+  - Some knwown bug can be fix with some notes [here](#faq-of-cli_example)
+- **ui.py**
+  - A streamlit app which spawns a web server
+  - Check out [here](#try-out-ui) if your want to try it out
+- **ui_example.py (Under contruction)**
+  - A streamlit app of a multi-thread CLI app that handles each ST-Link
+  - TODO: display connected ST-link
+  - TODO: auto-detect ST-Link
 
-* python 3.12
+## Try out CLI
+to try it out:
+1. Run:
+    ```
+    python cli_example.py
+    ```
+2. A CLI app would be running with following keystroke as input
+- press r', refresh the ST-Link list
+- 'q', quit the app
 
-### B. Packages ver
-
-#### a. UI
-
-* [Mesop of Python](https://google.github.io/mesop/)
-
-#### b. Upload Process
-
-* 
-
-#### c. exe generation
-
-* pyinstaller
-
-### C. Other requirment
-
-* STM32_Programmer_CLI.exe
-
-
-
-## 0x02. Process flow
-
-### Pure cli
-
-* You cann see **stm_cli_uploader.drawio**
-
-![alt text](stm_cli_uploader.png)
-
-
-## 0x03. Interface
-
-### ????
-LoadModifier(Modifier, MarkToModify)
-
-    Configure the modfier and position to modify in .hex file
-       - Modifier: part of .hex to be replaced with 
-       - MarkToModify: position of .hex to be replaced
-
-ModifyFwHex(FwHexPath, FwHexModPath, Modifier, MarkToModify)
-
-    Modify the .hex and output a modified .hex
-    - FwHexPath: .hex path of FW build
-    - FwHexModPath: modified .hex of FW build
-    - Modifier: part of .hex to be replaced with 
-    - MarkToModify: position of .hex to be replaced
-
-FlashHex(STLinkCLIPath, FwHexModPath, STLinkSN)
-
-    Flash the modified .hex thorugh the target STLink
-
-FlashStatus()
-
-    Return the status flashing
-
-
-### fw_flash.py
-TBD
-
-### Hex operation
-Some part of the FW .HEX file(to be marked by John) to be replaced before flashing
-
-## Multi-drop
-TBD
-
-
-# 常見問題
-
-* curses 出錯 : 
-![alt text](image.png)
-  * 因留給他的空間不夠，顯示空間拉大就好
-* spyder 終端機跳掉
-  * 用 vscode 執行
-----------------------
--
-
-
-
-## Some notes
-
-### ref links
-
-* [STM32_Programmer_CLI.exe基本命令介绍](https://blog.csdn.net/yxy244/article/details/108453398)
-
-### issue list
-
-
-
-
-====
-
-# Build
-## UI
+## Try out UI
 [Streamlit](https://streamlit.io/)
 to try it out:
 1. Set up your Python development environment.
 2. Run:
     ```
-    streamlit hello
+    pip install streamlit
     ```
 3. Validate the installation by running official Hello app:
     ```
@@ -117,3 +63,19 @@ to try it out:
     ```
     streamlit ui.py
     ```
+
+
+## FAQ of cli_example
+* curses 出錯 : 
+![alt text](image.png)
+  * 因留給他的空間不夠，顯示空間拉大就好
+* spyder 終端機跳掉
+  * 用 vscode 執行
+  
+## Some notes
+
+### ref links
+
+* [STM32_Programmer_CLI.exe基本命令介绍](https://blog.csdn.net/yxy244/article/details/108453398)
+
+### issue list

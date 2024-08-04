@@ -198,6 +198,7 @@ with path:
         st.session_state.FW_ELF_PATH = FW_ELF_PATH_temp
         st.session_state.ST_PRO_PATH = ST_PRO_PATH_temp
         st.session_state.ST_PRO_EXE = ST_PRO_EXE_temp
+        st.success("Refreshed!")
 
     # Test if path is correctly parsed  
     st.markdown("**FW_ELF_PATH**")
@@ -211,52 +212,10 @@ with path:
 
 
 
-# ------- Scan for ST-Link change ----------
-
-# check if stlink list changed
-if 'stlink_add_list' not in st.session_state:
-    st.session_state.stlink_add_list = list(set(st.session_state.stlink_alive_sn_list) - set(st.session_state.stlink_sn_list))
-if 'stlink_del_list' not in st.session_state:
-    st.session_state.stlink_del_list = list(set(st.session_state.stlink_sn_list) - set(st.session_state.stlink_alive_sn_list))
-
-# if somthing changed, object list update
-## add new object
-if st.session_state.stlink_add_list:
-    print("add : " + str(st.session_state.stlink_add_list))
-    # for new devices
-    for add_sn in st.session_state.stlink_add_list:
-        # do object add
-        st.session_state.st_obj_list.append(fw_flash.STLINK(add_sn))
-        st.session_state.stop_event, thread_instance = thread_create(st.session_state.st_obj_list[-1])
-        st.session_state.stop_event_pool.append(st.session_state.stop_event)
-        st.session_state.thread_pool.append(thread_instance)
-## del object
-if st.session_state.stlink_del_list:
-    print("del : " + str(st.session_state.stlink_del_list))
-    # do object del
-    for del_sn in st.session_state.stlink_del_list:
-        for index, st_obj in enumerate(st.session_state.st_obj_list):
-            if st_obj.SN == del_sn:
-                st.session_state.st_obj_list.pop(index)
-                # stop the thread
-                st.session_state.stop_event_pool[index].set()
-                st.session_state.thread_pool[index].join()
-                break
-
-# update the list
-st.session_state.stlink_sn_list = st.session_state.stlink_alive_sn_list
-
-# wait for all thread to stop
-for thread in st.session_state.thread_pool:
-    thread.join()
-
-# ------- Scan for ST-Link change Finished ----------
-
-
-
 # ------- Update ST-Link change ----------
 
 with STLinkList:
+    st.write(st.session_state.stlink_sn_list)
     st.write(st.session_state.stlink_alive_sn_list)
 
 # ------- Update ST-Link change Finished ----------
@@ -277,3 +236,59 @@ with simulation:
         for i in range(0,5):
             update_state(i)
             time.sleep(0.5)
+
+
+# ------- Scan for ST-Link change ----------
+
+if 'start_time' not in st.session_state:
+        st.session_state.start_time = time.time()
+
+if st.button("Refresh", key="refresh_stlink"):
+    st.session_state.stlink_alive_sn_list = st.session_state.shared_info.list_stlink()
+
+while True:
+    #if time.time()-st.session_state.start_time >1 :
+    #        st.session_state.stlink_alive_sn_list = st.session_state.shared_info.list_stlink()
+    # check if stlink list changed
+    if 'stlink_add_list' not in st.session_state:
+        st.session_state.stlink_add_list = list(set(st.session_state.stlink_alive_sn_list) - set(st.session_state.stlink_sn_list))
+    if 'stlink_del_list' not in st.session_state:
+        st.session_state.stlink_del_list = list(set(st.session_state.stlink_sn_list) - set(st.session_state.stlink_alive_sn_list))
+
+    # if somthing changed, object list update
+    ## add new object
+    if st.session_state.stlink_add_list:
+        print("add : " + str(st.session_state.stlink_add_list))
+        # for new devices
+        for add_sn in st.session_state.stlink_add_list:
+            # do object add
+            st.session_state.st_obj_list.append(fw_flash.STLINK(add_sn))
+            st.session_state.stop_event, thread_instance = thread_create(st.session_state.st_obj_list[-1])
+            st.session_state.stop_event_pool.append(st.session_state.stop_event)
+            st.session_state.thread_pool.append(thread_instance)
+        st.rerun()
+
+    ## del object
+    if st.session_state.stlink_del_list:
+        print("del : " + str(st.session_state.stlink_del_list))
+        # do object del
+        for del_sn in st.session_state.stlink_del_list:
+            for index, st_obj in enumerate(st.session_state.st_obj_list):
+                if st_obj.SN == del_sn:
+                    st.session_state.st_obj_list.pop(index)
+                    # stop the thread
+                    st.session_state.stop_event_pool[index].set()
+                    st.session_state.thread_pool[index].join()
+                    break
+        st.rerun()
+
+    # update the list
+    st.session_state.stlink_sn_list = st.session_state.stlink_alive_sn_list
+
+    time.sleep(1)
+
+# wait for all thread to stop
+for thread in st.session_state.thread_pool:
+    thread.join()
+
+# ------- Scan for ST-Link change Finished ----------

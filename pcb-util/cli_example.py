@@ -70,11 +70,19 @@ def main_loop(stdscr):
         thread_pool.append(thread_instance)
 
     # scan for stlink change
+    
+    start_time = time.time()
+    print("start_time =")
+    print(start_time)
     while True:
         # input scan of list and quit
         input_cmd = stdscr.getch()
         ## list all current avaliable stlink
         # TODO : auto detect STLINK connection -----> have bug in this part, postponded
+        
+        #if time.time()-start_time >1 :
+        #    stlink_alive_sn_list = shared_info.list_stlink()
+
         if input_cmd == ord("r"):
             stlink_alive_sn_list = shared_info.list_stlink()
         ## quit the program
@@ -109,6 +117,7 @@ def main_loop(stdscr):
                 stop_event, thread_instance = thread_create(st_obj_list[-1])
                 stop_event_pool.append(stop_event)
                 thread_pool.append(thread_instance)
+            
         ## del object
         if stlink_del_list:
             print("del : " + str(stlink_del_list))

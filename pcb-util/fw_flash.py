@@ -263,8 +263,8 @@ if __name__ == "__main__":
     # import click
     # import threading
     #------- this part can be changed by frontend ----------
-    FW_ELF_PATH = 'C:\\Users\\Arthur\\Desktop\\test\\fw.elf'
-    ST_PRO_PATH = 'C:\\Program Files\\STMicroelectronics\\STM32Cube\\STM32CubeProgrammer\\bin'
+    FW_ELF_PATH = 'C:\\Users\\a8701\\Documents\\Development\\hitcon-pcb-badge\\pcb-util\\fw.elf'
+    ST_PRO_PATH = 'C:\\Program Files (x86)\\STMicroelectronics\\STM32Cube\\STM32CubeProgrammer\\bin'
     ST_PRO_EXE = 'STM32_Programmer_CLI.exe'
     #------- this part can be changed by frontend ----------
     
