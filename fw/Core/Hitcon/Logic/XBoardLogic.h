@@ -4,9 +4,11 @@
 #include <Util/callback.h>
 #include <stddef.h>
 #include <stdint.h>
+#include <utility>
 
 #include "Service/Sched/Scheduler.h"
 #include "Service/XBoardService.h"
+#include "XBoardRecvFn.h"
 #include "usart.h"
 
 namespace hitcon {
@@ -22,6 +24,7 @@ enum UsartConnectState { Init, Connect, Disconnect };
 
 constexpr size_t RX_BUF_SZ = 128;
 constexpr size_t PKT_PAYLOAD_LEN_MAX = 32;
+constexpr uint8_t PING_TYPE = 208;
 
 class XBoardLogic {
    public:
@@ -30,7 +33,11 @@ class XBoardLogic {
     void Init();
 
     // Encapsulate data into a packet and then put into the tx queue.
-    void QueueDataForTx(uint8_t* data, size_t data_len);
+    // Arguments:
+    // - `data`: bytes to send
+    // - `data_len`: size of the data in bytes
+    // - `handler_id`: defined in `fw/Core/Hitcon/Logic/XBoardRecvFn.h`, same as `SetOnPacketArrive`
+    void QueueDataForTx(uint8_t* data, size_t data_len, RecvFnId handler_id);
 
     // On detected connection from a remote board, this will be called.
     void SetOnConnect(callback_t callback, void* callback_arg1);
@@ -40,7 +47,11 @@ class XBoardLogic {
 
     // On received a packet from a remote board, this will be called with a
     // pointer to packet struct.
-    void SetOnPacketArrive(callback_t callback, void *self);
+    // Arguments:
+    // - `callback`: function to handle message
+    // - `self`: class this or nullptr
+    // - `handler_id`: should be the same as `QueueDataForTx`
+    void SetOnPacketArrive(callback_t callback, void *self, RecvFnId handler_id);
 
     void Routine(void*);
 
@@ -57,8 +68,7 @@ class XBoardLogic {
     hitcon::service::sched::PeriodicTask _routine_task;
     // size_t prod_head = 0;
     // size_t cons_head = 0;
-    callback_t packet_arrive_handler = nullptr;
-    void *packet_arrive_handler_self = nullptr;
+    std::pair<callback_t, void*> packet_arrive_cbs[RecvFnId::MAX] = {};
 
     UsartConnectState connect_state = UsartConnectState::Init;
     callback_t disconnect_handler = nullptr;

@@ -1,4 +1,5 @@
 #include <Logic/XBoardLogic.h>
+#include <Logic/XBoardRecvFn.h>
 
 #include <cstring>
 
@@ -21,14 +22,14 @@ struct Frame {
   uint64_t preamble;  // 0xD555555555555555
   uint16_t id;
   uint8_t len;
-  uint8_t type;  // 8: ping
+  uint8_t type;  // 208(0xd0): ping
   uint16_t checksum;
 };
 constexpr size_t HEADER_SZ = sizeof(Frame);
 
 void XBoardLogic::SendPing() {
-  uint8_t pkt[sizeof(Frame)] = {0};
-  *(Frame *)pkt = Frame{0xD555555555555555, 0, 0, 8, 0};
+  uint8_t pkt[HEADER_SZ] = {0};
+  *(Frame *)pkt = Frame{0xD555555555555555, 0, 0, PING_TYPE, 0};
   // for (int i = 0; i < sizeof(Frame); i++) {
   //   pkt[i] = (0x11+i)&0x0FF;
   //   pkt[i] = 0;
@@ -90,15 +91,16 @@ void XBoardLogic::ParsePacket() {
       return;
     }
     cons_head = inc_head(cons_head, HEADER_SZ + header.len);
-    if (header.type == 8) {
+    if (header.type == PING_TYPE) {
       recv_ping = true;
       continue;
     }
-    if (packet_arrive_handler != nullptr) {
+    if (header.type < RecvFnId::MAX) {
       PacketCallbackArg packet_cb_arg;
       memcpy(packet_cb_arg.data, &packet_payload, header.len);
       packet_cb_arg.len = header.len;
-      packet_arrive_handler(packet_arrive_handler_self, &packet_cb_arg);
+      auto [recv_fn, recv_self] = packet_arrive_cbs[header.type];
+      if (recv_fn != nullptr) recv_fn(recv_self, &packet_cb_arg);
     }
   }
 }
@@ -112,8 +114,15 @@ void XBoardLogic::Init() {
   g_xboard_service.SetOnByteRx((callback_t)&XBoardLogic::OnByteArrive, this);
 }
 
-void XBoardLogic::QueueDataForTx(uint8_t *packet, size_t packet_len) {
-  // TODO
+void XBoardLogic::QueueDataForTx(uint8_t *packet, size_t packet_len,
+                                 RecvFnId handler_id) {
+  uint8_t pkt[64];
+  *(Frame *)pkt =
+      Frame{0xD555555555555555, 0, (uint8_t)packet_len, (uint8_t)handler_id, 0};
+  for (int i = 0; i < packet_len; ++i) {
+    pkt[i + HEADER_SZ] = packet[i];
+  }
+  g_xboard_service.QueueDataForTx(pkt, HEADER_SZ + packet_len);
 }
 
 void XBoardLogic::SetOnConnect(callback_t callback, void *self) {
@@ -126,9 +135,9 @@ void XBoardLogic::SetOnDisconnect(callback_t callback, void *self) {
   disconnect_handler_self = self;
 }
 
-void XBoardLogic::SetOnPacketArrive(callback_t callback, void *self) {
-  packet_arrive_handler = callback;
-  packet_arrive_handler_self = self;
+void XBoardLogic::SetOnPacketArrive(callback_t callback, void *self,
+                                    RecvFnId handler_id) {
+  packet_arrive_cbs[handler_id] = {callback, self};
 }
 
 void XBoardLogic::Routine(void *) {
