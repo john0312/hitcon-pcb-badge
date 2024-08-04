@@ -20,6 +20,8 @@ typedef struct nv_storage_content_t {
   // Add any needed data that needs to be persisted here.
   hitcon::game::game_storage_t game_storage;
 
+  // TODO: name
+
 } nv_storage_content;
 
 static_assert(sizeof(nv_storage_content) <= MY_FLASH_PAGE_SIZE, "nv_storage_content is too large");
