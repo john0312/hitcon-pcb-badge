@@ -21,7 +21,7 @@ inline uint16_t inc_head(size_t head, size_t offset) {
 struct Frame {
   uint64_t preamble;  // 0xD555555555555555
   uint16_t id;
-  uint8_t len;
+  uint8_t len; // should < `PKT_PAYLOAD_LEN_MAX`
   uint8_t type;  // 208(0xd0): ping
   uint16_t checksum;
 };
@@ -76,7 +76,7 @@ void XBoardLogic::ParsePacket() {
     }
     uint16_t in_buf_size =
         (prod_head > cons_head ? 0 : RX_BUF_SZ) + prod_head - cons_head;
-    if (in_buf_size < sizeof(Frame)) {
+    if (in_buf_size < HEADER_SZ) {
       break;
     }
 
@@ -86,7 +86,12 @@ void XBoardLogic::ParsePacket() {
       cons_head = inc_head(cons_head, 1);
       continue;
     }
-    if (!TryReadBytes((uint8_t *)&packet_payload, header.len, sizeof(Frame))) {
+    if (header.len >= PKT_PAYLOAD_LEN_MAX) {
+      // invalid packet, skip this packet (preamble 8 bytes)
+      cons_head = inc_head(cons_head, 8);
+      continue;
+    }
+    if (!TryReadBytes((uint8_t *)&packet_payload, header.len, HEADER_SZ)) {
       // no enough bytes to read, wait more bytes in
       return;
     }
@@ -114,12 +119,13 @@ void XBoardLogic::Init() {
   g_xboard_service.SetOnByteRx((callback_t)&XBoardLogic::OnByteArrive, this);
 }
 
-void XBoardLogic::QueueDataForTx(uint8_t *packet, size_t packet_len,
+void XBoardLogic::QueueDataForTx(uint8_t *packet, uint8_t packet_len,
                                  RecvFnId handler_id) {
+  my_assert(packet_len < PKT_PAYLOAD_LEN_MAX);
   uint8_t pkt[64];
-  *(Frame *)pkt =
-      Frame{0xD555555555555555, 0, (uint8_t)packet_len, (uint8_t)handler_id, 0};
-  for (int i = 0; i < packet_len; ++i) {
+  *(Frame *)pkt = Frame{0xD555555555555555, 0, packet_len,
+                        static_cast<uint8_t>(handler_id), 0};
+  for (uint8_t i = 0; i < packet_len; ++i) {
     pkt[i + HEADER_SZ] = packet[i];
   }
   g_xboard_service.QueueDataForTx(pkt, HEADER_SZ + packet_len);

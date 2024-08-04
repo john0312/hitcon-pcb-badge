@@ -34,10 +34,10 @@ class XBoardLogic {
 
     // Encapsulate data into a packet and then put into the tx queue.
     // Arguments:
-    // - `data`: bytes to send
+    // - `data`: bytes to send, must < `PKT_PAYLOAD_LEN_MAX`
     // - `data_len`: size of the data in bytes
     // - `handler_id`: defined in `fw/Core/Hitcon/Logic/XBoardRecvFn.h`, same as `SetOnPacketArrive`
-    void QueueDataForTx(uint8_t* data, size_t data_len, RecvFnId handler_id);
+    void QueueDataForTx(uint8_t* data, uint8_t data_len, RecvFnId handler_id);
 
     // On detected connection from a remote board, this will be called.
     void SetOnConnect(callback_t callback, void* callback_arg1);
@@ -66,8 +66,6 @@ class XBoardLogic {
     uint8_t packet_payload[PKT_PAYLOAD_LEN_MAX];
 
     hitcon::service::sched::PeriodicTask _routine_task;
-    // size_t prod_head = 0;
-    // size_t cons_head = 0;
     std::pair<callback_t, void*> packet_arrive_cbs[RecvFnId::MAX] = {};
 
     UsartConnectState connect_state = UsartConnectState::Init;
