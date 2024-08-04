@@ -200,6 +200,7 @@ void GameLogic::Routine() {
       in_progress_col_ = (in_progress_col_ + 1) % kNumCols;
       // If all columns have been initialized, move to the next state.
       if (in_progress_col_ == 0) {
+        g_nv_storage.MarkDirty();
         routine_state_ = POPULATING_CACHE_CELLS;
         populating_cache_col_ = 0;
         populating_cache_row_ = 0;
@@ -284,6 +285,7 @@ void GameLogic::Routine() {
       // higher.
       if (in_progress_cell_score_ > min_score) {
         storage_->cells[in_progress_col_][min_row] = in_progress_data_;
+        g_nv_storage.MarkDirty();
       }
       routine_state_ = UPDATE_GAME_SCORE;
       break;
