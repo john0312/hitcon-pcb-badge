@@ -2,6 +2,8 @@
 #define SHOW_NAME_APP_H
 
 #include "app.h"
+#include <Service/Sched/PeriodicTask.h>
+#include <Logic/Display/display.h>
 
 namespace hitcon {
 
@@ -16,6 +18,7 @@ class ShowNameApp : public App {
   static constexpr int NAME_LEN = 16;
   static constexpr char *DEFAULT_NAME = "HITCON2024";
   char name[NAME_LEN + 1] = {0};
+  char display_buf[DISPLAY_SCROLL_MAX_COLUMNS];
 
   ShowNameApp();
   virtual ~ShowNameApp() = default;
@@ -28,8 +31,13 @@ class ShowNameApp : public App {
   void SetMode(const enum ShowNameMode mode);
   enum ShowNameMode GetMode();
 
+  void check_update();
+
  private:
   enum ShowNameMode mode;
+  void update_display();
+  hitcon::service::sched::PeriodicTask _routine_task;
+  uint32_t score_cache = 0;
 };
 
 extern ShowNameApp show_name_app;

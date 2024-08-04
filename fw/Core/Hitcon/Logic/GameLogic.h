@@ -32,6 +32,7 @@ class GameLogic {
 
   // Retrieve the data from a specific cell in the game grid.
   uint8_t* GetDataCell(int col, int row);
+  game_cache_t &get_cache();
 
   // Get random data cell for IR transmission. Writes data to out_data and column to out_col.
   bool GetRandomDataForIrTransmission(uint8_t* out_data, int* out_col);

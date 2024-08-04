@@ -7,6 +7,8 @@
 #include <cstring>
 #include <limits>
 
+uint32_t TOTAL_SCORE = 0;
+
 namespace hitcon {
 namespace game {
 
@@ -21,8 +23,6 @@ int32_t q22_ln(uint32_t x) {
   // Obviously incorrecty, but that's a TODO.
   return x << 21;
 }
-
-game_cache_t game_cache;
 
 void GameLogic::RandomlySetGridCellValue(int row, int col) {
   for (uint8_t i = 0; i < kDataSize; i++) {
@@ -52,6 +52,10 @@ bool GameLogic::AcceptData(int col, uint8_t *data) {
   memcpy(&p.second.data[0], data, sizeof(p.second));
   return queue_.PushBack(p);
 }
+
+game_cache_t &GameLogic::get_cache() {
+  return cache_;
+};
 
 bool GameLogic::GetRandomDataForIrTransmission(uint8_t *out_data,
                                                int *out_col) {
@@ -160,6 +164,7 @@ void GameLogic::ComputeFinalScore() {
       cache_.total_score += q22_ln(cache_.col_score_cache[col]);
     }
   }
+  TOTAL_SCORE = cache_.total_score >> 21;
 }
 
 void GameLogic::Routine() {
