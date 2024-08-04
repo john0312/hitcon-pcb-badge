@@ -56,9 +56,7 @@ class IrLogic {
   IrPacket tx_packet;
 
   // To split OnBufferReceived into pieces
-  uint8_t sentinel1 = 0xbb;
   size_t buffer_received_ctr;
-  uint8_t sentinel2 = 0xaa;
 
   // Total periods collected for load factor computation.
   size_t lf_total_period;
