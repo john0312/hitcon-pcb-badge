@@ -21,7 +21,7 @@ inline uint16_t inc_head(size_t head, size_t offset) {
 struct Frame {
   uint64_t preamble;  // 0xD555555555555555
   uint16_t id;
-  uint8_t len; // should < `PKT_PAYLOAD_LEN_MAX`
+  uint8_t len;   // should < `PKT_PAYLOAD_LEN_MAX`
   uint8_t type;  // 208(0xd0): ping
   uint16_t checksum;
 };
