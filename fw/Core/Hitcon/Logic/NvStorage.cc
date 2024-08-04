@@ -13,7 +13,8 @@ namespace hitcon {
 NvStorage g_nv_storage;
 
 NvStorage::NvStorage()
-    : routine_task(800, (callback_t)&NvStorage::Routine, this, 100) {}
+    : routine_task(800, (callback_t)&NvStorage::Routine, this, 100),
+      last_flush_cycle(0) {}
 
 void NvStorage::Init() {
   int32_t newest_version = -1;
@@ -24,8 +25,8 @@ void NvStorage::Init() {
     nv_storage_content* page_content =
         reinterpret_cast<nv_storage_content*>(page_data);
     if (page_content->version > newest_version &&
-        crc32(page_data + sizeof(uint32_t),
-              sizeof(nv_storage_content) - sizeof(uint32_t)) ==
+        fast_crc32(page_data + sizeof(uint32_t),
+                   sizeof(nv_storage_content) - sizeof(uint32_t)) ==
             page_content->checksum) {
       newest_version = page_content->version;
       memcpy(&content_, page_content, sizeof(nv_storage_content));
@@ -40,7 +41,7 @@ void NvStorage::Init() {
     force_flush = true;
   }
   storage_valid_ = true;
-
+  content_.version++;
   scheduler.Queue(&routine_task, nullptr);
   scheduler.EnablePeriodic(&routine_task);
 }
@@ -48,11 +49,10 @@ void NvStorage::Init() {
 void NvStorage::ForceFlushInternal() {
   if (!storage_dirty_) return;
   if (g_flash_service.IsBusy()) return;
-
   memcpy(&write_buffer_, &content_, sizeof(nv_storage_content));
   write_buffer_.checksum =
-      crc32(reinterpret_cast<uint8_t*>(&write_buffer_) + sizeof(uint32_t),
-            sizeof(nv_storage_content) - sizeof(uint32_t));
+      fast_crc32(reinterpret_cast<uint8_t*>(&write_buffer_) + sizeof(uint32_t),
+                 sizeof(nv_storage_content) - sizeof(uint32_t));
   bool ret = g_flash_service.ProgramPage(
       next_available_page, reinterpret_cast<uint32_t*>(&write_buffer_),
       sizeof(nv_storage_content));
@@ -60,7 +60,8 @@ void NvStorage::ForceFlushInternal() {
     storage_dirty_ = false;
     next_available_page = (next_available_page + 1) %
                           FLASH_PAGE_COUNT;  // Increment for the next write
-    last_flush_cycle = current_cycle;        // Record the current cycle
+    content_.version++;
+    last_flush_cycle = current_cycle;  // Record the current cycle
   }
 }
 
@@ -79,8 +80,11 @@ void NvStorage::Routine(void* unused) {
   }
 
   if ((force_flush || current_cycle - last_flush_cycle >= 300)) {
-    ForceFlushInternal();
-    force_flush = false;
+    // Programming/Erasing within the first 3s may cause issues.
+    if (current_cycle >= 30) {
+      // ForceFlushInternal();
+      force_flush = false;
+    }
   }
 }
 

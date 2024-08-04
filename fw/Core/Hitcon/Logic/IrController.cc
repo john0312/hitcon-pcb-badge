@@ -1,8 +1,8 @@
 #include "IrController.h"
 
+#include <Logic/GameLogic.h>
 #include <Logic/IrController.h>
 #include <Logic/RandomPool.h>
-#include <Logic/game.h>
 #include <Service/IrService.h>
 #include <Service/Sched/Scheduler.h>
 #include <stdlib.h>
@@ -10,7 +10,7 @@
 #include <cstring>
 
 using namespace hitcon::service::sched;
-using hitcon::game::game_accept_data;
+using hitcon::game::gameLogic;
 using hitcon::game::IrAllowBroadcastCnt;
 using hitcon::game::IrAllowedBroadcastCol;
 using hitcon::game::kDataSize;
@@ -28,7 +28,7 @@ IrController::IrController()
 
 void IrController::Send2Game(void* arg) {
   GamePacket* game = reinterpret_cast<GamePacket*>(arg);
-  game_accept_data(game->col, game->data);
+  gameLogic.AcceptData(game->col, game->data);
   send_lock = true;
 }
 
@@ -71,8 +71,7 @@ void IrController::RoutineTask(void* unused) {
 void IrController::BroadcastIr(void* unused) {
   uint8_t cell_data[kDataSize];
   int col = g_fast_random_pool.GetRandom() % hitcon::game::kNumCols;
-  bool ok =
-      hitcon::game::get_random_cell_data_for_ir_transmission(cell_data, &col);
+  bool ok = gameLogic.GetRandomDataForIrTransmission(cell_data, &col);
   if (ok) {
     IrData irdata = {
         .ttl = 0,

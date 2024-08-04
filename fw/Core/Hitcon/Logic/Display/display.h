@@ -38,6 +38,8 @@
 #define DISPLAY_SCROLL_MAX_COLUMNS 100
 #define DISPLAY_SCROLL_DEFAULT_SPEED 8
 
+constexpr size_t kDisplayScrollMaxTextLen = DISPLAY_SCROLL_MAX_COLUMNS / CHAR_WIDTH - 1;
+
 using display_buf_t = uint8_t;
 static_assert(sizeof(display_buf_t) == DISPLAY_HEIGHT / 8,
               "The size of display_buf_t should be DISPLAY_HEIGHT / 8");
@@ -157,6 +159,14 @@ void display_set_mode_text(const char *text);
 // If the text is too long, the output will be truncated.
 void display_set_mode_scroll_text(const char *text, int speed);
 void display_set_mode_scroll_text(const char *text);
+
+enum DisplaySetModeState {
+  SET_MODE_IDLE,
+  SET_MODE_ST_RENDER,
+  SET_MODE_ST_FINAL
+};
+
+void display_set_mode_internal_taskfunc(void* arg1, void* arg2);
 
 namespace hitcon {
 class TextEditorDisplay;

@@ -4,10 +4,14 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#include <Service/Sched/Scheduler.h>
+
 namespace hitcon {
 
 constexpr size_t FLASH_PAGE_COUNT = 16;
 constexpr size_t FLASH_END_ADDR = 0x0801FFFF;
+constexpr size_t MY_FLASH_PAGE_SIZE = 0x800U;
+// actually 0x400U, so it would cost 32 pages
 
 class FlashService {
  public:
@@ -33,8 +37,33 @@ class FlashService {
   // Any flash storage after len remains 0.
   bool ProgramPage(size_t page_id, uint32_t* data, size_t len);
 private:
-  bool _busy;
   size_t _data_len;
+
+  size_t _page_id;
+  uint32_t* _data;
+  size_t _addr;
+  size_t _erase_page_id;
+  size_t _program_page_id;
+  size_t _program_pending_count_;
+  size_t _wait_cnt;
+
+  enum FlashServiceState {
+    FS_IDLE,
+    FS_UNLOCK,
+    FS_ERASE,
+    FS_ERASE_WAIT,
+    FS_PROGRAM,
+    FS_PROGRAM_WAIT,
+  };
+
+  hitcon::service::sched::PeriodicTask routine_task;
+
+  FlashServiceState _state;
+
+  void Routine();
+  
+  static constexpr size_t kErasePageCount = 2;
+  static constexpr size_t kProgramPerRun = 32;
 };
 
 // Global singleton instance of FlashService.

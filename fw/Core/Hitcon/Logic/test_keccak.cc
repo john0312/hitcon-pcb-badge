@@ -70,8 +70,10 @@
 
 int main() {
   uint8_t buf[200];
+  uint8_t buf2[200];
+
   sha3_context c;
-  const void *hash;
+  const void* hash;
   unsigned i;
   const uint8_t c1 = 0xa3;
 
@@ -110,6 +112,22 @@ int main() {
         "SHA3-256(abc) "
         "doesn't match known answer (single buffer)\n");
     return 10;
+  }
+
+  {
+    uint8_t test_in[8] = {0, 1, 2, 3, 4, 5, 6, 7};
+    sha3_HashBuffer(256, SHA3_FLAGS_KECCAK, test_in, 8, buf, 256 / 8);
+    sha3_Init256(&c);
+    sha3_SetFlags(&c, SHA3_FLAGS_KECCAK);
+    sha3_UpdateWord(&c, test_in);
+    const void* hash_out;
+    for (i = 0; i < KECCAK_ROUNDS + 2; i++) {
+      hash_out = sha3_Finalize_split(&c, i);
+    }
+    if (memcmp(hash_out, buf, 256 / 8) != 0) {
+      printf("split test failed\n");
+      return 20;
+    }
   }
 
   sha3_Init256(&c);

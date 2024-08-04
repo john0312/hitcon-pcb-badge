@@ -69,8 +69,6 @@ static const unsigned keccakf_piln[24] = {10, 7,  11, 17, 18, 3,  5,  16,
                                           8,  21, 24, 4,  15, 23, 19, 13,
                                           12, 2,  20, 14, 22, 9,  6,  1};
 
-#define KECCAK_ROUNDS 24
-
 /* generally called after SHA3_KECCAK_SPONGE_WORDS-ctx->capacityWords words
  * are XORed into the state s
  */
@@ -106,6 +104,40 @@ void keccakf(uint64_t s[25]) {
     /* Iota */
     s[0] ^= keccakf_rndc[round];
   }
+}
+
+// This is exactly the same as keccakf except that the caller is expected to
+// call keccakf_split() variant exactly KECCAK_ROUNDS time, with round = 0 to
+// KECCAK_ROUNDS-1.
+void keccakf_split(uint64_t s[25], int round) {
+  int i, j;
+  uint64_t t, bc[5];
+  /* Theta */
+  for (i = 0; i < 5; i++)
+    bc[i] = s[i] ^ s[i + 5] ^ s[i + 10] ^ s[i + 15] ^ s[i + 20];
+
+  for (i = 0; i < 5; i++) {
+    t = bc[(i + 4) % 5] ^ SHA3_ROTL64(bc[(i + 1) % 5], 1);
+    for (j = 0; j < 25; j += 5) s[j + i] ^= t;
+  }
+
+  /* Rho Pi */
+  t = s[1];
+  for (i = 0; i < 24; i++) {
+    j = keccakf_piln[i];
+    bc[0] = s[j];
+    s[j] = SHA3_ROTL64(t, keccakf_rotc[i]);
+    t = bc[0];
+  }
+
+  /* Chi */
+  for (j = 0; j < 25; j += 5) {
+    for (i = 0; i < 5; i++) bc[i] = s[j + i];
+    for (i = 0; i < 5; i++) s[j + i] ^= (~bc[(i + 1) % 5]) & bc[(i + 2) % 5];
+  }
+
+  /* Iota */
+  s[0] ^= keccakf_rndc[round];
 }
 
 /* *************************** Public Inteface ************************ */
@@ -246,6 +278,48 @@ void sha3_Update(void *priv, void const *bufIn, size_t len) {
   }
   SHA3_ASSERT(ctx->byteIndex < 8);
   SHA3_TRACE("Have saved=0x%016" PRIx64 " at the end", ctx->saved);
+}
+
+void const *sha3_Finalize_split(void *priv, int round) {
+  sha3_context *ctx = (sha3_context *)priv;
+
+  if (round == 0) {
+    /* Append 2-bit suffix 01, per SHA-3 spec. */
+    uint64_t t;
+
+    if (ctx->capacityWords & SHA3_USE_KECCAK_FLAG) {
+      /* Keccak version */
+      t = (uint64_t)(((uint64_t)1) << (ctx->byteIndex * 8));
+    } else {
+      /* SHA3 version */
+      t = (uint64_t)(((uint64_t)(0x02 | (1 << 2))) << ((ctx->byteIndex) * 8));
+    }
+
+    ctx->u.s[ctx->wordIndex] ^= ctx->saved ^ t;
+
+    /* Prepare for the final round */
+    ctx->u.s[SHA3_KECCAK_SPONGE_WORDS - SHA3_CW(ctx->capacityWords) - 1] ^=
+        SHA3_CONST(0x8000000000000000UL);
+  } else if (round <= KECCAK_ROUNDS) {
+    /* Perform KECCAK_ROUNDS of keccakf */
+    keccakf_split(ctx->u.s, round - 1);
+  } else { /* round = KECCAK_ROUNDS + 1 */
+    /* Convert the context state to bytes after the final round */
+    for (unsigned i = 0; i < SHA3_KECCAK_SPONGE_WORDS; i++) {
+      const unsigned t1 = (uint32_t)ctx->u.s[i];
+      const unsigned t2 = (uint32_t)((ctx->u.s[i] >> 16) >> 16);
+      ctx->u.sb[i * 8 + 0] = (uint8_t)(t1);
+      ctx->u.sb[i * 8 + 1] = (uint8_t)(t1 >> 8);
+      ctx->u.sb[i * 8 + 2] = (uint8_t)(t1 >> 16);
+      ctx->u.sb[i * 8 + 3] = (uint8_t)(t1 >> 24);
+      ctx->u.sb[i * 8 + 4] = (uint8_t)(t2);
+      ctx->u.sb[i * 8 + 5] = (uint8_t)(t2 >> 8);
+      ctx->u.sb[i * 8 + 6] = (uint8_t)(t2 >> 16);
+      ctx->u.sb[i * 8 + 7] = (uint8_t)(t2 >> 24);
+    }
+  }
+
+  return (round == KECCAK_ROUNDS + 1) ? ctx->u.sb : nullptr;
 }
 
 /* This is simply the 'update' with the padding block.

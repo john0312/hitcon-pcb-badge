@@ -15,6 +15,7 @@
 #include "Task.h"
 #include "DelayedTask.h"
 #include "PeriodicTask.h"
+#include <Util/CircularQueue.h>
 #include <cstdint>
 
 namespace hitcon {
@@ -53,12 +54,16 @@ private:
 
 	// Queue used to temporarily hold calls to Queue() so we can defer heap
 	// operations to later.
+	/* Previous raw queue implementation.
 	Task* tasksAddQueue[kAddQueueSize];
 	size_t tasksAddQueueHead = 0;
 	size_t tasksAddQueueTail = 0;
 	DelayedTask* delayedTasksAddQueue[kAddQueueSize];
 	size_t delayedTasksAddQueueHead = 0;
-	size_t delayedTasksAddQueueTail = 0;
+	size_t delayedTasksAddQueueTail = 0;*/
+    CircularQueue<Task*, kAddQueueSize> tasksAddQueue;
+    CircularQueue<DelayedTask*, kAddQueueSize> delayedTasksAddQueue;
+
 
 	size_t totalTasks = 0;
 

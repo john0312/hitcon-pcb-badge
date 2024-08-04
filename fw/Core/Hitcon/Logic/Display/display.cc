@@ -2,7 +2,22 @@
 
 #include <Logic/Display/editor.h>
 #include <Logic/Display/font.h>
+#include <Service/Sched/Checks.h>
+#include <Service/Sched/Scheduler.h>
 #include <string.h>
+
+using hitcon::service::sched::my_assert;
+using hitcon::service::sched::scheduler;
+using hitcon::service::sched::task_callback_t;
+
+static DisplaySetModeState display_set_mode_state = SET_MODE_IDLE;
+static hitcon::service::sched::Task display_set_mode_internal_task(
+    620, (task_callback_t)&display_set_mode_internal_taskfunc, nullptr);
+static char display_set_mode_internal_text_buffer[kDisplayScrollMaxTextLen + 1];
+static display_buf_t
+    display_set_mode_internal_scroll_buffer[DISPLAY_SCROLL_MAX_COLUMNS];
+static size_t display_set_mode_internal_render_idx;
+static int display_set_mode_speed;
 
 static display_buf_t __display_buf[DISPLAY_WIDTH];
 
@@ -123,6 +138,7 @@ void display_set_mode_fixed(const uint8_t *buf) {
   display_buf_t display_buf[DISPLAY_WIDTH];
   display_buf_pack(display_buf, buf);
   display_set_mode_fixed_packed(display_buf);
+  display_set_mode_state = SET_MODE_IDLE;
 }
 
 void display_set_mode_fixed_packed(const display_buf_t *buf) {
@@ -154,17 +170,60 @@ void display_set_mode_scroll_packed(const display_buf_t *buf, int n_col) {
 }
 
 void display_set_mode_scroll_text(const char *text, int speed) {
-  display_buf_t buf[DISPLAY_SCROLL_MAX_COLUMNS];
   int len = strlen(text);
-  for (int i = 0; i < len && i * CHAR_WIDTH < DISPLAY_SCROLL_MAX_COLUMNS; ++i) {
-    display_buf_render_char(buf, text[i], i * CHAR_WIDTH, 0,
-                            DISPLAY_SCROLL_MAX_COLUMNS, DISPLAY_HEIGHT);
+  if (len >= kDisplayScrollMaxTextLen) {
+    len = kDisplayScrollMaxTextLen - 1;
   }
-  int n_col = (len * CHAR_WIDTH > DISPLAY_SCROLL_MAX_COLUMNS)
-                  ? DISPLAY_SCROLL_MAX_COLUMNS
-                  : len * CHAR_WIDTH;
+  memset(display_set_mode_internal_text_buffer, 0,
+         sizeof(display_set_mode_internal_text_buffer));
+  memcpy(display_set_mode_internal_text_buffer, text, len);
 
-  display_set_mode_scroll_packed(buf, n_col, speed);
+  display_set_mode_state = SET_MODE_ST_RENDER;
+  display_set_mode_internal_render_idx = 0;
+  display_set_mode_speed = speed;
+
+  scheduler.Queue(&display_set_mode_internal_task, nullptr);
+}
+
+void display_set_mode_internal_taskfunc(void *arg1, void *arg2) {
+  switch (display_set_mode_state) {
+    case SET_MODE_IDLE:
+      return;
+    case SET_MODE_ST_RENDER: {
+      for (int i = 0;
+           i < 4 && display_set_mode_internal_render_idx * CHAR_WIDTH <
+                        DISPLAY_SCROLL_MAX_COLUMNS;
+           i++, display_set_mode_internal_render_idx++) {
+        display_buf_render_char(
+            display_set_mode_internal_scroll_buffer,
+            display_set_mode_internal_text_buffer
+                [display_set_mode_internal_render_idx],
+            display_set_mode_internal_render_idx * CHAR_WIDTH, 0,
+            DISPLAY_SCROLL_MAX_COLUMNS, DISPLAY_HEIGHT);
+      }
+      if (display_set_mode_internal_render_idx * CHAR_WIDTH >=
+          DISPLAY_SCROLL_MAX_COLUMNS) {
+        display_set_mode_state = SET_MODE_ST_FINAL;
+      }
+      scheduler.Queue(&display_set_mode_internal_task, nullptr);
+      return;
+    }
+    case SET_MODE_ST_FINAL: {
+      int len = strlen(display_set_mode_internal_text_buffer);
+      if (len >= kDisplayScrollMaxTextLen) {
+        len = kDisplayScrollMaxTextLen - 1;
+      }
+      int n_col = (len * CHAR_WIDTH > DISPLAY_SCROLL_MAX_COLUMNS)
+                      ? DISPLAY_SCROLL_MAX_COLUMNS
+                      : len * CHAR_WIDTH;
+      display_set_mode_scroll_packed(display_set_mode_internal_scroll_buffer,
+                                     n_col, display_set_mode_speed);
+      display_set_mode_state = SET_MODE_IDLE;
+      return;
+    }
+    default:
+      my_assert(false);
+  }
 }
 
 void display_set_mode_text(const char *text) {
@@ -180,6 +239,7 @@ void display_set_mode_text(const char *text) {
   for (i = i * CHAR_WIDTH; i < DISPLAY_WIDTH; ++i) buf[i] = 0;
 
   display_set_mode_fixed_packed(buf);
+  display_set_mode_state = SET_MODE_IDLE;
 }
 
 void display_set_mode_scroll_text(const char *text) {
@@ -189,4 +249,5 @@ void display_set_mode_scroll_text(const char *text) {
 void display_set_mode_editor(hitcon::TextEditorDisplay *editor) {
   display_mode = DISPLAY_MODE_TEXT_EDITOR;
   text_editor_display = editor;
+  display_set_mode_state = SET_MODE_IDLE;
 }
