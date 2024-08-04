@@ -87,6 +87,10 @@ private:
   // How many RX DMA Run since the tx is released?
   size_t rx_ctr_since_release;
 
+  // How many packets has been sent?
+  // Primarily used for debugging.
+  size_t tx_packet_cnt;
+
   hitcon::service::sched::PeriodicTask routine_task;
 
   hitcon::service::sched::Task on_rx_callback_runner;
