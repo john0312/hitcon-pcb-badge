@@ -8,3 +8,5 @@ pcb/kicad/pcb_badge/fp-info-cache
 pcb/kicad/pcb_badge/fp-info-cache
 pcb/kicad/pcb_badge/fp-info-cache
 pcb/kicad/pcb_badge/fp-info-cache
+/sw/BadgeCommander/.venv
+/sw/BadgeCommander/__pycache__
