@@ -5,6 +5,12 @@
 
 namespace hitcon {
 
+enum ShowNameMode {
+  NameScore,
+  NameOnly,
+  ScoreOnly,
+};
+
 class ShowNameApp : public App {
  public:
   static constexpr int NAME_LEN = 16;
@@ -19,6 +25,11 @@ class ShowNameApp : public App {
   void OnButton(button_t button) override;
 
   void SetName(const char *name);
+  void SetMode(const enum ShowNameMode mode);
+  enum ShowNameMode GetMode();
+
+ private:
+  enum ShowNameMode mode;
 };
 
 extern ShowNameApp show_name_app;
