@@ -2,14 +2,21 @@
 
 #include <App/ShowNameApp.h>
 #include <Logic/BadgeController.h>
+#include <App/EditNameApp.h>
+#include <App/NameDisplayApp.h>
+
 
 namespace hitcon {
 
-extern menu_entry_t name_setting_menu_entries[];
+constexpr menu_entry_t name_setting_menu_entries[] = {
+    {"EditName", &edit_name_app, nullptr},
+    {"NameDisplay", &name_display_menu, nullptr},
+};
+constexpr int name_setting_menu_entries_len = sizeof(name_setting_menu_entries) / sizeof(menu_entry_t);
 
 class NameSettingApp : public MenuApp {
  public:
-  NameSettingApp() : MenuApp(name_setting_menu_entries) {}
+  NameSettingApp() : MenuApp(name_setting_menu_entries, name_setting_menu_entries_len) {}
   void OnButtonMode() override {
     badge_controller.change_app(&show_name_app);
   }

@@ -5,9 +5,9 @@
 
 namespace hitcon {
 
-MenuApp::MenuApp(menu_entry_t *menu_entries) : menu_entries(menu_entries) {
+MenuApp::MenuApp(const menu_entry_t *menu_entries, const int menu_entry_size)
+    : menu_entries(menu_entries), menu_entry_size(menu_entry_size) {
   menu_entry_index = 0;
-  menu_entry_size = sizeof(menu_entries) / sizeof(menu_entry_t);
 }
 
 void MenuApp::OnEntry() {
