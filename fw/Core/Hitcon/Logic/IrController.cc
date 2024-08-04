@@ -74,7 +74,7 @@ void IrController::BroadcastIr(void* unused) {
   uint8_t cell_data[kDataSize];
   int col = g_fast_random_pool.GetRandom() % hitcon::game::kNumCols;
   bool ok = gameLogic.GetRandomDataForIrTransmission(cell_data, &col);
-  if (ok || true) {
+  if (ok) {
     IrData irdata = {
         .ttl = 0,
         .type = packet_type::kGame,
