@@ -63,7 +63,6 @@ class XBoardLogic {
     uint16_t cons_head = 0;
     bool recv_ping = false;
     uint8_t no_ping_count = 0;
-    uint8_t packet_payload[PKT_PAYLOAD_LEN_MAX];
 
     hitcon::service::sched::PeriodicTask _routine_task;
     std::pair<callback_t, void*> packet_arrive_cbs[RecvFnId::MAX] = {};
