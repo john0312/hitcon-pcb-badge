@@ -1,5 +1,6 @@
 #include <Logic/XBoardLogic.h>
 #include <Logic/XBoardRecvFn.h>
+#include <Logic/crc32.h>
 
 #include <cstring>
 
@@ -23,13 +24,15 @@ struct Frame {
   uint16_t id;
   uint8_t len;   // should < `PKT_PAYLOAD_LEN_MAX`
   uint8_t type;  // 208(0xd0): ping
-  uint16_t checksum;
+  uint32_t checksum;
 };
 constexpr size_t HEADER_SZ = sizeof(Frame);
 
 void XBoardLogic::SendPing() {
   uint8_t pkt[HEADER_SZ] = {0};
-  *(Frame *)pkt = Frame{0xD555555555555555, 0, 0, PING_TYPE, 0};
+  *reinterpret_cast<Frame *>(pkt) =
+      Frame{0xD555555555555555, 0, 0, PING_TYPE, 0};
+  reinterpret_cast<Frame *>(pkt)->checksum = fast_crc32(pkt, HEADER_SZ);
   // for (int i = 0; i < sizeof(Frame); i++) {
   //   pkt[i] = (0x11+i)&0x0FF;
   //   pkt[i] = 0;
@@ -80,31 +83,42 @@ void XBoardLogic::ParsePacket() {
       break;
     }
 
-    Frame header;
-    TryReadBytes((uint8_t *)&header, HEADER_SZ);
-    if (header.preamble != 0xD555555555555555) {
+    uint8_t pkt[HEADER_SZ + PKT_PAYLOAD_LEN_MAX] = {0};
+    Frame *header = reinterpret_cast<Frame *>(pkt);
+    uint8_t *payload = pkt + HEADER_SZ;
+    TryReadBytes(reinterpret_cast<uint8_t *>(header), HEADER_SZ);
+    if (header->preamble != 0xD555555555555555) {
       cons_head = inc_head(cons_head, 1);
       continue;
     }
-    if (header.len >= PKT_PAYLOAD_LEN_MAX) {
+    if (header->len >= PKT_PAYLOAD_LEN_MAX) {
       // invalid packet, skip this packet (preamble 8 bytes)
       cons_head = inc_head(cons_head, 8);
       continue;
     }
-    if (!TryReadBytes((uint8_t *)&packet_payload, header.len, HEADER_SZ)) {
+    if (!TryReadBytes(payload, header->len, HEADER_SZ)) {
       // no enough bytes to read, wait more bytes in
       return;
     }
-    cons_head = inc_head(cons_head, HEADER_SZ + header.len);
-    if (header.type == PING_TYPE) {
+
+    uint32_t recv_check = header->checksum;
+    header->checksum = 0;
+    if (fast_crc32(pkt, HEADER_SZ + header->len) != recv_check) {
+      cons_head = inc_head(cons_head, 8);
+      continue;
+    }
+
+    // pass checking, valid packet now
+    cons_head = inc_head(cons_head, HEADER_SZ + header->len);
+    if (header->type == PING_TYPE) {
       recv_ping = true;
       continue;
     }
-    if (header.type < RecvFnId::MAX) {
+    if (header->type < RecvFnId::MAX) {
       PacketCallbackArg packet_cb_arg;
-      memcpy(packet_cb_arg.data, &packet_payload, header.len);
-      packet_cb_arg.len = header.len;
-      auto [recv_fn, recv_self] = packet_arrive_cbs[header.type];
+      memcpy(packet_cb_arg.data, payload, header->len);
+      packet_cb_arg.len = header->len;
+      auto [recv_fn, recv_self] = packet_arrive_cbs[header->type];
       if (recv_fn != nullptr) recv_fn(recv_self, &packet_cb_arg);
     }
   }
@@ -128,6 +142,8 @@ void XBoardLogic::QueueDataForTx(uint8_t *packet, uint8_t packet_len,
   for (uint8_t i = 0; i < packet_len; ++i) {
     pkt[i + HEADER_SZ] = packet[i];
   }
+  reinterpret_cast<Frame *>(pkt)->checksum =
+      fast_crc32(pkt, HEADER_SZ + packet_len);
   g_xboard_service.QueueDataForTx(pkt, HEADER_SZ + packet_len);
 }
 
