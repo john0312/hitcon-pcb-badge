@@ -36,7 +36,8 @@ def send_badusb_script(script):
     send_command(datatosend + script)
 
 def send_command(command):
-    device.write(command)
+    k=device.write(command)
+    print(k)
     
 
 def close_device():
@@ -45,5 +46,8 @@ def close_device():
 
 if __name__ == '__main__':
     get_hid_device()
-    set_name("HITCON")
+    for i in range(33):
+        datatosend = [0x00]*32
+        send_command(datatosend)
+    close_device()
 
