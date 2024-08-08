@@ -9,9 +9,9 @@ using namespace hitcon::service::sched;
 
 
 namespace hitcon {
+namespace app {
+namespace snake {
 
-// interval for snake moving
-constexpr unsigned INTERVAL = 350;
 enum direction_t {
   NONE = 0,
   DIRECTION_RIGHT,
@@ -19,16 +19,39 @@ enum direction_t {
   DIRECTION_UP,
   DIRECTION_DOWN,
 };
+
+enum { // XBOARD 
+  PACKET_GET_FOOD = 1,
+  PACKET_GAME_START,
+  PACKET_GAME_OVER,
+};
+
+enum {
+  MODE_NONE = 0,
+  // get more score as possible within limited time,
+  MODE_SINGLEPLAYER,
+  // get food will increase the other player's body length
+  MODE_MULTIPLAYER,
+  //wait for game start (player press ok button to start)
+  STATE_WAIT,
+  STATE_PLAYING,
+  STATE_END,
+};
+
 class SnakeApp : public App {
 private:
+  // interval for snake moving
+  static constexpr unsigned INTERVAL = 350;
+
   PeriodicTask _routine_task;
   uint8_t _body[DISPLAY_HEIGHT * DISPLAY_WIDTH]; //0: head
   uint8_t _len;
+  uint8_t _state;
   direction_t _direction;
   direction_t _last_direction;
-  uint8_t _has_food = false;
-  uint8_t _food_index;
+  int8_t _food_index;
   bool _game_over;
+  unsigned _mode;
 
   void GenerateFood();
   void Routine(void* unused);
@@ -37,13 +60,22 @@ public:
   SnakeApp();
   virtual ~SnakeApp() = default;
 
+  void Init();
+  // summon random snake and food
+  void InitGame();
   void OnEntry() override;
   void OnExit() override;
   void OnButton(button_t button) override;
+  void OnXBoardRecv(void* arg);
+  //set mode before change to snake app
+  void SetSingleplayer();
+  void SetMultiplayer();
 };
 
 extern SnakeApp snake_app;
 
+}
+}
 }  // namespace hitcon
 
 #endif  // SNAKE_APP_H
