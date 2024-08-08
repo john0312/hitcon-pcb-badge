@@ -6,6 +6,7 @@
  */
 
 #include <App/HardwareTestApp.h>
+#include <App/SnakeApp.h>
 #include <Hitcon.h>
 #include <Logic/BadgeController.h>
 #include <Logic/ButtonLogic.h>
@@ -60,6 +61,7 @@ void hitcon_run() {
   hitcon::ir::irService.Init();
   hitcon::ir::irLogic.Init();
   hitcon::ir::irController.Init();
+  hitcon::app::snake::snake_app.Init();
 
   // run hardware test mode if MODE/SETTINGS Button is pressed during
   // initializing
