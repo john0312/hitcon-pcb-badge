@@ -176,7 +176,7 @@ void SnakeApp::Routine(void* unused) {
   if (_game_over) {
     display_set_mode_scroll_text("Game Over");
     if (mode == MODE_MULTIPLAYER) {
-      uint8_t code = PACKET_GAME_START;
+      uint8_t code = PACKET_GAME_OVER;
       g_xboard_logic.QueueDataForTx(&code, 1, SNAKE_RECV_ID);
     }
     return;
