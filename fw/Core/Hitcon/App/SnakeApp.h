@@ -38,6 +38,10 @@ enum {
   STATE_END,
 };
 
+//set mode before change to snake app
+void SetSingleplayer();
+void SetMultiplayer();
+
 class SnakeApp : public App {
 private:
   // interval for snake moving
@@ -51,12 +55,12 @@ private:
   direction_t _last_direction;
   int8_t _food_index;
   bool _game_over;
-  unsigned _mode;
 
   void GenerateFood();
   void Routine(void* unused);
   bool OnSnake(uint8_t index);
 public:
+  unsigned mode;
   SnakeApp();
   virtual ~SnakeApp() = default;
 
@@ -67,9 +71,6 @@ public:
   void OnExit() override;
   void OnButton(button_t button) override;
   void OnXBoardRecv(void* arg);
-  //set mode before change to snake app
-  void SetSingleplayer();
-  void SetMultiplayer();
 };
 
 extern SnakeApp snake_app;
