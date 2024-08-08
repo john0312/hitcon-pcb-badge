@@ -53,9 +53,7 @@ bool GameLogic::AcceptData(int col, uint8_t *data) {
   return queue_.PushBack(p);
 }
 
-game_cache_t &GameLogic::get_cache() {
-  return cache_;
-};
+game_cache_t &GameLogic::get_cache() { return cache_; };
 
 bool GameLogic::GetRandomDataForIrTransmission(uint8_t *out_data,
                                                int *out_col) {
