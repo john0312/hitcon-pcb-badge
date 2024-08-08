@@ -23,6 +23,7 @@
 
 /* USER CODE BEGIN INCLUDE */
 
+void UsbServiceOnDataReceived(uint8_t *data);
 /* USER CODE END INCLUDE */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -206,6 +207,8 @@ static int8_t CUSTOM_HID_DeInit_FS(void)
 
 static int8_t CUSTOM_HID_OutEvent_FS(uint8_t event_idx, uint8_t state)
 {
+  USBD_CUSTOM_HID_HandleTypeDef* hhid = (USBD_CUSTOM_HID_HandleTypeDef*)hUsbDeviceFS.pClassData;
+  UsbServiceOnDataReceived(&hhid->Report_buf);
   /* USER CODE BEGIN 6 */
   return (USBD_OK);
   /* USER CODE END 6 */
