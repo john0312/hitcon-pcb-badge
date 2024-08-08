@@ -2,13 +2,13 @@
 
 #include <App/MainMenuApp.h>
 #include <App/NameSettingApp.h>
-#include <Service/Sched/Task.h>
 #include <Logic/BadgeController.h>
 #include <Logic/Display/display.h>
-#include <Logic/GameLogic.h>
 #include <Logic/Display/font.h>
-#include <cstdio>
+#include <Logic/GameLogic.h>
+#include <Service/Sched/Task.h>
 
+#include <cstdio>
 #include <cstring>
 
 using namespace hitcon::service::sched;
@@ -18,7 +18,8 @@ namespace hitcon {
 ShowNameApp show_name_app;
 
 ShowNameApp::ShowNameApp()
-    : _routine_task(490, (task_callback_t)&ShowNameApp::check_update, this, 1000){
+    : _routine_task(490, (task_callback_t)&ShowNameApp::check_update, this,
+                    1000) {
   strncpy(name, DEFAULT_NAME, NAME_LEN);
 }
 
