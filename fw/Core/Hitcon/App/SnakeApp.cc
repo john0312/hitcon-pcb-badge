@@ -28,19 +28,19 @@ SnakeApp::SnakeApp()
  *  9. (done) implement multi-player mode
  * 10. xboard on connect/disconnect event
  * 11. check connection status
- * 12. add menu to choose game mode
+ * 12. (done) add menu to choose game mode
  * 13. dynamic interval?
  * 14. show win/lose and score when game over
  */
 void SnakeApp::Init() {
   scheduler.Queue(&_routine_task, nullptr);
-  _mode = MODE_NONE;
+  mode = MODE_NONE;
 }
 
 void SnakeApp::OnEntry() {
-  if (_mode == MODE_NONE)  // default game mode is single player
-    _mode = MODE_SINGLEPLAYER;
-  else if (_mode == MODE_MULTIPLAYER) {
+  if (mode == MODE_NONE)  // default game mode is single player
+    mode = MODE_SINGLEPLAYER;
+  else if (mode == MODE_MULTIPLAYER) {
     g_xboard_logic.SetOnPacketArrive((callback_t)&SnakeApp::OnXBoardRecv, this,
                                      SNAKE_RECV_ID);
   }
@@ -48,9 +48,9 @@ void SnakeApp::OnEntry() {
   display_set_mode_scroll_text("Ready...");
 }
 
-void SnakeApp::SetSingleplayer() { _mode = MODE_SINGLEPLAYER; }
+void SetSingleplayer() { snake_app.mode = MODE_SINGLEPLAYER; }
 
-void SnakeApp::SetMultiplayer() { _mode = MODE_MULTIPLAYER; }
+void SetMultiplayer() { snake_app.mode = MODE_MULTIPLAYER; }
 
 void SnakeApp::OnExit() { scheduler.DisablePeriodic(&_routine_task); }
 
@@ -73,7 +73,7 @@ void SnakeApp::OnButton(button_t button) {
     case BUTTON_OK:
       if (_state == STATE_WAIT) {
         _state = STATE_PLAYING;
-        if (_mode == MODE_MULTIPLAYER) {
+        if (mode == MODE_MULTIPLAYER) {
           uint8_t code = PACKET_GAME_START;
           g_xboard_logic.QueueDataForTx(&code, 1, SNAKE_RECV_ID);
         }
@@ -175,7 +175,7 @@ void SnakeApp::Routine(void* unused) {
 
   if (_game_over) {
     display_set_mode_scroll_text("Game Over");
-    if (_mode == MODE_MULTIPLAYER) {
+    if (mode == MODE_MULTIPLAYER) {
       uint8_t code = PACKET_GAME_START;
       g_xboard_logic.QueueDataForTx(&code, 1, SNAKE_RECV_ID);
     }
@@ -184,7 +184,7 @@ void SnakeApp::Routine(void* unused) {
 
   if (_food_index == new_head) {
     _food_index = -1;
-    if (_mode == MODE_SINGLEPLAYER)
+    if (mode == MODE_SINGLEPLAYER)
       _len++;
     else {
       uint8_t code = PACKET_GET_FOOD;
