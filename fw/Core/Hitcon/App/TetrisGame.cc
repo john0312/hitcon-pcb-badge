@@ -99,7 +99,11 @@ void TetrisGame::fall_down_tetromino() {
 }
 
 bool TetrisGame::generate_new_tetromino() {
-  current_tetromino = rand() % TETROMINO_COUNT;
+  int new_tetromino;
+  do {
+    new_tetromino = rand() % TETROMINO_COUNT;
+  } while (new_tetromino == current_tetromino);
+  current_tetromino = new_tetromino;
   const auto &t = TETROMINO[current_tetromino][0];
   current_x = BOARD_WIDTH / 2 - t.width / 2;
   current_y = 0;
