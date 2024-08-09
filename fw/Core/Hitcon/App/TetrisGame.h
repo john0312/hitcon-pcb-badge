@@ -117,7 +117,8 @@ class TetrisGame {
   static_assert(BOARD_WIDTH == sizeof(uint8_t) * 8,
                 "TETRIS_BOARD_WIDTH must be 8");
 
-  unsigned (*rand)(void);
+  unsigned (*rand)(void) = nullptr;
+  void (*attack_enemy_callback)(int n_lines) = nullptr;
 
   void clear_full_line();
   bool rotate_tetromino();
@@ -136,6 +137,11 @@ class TetrisGame {
   void game_draw_to_display(display_buf_t *buf);
   inline bool game_is_over() const { return state == GAME_STATE_GAME_OVER; };
   inline int game_get_score() const { return score; }
+
+  // 2-player game, this function should be called when enemy attacks us.
+  void game_enemy_attack(int n_lines);
+  // 2-player game, the callback will be called when we attack enemy.
+  void game_register_attack_enemy_callback(void (*callback)(int n_lines));
 };
 
 }  // namespace tetris

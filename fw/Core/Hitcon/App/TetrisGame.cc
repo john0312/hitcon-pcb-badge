@@ -10,18 +10,24 @@ TetrisGame::TetrisGame(unsigned (*rand)(void)) : rand(rand) {
 void TetrisGame::clear_full_line() {
   int from = BOARD_HEIGHT - 1;
   int to = BOARD_HEIGHT - 1;
+  int cleared_lines = 0;
   for (; from >= 0; from--) {
     if (board[from] != 0b11111111u) {
       board[to] = board[from];
       if (to != from) {
         board[from] = 0;
-        score += CLEAR_LINE_SCORE;
+        cleared_lines++;
       }
       to--;
     }
   }
   for (; to >= 0; to--) {
     board[to] = 0;
+  }
+
+  score += cleared_lines * CLEAR_LINE_SCORE;
+  if (attack_enemy_callback) {
+    attack_enemy_callback(cleared_lines);
   }
 }
 
@@ -163,6 +169,23 @@ void TetrisGame::game_draw_to_display(display_buf_t *buf) {
   for (int y = 0; y < BOARD_HEIGHT; y++) {
     buf[y] = reverse_bit(board[y]);
   }
+}
+
+void TetrisGame::game_enemy_attack(int n_lines) {
+  // move the current board upward by n_lines
+  for (int i = 0; i < BOARD_HEIGHT - n_lines; i++) {
+    board[i] = board[i + n_lines];
+  }
+
+  // add n_lines lines of garbage to the bottom of the board
+  // note that the garbage lines are full line with 1 bit unset
+  for (int i = BOARD_HEIGHT - n_lines; i < BOARD_HEIGHT; i++) {
+    board[i] = (0b11111111u ^ (1u << (rand() % BOARD_WIDTH)));
+  }
+}
+
+void TetrisGame::game_register_attack_enemy_callback(void (*callback)(int n_lines)) {
+  attack_enemy_callback = callback;
 }
 
 }  // namespace tetris
