@@ -107,6 +107,8 @@ class TetrisGame {
   int current_x;
   int current_y;
   int current_rotation;
+  static constexpr int CLEAR_LINE_SCORE = 10;
+  int score = 0;
 
   // board[0] is the top row, board[1] is the second row, etc.
   // Each row is a byte, and each bit represents a cell.
@@ -133,6 +135,7 @@ class TetrisGame {
   void game_on_input(TetrisDirection direction);
   void game_draw_to_display(display_buf_t *buf);
   inline bool game_is_over() const { return state == GAME_STATE_GAME_OVER; };
+  inline int game_get_score() const { return score; }
 };
 
 }  // namespace tetris

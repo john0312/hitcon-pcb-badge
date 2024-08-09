@@ -15,6 +15,7 @@ void TetrisGame::clear_full_line() {
       board[to] = board[from];
       if (to != from) {
         board[from] = 0;
+        score += CLEAR_LINE_SCORE;
       }
       to--;
     }
