@@ -6,9 +6,9 @@ import ttkbootstrap.scrolled as scrolled
 from ttkbootstrap.dialogs import Messagebox
 from tkinter import font as tkFont
 import sys
-import os
 import STM32HID
 import tkinter as tk
+
 
 #Check the connection of the Badge
 def checkBadgeConnection():
@@ -33,14 +33,28 @@ def getWinZoomValue():
 
 # Get the zoom value of the system, if the system is windows, it will return the zoom value, otherwise it will return 1
 def getZoomValue():
+    print(getOS())
     if getOS() == "win32":
         zoomValue = getWinZoomValue()
+    #linux
+    if getOS() == "linux":
+        import LinuxScale
+        print(LinuxScale.get_scaling_factor())
+        zoomValue = float(LinuxScale.get_scaling_factor())
     else:
         zoomValue = 1
     return zoomValue
 
+def setName(Name):
+    k=STM32HID.set_name(Name)
+    
+    if k==-1:
+        #error
+        checkBadgeConnection()
+
 # Get the zoom value of the system
 ZOOM_VALUE = getZoomValue()
+
 
 # Create the main window
 root = ttk.Window('HITCON PCB Badge Commander', 'cyborg')
@@ -93,9 +107,9 @@ entryFrame = ttk.Frame(SetNameFrame)
 entryFrame.pack(side='top', fill='x', padx=int(10*ZOOM_VALUE))
 entry_text = tk.StringVar()
 nameEntry = ttk.Entry(entryFrame, textvariable = entry_text, font=('SquareFont',16))
-nameEntry.pack(side='top',fill='x', ipadx=int(10*ZOOM_VALUE), ipady=int(10*ZOOM_VALUE))
+nameEntry.pack(side='top',fill='x', ipadx=int(10*ZOOM_VALUE), ipady=int(5*ZOOM_VALUE))
 #setnameButton
-setNameButton = ttk.Button(SetNameFrame, text='Set Name', command=lambda: STM32HID.set_name(entry_text.get()), bootstyle='light')
+setNameButton = ttk.Button(SetNameFrame, text='Set Name', command=lambda: setName(entry_text.get()), bootstyle='light')
 setNameButton.pack(side='right', padx=int(10*ZOOM_VALUE), pady=int(10*ZOOM_VALUE), ipadx=int(10*ZOOM_VALUE), ipady=int(10*ZOOM_VALUE))
 
 #Limit the character length of the nameEntry

@@ -21,7 +21,8 @@ def set_name(name):
     datatosend[0] = 0x01
     datatosend[1:len(name)+1] = [ord(c) for c in name]
     print(datatosend)
-    send_command(datatosend)
+    k=send_command(datatosend)
+    return k
     
 #BadUSB Commands
 #Clear BadUSB
@@ -37,7 +38,7 @@ def send_badusb_script(script):
 
 def send_command(command):
     k=device.write(command)
-    print(k)
+    return k
     
 
 def close_device():
