@@ -24,6 +24,7 @@ class ShowNameApp : public App {
   ShowNameApp();
   virtual ~ShowNameApp() = default;
 
+  void Init();
   void OnEntry() override;
   void OnExit() override;
   void OnButton(button_t button) override;

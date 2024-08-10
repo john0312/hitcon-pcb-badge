@@ -6,6 +6,7 @@
  */
 
 #include <App/HardwareTestApp.h>
+#include <App/ShowNameApp.h>
 #include <App/SnakeApp.h>
 #include <Hitcon.h>
 #include <Logic/BadgeController.h>
@@ -58,6 +59,9 @@ void hitcon_run() {
   g_xboard_service.Init();
   g_xboard_logic.Init();
   gameLogic.Init(&(g_nv_storage.GetCurrentStorage().game_storage));
+  show_name_app.Init();
+  
+  // this call shownameapp onentry
   badge_controller.Init();
   hitcon::ir::irService.Init();
   hitcon::ir::irLogic.Init();

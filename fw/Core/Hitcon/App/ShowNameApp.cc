@@ -22,15 +22,14 @@ ShowNameApp::ShowNameApp()
   strncpy(name, DEFAULT_NAME, NAME_LEN);
 }
 
+void ShowNameApp::Init() { scheduler.Queue(&_routine_task, nullptr); }
+
 void ShowNameApp::OnEntry() {
   display_set_mode_scroll_text(name);
-  scheduler.Queue(&_routine_task, nullptr);
   scheduler.EnablePeriodic(&_routine_task);
 }
 
-void ShowNameApp::OnExit() {
-  scheduler.DisablePeriodic(&_routine_task);
-}
+void ShowNameApp::OnExit() { scheduler.DisablePeriodic(&_routine_task); }
 
 void ShowNameApp::OnButton(button_t button) {
   switch (button) {
@@ -54,10 +53,10 @@ void ShowNameApp::check_update() {
 void ShowNameApp::update_display() {
   constexpr int max_len = DISPLAY_SCROLL_MAX_COLUMNS / CHAR_WIDTH;
 
-  static char display_str[max_len];
+  static char display_str[max_len + 1];
   int name_len = strlen(name);
 
-  static char num_str[max_len];
+  static char num_str[max_len + 1];
   int num_len = 0;
   uint32_t score_ = score_cache;
 
@@ -66,27 +65,29 @@ void ShowNameApp::update_display() {
     num_str[num_len++] = score_ % 10;
     score_ /= 10;
   } while (score_ != 0);
-  
+
   // strrev
   // use display_str as buffer temporarily
   strncpy(display_str, num_str, num_len);
-  for(int i=0, j=num_len-1; i<num_len; i++, j--) {
+  for (int i = 0, j = num_len - 1; i < num_len; i++, j--) {
     num_str[i] = display_str[j];
   }
 
-  if (name_len > max_len - num_len)
-    name_len = max_len - num_len;
+  if (name_len > max_len - num_len) name_len = max_len - num_len;
 
   switch (mode) {
     case NameScore:
       strncpy(display_str, name, name_len);
-      strncpy(display_str+name_len, num_str, num_len);
+      strncpy(display_str + name_len, num_str, num_len);
+      display_str[name_len + num_len] = 0;
       break;
     case NameOnly:
       strncpy(display_str, name, name_len);
+      display_str[name_len] = 0;
       break;
     case ScoreOnly:
       strncpy(display_str, num_str, num_len);
+      display_str[num_len] = 0;
       break;
     default:
       break;
