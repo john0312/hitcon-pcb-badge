@@ -34,6 +34,9 @@ class CircularQueue {
   // Returns the maximum capacity of the circular queue.
   size_t Capacity() { return capacity; }
 
+  // Returns the amount of elements currently stored.
+  size_t Size() { return (capacity + m_back_ - m_front_) % capacity; }
+
   // Returns true if the circular queue is empty.
   bool IsEmpty() { return m_front_ == m_back_; }
 
