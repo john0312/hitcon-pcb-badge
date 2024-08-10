@@ -4,6 +4,7 @@
 #include <App/EditNameApp.h>
 #include <App/ShowNameApp.h>
 #include <Logic/XBoardLogic.h>
+#include <Service/DisplayService.h>
 #include <Service/Sched/Checks.h>
 
 using hitcon::service::sched::my_assert;
@@ -42,7 +43,11 @@ void BadgeController::OnButton(void *arg1) {
   button_t button = static_cast<button_t>(reinterpret_cast<uintptr_t>(arg1));
 
   if (button == BUTTON_BRIGHTNESS || button == BUTTON_LONG_BRIGHTNESS) {
-    // TODO: change brightness
+    g_display_brightness = g_display_brightness + 1;
+    if (g_display_brightness == DISPLAY_MAX_BRIGHTNESS) {
+      g_display_brightness = 1;
+    }
+    g_display_service.SetBrightness(g_display_brightness);
   }
 
   // forward the button to the current app
