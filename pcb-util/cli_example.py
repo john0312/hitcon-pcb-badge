@@ -17,11 +17,9 @@ import setting
 
 # const value
 # ------- this part can be changed by frontend ----------
-FW_ELF_PATH = "C:\\Users\\a8701\\Documents\\Development\\hitcon-pcb-badge\\pcb-util\\fw.elf"
-ST_PRO_PATH = (
-    "C:\\Program Files (x86)\\STMicroelectronics\\STM32Cube\\STM32CubeProgrammer\\bin"
-)
-ST_PRO_EXE = "STM32_Programmer_CLI.exe"
+FW_ELF_PATH = setting.FW_ELF_PATH
+ST_PRO_PATH = setting.ST_PRO_PATH
+ST_PRO_EXE = setting.ST_PRO_EXE
 # ------- this part can be changed by frontend ----------
 
 
@@ -75,6 +73,18 @@ def main_loop(stdscr):
     print("start_time =")
     print(start_time)
     while True:
+        ## list all current avaliable stlink
+        
+        # Show "Remove!" message if FNINSHED
+        for index, st_obj in enumerate(st_obj_list):
+            if str(st_obj.current_state) == "ST_STATUS.FINISHED":
+                stdscr.addstr(
+                    setting.CURSES_RESERVE_LINE + index,
+                    0,
+                    f"ST-00{index}({st_obj.SN}) : "
+                    + f" Upload Completed. Remove the device!"
+                )
+
         # input scan of list and quit
         input_cmd = stdscr.getch()
         ## list all current avaliable stlink
@@ -99,7 +109,7 @@ def main_loop(stdscr):
         # curses display
         stdscr.refresh()
         stdscr.addstr(
-            0, 0, "=== STM32 upload tool ('q' to exit, 'r' to refersh all) ==="
+            0, 0, "=== STM32 upload tool ('q' to exit, 'r' to refersh ST-Link) ==="
         )
 
         # check if stlink list changed

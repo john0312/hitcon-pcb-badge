@@ -21,14 +21,17 @@ import setting
 # const value
 # ------- this part can be changed by frontend ----------
 if 'FW_ELF_PATH' not in st.session_state:
-        st.session_state.FW_ELF_PATH = "C:\\Users\\a8701\\Documents\\Development\\hitcon-pcb-badge\\pcb-util\\fw.elf"
+    st.session_state.FW_ELF_PATH = "C:\\Users\\a8701\\Documents\\Development\\hitcon-pcb-badge\\pcb-util\\fw.elf"
 if 'ST_PRO_PATH' not in st.session_state:
-        st.session_state.ST_PRO_PATH = (
+    st.session_state.ST_PRO_PATH = (
     "C:\\Program Files (x86)\\STMicroelectronics\\STM32Cube\\STM32CubeProgrammer\\bin"
 )
 if 'ST_PRO_EXE' not in st.session_state:
-        st.session_state.ST_PRO_EXE = "STM32_Programmer_CLI.exe"
+    st.session_state.ST_PRO_EXE = "STM32_Programmer_CLI.exe"
 # ------- this part can be changed by frontend ----------
+
+if 'st.session_state.st_obj' not in st.session_state:
+    st.session_state.st_obj = 
 
 def thread_create(st_obj):
     
@@ -74,16 +77,18 @@ st.session_state.stlink_alive_sn_list = st.session_state.stlink_sn_list
 
 if 'st_obj_list' not in st.session_state:
     st.session_state.st_obj_list = []
+if 'st.session_state.thread_instance' not in st.session_state:
+    st.session_state.thread_instance = []
 
 print(f"init with : {st.session_state.stlink_sn_list}")
 for init_sn in st.session_state.stlink_sn_list:
     st.session_state.st_obj_list.append(fw_flash.STLINK(init_sn))
 
 # start all object daemon and store in pool
-for st_obj in st.session_state.st_obj_list:
-    st.session_state.stop_event, thread_instance = thread_create(st_obj)
+for st.session_state.st_obj in st.session_state.st_obj_list:
+    st.session_state.stop_event, st.session_state.thread_instance = thread_create(st.session_state.st_obj)
     st.session_state.stop_event_pool.append(st.session_state.stop_event)
-    st.session_state.thread_pool.append(thread_instance)
+    st.session_state.thread_pool.append(st.session_state.thread_instance)
 
 # ------- Finished Setup STLink Devices ----------
 
@@ -211,7 +216,6 @@ with path:
 # ------- Update FW/ST-LINK_Programmer CLI Path Finished ----------
 
 
-
 # ------- Update ST-Link change ----------
 
 with STLinkList:
@@ -240,16 +244,11 @@ with simulation:
 
 # ------- Scan for ST-Link change ----------
 
-if 'start_time' not in st.session_state:
-        st.session_state.start_time = time.time()
 
-if st.button("Refresh", key="refresh_stlink"):
+if st.button("ReScan ST-Link", key="refresh_stlink"):
     st.session_state.stlink_alive_sn_list = st.session_state.shared_info.list_stlink()
 
 while True:
-    #if time.time()-st.session_state.start_time >1 :
-    #        st.session_state.stlink_alive_sn_list = st.session_state.shared_info.list_stlink()
-    # check if stlink list changed
     if 'stlink_add_list' not in st.session_state:
         st.session_state.stlink_add_list = list(set(st.session_state.stlink_alive_sn_list) - set(st.session_state.stlink_sn_list))
     if 'stlink_del_list' not in st.session_state:
@@ -263,9 +262,9 @@ while True:
         for add_sn in st.session_state.stlink_add_list:
             # do object add
             st.session_state.st_obj_list.append(fw_flash.STLINK(add_sn))
-            st.session_state.stop_event, thread_instance = thread_create(st.session_state.st_obj_list[-1])
+            st.session_state.stop_event, st.session_state.thread_instance = thread_create(st.session_state.st_obj_list[-1])
             st.session_state.stop_event_pool.append(st.session_state.stop_event)
-            st.session_state.thread_pool.append(thread_instance)
+            st.session_state.thread_pool.append(st.session_state.thread_instance)
         st.rerun()
 
     ## del object
@@ -273,8 +272,8 @@ while True:
         print("del : " + str(st.session_state.stlink_del_list))
         # do object del
         for del_sn in st.session_state.stlink_del_list:
-            for index, st_obj in enumerate(st.session_state.st_obj_list):
-                if st_obj.SN == del_sn:
+            for index, st.session_state.st_obj in enumerate(st.session_state.st_obj_list):
+                if st.session_state.st_obj.SN == del_sn:
                     st.session_state.st_obj_list.pop(index)
                     # stop the thread
                     st.session_state.stop_event_pool[index].set()
@@ -282,10 +281,20 @@ while True:
                     break
         st.rerun()
 
+    ## update status color
+    if str(st.session_state.st.session_state.st_obj) == "ST_STATUS.NO_DEVICE":
+        update_state(0)
+    elif str(st.session_state.st.session_state.st_obj) == "ST_STATUS.UPLOADING":
+        update_state(1)
+    elif str(st.session_state.st.session_state.st_obj) == "ST_STATUS.VERIFYING":
+        update_state(2)
+    elif str(st.session_state.st.session_state.st_obj) == "ST_STATUS.TRIGGER_EXEC":
+        update_state(3)
+    elif str(st.session_state.st.session_state.st_obj) == "ST_STATUS.FINISHED":
+        update_state(4)
     # update the list
     st.session_state.stlink_sn_list = st.session_state.stlink_alive_sn_list
 
-    time.sleep(1)
 
 # wait for all thread to stop
 for thread in st.session_state.thread_pool:
