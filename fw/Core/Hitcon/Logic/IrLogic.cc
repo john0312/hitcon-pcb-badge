@@ -2,6 +2,7 @@
 
 #include <Logic/IrLogic.h>
 #include <Service/IrService.h>
+#include <Service/Suspender.h>
 
 #include <cstdint>
 #include <cstring>
@@ -107,6 +108,7 @@ void IrLogic::OnBufferReceived(uint8_t *buffer) {
           if ((packet_buf & IR_PACKET_HEADER_MASK) ==
               (IR_PACKET_HEADER_PACKED & IR_PACKET_HEADER_MASK)) {
             packet_state = STATE_SIZE;
+            g_suspender.IncBlocker();
             rx_packet.size_ = 0;
             packet_buf = 0;
             bit = 0;
@@ -166,6 +168,7 @@ void IrLogic::OnBufferReceived(uint8_t *buffer) {
           break;
         case STATE_RESET:
           packet_state = STATE_START;
+          g_suspender.DecBlocker();
           packet_buf = 0;
           bit = 0;
           break;

@@ -4,6 +4,7 @@
 #include <Service/DisplayService.h>
 #include <Service/Sched/Scheduler.h>
 #include <Service/Sched/Task.h>
+#include <Service/Suspender.h>
 #include <main.h>
 #include <tim.h>
 
@@ -30,15 +31,21 @@ DisplayService::DisplayService()
 
 request_cb_param tmp_request_cb_param;
 void DisplayTransferHalfComplete(DMA_HandleTypeDef* hdma) {
-  tmp_request_cb_param.callback = g_display_service.request_frame_callback_arg1;
-  tmp_request_cb_param.buf_index = 0;
-  scheduler.Queue(&(g_display_service.task), &tmp_request_cb_param);
+  if (!g_suspender.IsSuspended()) {
+    tmp_request_cb_param.callback =
+        g_display_service.request_frame_callback_arg1;
+    tmp_request_cb_param.buf_index = 0;
+    scheduler.Queue(&(g_display_service.task), &tmp_request_cb_param);
+  }
 }
 
 void DisplayTransferComplete(DMA_HandleTypeDef* hdma) {
-  tmp_request_cb_param.callback = g_display_service.request_frame_callback_arg1;
-  tmp_request_cb_param.buf_index = 1;
-  scheduler.Queue(&(g_display_service.task), &tmp_request_cb_param);
+  if (!g_suspender.IsSuspended()) {
+    tmp_request_cb_param.callback =
+        g_display_service.request_frame_callback_arg1;
+    tmp_request_cb_param.buf_index = 1;
+    scheduler.Queue(&(g_display_service.task), &tmp_request_cb_param);
+  }
 }
 
 void DisplayService::Init() {
