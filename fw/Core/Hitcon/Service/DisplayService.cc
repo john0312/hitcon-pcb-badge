@@ -11,6 +11,7 @@ using namespace hitcon::service::sched;
 using namespace hitcon;
 namespace hitcon {
 DisplayService g_display_service;
+uint8_t g_display_brightness = 3;
 
 DisplayService::DisplayService()
     : task(169, (task_callback_t)&DisplayService::RequestFrameWrapper,
@@ -142,7 +143,8 @@ void DisplayService::RequestFrameWrapper(request_cb_param* arg) {
 }
 
 void DisplayService::SetBrightness(uint8_t brightness) {
-  uint8_t value = brightness / 10.0 * (htim3.Init.Period);
+  uint8_t value =
+      brightness * 1.0 / DISPLAY_MAX_BRIGHTNESS * (htim3.Init.Period);
   __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_2, value);
 }
 }  // namespace hitcon

@@ -42,7 +42,7 @@ void PostSchedInit(void* unused1, void* unused2) {
   scheduler.Queue(&TestTask2, nullptr);
   scheduler.EnablePeriodic(&TestTask2);
   g_display_service.Init();
-  g_display_service.SetBrightness(3);
+  g_display_service.SetBrightness(g_display_brightness);
 }
 
 Task InitTask(200, (task_callback_t)&PostSchedInit, nullptr);
