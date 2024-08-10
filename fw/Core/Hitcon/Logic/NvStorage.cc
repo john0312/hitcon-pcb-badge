@@ -82,7 +82,7 @@ void NvStorage::Routine(void* unused) {
   if ((force_flush || current_cycle - last_flush_cycle >= 300)) {
     // Programming/Erasing within the first 3s may cause issues.
     if (current_cycle >= 30) {
-      // ForceFlushInternal();
+      ForceFlushInternal();
       force_flush = false;
     }
   }
