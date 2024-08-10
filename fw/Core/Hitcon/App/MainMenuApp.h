@@ -1,16 +1,18 @@
-#include <App/ShowNameApp.h>
+#include <App/SnakeApp.h>
 #include <Logic/BadgeController.h>
 
 #include "MenuApp.h"
 
 namespace hitcon {
 
+using hitcon::app::snake::SetSingleplayer;
+
 constexpr menu_entry_t main_menu_entries[] = {
     // TODO : change app
-    {"BadUSB", &show_name_app, nullptr},
-    {"Snake", &show_name_app, nullptr},
-    {"Dino", &show_name_app, nullptr},
-    {"Tetris", &show_name_app, nullptr},
+    {"BadUSB", nullptr, nullptr},
+    {"Snake", &snake_app, &SetSingleplayer},
+    {"Dino", nullptr, nullptr},
+    {"Tetris", nullptr, nullptr},
 };
 
 constexpr int main_menu_entries_len =
