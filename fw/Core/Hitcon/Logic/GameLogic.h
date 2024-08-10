@@ -136,7 +136,8 @@ class GameLogic {
 
   CircularQueue<std::pair<int, grid_cell_t>, kQueueSize> queue_;
 
-  hitcon::service::sched::PeriodicTask routine_task;
+  hitcon::service::sched::Task routine_task_now;
+  hitcon::service::sched::DelayedTask routine_task_delayed;
 
   // Only used for debugging.
   int random_data_count_;
@@ -151,6 +152,7 @@ class GameLogic {
   // A simple routine function that attempts to populate the cache and handle
   // any items in the AcceptData queue.
   void Routine();
+  bool RoutineInternal();
 
   // Iterate through the sub routine enums one step per call.
   // If we just finished the last step in the sub routine, the we'll return true
