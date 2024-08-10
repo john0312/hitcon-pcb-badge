@@ -10,6 +10,10 @@ using hitcon::service::sched::my_assert;
 using hitcon::service::sched::scheduler;
 
 namespace hitcon {
+
+// How long between each Flash write? In units of 0.1s.
+constexpr int kMinFlushInterval = 500;
+
 NvStorage g_nv_storage;
 
 NvStorage::NvStorage()
@@ -79,7 +83,7 @@ void NvStorage::Routine(void* unused) {
     on_done_cb = nullptr;
   }
 
-  if ((force_flush || current_cycle - last_flush_cycle >= 300)) {
+  if ((force_flush || current_cycle - last_flush_cycle >= kMinFlushInterval)) {
     // Programming/Erasing within the first 3s may cause issues.
     if (current_cycle >= 30) {
       ForceFlushInternal();
