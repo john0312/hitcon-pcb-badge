@@ -29,7 +29,8 @@ void GameLogic::RandomlySetGridCellValue(int row, int col) {
 }
 
 GameLogic::GameLogic()
-    : routine_task(1000, (callback_t)&GameLogic::Routine, this, 0) {}
+    : routine_task(1000, (callback_t)&GameLogic::Routine, this, 0),
+      random_data_count_(0), accept_data_count_(0), accepted_data_count_(0) {}
 
 void GameLogic::Init(game_storage_t *storage) {
   storage_ = storage;
@@ -272,6 +273,7 @@ void GameLogic::Routine() {
         in_progress_col_ = data_pair.first;
         in_progress_data_ = data_pair.second;
         routine_state_ = COMPUTING_INCOMING_DATA;
+        accept_data_count_++;
       }
       break;
     }
@@ -303,6 +305,7 @@ void GameLogic::Routine() {
         cache_.cell_score_cache[in_progress_col_][min_row] =
             in_progress_cell_score_;
         g_nv_storage.MarkDirty();
+        accepted_data_count_++;
       }
       routine_state_ = UPDATE_GAME_SCORE;
       break;
