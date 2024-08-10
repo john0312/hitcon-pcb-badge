@@ -1,3 +1,4 @@
+#include <App/DinoApp.h>
 #include <App/ShowNameApp.h>
 #include <App/SnakeApp.h>
 #include <Logic/BadgeController.h>
@@ -6,6 +7,7 @@
 
 namespace hitcon {
 
+using hitcon::app::dino::dino_app;
 using hitcon::app::snake::SetSingleplayer;
 using hitcon::app::snake::snake_app;
 
@@ -13,7 +15,7 @@ constexpr menu_entry_t main_menu_entries[] = {
     // TODO : change app
     {"BadUSB", nullptr, nullptr},
     {"Snake", &snake_app, &SetSingleplayer},
-    {"Dino", nullptr, nullptr},
+    {"Dino", &dino_app, nullptr},
     {"Tetris", nullptr, nullptr},
 };
 

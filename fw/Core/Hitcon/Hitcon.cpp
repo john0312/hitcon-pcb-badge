@@ -5,6 +5,7 @@
  *      Author: aoaaceai
  */
 
+#include <App/DinoApp.h>
 #include <App/HardwareTestApp.h>
 #include <App/ShowNameApp.h>
 #include <App/SnakeApp.h>
@@ -67,6 +68,7 @@ void hitcon_run() {
   hitcon::ir::irLogic.Init();
   hitcon::ir::irController.Init();
   hitcon::app::snake::snake_app.Init();
+  hitcon::app::dino::dino_app.Init();
   g_usb_logic.Init();
 
   // run hardware test mode if MODE/SETTINGS Button is pressed during
