@@ -4,6 +4,8 @@
 #include <Logic/NvStorage.h>
 #include <Logic/RandomPool.h>
 #include <Logic/keccak.h>
+#include <Service/Sched/Scheduler.h>
+#include <Service/Sched/SysTimer.h>
 
 #include <cstring>
 #include <limits>
@@ -12,6 +14,9 @@ namespace hitcon {
 namespace game {
 
 using hitcon::service::sched::scheduler;
+using hitcon::service::sched::SysTimer;
+
+constexpr unsigned kIdleRoutineDelay = 20;
 
 GameLogic gameLogic;
 
@@ -30,7 +35,8 @@ void GameLogic::RandomlySetGridCellValue(int row, int col) {
 }
 
 GameLogic::GameLogic()
-    : routine_task(1000, (callback_t)&GameLogic::Routine, this, 0),
+    : routine_task_now(1000, (callback_t)&GameLogic::Routine, this),
+      routine_task_delayed(1000, (callback_t)&GameLogic::Routine, this, 0),
       random_data_count_(0), accept_data_count_(0), accepted_data_count_(0) {}
 
 void GameLogic::Init(game_storage_t *storage) {
@@ -40,8 +46,7 @@ void GameLogic::Init(game_storage_t *storage) {
   routine_state_ = CHECK_CELLS_VALID;
   populating_cache_col_ = populating_cache_row_ = 0;
 
-  scheduler.Queue(&routine_task, nullptr);
-  scheduler.EnablePeriodic(&routine_task);
+  scheduler.Queue(&routine_task_now, nullptr);
 }
 
 bool GameLogic::AcceptData(int col, uint8_t *data) {
@@ -180,10 +185,24 @@ void GameLogic::ComputeFinalScore() {
 }
 
 void GameLogic::Routine() {
+  bool idle = RoutineInternal();
+  if (idle) {
+    routine_task_delayed.SetWakeTime(SysTimer::GetTime() + kIdleRoutineDelay);
+    scheduler.Queue(&routine_task_delayed, nullptr);
+  } else {
+    scheduler.Queue(&routine_task_now, nullptr);
+  }
+}
+
+bool GameLogic::RoutineInternal() {
+  bool idle = false;
   switch (routine_state_) {
     case CHECK_CELLS_VALID: {
       // Wait until random is ready.
-      if (!g_entropy_hub.EntropyReady()) break;
+      if (!g_entropy_hub.EntropyReady()) {
+        idle = true;
+        break;
+      }
       bool all_zero = true;
       for (size_t row = 0; row < kNumRows; ++row) {
         for (size_t byte = 0; byte < kDataSize; ++byte) {
@@ -277,6 +296,8 @@ void GameLogic::Routine() {
         in_progress_data_ = data_pair.second;
         routine_state_ = COMPUTING_INCOMING_DATA;
         accept_data_count_++;
+      } else {
+        idle = true;
       }
       break;
     }
@@ -322,6 +343,7 @@ void GameLogic::Routine() {
       break;
     }
   }
+  return idle;
 }
 
 int GameLogic::GetScore() { return cache_.total_score >> 21; }

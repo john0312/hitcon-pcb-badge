@@ -28,6 +28,10 @@ class DelayedTask : public Task {
 
   unsigned WakeTime();
 
+  void SetWakeTime(unsigned wakeTimeIn) {
+    my_assert(!in_queue);
+    wakeTime = wakeTimeIn;
+  }
   bool operator<(DelayedTask &task);
 };
 
