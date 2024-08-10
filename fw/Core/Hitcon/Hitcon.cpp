@@ -13,6 +13,7 @@
 #include <Logic/BadgeController.h>
 #include <Logic/ButtonLogic.h>
 #include <Logic/DisplayLogic.h>
+#include <Logic/EntropyHub.h>
 #include <Logic/IrController.h>
 #include <Logic/IrLogic.h>
 #include <Logic/NvStorage.h>
@@ -51,6 +52,9 @@ Task InitTask(200, (task_callback_t)&PostSchedInit, nullptr);
 void hitcon_run() {
   display_init();
   g_noise_source.Init();
+  g_entropy_hub.Init();
+  g_fast_random_pool.Init();
+  g_secure_random_pool.Init();
   g_flash_service.Init();
   g_nv_storage.Init();
   g_display_logic.Init();

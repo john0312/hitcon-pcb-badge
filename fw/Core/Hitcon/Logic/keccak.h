@@ -55,6 +55,8 @@ sha3_return_t sha3_Init(void *priv, unsigned bitSize);
 // Takes 16ms on STM32@12MHz, should be split.
 void keccakf(uint64_t s[25]);
 // Takes 0.7ms on STM32@12MHz, should only be called once per task.
+// round should be sequentially called with [0, KECCAK_ROUNDS-1], for a total of
+// KECCAK_ROUNDS times.
 void keccakf_split(uint64_t s[25], int round);
 
 void sha3_Init256(void *priv);

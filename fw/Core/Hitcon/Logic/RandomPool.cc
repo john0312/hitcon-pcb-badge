@@ -2,6 +2,7 @@
 #include <Service/Sched/PeriodicTask.h>
 #include <Service/Sched/Scheduler.h>
 
+using hitcon::service::sched::my_assert;
 using hitcon::service::sched::task_callback_t;
 
 namespace hitcon {
@@ -11,9 +12,8 @@ SecureRandomPool g_secure_random_pool;
 
 SecureRandomPool::SecureRandomPool()
     : init_finished(false), seed_count(0),
-      routine_task(950, (task_callback_t)&SecureRandomPool::Routine, this, 20),
-      seed_queue_head(0), seed_queue_tail(0), random_queue_head(0),
-      random_queue_tail(0) {}
+      routine_task(950, (task_callback_t)&SecureRandomPool::Routine, this, 20) {
+}
 
 void SecureRandomPool::Init() {
   sha3_Init256(&keccak_context);
@@ -23,64 +23,65 @@ void SecureRandomPool::Init() {
 }
 
 bool SecureRandomPool::Seed(uint64_t seed_val) {
-  if (seed_queue_head == (seed_queue_tail + 1) % kSeedQueueSize) {
-    // Queue is full
-    return false;
-  }
-  seed_queue[seed_queue_tail] = seed_val;
-  seed_queue_tail = (seed_queue_tail + 1) % kSeedQueueSize;
-  return true;
+  return seed_queue.PushBack(seed_val);
 }
 
 bool SecureRandomPool::GetRandom(uint64_t* res) {
   if (!init_finished || seed_count < kMinSeedCountBeforeReady ||
-      random_queue_head == random_queue_tail) {
+      random_queue.IsEmpty()) {
     // Not ready or queue is empty
     return false;
   }
-  *res = random_queue[random_queue_head];
-  random_queue_head = (random_queue_head + 1) % kRandomQueueSize;
+  *res = random_queue.Front();
+  random_queue.PopFront();
   return true;
 }
 
 void SecureRandomPool::Routine(void* unused) {
-  if (TrySeed()) {
-    return;
+  switch (routine_state) {
+    case SECURE_ROUTINE_IDLE: {
+      if (!seed_queue.IsEmpty()) {
+        routine_state = SECURE_SEED_START;
+        break;
+      }
+      if (seed_count >= kMinSeedCountBeforeReady && !random_queue.IsFull()) {
+        routine_state = SECURE_RANDOM_START;
+        break;
+      }
+      break;
+    }
+    case SECURE_SEED_START: {
+      uint64_t seed_val = seed_queue.Front();
+      seed_queue.PopFront();
+      for (size_t i = 0; i < sizeof(uint64_t); i++) {
+        keccak_context.u.sb[i] ^= static_cast<uint8_t>(seed_val >> (8 * i));
+      }
+      seed_count++;
+      keccakf_round = 0;
+      routine_state = SECURE_KECCAKF;
+      break;
+    }
+    case SECURE_KECCAKF: {
+      keccakf_split(keccak_context.u.s, keccakf_round);
+      keccakf_round++;
+      if (keccakf_round == KECCAK_ROUNDS) {
+        routine_state = SECURE_ROUTINE_IDLE;
+      }
+      break;
+    }
+    case SECURE_RANDOM_START: {
+      uint64_t random_val = 0;
+      for (size_t i = 0; i < sizeof(uint64_t); i++) {
+        random_val |= static_cast<uint64_t>(keccak_context.u.sb[i]) << (8 * i);
+      }
+      random_queue.PushBack(random_val);
+      keccakf_round = 0;
+      routine_state = SECURE_KECCAKF;
+      break;
+    }
+    default:
+      my_assert(false);
   }
-  if (TryRandom()) {
-    return;
-  }
-}
-
-bool SecureRandomPool::TrySeed() {
-  if (seed_queue_head == seed_queue_tail) {
-    // Queue is empty
-    return false;
-  }
-  uint64_t seed_val = seed_queue[seed_queue_head];
-  seed_queue_head = (seed_queue_head + 1) % kSeedQueueSize;
-  for (size_t i = 0; i < sizeof(uint64_t); i++) {
-    keccak_context.u.sb[i] ^= static_cast<uint8_t>(seed_val >> (8 * i));
-  }
-  keccakf(keccak_context.u.s);
-  seed_count++;
-  return true;
-}
-
-bool SecureRandomPool::TryRandom() {
-  if (seed_count < kMinSeedCountBeforeReady ||
-      random_queue_head == (random_queue_tail + 1) % kRandomQueueSize) {
-    // Not ready or queue is full
-    return false;
-  }
-  uint64_t random_val = 0;
-  for (size_t i = 0; i < sizeof(uint64_t); i++) {
-    random_val |= static_cast<uint64_t>(keccak_context.u.sb[i]) << (8 * i);
-  }
-  keccakf(keccak_context.u.s);
-  random_queue[random_queue_tail] = random_val;
-  random_queue_tail = (random_queue_tail + 1) % kRandomQueueSize;
-  return true;
 }
 
 FastRandomPool::FastRandomPool() : prng(0) {}
