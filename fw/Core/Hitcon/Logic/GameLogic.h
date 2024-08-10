@@ -31,7 +31,10 @@ class GameLogic {
   bool AcceptData(int col, uint8_t* data);
 
   // Retrieve the data from a specific cell in the game grid.
-  uint8_t* GetDataCell(int col, int row);
+  uint8_t* GetDataCell(int col, int row) {
+    return &(storage_->cells[col][row].data[0]);
+  }
+
   game_cache_t& get_cache();
 
   // Get random data cell for IR transmission. Writes data to out_data and

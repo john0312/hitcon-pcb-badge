@@ -50,8 +50,13 @@ constexpr size_t kColPrefixLen = 8;
 
 // These columns may be broadcasted by the IrController.
 constexpr int IrAllowedBroadcastCol[] = {0, 2, 3, 4, 7};
-constexpr size_t IrAllowBroadcastCnt =
+constexpr size_t IrAllowedBroadcastColCnt =
     sizeof(IrAllowedBroadcastCol) / sizeof(IrAllowedBroadcastCol[0]);
+
+// These columns may be transmitted through XBoard.
+constexpr int XBoardAllowedBroadcastCol[] = {5, 7, 8};
+constexpr size_t XBoardAllowedBroadcastColCnt =
+    sizeof(XBoardAllowedBroadcastCol) / sizeof(XBoardAllowedBroadcastCol[0]);
 
 // These columns may accept data through internal random generation.
 constexpr int InternalGenCol[] = {0, 1, 2};
