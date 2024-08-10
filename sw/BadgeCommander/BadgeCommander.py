@@ -37,7 +37,7 @@ def getZoomValue():
     if getOS() == "win32":
         zoomValue = getWinZoomValue()
     #linux
-    if getOS() == "linux":
+    elif getOS() == "linux":
         import LinuxScale
         print(LinuxScale.get_scaling_factor())
         zoomValue = float(LinuxScale.get_scaling_factor())
