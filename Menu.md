@@ -12,4 +12,7 @@ flowchart TD
     J --> K(Name + Score)
     J --> L(Name Only)
     J --> M(Score Only)
+    N[Board Connect] --> O(Tetris)
+    N --> P(Snake)
+    N --> Q(xchg)
 ```
