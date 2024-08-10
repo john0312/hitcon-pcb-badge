@@ -300,6 +300,8 @@ void GameLogic::Routine() {
       // higher.
       if (in_progress_cell_score_ > min_score) {
         storage_->cells[in_progress_col_][min_row] = in_progress_data_;
+        cache_.cell_score_cache[in_progress_col_][min_row] =
+            in_progress_cell_score_;
         g_nv_storage.MarkDirty();
       }
       routine_state_ = UPDATE_GAME_SCORE;
