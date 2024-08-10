@@ -71,6 +71,8 @@ class Scheduler {
   TaskRecord taskRecords[kRecordSize];
   size_t record_index{0};
 
+  Task *currentTask = nullptr;
+
   void DelayedHouseKeeping();
 
  public:
@@ -88,6 +90,8 @@ class Scheduler {
   // Can NOT be called during interrupt.
   bool DisablePeriodic(PeriodicTask *task);
   void Run();
+
+  Task *GetCurrentTask() { return currentTask; }
 
   // How many tasks has run?
   size_t GetTotalTasksRan();
