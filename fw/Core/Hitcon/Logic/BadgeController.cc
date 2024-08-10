@@ -2,8 +2,11 @@
 
 #include <App/EditNameApp.h>
 #include <App/ShowNameApp.h>
+#include <Service/Sched/Checks.h>
 
 #include <cstdint>
+
+using hitcon::service::sched::my_assert;
 
 namespace hitcon {
 BadgeController badge_controller;
@@ -20,6 +23,13 @@ void BadgeController::change_app(App *new_app) {
   if (current_app) current_app->OnExit();
   current_app = new_app;
   if (current_app) current_app->OnEntry();
+}
+
+void BadgeController::OnAppEnd(App *ending_app) {
+  my_assert(current_app == ending_app);
+
+  // TODO: Change this.
+  change_app(&show_name_app);
 }
 
 void BadgeController::OnButton(void *arg1) {
