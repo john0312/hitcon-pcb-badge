@@ -45,6 +45,9 @@ class GameLogic {
   // How many positions do we have in the accept data queue?
   int GetAcceptDataQueueAvailable();
 
+  // Return the current total score.
+  int GetScore();
+
  private:
   game_storage_t* storage_;
   game_cache_t cache_;
