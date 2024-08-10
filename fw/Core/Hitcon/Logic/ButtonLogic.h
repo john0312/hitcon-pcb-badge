@@ -26,6 +26,8 @@ constexpr int BOUNCE_TIME_THRESHOLD = 3;
 
 constexpr int BUTTON_VALUE_MASK = 0b1111;
 constexpr int BUTTON_LONG_PRESS_BIT = 1 << 14;
+constexpr int BUTTON_KEYUP_BIT = 1 << 13;
+constexpr int BUTTON_KEYDOWN_BIT = 1 << 12;
 
 // Bit 14 - This is a long press if set.
 // Bit 0-3 - The button pressed. See BUTTON_* constants below.
@@ -60,19 +62,31 @@ class ButtonLogic {
   // with callback_arg1 and the button_t (cast to void*).
   void SetCallback(callback_t callback, void* callback_arg1);
 
-  void OnReceiveData(uint8_t* arr);
+  /* when key UP/DOWN this callback will be called
+   * if pressed > 30ms this will be called and KEYUP bit will be set
+   * if released KEYDOWN will be set
+   */
+  void SetEdgeCallback(callback_t callback, void* callback_arg1);
 
-  void CallbackWrapper(void* arg2);
+  void OnReceiveData(uint8_t* arr);
 
  private:
   callback_t callback;
   void* callback_arg1;
+  callback_t edge_callback;
+  void* edge_callback_arg1;
 
   hitcon::service::sched::Task _callback_task;
+  hitcon::service::sched::Task _edge_callback_task;
 
   uint16_t _count[BUTTON_AMOUNT];
   uint8_t _fire;
   uint16_t _out;
+  // store button has sent key up or not
+  uint8_t _edge_flag[BUTTON_AMOUNT];
+
+  void CallbackWrapper(void* arg2);
+  void EdgeCallbackWrapper(void* arg2);
 };
 
 extern ButtonLogic g_button_logic;

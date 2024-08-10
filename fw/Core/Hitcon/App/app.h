@@ -20,6 +20,7 @@ class App {
 
   // When an App is running, events should be forwarded to OnButton.
   virtual void OnButton(button_t button) = 0;
+  void OnEdgeButton(button_t button) {}
 };
 
 }  // namespace hitcon

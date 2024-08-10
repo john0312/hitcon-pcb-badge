@@ -20,6 +20,8 @@ class BadgeController {
   // service. arg1 is this pointer, arg2 is the button_t.
   void OnButton(void *arg1);
 
+  void OnEdgeButton(void *arg1);
+
   // App should call this to denote that the app has ended and wishes to return
   // to the main menu (or similar).
   void OnAppEnd(App *ending_app);

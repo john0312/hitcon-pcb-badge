@@ -15,6 +15,7 @@ BadgeController::BadgeController() : current_app(nullptr) {}
 
 void BadgeController::Init() {
   g_button_logic.SetCallback((callback_t)&BadgeController::OnButton, this);
+  g_button_logic.SetEdgeCallback((callback_t)&BadgeController::OnEdgeButton, this);
   current_app = &show_name_app;
   current_app->OnEntry();
 }
@@ -49,6 +50,11 @@ void BadgeController::OnXBoardConnect(void *unused) {
 
 void BadgeController::OnXBoardDisconnect(void *unused) {
   // TODO
+}
+
+void BadgeController::OnEdgeButton(void *arg1) {
+  button_t button = static_cast<button_t>(reinterpret_cast<uintptr_t>(arg1));
+  current_app->OnEdgeButton(button);
 }
 
 }  // namespace hitcon
