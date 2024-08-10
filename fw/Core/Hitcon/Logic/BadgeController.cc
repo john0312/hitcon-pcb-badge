@@ -42,11 +42,25 @@ void BadgeController::OnAppEnd(App *ending_app) {
 void BadgeController::OnButton(void *arg1) {
   button_t button = static_cast<button_t>(reinterpret_cast<uintptr_t>(arg1));
 
-  if (button == BUTTON_BRIGHTNESS || button == BUTTON_LONG_BRIGHTNESS) {
+  if (button == BUTTON_BRIGHTNESS) {
     g_display_brightness = g_display_brightness + 1;
     if (g_display_brightness == DISPLAY_MAX_BRIGHTNESS) {
       g_display_brightness = 1;
     }
+    if (!g_display_standby) {
+      g_display_service.SetBrightness(g_display_brightness);
+    }
+  } else if (button == BUTTON_LONG_BRIGHTNESS) {
+    // stand_by mode
+    g_display_standby = 1 - g_display_standby;
+    if (g_display_standby) {
+      g_display_service.SetBrightness(0);
+    } else {
+      g_display_service.SetBrightness(g_display_brightness);
+    }
+  } else if (g_display_standby == 1) {
+    // standby wakeup
+    g_display_standby = 0;
     g_display_service.SetBrightness(g_display_brightness);
   }
 

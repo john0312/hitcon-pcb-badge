@@ -55,6 +55,7 @@ class DisplayService {
 #ifndef SERVICE_DISPLAY_SERVICE_CC_
 extern DisplayService g_display_service;
 extern uint8_t g_display_brightness;
+extern uint8_t g_display_standby;
 #endif
 }  // namespace hitcon
 
