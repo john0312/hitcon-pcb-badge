@@ -7,6 +7,7 @@
 namespace hitcon {
 
 using hitcon::app::snake::SetSingleplayer;
+using hitcon::app::snake::snake_app;
 
 constexpr menu_entry_t main_menu_entries[] = {
     // TODO : change app
