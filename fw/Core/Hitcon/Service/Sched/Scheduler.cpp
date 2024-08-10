@@ -88,6 +88,16 @@ bool Scheduler::DisablePeriodic(PeriodicTask *task) {
     AssertOverflow();
     return false;
   }
+  {
+    bool removed = tasks.Remove(task);
+    if (removed) {
+      task->ExitQueue();
+    }
+    removed = delayedTasks.Remove(task);
+    if (removed) {
+      task->ExitQueue();
+    }
+  }
   task->Disable();
   return true;
 }
