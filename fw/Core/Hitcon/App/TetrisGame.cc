@@ -184,7 +184,8 @@ void TetrisGame::game_enemy_attack(int n_lines) {
   }
 }
 
-void TetrisGame::game_register_attack_enemy_callback(void (*callback)(int n_lines)) {
+void TetrisGame::game_register_attack_enemy_callback(
+    void (*callback)(int n_lines)) {
   attack_enemy_callback = callback;
 }
 
