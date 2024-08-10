@@ -60,6 +60,11 @@ bool GameLogic::GetRandomDataForIrTransmission(uint8_t *out_data,
   return true;
 }
 
+bool GameLogic::GetRandomDataForXBoardTransmission(uint8_t *out_data,
+                                                   int *out_col) {
+  return true;
+}
+
 void GameLogic::SetColumnPrefix(uint8_t *out, int col) {
   // Copy "HITCON" to the output buffer
   memcpy(out, "HITCON", 6);
