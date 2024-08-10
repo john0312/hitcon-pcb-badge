@@ -22,11 +22,13 @@ bool Suspender::TrySuspend() {
   }
   my_assert(suspended_ == false);
   suspended_ = true;
+  return true;
 }
 
 bool Suspender::TryResume() {
   my_assert(suspended_ == true);
   suspended_ = false;
+  return true;
 }
 
 }  // namespace hitcon
