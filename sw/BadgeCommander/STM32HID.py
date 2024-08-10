@@ -33,7 +33,8 @@ def clear_badusb():
 def send_badusb_script(script):
     datatosend = [0x00]*3
     datatosend[0] = 0x03
-    datatosend[1:2] = len(script)
+    datatosend[1:3] = len(script).to_bytes(2, 'big')
+    print(datatosend+ script)
     send_command(datatosend + script)
 
 def send_command(command):
