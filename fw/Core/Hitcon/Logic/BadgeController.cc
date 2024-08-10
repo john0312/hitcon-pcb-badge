@@ -2,6 +2,7 @@
 
 #include <App/EditNameApp.h>
 #include <App/ShowNameApp.h>
+#include <Logic/XBoardLogic.h>
 #include <Service/Sched/Checks.h>
 
 #include <cstdint>
@@ -19,6 +20,10 @@ void BadgeController::Init() {
                                  this);
   current_app = &show_name_app;
   current_app->OnEntry();
+  hitcon::service::xboard::g_xboard_logic.SetOnConnect(
+      (callback_t)&BadgeController::OnXBoardConnect, this);
+  hitcon::service::xboard::g_xboard_logic.SetOnDisconnect(
+      (callback_t)&BadgeController::OnXBoardDisconnect, this);
 }
 
 void BadgeController::change_app(App *new_app) {
