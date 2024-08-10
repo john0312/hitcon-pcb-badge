@@ -1,5 +1,6 @@
 #include <Logic/RandomPool.h>
 #include <Service/IrService.h>
+#include <Service/Suspender.h>
 #include <main.h>
 #include <stm32f1xx_ll_gpio.h>
 #include <tim.h>
@@ -28,20 +29,30 @@ IrService::IrService()
       tx_packet_cnt(0) {}
 
 void ReceiveDmaHalfCplt(DMA_HandleTypeDef *hdma) {
-  scheduler.Queue(&irService.dma_rx_pull_task, reinterpret_cast<void *>(0));
+  if (!g_suspender.IsSuspended()) {
+    scheduler.Queue(&irService.dma_rx_pull_task, reinterpret_cast<void *>(0));
+  }
 }
 
 void ReceiveDmaCplt(DMA_HandleTypeDef *hdma) {
-  scheduler.Queue(&irService.dma_rx_pull_task, reinterpret_cast<void *>(1));
+  if (!g_suspender.IsSuspended()) {
+    scheduler.Queue(&irService.dma_rx_pull_task, reinterpret_cast<void *>(1));
+  }
 }
 
 void TransmitDmaHalfCplt(DMA_HandleTypeDef *hdma) {
-  scheduler.Queue(&irService.dma_tx_populate_task, reinterpret_cast<void *>(0));
+  if (!g_suspender.IsSuspended()) {
+    scheduler.Queue(&irService.dma_tx_populate_task,
+                    reinterpret_cast<void *>(0));
+  }
   //  irService.PopulateTxDmaBuffer(reinterpret_cast<void *>(1));
 }
 
 void TransmitDmaCplt(DMA_HandleTypeDef *hdma) {
-  scheduler.Queue(&irService.dma_tx_populate_task, reinterpret_cast<void *>(1));
+  if (!g_suspender.IsSuspended()) {
+    scheduler.Queue(&irService.dma_tx_populate_task,
+                    reinterpret_cast<void *>(1));
+  }
   //  irService.PopulateTxDmaBuffer(reinterpret_cast<void *>(1));
 }
 
@@ -131,6 +142,7 @@ bool IrService::SendBuffer(const uint8_t *data, size_t len, bool send_header) {
   tx_pending_buffer_len = len;
   tx_pending_send_header = send_header;
 
+  g_suspender.IncBlocker();
   tx_state = 0x01000000;
 
   return true;
@@ -181,6 +193,7 @@ void IrService::PopulateTxDmaBuffer(void *ptr_side) {
     if (ctr + 1 == (tx_pending_buffer_len * 8 / IR_BITS_PER_TX_RUN)) {
       // Transmission done.
       tx_state = 0x00000000;
+      g_suspender.DecBlocker();
       tx_packet_cnt++;
     }
   } else {

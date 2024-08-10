@@ -1,6 +1,7 @@
 #include <Logic/XBoardLogic.h>
 #include <Logic/XBoardRecvFn.h>
 #include <Logic/crc32.h>
+#include <Service/Suspender.h>
 
 #include <cstring>
 
@@ -192,6 +193,13 @@ void XBoardLogic::CheckPing() {
     no_ping_count = 0;
   }
   UsartConnectState next_state = no_ping_count >= 3 ? Disconnect : Connect;
+  if (next_state != connect_state) {
+    if (next_state == Disconnect && connect_state != UsartConnectState::Init)
+      g_suspender.DecBlocker();
+    else if (next_state == Connect)
+      g_suspender.IncBlocker();
+  }
+
   if (next_state != connect_state && connect_state != UsartConnectState::Init) {
     if (next_state == Disconnect && disconnect_handler != nullptr) {
       disconnect_handler(disconnect_handler_self, nullptr);
