@@ -1,3 +1,4 @@
+#include <App/ShowNameApp.h>
 #include <App/SnakeApp.h>
 #include <Logic/BadgeController.h>
 

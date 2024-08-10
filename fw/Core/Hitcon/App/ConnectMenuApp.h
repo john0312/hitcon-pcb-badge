@@ -7,6 +7,7 @@
 namespace hitcon {
 
 using hitcon::app::snake::SetMultiplayer;
+using hitcon::app::snake::snake_app;
 
 constexpr menu_entry_t connect_menu_entries[] = {
     {"Tetris", &tetris_app, nullptr},
