@@ -15,7 +15,8 @@ BadgeController::BadgeController() : current_app(nullptr) {}
 
 void BadgeController::Init() {
   g_button_logic.SetCallback((callback_t)&BadgeController::OnButton, this);
-  g_button_logic.SetEdgeCallback((callback_t)&BadgeController::OnEdgeButton, this);
+  g_button_logic.SetEdgeCallback((callback_t)&BadgeController::OnEdgeButton,
+                                 this);
   current_app = &show_name_app;
   current_app->OnEntry();
 }

@@ -51,7 +51,7 @@ void ButtonLogic::OnReceiveData(uint8_t* data) {
         _count[j]++;
         pressed_btn = j;
         if (_edge_flag[j] == 0 && _count[j] > BOUNCE_TIME_THRESHOLD) {
-	  _edge_flag[j] = 1;
+          _edge_flag[j] = 1;
           scheduler.Queue(&_edge_callback_task,
                           reinterpret_cast<void*>(static_cast<size_t>(
                               ((BUTTON_MODE + j) | BUTTON_KEYDOWN_BIT))));
