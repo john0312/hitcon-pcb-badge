@@ -76,6 +76,10 @@ void FlashService::Routine() {
       _state = FS_SUSPEND_WAIT;
       break;
     case FS_SUSPEND_WAIT: {
+      if (_erase_page_id == kErasePageCount) {
+        _state = FS_PROGRAM;
+        break;
+      }
       bool ret = g_suspender.TrySuspend();
       if (ret) {
         _state = FS_ERASE;
@@ -83,13 +87,9 @@ void FlashService::Routine() {
       break;
     }
     case FS_ERASE: {
-      if (_erase_page_id == kErasePageCount) {
-        _state = FS_PROGRAM;
-        break;
-      }
       FLASH_EraseInitTypeDef erase_struct = {
           .TypeErase = FLASH_TYPEERASE_PAGES,
-          .PageAddress = _addr + _erase_page_id * MY_FLASH_PAGE_SIZE,
+          .PageAddress = _addr + _erase_page_id * FLASH_PAGE_SIZE,
           .NbPages = 1,
       };
 
