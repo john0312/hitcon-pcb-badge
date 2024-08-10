@@ -13,10 +13,7 @@ namespace hitcon {
 namespace ir {
 
 struct IrPacket {
-  IrPacket()
-      : size_(0){
-            // No init needed.
-        };
+  IrPacket() : size_(0) {}
 
   // We need to add 2 bytes because we need at least 1 byte to accomodate
   // the size.
