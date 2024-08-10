@@ -1,4 +1,7 @@
 import ScanCode
+nextStringDelay = 0
+defaultDelay = 0
+defaultStringDelay =0
 
 def scriptToHex(scriptPath):
     hexData = []
@@ -7,9 +10,26 @@ def scriptToHex(scriptPath):
         data = file.readlines()
     data = [x.strip() for x in data]
     for line in data:
-        if line != "" and not line.startswith("REM"):
+        if line.startswith("REPEAT"):
+            lastCommand=lastCommand*int(line.split(" ")[1])
+        elif line.startswith("STRING_DELAY") or line.startswith("STRINGDELAY"):
+            global nextStringDelay
+            nextStringDelay=int(int(line.split(" ")[1])/10)
+        elif line.startswith("DEFAULT_STRING_DELAY") or line.startswith("DEFAULTSTRINGDELAY"):
+            global defaultStringDelay
+            defaultStringDelay=int(int(line.split(" ")[1])/10)
+        elif line.startswith("DEFAULT_DELAY") or line.startswith("DEFAULTDELAY"):
+            global defaultDelay
+            defaultDelay=int(int(line.split(" ")[1])/10)
+        elif line != "" and not line.startswith("REM"):
             print(line)
-            hexData=hexData+lineToHex(line)
+            lastCommand=lineToHex(line)
+            if defaultDelay != 0:
+                if defaultDelay>255:
+                    defaultDelay=255
+                hexData.append(0xFF)
+                hexData.append(defaultDelay)
+            hexData=hexData+lastCommand
     hexData.append(0xFD)
     return hexData
             
@@ -17,52 +37,15 @@ def scriptToHex(scriptPath):
 def lineToHex(line):
     if line.startswith("DELAY"):
         return [0xFF, int(int(line.split(" ")[1])/10)]
-    elif line.startswith("STRING"):
-        return stringToHex(line.split(" ")[1])
     elif line.startswith("STRINGLN"):
-        return stringToHex(line.split(" ")[1])+[ScanCode.KEY_ENTER]
+        print (line[9:])
+        return stringToHex(line[9:])+[ScanCode.KEY_ENTER]
+    elif line.startswith("STRING"):
+        print (line[7:])
+        return stringToHex(line[7:])
     elif line.startswith("ALTCHAR"):
-        return [0xFE, ScanCode.KEY_MOD_LALT]+modCharToHex(line.split(" ")[1])+[0xFE, 0x00]
-    elif line.startswith("GUI") or line.startswith("WINDOWS"):
-        data=[0xFE, ScanCode.KEY_MOD_LMETA]
-        
-        #check if the command is only one character
-        if len(line.split(" ")[1])==1:
-            data.extend(modCharToHex(line.split(" ")[1]))
-        else: #check other key
-            data.extend(modKeyToHex(line.split(" ")[1]))
-        data.extend([0xFE, 0x00])
-        return data
-    elif line.startswith("ALT"):
-        data=[0xFE, ScanCode.KEY_MOD_LALT]
-        
-        #check if the command is only one character
-        if len(line.split(" ")[1])==1:
-            data.extend(modCharToHex(line.split(" ")[1]))
-        else:
-            data.extend(modKeyToHex(line.split(" ")[1]))
-        data.extend([0xFE, 0x00])
-        return data
-    elif line.startswith("CTRL"):
-        data=[0xFE, ScanCode.KEY_MOD_LCTRL]
-        
-        #check if the command is only one character
-        if len(line.split(" ")[1])==1:
-            data.extend(modCharToHex(line.split(" ")[1]))
-        else:
-            data.extend(modKeyToHex(line.split(" ")[1]))
-        data.extend([0xFE, 0x00])
-        return data
-    elif line.startswith("SHIFT"):
-        data=[0xFE, ScanCode.KEY_MOD_LSHIFT]
-        
-        #check if the command is only one character
-        if len(line.split(" ")[1])==1:
-            data.extend(modCharToHex(line.split(" ")[1]))
-        else:
-            data.extend(modKeyToHex(line.split(" ")[1]))
-        data.extend([0xFE, 0x00])
-        return data
+        return [0xFE, ScanCode.KEY_MOD_LALT]+modCharToHex(line.split(" ")[1])+[0x00]
+    
     
     # combie the modifier keys
     # CTRL-ALT 	CTRL+ALT
@@ -79,7 +62,7 @@ def lineToHex(line):
             data.extend(modCharToHex(line.split(" ")[1]))
         else:
             data.extend(modKeyToHex(line.split(" ")[1]))
-        data.extend([0xFE, 0x00])
+        data.extend([0x00])
         return data
     
     elif line.startswith("CTRL-SHIFT"):
@@ -90,7 +73,7 @@ def lineToHex(line):
             data.extend(modCharToHex(line.split(" ")[1]))
         else:
             data.extend(modKeyToHex(line.split(" ")[1]))
-        data.extend([0xFE, 0x00])
+        data.extend([0x00])
         return data
     
     elif line.startswith("ALT-SHIFT"):
@@ -101,7 +84,7 @@ def lineToHex(line):
             data.extend(modCharToHex(line.split(" ")[1]))
         else:
             data.extend(modKeyToHex(line.split(" ")[1]))
-        data.extend([0xFE, 0x00])
+        data.extend([0x00])
         return data
     
     elif line.startswith("ALT-GUI"):
@@ -112,7 +95,7 @@ def lineToHex(line):
             data.extend(modCharToHex(line.split(" ")[1]))
         else:
             data.extend(modKeyToHex(line.split(" ")[1]))
-        data.extend([0xFE, 0x00])
+        data.extend([0x00])
         return data
     
     elif line.startswith("GUI-SHIFT"):
@@ -123,7 +106,7 @@ def lineToHex(line):
             data.extend(modCharToHex(line.split(" ")[1]))
         else:
             data.extend(modKeyToHex(line.split(" ")[1]))
-        data.extend([0xFE, 0x00])
+        data.extend([0x00])
         return data
     
     elif line.startswith("GUI-CTRL"):
@@ -134,7 +117,48 @@ def lineToHex(line):
             data.extend(modCharToHex(line.split(" ")[1]))
         else:
             data.extend(modKeyToHex(line.split(" ")[1]))
-        data.extend([0xFE, 0x00])
+        data.extend([0x00])
+        return data
+    
+    elif line.startswith("GUI") or line.startswith("WINDOWS"):
+        data=[0xFE, ScanCode.KEY_MOD_LMETA]
+        
+        #check if the command is only one character
+        if len(line.split(" ")[1])==1:
+            data.extend(modCharToHex(line.split(" ")[1]))
+        else: #check other key
+            data.extend(modKeyToHex(line.split(" ")[1]))
+        data.extend([0x00])
+        return data
+    elif line.startswith("ALT"):
+        data=[0xFE, ScanCode.KEY_MOD_LALT]
+        
+        #check if the command is only one character
+        if len(line.split(" ")[1])==1:
+            data.extend(modCharToHex(line.split(" ")[1]))
+        else:
+            data.extend(modKeyToHex(line.split(" ")[1]))
+        data.extend([0x00])
+        return data
+    elif line.startswith("CTRL"):
+        data=[0xFE, ScanCode.KEY_MOD_LCTRL]
+        
+        #check if the command is only one character
+        if len(line.split(" ")[1])==1:
+            data.extend(modCharToHex(line.split(" ")[1]))
+        else:
+            data.extend(modKeyToHex(line.split(" ")[1]))
+        data.extend([0x00])
+        return data
+    elif line.startswith("SHIFT"):
+        data=[0xFE, ScanCode.KEY_MOD_LSHIFT]
+        
+        #check if the command is only one character
+        if len(line.split(" ")[1])==1:
+            data.extend(modCharToHex(line.split(" ")[1]))
+        else:
+            data.extend(modKeyToHex(line.split(" ")[1]))
+        data.extend([0x00])
         return data
     #special keys
     elif line.startswith("DOWNARROW") or line.startswith("DOWN"):
@@ -208,9 +232,22 @@ def lineToHex(line):
     
     
 def stringToHex(string):
+    global nextStringDelay
+    global defaultStringDelay
+    if nextStringDelay != 0:
+        if nextStringDelay>255:
+            nextStringDelay=255
+        rawDelay=[0xFF]+[nextStringDelay]
+    elif defaultStringDelay != 0:
+        if defaultStringDelay>255:
+            defaultStringDelay=255
+        rawDelay=[0xFF]+[defaultStringDelay]
     hexData = []
     for char in string:
         hexData.extend(charToHex(char))
+        if nextStringDelay != 0 or defaultStringDelay != 0:
+            hexData.extend(rawDelay)
+    nextStringDelay=0
     return hexData
 
 def modKeyToHex(key):
@@ -416,147 +453,148 @@ def charToHex(char):
         return [ScanCode.KEY_A]
     elif char == "A":
         # Shift + a
-        return [0xFE, ScanCode.KEY_MOD_LSHIFT, ScanCode.KEY_A, 0xFE, 0x00]
+        return [0xFE, ScanCode.KEY_MOD_LSHIFT, ScanCode.KEY_A, 0x00]
     elif char == "b":
         return [ScanCode.KEY_B]
     elif char == "B":
-        return [0xFE, ScanCode.KEY_MOD_LSHIFT, ScanCode.KEY_B, 0xFE, 0x00]
+        return [0xFE, ScanCode.KEY_MOD_LSHIFT, ScanCode.KEY_B, 0x00]
     elif char == "c":
         return [ScanCode.KEY_C]
     elif char == "C":
-        return [0xFE, ScanCode.KEY_MOD_LSHIFT, ScanCode.KEY_C, 0xFE, 0x00]
+        return [0xFE, ScanCode.KEY_MOD_LSHIFT, ScanCode.KEY_C, 0x00]
     elif char == "d":
         return [ScanCode.KEY_D]
     elif char == "D":
-        return [0xFE, ScanCode.KEY_MOD_LSHIFT, ScanCode.KEY_D, 0xFE, 0x00]
+        return [0xFE, ScanCode.KEY_MOD_LSHIFT, ScanCode.KEY_D, 0x00]
     elif char == "e":
         return [ScanCode.KEY_E]
     elif char == "E":
-        return [0xFE, ScanCode.KEY_MOD_LSHIFT, ScanCode.KEY_E, 0xFE, 0x00]
+        return [0xFE, ScanCode.KEY_MOD_LSHIFT, ScanCode.KEY_E, 0x00]
     elif char == "f":
         return [ScanCode.KEY_F]
     elif char == "F":
-        return [0xFE, ScanCode.KEY_MOD_LSHIFT, ScanCode.KEY_F, 0xFE, 0x00]
+        return [0xFE, ScanCode.KEY_MOD_LSHIFT, ScanCode.KEY_F, 0x00]
     elif char == "g":
         return [ScanCode.KEY_G]
     elif char == "G":
-        return [0xFE, ScanCode.KEY_MOD_LSHIFT, ScanCode.KEY_G, 0xFE, 0x00]
+        return [0xFE, ScanCode.KEY_MOD_LSHIFT, ScanCode.KEY_G, 0x00]
     elif char == "h":
         return [ScanCode.KEY_H]
     elif char == "H":
-        return [0xFE, ScanCode.KEY_MOD_LSHIFT, ScanCode.KEY_H, 0xFE, 0x00]
+        return [0xFE, ScanCode.KEY_MOD_LSHIFT, ScanCode.KEY_H, 0x00]
     elif char == "i":
         return [ScanCode.KEY_I]
     elif char == "I":
-        return [0xFE, ScanCode.KEY_MOD_LSHIFT, ScanCode.KEY_I, 0xFE, 0x00]
+        return [0xFE, ScanCode.KEY_MOD_LSHIFT, ScanCode.KEY_I, 0x00]
     elif char == "j":
         return [ScanCode.KEY_J]
     elif char == "J":
-        return [0xFE, ScanCode.KEY_MOD_LSHIFT, ScanCode.KEY_J, 0xFE, 0x00]
+        return [0xFE, ScanCode.KEY_MOD_LSHIFT, ScanCode.KEY_J, 0x00]
     elif char == "k":
         return [ScanCode.KEY_K]
     elif char == "K":
-        return [0xFE, ScanCode.KEY_MOD_LSHIFT, ScanCode.KEY_K, 0xFE, 0x00]
+        return [0xFE, ScanCode.KEY_MOD_LSHIFT, ScanCode.KEY_K, 0x00]
     elif char == "l":
         return [ScanCode.KEY_L]
     elif char == "L":
-        return [0xFE, ScanCode.KEY_MOD_LSHIFT, ScanCode.KEY_L, 0xFE, 0x00]
+        return [0xFE, ScanCode.KEY_MOD_LSHIFT, ScanCode.KEY_L, 0x00]
     elif char == "m":
         return [ScanCode.KEY_M]
     elif char == "M":
-        return [0xFE, ScanCode.KEY_MOD_LSHIFT, ScanCode.KEY_M, 0xFE, 0x00]
+        return [0xFE, ScanCode.KEY_MOD_LSHIFT, ScanCode.KEY_M, 0x00]
     elif char == "n":
         return [ScanCode.KEY_N]
     elif char == "N":
-        return [0xFE, ScanCode.KEY_MOD_LSHIFT, ScanCode.KEY_N, 0xFE, 0x00]
+        return [0xFE, ScanCode.KEY_MOD_LSHIFT, ScanCode.KEY_N, 0x00]
     elif char == "o":
         return [ScanCode.KEY_O]
     elif char == "O":
-        return [0xFE, ScanCode.KEY_MOD_LSHIFT, ScanCode.KEY_O, 0xFE, 0x00]
+        return [0xFE, ScanCode.KEY_MOD_LSHIFT, ScanCode.KEY_O, 0x00]
     elif char == "p":
         return [ScanCode.KEY_P]
     elif char == "P":
-        return [0xFE, ScanCode.KEY_MOD_LSHIFT, ScanCode.KEY_P, 0xFE, 0x00]
+        return [0xFE, ScanCode.KEY_MOD_LSHIFT, ScanCode.KEY_P, 0x00]
     elif char == "q":
         return [ScanCode.KEY_Q]
     elif char == "Q":
-        return [0xFE, ScanCode.KEY_MOD_LSHIFT, ScanCode.KEY_Q, 0xFE, 0x00]
+        return [0xFE, ScanCode.KEY_MOD_LSHIFT, ScanCode.KEY_Q, 0x00]
     elif char == "r":
         return [ScanCode.KEY_R]
     elif char == "R":
-        return [0xFE, ScanCode.KEY_MOD_LSHIFT, ScanCode.KEY_R, 0xFE, 0x00]
+        return [0xFE, ScanCode.KEY_MOD_LSHIFT, ScanCode.KEY_R, 0x00]
     elif char == "s":
         return [ScanCode.KEY_S]
     elif char == "S":
-        return [0xFE, ScanCode.KEY_MOD_LSHIFT, ScanCode.KEY_S, 0xFE, 0x00]
+        return [0xFE, ScanCode.KEY_MOD_LSHIFT, ScanCode.KEY_S, 0x00]
     elif char == "t":
         return [ScanCode.KEY_T]
     elif char == "T":
-        return [0xFE, ScanCode.KEY_MOD_LSHIFT, ScanCode.KEY_T, 0xFE, 0x00]
+        return [0xFE, ScanCode.KEY_MOD_LSHIFT, ScanCode.KEY_T, 0x00]
     elif char == "u":
         return [ScanCode.KEY_U]
     elif char == "U":
-        return [0xFE, ScanCode.KEY_MOD_LSHIFT, ScanCode.KEY_U, 0xFE, 0x00]
+        return [0xFE, ScanCode.KEY_MOD_LSHIFT, ScanCode.KEY_U, 0x00]
     elif char == "v":
         return [ScanCode.KEY_V]
     elif char == "V":
-        return [0xFE, ScanCode.KEY_MOD_LSHIFT, ScanCode.KEY_V, 0xFE, 0x00]
+        return [0xFE, ScanCode.KEY_MOD_LSHIFT, ScanCode.KEY_V, 0x00]
     elif char == "w":
         return [ScanCode.KEY_W]
     elif char == "W":
-        return [0xFE, ScanCode.KEY_MOD_LSHIFT, ScanCode.KEY_W, 0xFE, 0x00]
+        return [0xFE, ScanCode.KEY_MOD_LSHIFT, ScanCode.KEY_W, 0x00]
     elif char == "x":
         return [ScanCode.KEY_X]
     elif char == "X":
-        return [0xFE, ScanCode.KEY_MOD_LSHIFT, ScanCode.KEY_X, 0xFE, 0x00]
+        return [0xFE, ScanCode.KEY_MOD_LSHIFT, ScanCode.KEY_X, 0x00]
     elif char == "y":
         return [ScanCode.KEY_Y]
     elif char == "Y":
-        return [0xFE, ScanCode.KEY_MOD_LSHIFT, ScanCode.KEY_Y, 0xFE, 0x00]
+        return [0xFE, ScanCode.KEY_MOD_LSHIFT, ScanCode.KEY_Y, 0x00]
     elif char == "z":
         return [ScanCode.KEY_Z]
     elif char == "Z":
-        return [0xFE, ScanCode.KEY_MOD_LSHIFT, ScanCode.KEY_Z, 0xFE, 0x00]
+        return [0xFE, ScanCode.KEY_MOD_LSHIFT, ScanCode.KEY_Z, 0x00]
     elif char == "1":
         return [ScanCode.KEY_1]
     elif char == "!":
-        return [0xFE, ScanCode.KEY_MOD_LSHIFT, ScanCode.KEY_1, 0xFE, 0x00]
+        return [0xFE, ScanCode.KEY_MOD_LSHIFT, ScanCode.KEY_1, 0x00]
     elif char == "2":
         return [ScanCode.KEY_2]
     elif char == "@":
-        return [0xFE, ScanCode.KEY_MOD_LSHIFT, ScanCode.KEY_2, 0xFE, 0x00]
+        return [0xFE, ScanCode.KEY_MOD_LSHIFT, ScanCode.KEY_2, 0x00]
     elif char == "3":
         return [ScanCode.KEY_3]
     elif char == "#":
-        return [0xFE, ScanCode.KEY_MOD_LSHIFT, ScanCode.KEY_3, 0xFE, 0x00]
+        return [0xFE, ScanCode.KEY_MOD_LSHIFT, ScanCode.KEY_3, 0x00]
     elif char == "4":
         return [ScanCode.KEY_4]
     elif char == "$":
-        return [0xFE, ScanCode.KEY_MOD_LSHIFT, ScanCode.KEY_4, 0xFE, 0x00]
+        return [0xFE, ScanCode.KEY_MOD_LSHIFT, ScanCode.KEY_4, 0x00]
     elif char == "5":
         return [ScanCode.KEY_5]
     elif char == "%":
-        return [0xFE, ScanCode.KEY_MOD_LSHIFT, ScanCode.KEY_5, 0xFE, 0x00]
+        return [0xFE, ScanCode.KEY_MOD_LSHIFT, ScanCode.KEY_5, 0x00]
     elif char == "6":
         return [ScanCode.KEY_6]
     elif char == "^":
-        return [0xFE, ScanCode.KEY_MOD_LSHIFT, ScanCode.KEY_6, 0xFE, 0x00]
+        return [0xFE, ScanCode.KEY_MOD_LSHIFT, ScanCode.KEY_6, 0x00]
     elif char == "7":
         return [ScanCode.KEY_7]
     elif char == "&":
-        return [0xFE, ScanCode.KEY_MOD_LSHIFT, ScanCode.KEY_7, 0xFE, 0x00]
+        return [0xFE, ScanCode.KEY_MOD_LSHIFT, ScanCode.KEY_7, 0x00]
     elif char == "8":
         return [ScanCode.KEY_8]
     elif char == "*":
-        return [0xFE, ScanCode.KEY_MOD_LSHIFT, ScanCode.KEY_8, 0xFE, 0x00]
+        return [0xFE, ScanCode.KEY_MOD_LSHIFT, ScanCode.KEY_8, 0x00]
     elif char == "9":
         return [ScanCode.KEY_9]
     elif char == "(":
-        return [0xFE, ScanCode.KEY_MOD_LSHIFT, ScanCode.KEY_9, 0xFE, 0x00]
+        return [0xFE, ScanCode.KEY_MOD_LSHIFT, ScanCode.KEY_9, 0x00]
     elif char == "0":
         return [ScanCode.KEY_0]
     elif char == ")":
-        return [0xFE, ScanCode.KEY_MOD_LSHIFT, ScanCode.KEY_0, 0xFE, 0x00]
+        return [0xFE, ScanCode.KEY_MOD_LSHIFT, ScanCode.KEY_0, 0x00]
+
     
     # KEY_SPACE =0x2c # Keyboard Spacebar
     # KEY_MINUS =0x2d # Keyboard - and _
@@ -577,51 +615,51 @@ def charToHex(char):
     elif char == "-":
         return [ScanCode.KEY_MINUS]
     elif char == "_":
-        return [0xFE, ScanCode.KEY_MOD_LSHIFT, ScanCode.KEY_MINUS, 0xFE, 0x00]
+        return [0xFE, ScanCode.KEY_MOD_LSHIFT, ScanCode.KEY_MINUS, 0x00]
     elif char == "=":
         return [ScanCode.KEY_EQUAL]
     elif char == "+":
-        return [0xFE, ScanCode.KEY_MOD_LSHIFT, ScanCode.KEY_EQUAL, 0xFE, 0x00]
+        return [0xFE, ScanCode.KEY_MOD_LSHIFT, ScanCode.KEY_EQUAL, 0x00]
     elif char == "[":
         return [ScanCode.KEY_LEFTBRACE]
     elif char == "{":
-        return [0xFE, ScanCode.KEY_MOD_LSHIFT, ScanCode.KEY_LEFTBRACE, 0xFE, 0x00]
+        return [0xFE, ScanCode.KEY_MOD_LSHIFT, ScanCode.KEY_LEFTBRACE, 0x00]
     elif char == "]":
         return [ScanCode.KEY_RIGHTBRACE]
     elif char == "}":
-        return [0xFE, ScanCode.KEY_MOD_LSHIFT, ScanCode.KEY_RIGHTBRACE, 0xFE, 0x00]
+        return [0xFE, ScanCode.KEY_MOD_LSHIFT, ScanCode.KEY_RIGHTBRACE, 0x00]
     elif char == "\\":
         return [ScanCode.KEY_BACKSLASH]
     elif char == "|":
-        return [0xFE, ScanCode.KEY_MOD_LSHIFT, ScanCode.KEY_BACKSLASH, 0xFE, 0x00]
+        return [0xFE, ScanCode.KEY_MOD_LSHIFT, ScanCode.KEY_BACKSLASH, 0x00]
     elif char == "#":
         return [ScanCode.KEY_HASHTILDE]
     elif char == "~":
-        return [0xFE, ScanCode.KEY_MOD_LSHIFT, ScanCode.KEY_HASHTILDE, 0xFE, 0x00]
+        return [0xFE, ScanCode.KEY_MOD_LSHIFT, ScanCode.KEY_HASHTILDE, 0x00]
     elif char == ";":
         return [ScanCode.KEY_SEMICOLON]
     elif char == ":":
-        return [0xFE, ScanCode.KEY_MOD_LSHIFT, ScanCode.KEY_SEMICOLON, 0xFE, 0x00]
+        return [0xFE, ScanCode.KEY_MOD_LSHIFT, ScanCode.KEY_SEMICOLON, 0x00]
     elif char == "'":
         return [ScanCode.KEY_APOSTROPHE]
     elif char == "\"":
-        return [0xFE, ScanCode.KEY_MOD_LSHIFT, ScanCode.KEY_APOSTROPHE, 0xFE, 0x00]
+        return [0xFE, ScanCode.KEY_MOD_LSHIFT, ScanCode.KEY_APOSTROPHE, 0x00]
     elif char == "`":
         return [ScanCode.KEY_GRAVE]
     elif char == "~":
-        return [0xFE, ScanCode.KEY_MOD_LSHIFT, ScanCode.KEY_GRAVE, 0xFE, 0x00]
+        return [0xFE, ScanCode.KEY_MOD_LSHIFT, ScanCode.KEY_GRAVE, 0x00]
     elif char == ",":
         return [ScanCode.KEY_COMMA]
     elif char == "<":
-        return [0xFE, ScanCode.KEY_MOD_LSHIFT, ScanCode.KEY_COMMA, 0xFE, 0x00]
+        return [0xFE, ScanCode.KEY_MOD_LSHIFT, ScanCode.KEY_COMMA, 0x00]
     elif char == ".":
         return [ScanCode.KEY_DOT]
     elif char == ">":
-        return [0xFE, ScanCode.KEY_MOD_LSHIFT, ScanCode.KEY_DOT, 0xFE, 0x00]
+        return [0xFE, ScanCode.KEY_MOD_LSHIFT, ScanCode.KEY_DOT, 0x00]
     elif char == "/":
         return [ScanCode.KEY_SLASH]
     elif char == "?":
-        return [0xFE, ScanCode.KEY_MOD_LSHIFT, ScanCode.KEY_SLASH, 0xFE, 0x00]
+        return [0xFE, ScanCode.KEY_MOD_LSHIFT, ScanCode.KEY_SLASH, 0x00]
     else:
         return [0xFC]
     
