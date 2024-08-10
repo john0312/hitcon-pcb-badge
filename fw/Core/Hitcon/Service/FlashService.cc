@@ -1,6 +1,7 @@
 #include <Service/FlashService.h>
 #include <Service/Sched/Checks.h>
 #include <Service/Sched/SysTimer.h>
+#include <Service/Suspender.h>
 #include <main.h>
 
 using namespace hitcon::service::sched;
@@ -38,7 +39,7 @@ void* FlashService::GetPagePointer(size_t page_id) {
 // static
 void FlashService::EndOperationCallback(uint32_t value) {
   if (_state == FS_ERASE_WAIT) {
-    _state = FS_ERASE;
+    _state = FS_RESUME_WAIT;
   } else if (_state == FS_PROGRAM_WAIT) {
     my_assert(_program_pending_count_ > 0);
     _program_pending_count_--;
@@ -72,8 +73,15 @@ void FlashService::Routine() {
       break;
     case FS_UNLOCK:
       HAL_FLASH_Unlock();
-      _state = FS_ERASE;
+      _state = FS_SUSPEND_WAIT;
       break;
+    case FS_SUSPEND_WAIT: {
+      bool ret = g_suspender.TrySuspend();
+      if (ret) {
+        _state = FS_ERASE;
+      }
+      break;
+    }
     case FS_ERASE: {
       if (_erase_page_id == kErasePageCount) {
         _state = FS_PROGRAM;
@@ -88,7 +96,7 @@ void FlashService::Routine() {
       _erase_page_id++;
 
       _state = FS_ERASE_WAIT;
-
+      _wait_cnt = 1000;
       auto erase_ret = HAL_FLASHEx_Erase_IT(&erase_struct);
       if (erase_ret != HAL_OK) {
         my_assert(false);
@@ -97,11 +105,18 @@ void FlashService::Routine() {
     }
     case FS_ERASE_WAIT:
       if (_wait_cnt == 0) {
-        _state = FS_ERASE;
+        _state = FS_RESUME_WAIT;
       } else {
         _wait_cnt--;
       }
       break;
+    case FS_RESUME_WAIT: {
+      bool ret = g_suspender.TryResume();
+      if (ret) {
+        _state = FS_SUSPEND_WAIT;
+      }
+      break;
+    }
     case FS_PROGRAM: {
       _program_pending_count_ = 0;
       _state = FS_PROGRAM_WAIT;

@@ -50,8 +50,10 @@ class FlashService {
   enum FlashServiceState {
     FS_IDLE,
     FS_UNLOCK,
+    FS_SUSPEND_WAIT,
     FS_ERASE,
     FS_ERASE_WAIT,
+    FS_RESUME_WAIT,
     FS_PROGRAM,
     FS_PROGRAM_WAIT,
   };
