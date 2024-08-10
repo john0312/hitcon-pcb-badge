@@ -13,6 +13,8 @@ using hitcon::service::sched::task_callback_t;
 static DisplaySetModeState display_set_mode_state = SET_MODE_IDLE;
 static hitcon::service::sched::Task display_set_mode_internal_task(
     620, (task_callback_t)&display_set_mode_internal_taskfunc, nullptr);
+static bool display_set_mode_internal_task_queued = false;
+
 static char display_set_mode_internal_text_buffer[kDisplayScrollMaxTextLen + 1];
 static display_buf_t
     display_set_mode_internal_scroll_buffer[DISPLAY_SCROLL_MAX_COLUMNS];
@@ -182,10 +184,14 @@ void display_set_mode_scroll_text(const char *text, int speed) {
   display_set_mode_internal_render_idx = 0;
   display_set_mode_speed = speed;
 
-  scheduler.Queue(&display_set_mode_internal_task, nullptr);
+  if (!display_set_mode_internal_task_queued) {
+    scheduler.Queue(&display_set_mode_internal_task, nullptr);
+    display_set_mode_internal_task_queued = true;
+  }
 }
 
 void display_set_mode_internal_taskfunc(void *arg1, void *arg2) {
+  display_set_mode_internal_task_queued = false;
   switch (display_set_mode_state) {
     case SET_MODE_IDLE:
       return;
@@ -205,7 +211,10 @@ void display_set_mode_internal_taskfunc(void *arg1, void *arg2) {
           DISPLAY_SCROLL_MAX_COLUMNS) {
         display_set_mode_state = SET_MODE_ST_FINAL;
       }
-      scheduler.Queue(&display_set_mode_internal_task, nullptr);
+      if (!display_set_mode_internal_task_queued) {
+        scheduler.Queue(&display_set_mode_internal_task, nullptr);
+        display_set_mode_internal_task_queued = true;
+      }
       return;
     }
     case SET_MODE_ST_FINAL: {
