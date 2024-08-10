@@ -5,7 +5,7 @@ namespace hitcon {
 
 namespace {
 
-constexpr size_t DISPLAY_FRAME_SIZE = 16; // 8 bit/row x 16 row = 16 bytes
+constexpr size_t DISPLAY_FRAME_SIZE = 16;  // 8 bit/row x 16 row = 16 bytes
 constexpr size_t DISPLAY_FRAME_BATCH = 2;
 
 }  // namespace

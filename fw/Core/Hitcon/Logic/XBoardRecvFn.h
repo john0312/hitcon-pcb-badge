@@ -8,12 +8,12 @@ namespace xboard {
 // Different functions should be bound to different IDs
 // define your function id before max
 enum RecvFnId {
-    SNAKE_RECV_ID,
-    // MAX is to express the length of callback function array
-    MAX
+  SNAKE_RECV_ID,
+  // MAX is to express the length of callback function array
+  MAX
 };
 
-}
+}  // namespace xboard
 }  // namespace service
 }  // namespace hitcon
 #endif

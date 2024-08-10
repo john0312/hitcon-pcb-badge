@@ -8,9 +8,9 @@ namespace hitcon {
 typedef void (*menu_callback_t)();
 
 struct menu_entry_t {
-    const char *name;
-    App *app;
-    menu_callback_t func;
+  const char *name;
+  App *app;
+  menu_callback_t func;
 };
 
 class MenuApp : public App {
@@ -30,6 +30,6 @@ class MenuApp : public App {
   const int menu_entry_size;
 };
 
-} // namespace hitcon
+}  // namespace hitcon
 
-#endif // MENU_APP_BASE_H
+#endif  // MENU_APP_BASE_H

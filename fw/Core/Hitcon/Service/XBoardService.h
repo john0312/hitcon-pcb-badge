@@ -13,47 +13,47 @@ namespace service {
 namespace xboard {
 
 class XBoardService {
-   public:
-    XBoardService();
+ public:
+  XBoardService();
 
-    void Init();
+  void Init();
 
-    // Append the data for transmit.
-    void QueueDataForTx(uint8_t* data, size_t len);
+  // Append the data for transmit.
+  void QueueDataForTx(uint8_t* data, size_t len);
 
-    // Whenever a byte is received, this will be called.
-    void SetOnByteRx(callback_t callback, void* callback_arg1);
+  // Whenever a byte is received, this will be called.
+  void SetOnByteRx(callback_t callback, void* callback_arg1);
 
-    // to be called by interrupt function
-    void NotifyTxFinish();
+  // to be called by interrupt function
+  void NotifyTxFinish();
 
-    // to be called by interrupt function
-    void NotifyRxFinish();
+  // to be called by interrupt function
+  void NotifyRxFinish();
 
-    static constexpr size_t kTxBufferSize = 128;
+  static constexpr size_t kTxBufferSize = 128;
 
-   private:
-    void Routine(void*);
+ private:
+  void Routine(void*);
 
-    void TriggerRx();
+  void TriggerRx();
 
-    void OnRxWrapper(void* arg2);
+  void OnRxWrapper(void* arg2);
 
-    UART_HandleTypeDef* _huart = &huart2;
+  UART_HandleTypeDef* _huart = &huart2;
 
-    callback_t _on_rx_callback;
-    void* _on_rx_callback_arg1;
-    bool _tx_busy = false;
-    bool _rx_task_busy = false;
-    hitcon::service::sched::Task _rx_task;
-    hitcon::service::sched::PeriodicTask _routine_task;
+  callback_t _on_rx_callback;
+  void* _on_rx_callback_arg1;
+  bool _tx_busy = false;
+  bool _rx_task_busy = false;
+  hitcon::service::sched::Task _rx_task;
+  hitcon::service::sched::PeriodicTask _routine_task;
 
-    uint8_t rx_byte_;
-    uint8_t _tx_buffer[kTxBufferSize];
-    // Next byte to be written to hardware.
-    int _tx_buffer_head = 0;
-    // Next byte from the upper layer.
-    int _tx_buffer_tail = 0;
+  uint8_t rx_byte_;
+  uint8_t _tx_buffer[kTxBufferSize];
+  // Next byte to be written to hardware.
+  int _tx_buffer_head = 0;
+  // Next byte from the upper layer.
+  int _tx_buffer_tail = 0;
 };
 
 extern XBoardService g_xboard_service;

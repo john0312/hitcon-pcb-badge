@@ -1,9 +1,10 @@
 #ifndef SHOW_NAME_APP_H
 #define SHOW_NAME_APP_H
 
-#include "app.h"
-#include <Service/Sched/PeriodicTask.h>
 #include <Logic/Display/display.h>
+#include <Service/Sched/PeriodicTask.h>
+
+#include "app.h"
 
 namespace hitcon {
 

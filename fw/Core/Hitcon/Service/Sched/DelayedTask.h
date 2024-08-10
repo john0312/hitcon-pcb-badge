@@ -15,20 +15,20 @@ namespace service {
 namespace sched {
 
 class DelayedTask : public Task {
-protected:
-	unsigned wakeTime;
-public:
-	// For prio, see Scheduler.h
-	constexpr DelayedTask(unsigned prio, task_callback_t callback, void *thisptr, unsigned wakeTime)
-		: Task(prio, callback, thisptr), wakeTime(wakeTime) {
-	}
+ protected:
+  unsigned wakeTime;
 
-	virtual ~DelayedTask();
+ public:
+  // For prio, see Scheduler.h
+  constexpr DelayedTask(unsigned prio, task_callback_t callback, void *thisptr,
+                        unsigned wakeTime)
+      : Task(prio, callback, thisptr), wakeTime(wakeTime) {}
 
-	unsigned WakeTime();
+  virtual ~DelayedTask();
 
-	bool operator <(DelayedTask &task);
+  unsigned WakeTime();
 
+  bool operator<(DelayedTask &task);
 };
 
 } /* namespace sched */

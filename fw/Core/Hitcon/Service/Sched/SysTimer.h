@@ -13,10 +13,10 @@ namespace service {
 namespace sched {
 
 class SysTimer {
-public:
-	SysTimer();
-	virtual ~SysTimer();
-	static unsigned GetTime();
+ public:
+  SysTimer();
+  virtual ~SysTimer();
+  static unsigned GetTime();
 };
 
 } /* namespace sched */
