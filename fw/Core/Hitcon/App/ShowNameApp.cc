@@ -6,6 +6,7 @@
 #include <Logic/Display/display.h>
 #include <Logic/Display/font.h>
 #include <Logic/GameLogic.h>
+#include <Service/Sched/SysTimer.h>
 #include <Service/Sched/Task.h>
 
 #include <cstring>
@@ -14,11 +15,19 @@ using namespace hitcon::service::sched;
 using hitcon::game::gameLogic;
 
 namespace hitcon {
+
+namespace {
+
+// Update once every 15s. Units: ms.
+constexpr unsigned kMinUpdateInterval = 15 * 1000;
+
+}  // namespace
 ShowNameApp show_name_app;
 
 ShowNameApp::ShowNameApp()
     : _routine_task(490, (task_callback_t)&ShowNameApp::check_update, this,
-                    1000) {
+                    1000),
+      last_disp_update(0) {
   strncpy(name, DEFAULT_NAME, NAME_LEN);
 }
 
@@ -48,14 +57,18 @@ void ShowNameApp::OnButton(button_t button) {
 }
 
 void ShowNameApp::check_update() {
-  if (score_cache != gameLogic.GetScore() && mode != NameOnly) {
-    score_cache = gameLogic.GetScore();
-    update_display();
+  if (SysTimer::GetTime() - last_disp_update > kMinUpdateInterval) {
+    if (score_cache != gameLogic.GetScore() && mode != NameOnly) {
+      score_cache = gameLogic.GetScore();
+      update_display();
+    }
   }
 }
 
 void ShowNameApp::update_display() {
   constexpr int max_len = DISPLAY_SCROLL_MAX_COLUMNS / CHAR_WIDTH;
+
+  last_disp_update = SysTimer::GetTime();
 
   static char display_str[max_len + 1];
   int name_len = strlen(name);

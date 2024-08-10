@@ -40,6 +40,8 @@ class ShowNameApp : public App {
   void update_display();
   hitcon::service::sched::PeriodicTask _routine_task;
   uint32_t score_cache = 0;
+
+  unsigned last_disp_update;
 };
 
 extern ShowNameApp show_name_app;
