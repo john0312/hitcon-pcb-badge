@@ -62,7 +62,7 @@ void ShowNameApp::update_display() {
 
   // num
   do {
-    num_str[num_len++] = score_ % 10;
+    num_str[num_len++] = '0' + (score_ % 10);
     score_ /= 10;
   } while (score_ != 0);
 
@@ -73,13 +73,13 @@ void ShowNameApp::update_display() {
     num_str[i] = display_str[j];
   }
 
-  if (name_len > max_len - num_len) name_len = max_len - num_len;
-
   switch (mode) {
     case NameScore:
+      if (name_len > max_len - num_len - 1) name_len = max_len - num_len - 1;
       strncpy(display_str, name, name_len);
-      strncpy(display_str + name_len, num_str, num_len);
-      display_str[name_len + num_len] = 0;
+      display_str[name_len] = '-';
+      strncpy(display_str + name_len + 1, num_str, num_len);
+      display_str[name_len + num_len + 1] = 0;
       break;
     case NameOnly:
       strncpy(display_str, name, name_len);

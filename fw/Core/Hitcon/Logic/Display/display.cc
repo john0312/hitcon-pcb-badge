@@ -20,6 +20,7 @@ static display_buf_t
     display_set_mode_internal_scroll_buffer[DISPLAY_SCROLL_MAX_COLUMNS];
 static size_t display_set_mode_internal_render_idx;
 static int display_set_mode_speed;
+int display_set_mode_orientation = 0;
 
 static display_buf_t __display_buf[DISPLAY_WIDTH];
 
@@ -171,7 +172,8 @@ void display_set_mode_scroll_packed(const display_buf_t *buf, int n_col) {
   display_set_mode_scroll_packed(buf, n_col, DISPLAY_SCROLL_DEFAULT_SPEED);
 }
 
-void display_set_mode_scroll_text(const char *text, int speed) {
+void display_set_mode_scroll_text(const char *text, int speed,
+                                  int orientation) {
   int len = strlen(text);
   if (len >= kDisplayScrollMaxTextLen) {
     len = kDisplayScrollMaxTextLen - 1;
@@ -183,6 +185,7 @@ void display_set_mode_scroll_text(const char *text, int speed) {
   display_set_mode_state = SET_MODE_ST_RENDER;
   display_set_mode_internal_render_idx = 0;
   display_set_mode_speed = speed;
+  display_set_mode_orientation = orientation;
 
   if (!display_set_mode_internal_task_queued) {
     scheduler.Queue(&display_set_mode_internal_task, nullptr);
@@ -249,10 +252,6 @@ void display_set_mode_text(const char *text) {
 
   display_set_mode_fixed_packed(buf);
   display_set_mode_state = SET_MODE_IDLE;
-}
-
-void display_set_mode_scroll_text(const char *text) {
-  display_set_mode_scroll_text(text, DISPLAY_SCROLL_DEFAULT_SPEED);
 }
 
 void display_set_mode_editor(hitcon::TextEditorDisplay *editor) {

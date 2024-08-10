@@ -98,20 +98,40 @@ void DisplayService::PopulateFrames(display_buf_t* buffer,
       0B0000'0000'0000'0000 << 16 | 0B0000'0011'1100'0000,  // 1111
       0B0000'0010'0000'0000 << 16 | 0B0000'0001'1100'0000,  // 0111
   };
-  for (uint8_t i = 0; i < 8; i++) {
-    for (int8_t j = 1; j >= 0; j--) {  // j=0 left matrix, j=1 right
-      uint32_t temp = 0;
-      uint8_t current_row = 2 * i + j;
-      for (uint8_t k = 0; k < 8; k++) {  // set A~G pin
-        if (buffer[k + j * 8] & (1 << i))
-          temp |= (1 << gpio_pin[k]);
-        else
-          temp |= (1 << 16 << gpio_pin[k]);
+
+  if (display_set_mode_orientation) {
+    for (uint8_t i = 0; i < 8; i++) {
+      for (int8_t j = 1; j >= 0; j--) {  // j=0 left matrix, j=1 right
+        uint32_t temp = 0;
+        uint8_t current_row = 2 * i + j;
+        for (uint8_t k = 0; k < 8; k++) {  // set A~G pin
+          if (buffer[k + j * 8] & (1 << i))
+            temp |= (1 << gpio_pin[k]);
+          else
+            temp |= (1 << 16 << gpio_pin[k]);
+        }
+        temp |= row_map[current_row];
+        double_buffer[current_row + buffer_index * DISPLAY_FRAME_SIZE +
+                      current_buffer_index * DISPLAY_FRAME_SIZE *
+                          DISPLAY_FRAME_BATCH] = temp;
       }
-      temp |= row_map[current_row];
-      double_buffer[current_row + buffer_index * DISPLAY_FRAME_SIZE +
-                    current_buffer_index * DISPLAY_FRAME_SIZE *
-                        DISPLAY_FRAME_BATCH] = temp;
+    }
+  } else {
+    for (uint8_t i = 0; i < 8; i++) {
+      for (int8_t j = 1; j >= 0; j--) {  // j=0 left matrix, j=1 right
+        uint32_t temp = 0;
+        uint8_t current_row = 2 * i + j;
+        for (uint8_t k = 0; k < 8; k++) {  // set A~G pin
+          if (buffer[(7 - k) + (1 - j) * 8] & (1 << (7 - i)))
+            temp |= (1 << gpio_pin[k]);
+          else
+            temp |= (1 << 16 << gpio_pin[k]);
+        }
+        temp |= row_map[current_row];
+        double_buffer[current_row + buffer_index * DISPLAY_FRAME_SIZE +
+                      current_buffer_index * DISPLAY_FRAME_SIZE *
+                          DISPLAY_FRAME_BATCH] = temp;
+      }
     }
   }
 }

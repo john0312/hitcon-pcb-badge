@@ -37,6 +37,7 @@
 
 #define DISPLAY_SCROLL_MAX_COLUMNS 100
 #define DISPLAY_SCROLL_DEFAULT_SPEED 8
+#define DISPLAY_SCROLL_DEFAULT_ORIENTATION 0
 
 constexpr size_t kDisplayScrollMaxTextLen =
     DISPLAY_SCROLL_MAX_COLUMNS / CHAR_WIDTH - 1;
@@ -158,8 +159,9 @@ void display_set_mode_text(const char *text);
 
 // Rasterize `text` to the underlying display buffer.
 // If the text is too long, the output will be truncated.
-void display_set_mode_scroll_text(const char *text, int speed);
-void display_set_mode_scroll_text(const char *text);
+void display_set_mode_scroll_text(
+    const char *text, int speed = DISPLAY_SCROLL_DEFAULT_SPEED,
+    int orientation = DISPLAY_SCROLL_DEFAULT_ORIENTATION);
 
 enum DisplaySetModeState {
   SET_MODE_IDLE,
@@ -176,5 +178,6 @@ class TextEditorDisplay;
 // Set the display to the text editor mode. The logic is outsourced to the
 // `TextEditorDisplay` class.
 void display_set_mode_editor(hitcon::TextEditorDisplay *editor);
+extern int display_set_mode_orientation;
 
 #endif
