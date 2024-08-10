@@ -8,7 +8,6 @@
 #include <Logic/GameLogic.h>
 #include <Service/Sched/Task.h>
 
-#include <cstdio>
 #include <cstring>
 
 using namespace hitcon::service::sched;
@@ -26,9 +25,12 @@ ShowNameApp::ShowNameApp()
 void ShowNameApp::OnEntry() {
   display_set_mode_scroll_text(name);
   scheduler.Queue(&_routine_task, nullptr);
+  scheduler.EnablePeriodic(&_routine_task);
 }
 
-void ShowNameApp::OnExit() {}
+void ShowNameApp::OnExit() {
+  scheduler.DisablePeriodic(&_routine_task);
+}
 
 void ShowNameApp::OnButton(button_t button) {
   switch (button) {
@@ -43,7 +45,7 @@ void ShowNameApp::OnButton(button_t button) {
 }
 
 void ShowNameApp::check_update() {
-  if (score_cache != gameLogic.get_cache().total_score) {
+  if (score_cache != gameLogic.get_cache().total_score && mode != NameOnly) {
     score_cache = gameLogic.get_cache().total_score;
     update_display();
   }
@@ -51,17 +53,40 @@ void ShowNameApp::check_update() {
 
 void ShowNameApp::update_display() {
   constexpr int max_len = DISPLAY_SCROLL_MAX_COLUMNS / CHAR_WIDTH;
-  char display_str[max_len];
+
+  static char display_str[max_len];
+  int name_len = strlen(name);
+
+  static char num_str[max_len];
+  int num_len = 0;
+  uint32_t score_ = score_cache;
+
+  // num
+  do {
+    num_str[num_len++] = score_ % 10;
+    score_ /= 10;
+  } while (score_ != 0);
+  
+  // strrev
+  // use display_str as buffer temporarily
+  strncpy(display_str, num_str, num_len);
+  for(int i=0, j=num_len-1; i<num_len; i++, j--) {
+    num_str[i] = display_str[j];
+  }
+
+  if (name_len > max_len - num_len)
+    name_len = max_len - num_len;
 
   switch (mode) {
     case NameScore:
-      snprintf(display_str, max_len, "%s%ld\n", name, score_cache);
+      strncpy(display_str, name, name_len);
+      strncpy(display_str+name_len, num_str, num_len);
       break;
     case NameOnly:
-      snprintf(display_str, max_len, "%s\n", name);
+      strncpy(display_str, name, name_len);
       break;
     case ScoreOnly:
-      snprintf(display_str, max_len, "%d\n", score_cache);
+      strncpy(display_str, num_str, num_len);
       break;
     default:
       break;
