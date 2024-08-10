@@ -60,27 +60,29 @@ void IrController::OnPacketReceived(void* arg) {
 int IrController::prob_f(int lf) { return v[0] * lf * lf + v[1] * lf + v[2]; }
 
 void IrController::RoutineTask(void* unused) {
-  // Update parameters from load factor.
-  int lf = irLogic.GetLoadFactor();
+  if (gameLogic.IsGameReady()) {
+    // Update parameters from load factor.
+    int lf = irLogic.GetLoadFactor();
 
-  // Determine if we want to send a packet.
-  {
-    uint32_t prob_max = prob_f(100);
-    uint32_t rand_num = g_fast_random_pool.GetRandom() % prob_max;
-    if (rand_num > prob_f(lf) && send_lock) {
-      send_lock = false;
-      scheduler.Queue(&broadcast_task, nullptr);
+    // Determine if we want to send a packet.
+    {
+      uint32_t prob_max = prob_f(100);
+      uint32_t rand_num = g_fast_random_pool.GetRandom() % prob_max;
+      if (rand_num > prob_f(lf) && send_lock) {
+        send_lock = false;
+        scheduler.Queue(&broadcast_task, nullptr);
+      }
     }
-  }
 
-  // Determine if we want to internally generate.
-  {
-    uint32_t rand_num = g_fast_random_pool.GetRandom() % 65536;
-    if (rand_num < kInternalGenChance &&
-        gameLogic.GetAcceptDataQueueAvailable() >
-            kInternalGenMinQueueAvailable) {
-      // Generate random.
-      gameLogic.DoRandomData();
+    // Determine if we want to internally generate.
+    {
+      uint32_t rand_num = g_fast_random_pool.GetRandom() % 65536;
+      if (rand_num < kInternalGenChance &&
+          gameLogic.GetAcceptDataQueueAvailable() >
+              kInternalGenMinQueueAvailable) {
+        // Generate random.
+        gameLogic.DoRandomData();
+      }
     }
   }
 }
