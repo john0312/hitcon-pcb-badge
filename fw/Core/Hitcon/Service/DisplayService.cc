@@ -12,6 +12,7 @@ using namespace hitcon;
 namespace hitcon {
 DisplayService g_display_service;
 uint8_t g_display_brightness = 3;
+uint8_t g_display_standby = 0;
 
 DisplayService::DisplayService()
     : task(169, (task_callback_t)&DisplayService::RequestFrameWrapper,
