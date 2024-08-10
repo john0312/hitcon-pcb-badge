@@ -184,6 +184,7 @@ void XBoardLogic::OnByteArrive(void *arg1) {
 
 void XBoardLogic::CheckPing() {
   if (!recv_ping) {
+    if (connect_state == UsartConnectState::Init) no_ping_count = 3;
     if (no_ping_count < 3) {
       ++no_ping_count;
     }
