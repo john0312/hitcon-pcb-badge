@@ -2,9 +2,8 @@
 
 #include <App/EditNameApp.h>
 #include <App/ShowNameApp.h>
+#include <App/ConnectMenuApp.h>
 #include <Service/Sched/Checks.h>
-
-#include <cstdint>
 
 using hitcon::service::sched::my_assert;
 
@@ -46,11 +45,11 @@ void BadgeController::OnButton(void *arg1) {
 }
 
 void BadgeController::OnXBoardConnect(void *unused) {
-  // TODO
+  badge_controller.change_app(&connect_menu);
 }
 
 void BadgeController::OnXBoardDisconnect(void *unused) {
-  // TODO
+  badge_controller.change_app(&show_name_app);
 }
 
 void BadgeController::OnEdgeButton(void *arg1) {
