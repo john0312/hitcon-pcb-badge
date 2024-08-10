@@ -7,6 +7,7 @@
 #include <Logic/Display/font.h>
 #include <Logic/GameLogic.h>
 #include <Service/Sched/Task.h>
+#include <Util/int_to_str.h>
 
 #include <cstring>
 
@@ -60,18 +61,7 @@ void ShowNameApp::update_display() {
   int num_len = 0;
   uint32_t score_ = score_cache;
 
-  // num
-  do {
-    num_str[num_len++] = '0' + (score_ % 10);
-    score_ /= 10;
-  } while (score_ != 0);
-
-  // strrev
-  // use display_str as buffer temporarily
-  strncpy(display_str, num_str, num_len);
-  for (int i = 0, j = num_len - 1; i < num_len; i++, j--) {
-    num_str[i] = display_str[j];
-  }
+  uint_to_chr(num_str, max_len + 1, score_);
 
   switch (mode) {
     case NameScore:
