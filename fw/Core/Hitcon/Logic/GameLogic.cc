@@ -1,4 +1,5 @@
 
+#include <Logic/EntropyHub.h>
 #include <Logic/GameLogic.h>
 #include <Logic/NvStorage.h>
 #include <Logic/RandomPool.h>
@@ -181,6 +182,8 @@ void GameLogic::ComputeFinalScore() {
 void GameLogic::Routine() {
   switch (routine_state_) {
     case CHECK_CELLS_VALID: {
+      // Wait until random is ready.
+      if (!g_entropy_hub.EntropyReady()) break;
       bool all_zero = true;
       for (size_t row = 0; row < kNumRows; ++row) {
         for (size_t byte = 0; byte < kDataSize; ++byte) {

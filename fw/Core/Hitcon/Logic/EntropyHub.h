@@ -28,11 +28,18 @@ class EntropyHub {
   // 0x0 - Init
   static constexpr int kTaskInit = 0x0;
   static constexpr int kTaskPerBoard = 0x1;
-  static constexpr int kTaskInitialSeeding = 0x2;
+  static constexpr int kTaskInitialSeedingAdc = 0x2;
+  static constexpr int kTaskInitialRounds = 0x3;
   static constexpr int kTaskFinished = 0x10;
 
   // How many tasks did the scheduler finished since last time?
   size_t last_sched_tasks;
+
+  // How many times did we seed from the ADC?
+  int adc_seed_count;
+
+  // Is the random ready?
+  bool random_ready;
 
   // Try pulling entropy from scheduler.
   bool TrySeedSched();
@@ -41,7 +48,12 @@ class EntropyHub {
   bool FeedFast();
 
   void Routine(void* unused);
+
+  // Accepts noise from NoiseSource.
+  void AcceptNoiseFromSource(void* arg1);
 };
+
+extern EntropyHub g_entropy_hub;
 
 }  // namespace hitcon
 

@@ -6,6 +6,12 @@
 namespace hitcon {
 
 class NoiseSource {
+ public:
+  // three adc channels: noise_in, temperature, Vrefint
+  static constexpr size_t kChannelAmount = 3;
+
+  static constexpr size_t kNoiseLen = 2 * kChannelAmount;
+
  private:
   void Routine(void* unused);
   void CallbackWrapper(void* unused);
@@ -14,11 +20,8 @@ class NoiseSource {
   hitcon::service::sched::task_callback_t on_noise_cb;
   void* on_noise_cb_arg;
 
-  // three adc channels: noise_in, temperature, Vrefint
-  static constexpr size_t kChannelAmount = 3;
-  static constexpr size_t kNoiseLen = 2 * kChannelAmount;
   // interval between each on_noise_cb is called
-  static constexpr size_t kRoutinePeriod = 60000;  // 1 min
+  static constexpr size_t kRoutinePeriod = 120;  // 0.12 s
   uint16_t adc_values[kNoiseLen];
   size_t current_index = 0;
 

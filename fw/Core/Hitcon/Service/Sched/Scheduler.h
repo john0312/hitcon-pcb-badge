@@ -91,10 +91,11 @@ class Scheduler {
   bool DisablePeriodic(PeriodicTask *task);
   void Run();
 
+  // Which task is running now? nullptr for nothing's running.
   Task *GetCurrentTask() { return currentTask; }
 
   // How many tasks has run?
-  size_t GetTotalTasksRan();
+  size_t GetTotalTasksRan() { return totalTasks; }
 };
 
 extern Scheduler scheduler;
