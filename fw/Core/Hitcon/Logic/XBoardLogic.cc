@@ -192,7 +192,7 @@ void XBoardLogic::CheckPing() {
     no_ping_count = 0;
   }
   UsartConnectState next_state = no_ping_count >= 3 ? Disconnect : Connect;
-  if (next_state != connect_state) {
+  if (next_state != connect_state && connect_state != UsartConnectState::Init) {
     if (next_state == Disconnect && disconnect_handler != nullptr) {
       disconnect_handler(disconnect_handler_self, nullptr);
     } else if (next_state == Connect && connect_handler != nullptr) {
