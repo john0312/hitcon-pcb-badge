@@ -11,6 +11,8 @@ enum RecvFnId {
   SNAKE_RECV_ID,
   TEST_APP_RECV_ID,
   TETRIS_RECV_ID,
+  XBOARD_GAME_CONTROLLER,
+  XBOARD_GAME_CONTROLLER_ACK,
   // MAX is to express the length of callback function array
   MAX
 };
