@@ -2,12 +2,12 @@ import re
 import ttkbootstrap as ttk
 import imageres
 from tkinter import filedialog
-import ttkbootstrap.scrolled as scrolled
 from ttkbootstrap.dialogs import Messagebox
 from tkinter import font as tkFont
 import sys
 import STM32HID
 import tkinter as tk
+import BadUSBTranslation
 
 
 #Check the connection of the Badge
@@ -50,6 +50,15 @@ def setName(Name):
     
     if k==-1:
         #error
+        checkBadgeConnection()
+        
+def writeBadUSB(scriptPath):
+    try:
+        rawData=BadUSBTranslation.scriptToHex(scriptPath)
+        print(rawData)
+        STM32HID.send_badusb_script(rawData)
+    except:
+        Messagebox.show_error('Please Connect the PCB Badge to the Computer and try again', 'Error')
         checkBadgeConnection()
 
 # Get the zoom value of the system
@@ -131,8 +140,21 @@ ruleLabel.pack(side='top', fill='x', padx=int(10*ZOOM_VALUE), pady=int(10*ZOOM_V
 
 
 BadUSBFrame = ttk.Frame()
+badUSBLabel = ttk.Label(BadUSBFrame, text='Please Select the BadUSB script File:', font=('SquareFont', 12))
+badUSBLabel.pack(side='top', fill='x', padx=int(10*ZOOM_VALUE), pady=int(10*ZOOM_VALUE))
+scriptPathFrame = ttk.Frame(BadUSBFrame)
+scriptPathFrame.pack(side='top', fill='x', padx=int(10*ZOOM_VALUE))
+scriptPathLabel = ttk.Label(scriptPathFrame, text='Please Select Script File', font=('SquareFont', 10), bootstyle='light', width=25)
+scriptPathLabel.pack(side='left', fill='x', expand=True, ipadx=int(10*ZOOM_VALUE), ipady=int(5*ZOOM_VALUE))
+scriptBrowseButton = ttk.Button(scriptPathFrame, text='Browse', command=lambda: scriptPathLabel.config(text=filedialog.askopenfilename()), bootstyle='light')
+scriptBrowseButton.pack(side='right', ipadx=int(10*ZOOM_VALUE), ipady=int(5*ZOOM_VALUE))
+writeButton = ttk.Button(BadUSBFrame, text='Write Script to Badge', command=lambda: writeBadUSB(scriptPathLabel.cget('text')), bootstyle='light')
+writeButton.pack(side='right', padx=int(10*ZOOM_VALUE), pady=int(10*ZOOM_VALUE), ipadx=int(10*ZOOM_VALUE), ipady=int(0*ZOOM_VALUE))
+
+
+
 notebook.add(SetNameFrame, text='  Set Name  ', padding=int(10*ZOOM_VALUE))
-notebook.add(BadUSBFrame, text='  BadUSB  ')
+notebook.add(BadUSBFrame, text='  BadUSB  ', padding=int(10*ZOOM_VALUE))
 notebook.pack(side='bottom', fill='both', expand=True, padx=int(10*ZOOM_VALUE), pady=int(10*ZOOM_VALUE))
 
 # Apply the custom font to widgets
