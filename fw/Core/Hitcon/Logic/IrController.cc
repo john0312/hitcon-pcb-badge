@@ -11,8 +11,6 @@
 
 using namespace hitcon::service::sched;
 using hitcon::game::gameLogic;
-using hitcon::game::IrAllowBroadcastCnt;
-using hitcon::game::IrAllowedBroadcastCol;
 using hitcon::game::kDataSize;
 using hitcon::game::kInternalGenChance;
 using hitcon::game::kInternalGenMinQueueAvailable;
