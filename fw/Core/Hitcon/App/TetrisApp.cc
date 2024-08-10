@@ -12,13 +12,19 @@ using hitcon::service::sched::task_callback_t;
 
 namespace hitcon {
 
+namespace {
+
+unsigned int tetris_random() { return g_fast_random_pool.GetRandom(); }
+
+}  // namespace
+
 TetrisApp tetris_app;
 
 TetrisApp::TetrisApp()
     : periodic_task(hitcon::tetris::UPDATE_PRIORITY,
                     (task_callback_t)&TetrisApp::periodic_task_callback, this,
                     hitcon::tetris::UPDATE_INTERVAL),
-      game([]() { return g_fast_random_pool.GetRandom(); }) {
+      game(tetris_random) {
   hitcon::service::sched::scheduler.Queue(&periodic_task, nullptr);
 }
 
@@ -34,7 +40,7 @@ void TetrisApp::OnExit() {
 void TetrisApp::OnButton(button_t button) {
   if (game.game_is_over()) {
     // exit the app
-    badge_controller.change_app(&menu_app);
+    badge_controller.OnAppEnd(this);
 
   } else {
     /**
