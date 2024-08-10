@@ -37,7 +37,8 @@ void GameLogic::RandomlySetGridCellValue(int row, int col) {
 GameLogic::GameLogic()
     : routine_task_now(1000, (callback_t)&GameLogic::Routine, this),
       routine_task_delayed(1000, (callback_t)&GameLogic::Routine, this, 0),
-      random_data_count_(0), accept_data_count_(0), accepted_data_count_(0) {}
+      random_data_count_(0), accept_data_count_(0), accepted_data_count_(0),
+      game_ready(false) {}
 
 void GameLogic::Init(game_storage_t *storage) {
   storage_ = storage;
@@ -288,6 +289,7 @@ bool GameLogic::RoutineInternal() {
     case WAITING_FOR_DATA: {
       // Check if any incoming data has been inserted into the accept data
       // queue.
+      game_ready = true;
       if (!queue_.IsEmpty()) {
         // Dequeue data and begin processing.
         std::pair<int, grid_cell_t> data_pair = queue_.Front();

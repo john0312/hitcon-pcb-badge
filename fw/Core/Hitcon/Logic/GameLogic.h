@@ -51,6 +51,9 @@ class GameLogic {
   // Call this to generate random data internally.
   void DoRandomData();
 
+  // Returns true if the game logic is ready, ie. all caches are populated.
+  bool IsGameReady() { return game_ready; }
+
  private:
   game_storage_t* storage_;
   game_cache_t cache_;
@@ -138,6 +141,8 @@ class GameLogic {
 
   hitcon::service::sched::Task routine_task_now;
   hitcon::service::sched::DelayedTask routine_task_delayed;
+
+  bool game_ready;
 
   // Only used for debugging.
   int random_data_count_;
