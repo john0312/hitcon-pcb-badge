@@ -17,6 +17,7 @@ namespace {
 inline uint16_t inc_head(size_t head, size_t offset) {
   return (head + offset) % RX_BUF_SZ;
 }
+constexpr uint8_t PADDING_MAP[] = {0, 3, 2, 1};
 }  // namespace
 
 struct Frame {
@@ -103,7 +104,8 @@ void XBoardLogic::ParsePacket() {
 
     uint32_t recv_check = header->checksum;
     header->checksum = 0;
-    if (fast_crc32(pkt, HEADER_SZ + header->len) != recv_check) {
+    if (fast_crc32(pkt, HEADER_SZ + header->len +
+                            PADDING_MAP[header->len & 0b11]) != recv_check) {
       cons_head = inc_head(cons_head, 8);
       continue;
     }
@@ -136,14 +138,14 @@ void XBoardLogic::Init() {
 void XBoardLogic::QueueDataForTx(uint8_t *packet, uint8_t packet_len,
                                  RecvFnId handler_id) {
   my_assert(packet_len < PKT_PAYLOAD_LEN_MAX);
-  uint8_t pkt[64];
+  uint8_t pkt[HEADER_SZ + PKT_PAYLOAD_LEN_MAX] = {0};
   *(Frame *)pkt = Frame{0xD555555555555555, 0, packet_len,
                         static_cast<uint8_t>(handler_id), 0};
   for (uint8_t i = 0; i < packet_len; ++i) {
     pkt[i + HEADER_SZ] = packet[i];
   }
   reinterpret_cast<Frame *>(pkt)->checksum =
-      fast_crc32(pkt, HEADER_SZ + packet_len);
+      fast_crc32(pkt, HEADER_SZ + packet_len + PADDING_MAP[packet_len & 0b11]);
   g_xboard_service.QueueDataForTx(pkt, HEADER_SZ + packet_len);
 }
 
