@@ -1,15 +1,15 @@
 #ifndef LOGIC_IRCONTROLLER_DOT_H_
 #define LOGIC_IRCONTROLLER_DOT_H_
 
-#include <Logic/IrLogic.h>
 #include <Logic/GameLogic.h>
+#include <Logic/IrLogic.h>
 #include <Service/IrService.h>
 #include <Service/Sched/PeriodicTask.h>
 #include <Service/Sched/Scheduler.h>
 #include <stddef.h>
 #include <stdint.h>
 
-enum class packet_type: uint8_t {
+enum class packet_type : uint8_t {
   kGame = 0,
   kShow = 1,
 };
@@ -53,7 +53,7 @@ class IrController {
 
   // Number of packets received, primarily for debugging.
   size_t received_packet_cnt;
-  
+
   hitcon::service::sched::PeriodicTask routine_task;
   hitcon::service::sched::Task send2game_task;
   hitcon::service::sched::Task broadcast_task;

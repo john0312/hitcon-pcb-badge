@@ -1,10 +1,9 @@
 #ifndef SERVICE_FLASH_SERVICE_H_
 #define SERVICE_FLASH_SERVICE_H_
 
+#include <Service/Sched/Scheduler.h>
 #include <stddef.h>
 #include <stdint.h>
-
-#include <Service/Sched/Scheduler.h>
 
 namespace hitcon {
 
@@ -36,7 +35,8 @@ class FlashService {
   // len must be lesser than FLASH_PAGE_SIZE.
   // Any flash storage after len remains 0.
   bool ProgramPage(size_t page_id, uint32_t* data, size_t len);
-private:
+
+ private:
   size_t _data_len;
 
   size_t _page_id;
@@ -61,7 +61,7 @@ private:
   FlashServiceState _state;
 
   void Routine();
-  
+
   static constexpr size_t kErasePageCount = 2;
   static constexpr size_t kProgramPerRun = 32;
 };
@@ -70,6 +70,5 @@ private:
 extern FlashService g_flash_service;
 
 }  // namespace hitcon
-
 
 #endif  // SERVICE_FLASH_SERVICE_H_

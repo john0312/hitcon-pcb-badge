@@ -2,9 +2,9 @@
 #define HITCON_LOGIC_IR_LOGIC_H_
 
 #include <Service/IrParam.h>
-#include <Util/callback.h>
 #include <Service/Sched/Scheduler.h>
 #include <Service/Sched/Task.h>
+#include <Util/callback.h>
 #include <stddef.h>
 #include <stdint.h>
 
@@ -13,12 +13,12 @@ namespace hitcon {
 namespace ir {
 
 struct IrPacket {
-	IrPacket() : size_(0) {};
+  IrPacket() : size_(0){};
 
-	// We need to add 2 bytes because we need at least 1 byte to accomodate
-	// the size.
-	uint8_t data_[MAX_PACKET_PAYLOAD_BYTES+2];
-	size_t size_;
+  // We need to add 2 bytes because we need at least 1 byte to accomodate
+  // the size.
+  uint8_t data_[MAX_PACKET_PAYLOAD_BYTES + 2];
+  size_t size_;
 };
 
 class IrLogic {
@@ -28,7 +28,8 @@ class IrLogic {
   // For any actions that needs to be done during init.
   void Init();
 
-  // Every time IR_SERVICE_RX_SIZE byte of buffer is received, this will be called.
+  // Every time IR_SERVICE_RX_SIZE byte of buffer is received, this will be
+  // called.
   void OnBufferReceived(uint8_t *buffer);
 
   // Upper layer should call ths function so whenever a well formed packet

@@ -8,15 +8,17 @@
 #ifndef HITCON_SERVICE_SCHED_SCHEDULER_H_
 #define HITCON_SERVICE_SCHED_SCHEDULER_H_
 
+#include <Util/CircularQueue.h>
 #include <stddef.h>
-#include "Ds/Heap.h"
+
+#include <cstdint>
+
+#include "DelayedTask.h"
 #include "Ds/Array.h"
+#include "Ds/Heap.h"
+#include "PeriodicTask.h"
 #include "Scheduler.h"
 #include "Task.h"
-#include "DelayedTask.h"
-#include "PeriodicTask.h"
-#include <Util/CircularQueue.h>
-#include <cstdint>
 
 namespace hitcon {
 namespace service {
@@ -38,56 +40,57 @@ we use priority 100-200.
 */
 
 struct TaskRecord {
-	Task* task;
-	uint32_t startTime;
-	uint32_t endTime;
+  Task *task;
+  uint32_t startTime;
+  uint32_t endTime;
 };
 
 class Scheduler {
-private:
-	static constexpr size_t kAddQueueSize = 8;
-	static constexpr size_t kRecordSize = 20;
+ private:
+  static constexpr size_t kAddQueueSize = 8;
+  static constexpr size_t kRecordSize = 20;
 
-	Heap<Task, 32> tasks;
-	Heap<DelayedTask, 16> delayedTasks;
-	Array<PeriodicTask, 16> enabledPeriodicTasks, disabledPeriodicTasks;
+  Heap<Task, 32> tasks;
+  Heap<DelayedTask, 16> delayedTasks;
+  Array<PeriodicTask, 16> enabledPeriodicTasks, disabledPeriodicTasks;
 
-	// Queue used to temporarily hold calls to Queue() so we can defer heap
-	// operations to later.
-	/* Previous raw queue implementation.
-	Task* tasksAddQueue[kAddQueueSize];
-	size_t tasksAddQueueHead = 0;
-	size_t tasksAddQueueTail = 0;
-	DelayedTask* delayedTasksAddQueue[kAddQueueSize];
-	size_t delayedTasksAddQueueHead = 0;
-	size_t delayedTasksAddQueueTail = 0;*/
-    CircularQueue<Task*, kAddQueueSize> tasksAddQueue;
-    CircularQueue<DelayedTask*, kAddQueueSize> delayedTasksAddQueue;
+  // Queue used to temporarily hold calls to Queue() so we can defer heap
+  // operations to later.
+  /* Previous raw queue implementation.
+  Task* tasksAddQueue[kAddQueueSize];
+  size_t tasksAddQueueHead = 0;
+  size_t tasksAddQueueTail = 0;
+  DelayedTask* delayedTasksAddQueue[kAddQueueSize];
+  size_t delayedTasksAddQueueHead = 0;
+  size_t delayedTasksAddQueueTail = 0;*/
+  CircularQueue<Task *, kAddQueueSize> tasksAddQueue;
+  CircularQueue<DelayedTask *, kAddQueueSize> delayedTasksAddQueue;
 
+  size_t totalTasks = 0;
 
-	size_t totalTasks = 0;
+  TaskRecord taskRecords[kRecordSize];
+  size_t record_index{0};
 
-	TaskRecord taskRecords[kRecordSize];
-	size_t record_index{0};
+  void DelayedHouseKeeping();
 
-	void DelayedHouseKeeping();
-public:
-	Scheduler();
-	virtual ~Scheduler();
-	// Can be called during interrupt.
-	bool Queue(Task *task, void *arg);
-	// Can be called during interrupt.
-	bool Queue(DelayedTask *task, void *arg);
-	// Can NOT be called during interrupt.
-	bool Queue(PeriodicTask *task, void *arg); // Queued tasks are disabled by default
-	// Can NOT be called during interrupt.
-	bool EnablePeriodic(PeriodicTask *task);
-	// Can NOT be called during interrupt.
-	bool DisablePeriodic(PeriodicTask *task);
-	void Run();
+ public:
+  Scheduler();
+  virtual ~Scheduler();
+  // Can be called during interrupt.
+  bool Queue(Task *task, void *arg);
+  // Can be called during interrupt.
+  bool Queue(DelayedTask *task, void *arg);
+  // Can NOT be called during interrupt.
+  bool Queue(PeriodicTask *task,
+             void *arg);  // Queued tasks are disabled by default
+  // Can NOT be called during interrupt.
+  bool EnablePeriodic(PeriodicTask *task);
+  // Can NOT be called during interrupt.
+  bool DisablePeriodic(PeriodicTask *task);
+  void Run();
 
-	// How many tasks has run?
-	size_t GetTotalTasksRan();
+  // How many tasks has run?
+  size_t GetTotalTasksRan();
 };
 
 extern Scheduler scheduler;

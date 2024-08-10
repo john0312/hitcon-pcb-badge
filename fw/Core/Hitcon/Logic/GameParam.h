@@ -33,14 +33,15 @@ typedef struct {
 typedef struct {
   // The score for each cell is the number of prefix 0 bit in
   // sha3_256(col_prefix | cell_data).
-  // Technically a uint8_t might overflow, but by then we're all screwed so whatever.
+  // Technically a uint8_t might overflow, but by then we're all screwed so
+  // whatever.
   uint8_t cell_score_cache[kNumCols][kNumRows];
 
   // The score for each column is the sum of all score in the column.
   uint32_t col_score_cache[kNumCols];
 
-  // The total score is the sum of log(col_score), where by log is the natural log.
-  // This number is stored in Q format fixed number. Q9.22 is used.
+  // The total score is the sum of log(col_score), where by log is the natural
+  // log. This number is stored in Q format fixed number. Q9.22 is used.
   uint32_t total_score;
 } game_cache_t;
 
@@ -49,11 +50,13 @@ constexpr size_t kColPrefixLen = 8;
 
 // These columns may be broadcasted by the IrController.
 constexpr int IrAllowedBroadcastCol[] = {0, 2, 3, 4, 7};
-constexpr size_t IrAllowBroadcastCnt = sizeof(IrAllowedBroadcastCol)/sizeof(IrAllowedBroadcastCol[0]);
+constexpr size_t IrAllowBroadcastCnt =
+    sizeof(IrAllowedBroadcastCol) / sizeof(IrAllowedBroadcastCol[0]);
 
 // These columns may accept data through internal random generation.
 constexpr int InternalGenCol[] = {0, 1, 2};
-constexpr size_t InternalGenColCnt = sizeof(InternalGenCol)/sizeof(InternalGenCol[0]);
+constexpr size_t InternalGenColCnt =
+    sizeof(InternalGenCol) / sizeof(InternalGenCol[0]);
 
 // circular queue size
 constexpr size_t kQueueSize = 32;

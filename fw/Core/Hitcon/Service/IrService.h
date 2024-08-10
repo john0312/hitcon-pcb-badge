@@ -1,12 +1,12 @@
 #ifndef HITCON_SERVICE_IR_SERVICE_H_
 #define HITCON_SERVICE_IR_SERVICE_H_
 
-#include <stddef.h>
-#include <stdint.h>
-#include <Util/callback.h>
+#include <Service/IrParam.h>
 #include <Service/Sched/PeriodicTask.h>
 #include <Service/Sched/Scheduler.h>
-#include <Service/IrParam.h>
+#include <Util/callback.h>
+#include <stddef.h>
+#include <stdint.h>
 
 namespace hitcon {
 namespace ir {
@@ -39,21 +39,22 @@ class IrService {
 
   // Whenever we've collected of IR_SERVICE_RX_ON_BUFFER_SIZE bytes of receive
   // buffer, we'll call the specified function.
-  // The callback is called with a uint8_t pointer to an array of size IR_SERVICE_RX_ON_BUFFER_SIZE bytes. Each byte in the array is 8 sample points.
-  // Each of the sample point is equivalent to 4 pulse at 38kHz.
-  // After the callback is finished, the passed in buffer should be
-  // considered invalid.
+  // The callback is called with a uint8_t pointer to an array of size
+  // IR_SERVICE_RX_ON_BUFFER_SIZE bytes. Each byte in the array is 8 sample
+  // points. Each of the sample point is equivalent to 4 pulse at 38kHz. After
+  // the callback is finished, the passed in buffer should be considered
+  // invalid.
   void SetOnBufferReceived(callback_t callback, void* callback_arg1);
 
-  uint16_t rx_dma_buffer[2*IR_SERVICE_RX_SIZE];
-  uint16_t tx_dma_buffer[2*IR_SERVICE_TX_SIZE];
-  uint8_t rx_buffer[2*IR_SERVICE_RX_ON_BUFFER_SIZE];
+  uint16_t rx_dma_buffer[2 * IR_SERVICE_RX_SIZE];
+  uint16_t tx_dma_buffer[2 * IR_SERVICE_TX_SIZE];
+  uint8_t rx_buffer[2 * IR_SERVICE_RX_ON_BUFFER_SIZE];
   size_t rx_buffer_base;
 
   uint8_t calllback_pass_arr[IR_SERVICE_RX_SIZE];
 
   callback_t on_rx_buffer_cb;
-  void *on_rx_buffer_arg;
+  void* on_rx_buffer_arg;
 
   // Need to be public to be queued by the callback.
   hitcon::service::sched::Task dma_tx_populate_task;
@@ -61,7 +62,7 @@ class IrService {
   // Need to be public to be queued by the callback.
   hitcon::service::sched::Task dma_rx_pull_task;
 
-private:
+ private:
   const uint8_t* tx_pending_buffer;
   uint32_t tx_pending_buffer_len;
   // If false, will skip sending header.
