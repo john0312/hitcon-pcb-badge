@@ -130,8 +130,6 @@ void DinoApp::Routine(void* unused) {
 
 inline void DinoApp::writeObsByte(uint8_t pos, display_buf_t line) {
   _obstacle_frame[pos] = line;
-  if (pos >= (DISPLAY_WIDTH + 3))
-    _obstacle_frame[pos - (DISPLAY_WIDTH + 3)] = line;
 }
 
 inline void DinoApp::printFrame() {
