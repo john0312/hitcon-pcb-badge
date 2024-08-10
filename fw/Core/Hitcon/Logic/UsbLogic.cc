@@ -83,21 +83,31 @@ void UsbLogic::OnDataRecv(uint8_t* data) {
 void UsbLogic::RunScript() {
   _index = -1;
   keyboard_report = {0, 0, 0, 0, 0, 0, 0, 0};
+  empty_report = {0, 0, 0, 0, 0, 0, 0, 0};
   scheduler.EnablePeriodic(&_routine_task);
+  flag = false;
 }
 
-// run every 10ms
+// run every 20ms
 void UsbLogic::Routine(void* unused) {
   static uint8_t delay_count = 0;
+
+  if (flag) {
+    flag = false;
+
+    if (keyboard_report.modifier == 0)
+      USBD_CUSTOM_HID_SendReport(&hUsbDeviceFS,
+                                 reinterpret_cast<uint8_t*>(&empty_report), 8);
+    return;
+  }
   if (delay_count != 0) {
     delay_count--;
     return;
-  } else if (_index == *reinterpret_cast<uint16_t*>(SCRIPT_BEGIN_ADDR -
-                                                    2)) {  // finish script
+  } else if (_index == *reinterpret_cast<uint16_t*>(SCRIPT_BEGIN_ADDR - 2)) {
+    // TODO: check behavior when finish script
     scheduler.DisablePeriodic(&_routine_task);
     return;
   }
-
   if (_index == -1) {  // new script begin
     delay_count = 0;
   } else {
@@ -121,6 +131,8 @@ void UsbLogic::Routine(void* unused) {
     }
     USBD_CUSTOM_HID_SendReport(&hUsbDeviceFS,
                                reinterpret_cast<uint8_t*>(&keyboard_report), 8);
+    flag = true;
+    delay_count++;
   }
   _index++;
 }

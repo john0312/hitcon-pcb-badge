@@ -24,7 +24,7 @@ struct {
   uint8_t modifier;
   uint8_t reserved;
   uint8_t keycode[6];
-} keyboard_report;
+} keyboard_report, empty_report;
 
 enum usb_state_t {
   USB_STATE_HEADER = 0,
@@ -43,12 +43,13 @@ enum {  // script code definition
 
 class UsbLogic {
  private:
-  // run routine task every 10 ms
-  static constexpr unsigned DELAY_INTERVAL = 10;
+  // run routine task every 20 ms
+  static constexpr unsigned DELAY_INTERVAL = 20;
 
   usb_state_t _state;
   int32_t _index;
   unsigned char _name[NAME_LEN];  // TODO: remove this
+  bool flag;
   hitcon::service::sched::PeriodicTask _routine_task;
   void Routine(void* unused);
 
