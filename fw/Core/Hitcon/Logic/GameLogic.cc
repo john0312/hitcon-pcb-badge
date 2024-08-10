@@ -51,6 +51,16 @@ bool GameLogic::AcceptData(int col, uint8_t *data) {
   return queue_.PushBack(p);
 }
 
+void GameLogic::DoRandomData() {
+  int col = InternalGenCol[g_fast_random_pool.GetRandom() % InternalGenColCnt];
+  uint8_t rdata[kDataSize];
+  for (int i = 0; i < kDataSize; i++) {
+    rdata[i] = g_fast_random_pool.GetRandom() & 0x0FF;
+  }
+  AcceptData(col, rdata);
+  random_data_count_++;
+}
+
 game_cache_t &GameLogic::get_cache() { return cache_; };
 
 bool GameLogic::GetRandomDataForIrTransmission(uint8_t *out_data,
