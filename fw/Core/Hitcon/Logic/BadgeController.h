@@ -24,9 +24,11 @@ class BadgeController {
   // to the main menu (or similar).
   void OnAppEnd(App *ending_app);
 
-  // TODO: This is called whenever a packet is received from cross board
-  // connector, usually by CrossBoardService. void
-  // OnCrossBoardPacket(XBoardPacket* packet);
+  // TODO: This is called whenever a separate board connects.
+  void OnXBoardConnect(void *unused);
+
+  // TODO: This is called whenever a separate board disconnects.
+  void OnXBoardDisconnect(void *unused);
 
   // TODO: This is called by UsbService whenever we're plugged into a computer.
   // void OnUsbPlugIn();

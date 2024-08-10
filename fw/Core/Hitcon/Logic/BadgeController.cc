@@ -43,4 +43,12 @@ void BadgeController::OnButton(void *arg1) {
   current_app->OnButton(button);
 }
 
+void BadgeController::OnXBoardConnect(void *unused) {
+  // TODO
+}
+
+void BadgeController::OnXBoardDisconnect(void *unused) {
+  // TODO
+}
+
 }  // namespace hitcon
