@@ -7,8 +7,6 @@
 #include <cstring>
 #include <limits>
 
-uint32_t TOTAL_SCORE = 0;
-
 namespace hitcon {
 namespace game {
 
@@ -167,7 +165,6 @@ void GameLogic::ComputeFinalScore() {
       cache_.total_score += q22_ln(cache_.col_score_cache[col]);
     }
   }
-  TOTAL_SCORE = cache_.total_score >> 21;
 }
 
 void GameLogic::Routine() {
@@ -308,6 +305,8 @@ void GameLogic::Routine() {
     }
   }
 }
+
+int GameLogic::GetScore() { return cache_.total_score >> 21; }
 
 }  // namespace game
 }  // namespace hitcon
