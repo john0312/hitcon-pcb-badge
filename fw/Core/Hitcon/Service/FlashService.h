@@ -65,7 +65,7 @@ class FlashService {
   void Routine();
 
   static constexpr size_t kErasePageCount = 2;
-  static constexpr size_t kProgramPerRun = 32;
+  static constexpr size_t kProgramPerRun = 8;
 };
 
 // Global singleton instance of FlashService.
