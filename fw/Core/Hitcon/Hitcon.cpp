@@ -60,7 +60,7 @@ void hitcon_run() {
   g_xboard_logic.Init();
   gameLogic.Init(&(g_nv_storage.GetCurrentStorage().game_storage));
   show_name_app.Init();
-  
+
   // this call shownameapp onentry
   badge_controller.Init();
   hitcon::ir::irService.Init();

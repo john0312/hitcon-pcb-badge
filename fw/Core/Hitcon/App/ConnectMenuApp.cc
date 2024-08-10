@@ -4,4 +4,4 @@ namespace hitcon {
 
 ConnectMenuApp connect_menu;
 
-} // namespace hitcon
+}  // namespace hitcon

@@ -1,5 +1,5 @@
-#include <App/TetrisApp.h>
 #include <App/SnakeApp.h>
+#include <App/TetrisApp.h>
 #include <Logic/BadgeController.h>
 
 #include "MenuApp.h"
@@ -14,7 +14,8 @@ constexpr menu_entry_t connect_menu_entries[] = {
     {"xchg", nullptr, nullptr},
 };
 
-constexpr int connect_menu_entries_len = sizeof(connect_menu_entries) / sizeof(menu_entry_t);
+constexpr int connect_menu_entries_len =
+    sizeof(connect_menu_entries) / sizeof(menu_entry_t);
 
 class ConnectMenuApp : public MenuApp {
  public:
@@ -24,4 +25,4 @@ class ConnectMenuApp : public MenuApp {
 
 extern ConnectMenuApp connect_menu;
 
-} //namespace hitcon
+}  // namespace hitcon

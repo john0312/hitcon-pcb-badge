@@ -1,8 +1,8 @@
 #include "BadgeController.h"
 
+#include <App/ConnectMenuApp.h>
 #include <App/EditNameApp.h>
 #include <App/ShowNameApp.h>
-#include <App/ConnectMenuApp.h>
 #include <Service/Sched/Checks.h>
 
 using hitcon::service::sched::my_assert;
