@@ -22,30 +22,53 @@ The pcb-util consist of several utility scripts describing as follows
   1. Duplicate the compiled ELF as fwMOD.elf to be modified
   2. Find & Replace the two uint8 arrays in fwMOD.elf with specific array for individual pcb-badge
   3. Printe the array around in organized HEX to verify ELF modification
-- **fw_flash.py (Debugging)**
+- **fw_flash.py (Done)**
   - Class definition for automating the interaction with STM32_Programmer_CLI & ST-Link
 - **setting.py**
   - Some configurations for fw_flash
-- **cli_example.py (Debugging)**
+- **cli_example.py (Done)**
   - An example of a multi-thread CLI app that handles each ST-Link
+  - Try it out [here](#cli-tool-user-instruction)
   - Some knwown bug can be fix with some notes [here](#faq-of-cli_example)
 - **ui.py**
   - A streamlit app which spawns a web server
   - Check out [here](#try-out-ui) if your want to try it out
-- **ui_example.py (Under contruction)**
+- **ui_example.py (Debugging)**
   - A streamlit app of a multi-thread CLI app that handles each ST-Link
   - TODO: display connected ST-link
   - TODO: auto-detect ST-Link
 
-## Try out CLI
-to try it out:
+# CLI Tool User Instruction
+## Preparation
+### Install STM32ProgrammerCLI.exe
+1. Unzip the en.stm32cubeprg-win32-v2-17-0.zip
+2. Install the SW by double-click SetupSTM32CubeProgrammer_win32 with default configuration
+
+### Prepare files to flash
+Here are the files that should be in pcb-util to start flashing with CLI tool
+1. fw.elf
+2. ReplaceELF.py
+3. setting.py
+4. fw_flash.py
+5. cli_example.py
+
+
+## Try CLI tool
+### Generate PerBoardData and put into fw.elf
+1. Run:
+    ```
+    python ReplaceELF.py
+    ```
+2. fwMOD.elf should be generated in the directory
+
+### Try out CLI tool 
 1. Run:
     ```
     python cli_example.py
     ```
-2. A CLI app would be running with following keystroke as input
-- press r', refresh the ST-Link list
-- 'q', quit the app
+2. The CLI tool will automatically detect the pcb-badge connected and flash the fwMOD.elf. Remove the pcb-badge once upload was finished
+3. If you add/remove ST-Link connected to the PC, press r'to refresh the list of ST-Link 
+4. press 'q' to quit the app
 
 ## Try out UI
 [Streamlit](https://streamlit.io/)
