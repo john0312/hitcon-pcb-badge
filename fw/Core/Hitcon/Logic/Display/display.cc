@@ -28,7 +28,6 @@ static int display_mode;
 // will be updated when display_get_frame is called
 static int display_current_frame;
 static hitcon::TextEditorDisplay *text_editor_display;
-static int display_orientation = 0;  // 0: normal, 1: upside down
 
 // TODO: use union to save memory if we want to store other info for other modes
 struct {
@@ -96,10 +95,6 @@ void display_init() {
   memset(__display_buf, 0, sizeof(__display_buf));
 }
 
-void display_toggle_orientation() {
-  display_orientation = 1 - display_orientation;
-}
-
 void display_get_frame(uint8_t *buf, int frame) {
   display_buf_t display_buf[DISPLAY_WIDTH];
   display_get_frame_packed(display_buf, frame);
@@ -123,10 +118,6 @@ void display_get_frame_packed(display_buf_t *buf, int frame) {
     case DISPLAY_MODE_TEXT_EDITOR:
       text_editor_display->draw_packed(buf, frame);
       break;
-  }
-
-  if (display_orientation) {
-    display_buf_rotate_180(buf);
   }
 
   display_current_frame = frame;
@@ -172,8 +163,7 @@ void display_set_mode_scroll_packed(const display_buf_t *buf, int n_col) {
   display_set_mode_scroll_packed(buf, n_col, DISPLAY_SCROLL_DEFAULT_SPEED);
 }
 
-void display_set_mode_scroll_text(const char *text, int speed,
-                                  int orientation) {
+void display_set_mode_scroll_text(const char *text, int speed) {
   int len = strlen(text);
   if (len >= kDisplayScrollMaxTextLen) {
     len = kDisplayScrollMaxTextLen - 1;
@@ -185,7 +175,6 @@ void display_set_mode_scroll_text(const char *text, int speed,
   display_set_mode_state = SET_MODE_ST_RENDER;
   display_set_mode_internal_render_idx = 0;
   display_set_mode_speed = speed;
-  display_set_mode_orientation = orientation;
 
   if (!display_set_mode_internal_task_queued) {
     scheduler.Queue(&display_set_mode_internal_task, nullptr);
@@ -258,4 +247,8 @@ void display_set_mode_editor(hitcon::TextEditorDisplay *editor) {
   display_mode = DISPLAY_MODE_TEXT_EDITOR;
   text_editor_display = editor;
   display_set_mode_state = SET_MODE_IDLE;
+}
+
+void display_set_orientation(int orientation) {
+  display_set_mode_orientation = orientation;
 }
