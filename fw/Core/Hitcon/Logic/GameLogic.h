@@ -138,6 +138,11 @@ class GameLogic {
 
   hitcon::service::sched::PeriodicTask routine_task;
 
+  // Only used for debugging.
+  int random_data_count_;
+  int accept_data_count_;
+  int accepted_data_count_;
+
   // A simple helper function that sets out to the column prefix for the
   // given column. It'll be set to the value of "HITCON" and the last 2 byte
   // is the MSB and LSB of uint16_t of col.
