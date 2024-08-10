@@ -25,11 +25,15 @@ ShowNameApp::ShowNameApp()
 void ShowNameApp::Init() { scheduler.Queue(&_routine_task, nullptr); }
 
 void ShowNameApp::OnEntry() {
+  display_set_orientation(0);
   display_set_mode_scroll_text(name);
   scheduler.EnablePeriodic(&_routine_task);
 }
 
-void ShowNameApp::OnExit() { scheduler.DisablePeriodic(&_routine_task); }
+void ShowNameApp::OnExit() {
+  display_set_orientation(1);
+  scheduler.DisablePeriodic(&_routine_task);
+}
 
 void ShowNameApp::OnButton(button_t button) {
   switch (button) {
@@ -44,8 +48,8 @@ void ShowNameApp::OnButton(button_t button) {
 }
 
 void ShowNameApp::check_update() {
-  if (score_cache != gameLogic.get_cache().total_score && mode != NameOnly) {
-    score_cache = gameLogic.get_cache().total_score;
+  if (score_cache != gameLogic.GetScore() && mode != NameOnly) {
+    score_cache = gameLogic.GetScore();
     update_display();
   }
 }
