@@ -48,6 +48,9 @@ class GameLogic {
   // Return the current total score.
   int GetScore();
 
+  // Call this to generate random data internally.
+  void DoRandomData();
+
  private:
   game_storage_t* storage_;
   game_cache_t cache_;
