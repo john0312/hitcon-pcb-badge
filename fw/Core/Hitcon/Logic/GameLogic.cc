@@ -308,5 +308,12 @@ void GameLogic::Routine() {
 
 int GameLogic::GetScore() { return cache_.total_score >> 21; }
 
+int GameLogic::GetAcceptDataQueueAvailable() {
+  int res =
+      static_cast<int>(queue_.Capacity()) - 1 - static_cast<int>(queue_.Size());
+  if (res < 0) res = 0;
+  return res;
+}
+
 }  // namespace game
 }  // namespace hitcon
