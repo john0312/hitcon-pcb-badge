@@ -1,3 +1,6 @@
+#ifndef _HITCON_NAME_SETTING_APP_H
+#define _HITCON_NAME_SETTING_APP_H
+
 #include <App/EditNameApp.h>
 #include <App/NameDisplayApp.h>
 #include <App/ShowNameApp.h>
@@ -28,3 +31,5 @@ class NameSettingApp : public MenuApp {
 extern NameSettingApp name_setting_menu;
 
 }  // namespace hitcon
+
+#endif  // _HITCON_NAME_SETTING_APP_H

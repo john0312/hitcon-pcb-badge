@@ -1,6 +1,7 @@
 #include "TetrisApp.h"
 
-#include <App/MenuApp.h>
+#include <App/MainMenuApp.h>
+#include <App/ShowNameApp.h>
 #include <Logic/BadgeController.h>
 #include <Logic/Display/display.h>
 #include <Logic/RandomPool.h>
