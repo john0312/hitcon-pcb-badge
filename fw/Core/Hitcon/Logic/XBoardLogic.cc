@@ -33,11 +33,16 @@ constexpr size_t HEADER_SZ = sizeof(Frame);
 // public functions
 
 XBoardLogic::XBoardLogic()
-    : _routine_task(490, (task_callback_t)&XBoardLogic::Routine, this, 200) {}
+    : _parse_routine(490, (task_callback_t)&XBoardLogic::ParseRoutine, this,
+                     20),
+      _ping_routine(490, (task_callback_t)&XBoardLogic::PingRoutine, this,
+                    200) {}
 
 void XBoardLogic::Init() {
-  scheduler.Queue(&_routine_task, nullptr);
-  scheduler.EnablePeriodic(&_routine_task);
+  scheduler.Queue(&_parse_routine, nullptr);
+  scheduler.EnablePeriodic(&_parse_routine);
+  scheduler.Queue(&_ping_routine, nullptr);
+  scheduler.EnablePeriodic(&_ping_routine);
   g_xboard_service.SetOnByteRx((callback_t)&XBoardLogic::OnByteArrive, this);
 }
 
@@ -68,12 +73,6 @@ void XBoardLogic::SetOnDisconnect(callback_t callback, void *self) {
 void XBoardLogic::SetOnPacketArrive(callback_t callback, void *self,
                                     RecvFnId handler_id) {
   packet_arrive_cbs[handler_id] = {callback, self};
-}
-
-void XBoardLogic::Routine(void *) {
-  SendPing();
-  ParsePacket();
-  CheckPing();
 }
 
 // private functions
@@ -134,9 +133,11 @@ void XBoardLogic::OnByteArrive(void *arg1) {
 
 void XBoardLogic::ParsePacket() {
   recv_ping = false;
-  while (cons_head != prod_head) {
+  size_t bytes_processed = 0;
+  while (cons_head != prod_head && bytes_processed < 16) {
     if (rx_buf[cons_head] != 0x55) {
       cons_head = inc_head(cons_head, 1);
+      ++bytes_processed;
       continue;
     }
     uint16_t in_buf_size =
@@ -151,11 +152,13 @@ void XBoardLogic::ParsePacket() {
     TryReadBytes(reinterpret_cast<uint8_t *>(header), HEADER_SZ);
     if (header->preamble != 0xD555555555555555) {
       cons_head = inc_head(cons_head, 1);
+      ++bytes_processed;
       continue;
     }
     if (header->len >= PKT_PAYLOAD_LEN_MAX) {
       // invalid packet, skip this packet (preamble 8 bytes)
       cons_head = inc_head(cons_head, 8);
+      bytes_processed += 8;
       continue;
     }
     if (!TryReadBytes(payload, header->len, HEADER_SZ)) {
@@ -168,6 +171,7 @@ void XBoardLogic::ParsePacket() {
     if (fast_crc32(pkt, HEADER_SZ + header->len +
                             PADDING_MAP[header->len & 0b11]) != recv_check) {
       cons_head = inc_head(cons_head, 8);
+      bytes_processed += 8;
       continue;
     }
 
@@ -184,6 +188,8 @@ void XBoardLogic::ParsePacket() {
       auto [recv_fn, recv_self] = packet_arrive_cbs[header->type];
       if (recv_fn != nullptr) recv_fn(recv_self, &packet_cb_arg);
     }
+    // handle at most one packet each time
+    break;
   }
 }
 
@@ -212,6 +218,13 @@ void XBoardLogic::CheckPing() {
     }
   }
   connect_state = next_state;
+}
+
+void XBoardLogic::ParseRoutine(void *) { ParsePacket(); }
+
+void XBoardLogic::PingRoutine(void *) {
+  SendPing();
+  CheckPing();
 }
 
 }  // namespace xboard
