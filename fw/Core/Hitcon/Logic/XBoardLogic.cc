@@ -30,17 +30,53 @@ struct Frame {
 };
 constexpr size_t HEADER_SZ = sizeof(Frame);
 
-void XBoardLogic::SendPing() {
-  uint8_t pkt[HEADER_SZ] = {0};
-  *reinterpret_cast<Frame *>(pkt) =
-      Frame{0xD555555555555555, 0, 0, PING_TYPE, 0};
-  reinterpret_cast<Frame *>(pkt)->checksum = fast_crc32(pkt, HEADER_SZ);
-  // for (int i = 0; i < sizeof(Frame); i++) {
-  //   pkt[i] = (0x11+i)&0x0FF;
-  //   pkt[i] = 0;
-  // }
-  g_xboard_service.QueueDataForTx(pkt, sizeof(pkt));
+// public functions
+
+XBoardLogic::XBoardLogic()
+    : _routine_task(490, (task_callback_t)&XBoardLogic::Routine, this, 200) {}
+
+void XBoardLogic::Init() {
+  scheduler.Queue(&_routine_task, nullptr);
+  scheduler.EnablePeriodic(&_routine_task);
+  g_xboard_service.SetOnByteRx((callback_t)&XBoardLogic::OnByteArrive, this);
 }
+
+void XBoardLogic::QueueDataForTx(uint8_t *packet, uint8_t packet_len,
+                                 RecvFnId handler_id) {
+  my_assert(packet_len < PKT_PAYLOAD_LEN_MAX);
+  uint8_t pkt[HEADER_SZ + PKT_PAYLOAD_LEN_MAX] = {0};
+  *(Frame *)pkt = Frame{0xD555555555555555, 0, packet_len,
+                        static_cast<uint8_t>(handler_id), 0};
+  for (uint8_t i = 0; i < packet_len; ++i) {
+    pkt[i + HEADER_SZ] = packet[i];
+  }
+  reinterpret_cast<Frame *>(pkt)->checksum =
+      fast_crc32(pkt, HEADER_SZ + packet_len + PADDING_MAP[packet_len & 0b11]);
+  g_xboard_service.QueueDataForTx(pkt, HEADER_SZ + packet_len);
+}
+
+void XBoardLogic::SetOnConnect(callback_t callback, void *self) {
+  connect_handler = callback;
+  connect_handler_self = self;
+}
+
+void XBoardLogic::SetOnDisconnect(callback_t callback, void *self) {
+  disconnect_handler = callback;
+  disconnect_handler_self = self;
+}
+
+void XBoardLogic::SetOnPacketArrive(callback_t callback, void *self,
+                                    RecvFnId handler_id) {
+  packet_arrive_cbs[handler_id] = {callback, self};
+}
+
+void XBoardLogic::Routine(void *) {
+  SendPing();
+  ParsePacket();
+  CheckPing();
+}
+
+// private functions
 
 bool XBoardLogic::TryReadBytes(uint8_t *dst, size_t size,
                                uint16_t head_offset) {
@@ -70,6 +106,30 @@ bool XBoardLogic::TryReadBytes(uint8_t *dst, size_t size,
     memcpy(dst, rx_buf + _cons_head, size);
   }
   return true;
+}
+
+void XBoardLogic::SendPing() {
+  uint8_t pkt[HEADER_SZ] = {0};
+  *reinterpret_cast<Frame *>(pkt) =
+      Frame{0xD555555555555555, 0, 0, PING_TYPE, 0};
+  reinterpret_cast<Frame *>(pkt)->checksum = fast_crc32(pkt, HEADER_SZ);
+  // for (int i = 0; i < sizeof(Frame); i++) {
+  //   pkt[i] = (0x11+i)&0x0FF;
+  //   pkt[i] = 0;
+  // }
+  g_xboard_service.QueueDataForTx(pkt, sizeof(pkt));
+}
+
+void XBoardLogic::OnByteArrive(void *arg1) {
+  uint8_t b = static_cast<uint8_t>(reinterpret_cast<size_t>(arg1));
+  uint16_t next_prod_head = inc_head(prod_head, 1);
+  if (next_prod_head == cons_head) {
+    // drop the data
+    AssertOverflow();
+    return;
+  }
+  rx_buf[prod_head] = b;
+  prod_head = next_prod_head;
 }
 
 void XBoardLogic::ParsePacket() {
@@ -125,62 +185,6 @@ void XBoardLogic::ParsePacket() {
       if (recv_fn != nullptr) recv_fn(recv_self, &packet_cb_arg);
     }
   }
-}
-
-XBoardLogic::XBoardLogic()
-    : _routine_task(490, (task_callback_t)&XBoardLogic::Routine, this, 200) {}
-
-void XBoardLogic::Init() {
-  scheduler.Queue(&_routine_task, nullptr);
-  scheduler.EnablePeriodic(&_routine_task);
-  g_xboard_service.SetOnByteRx((callback_t)&XBoardLogic::OnByteArrive, this);
-}
-
-void XBoardLogic::QueueDataForTx(uint8_t *packet, uint8_t packet_len,
-                                 RecvFnId handler_id) {
-  my_assert(packet_len < PKT_PAYLOAD_LEN_MAX);
-  uint8_t pkt[HEADER_SZ + PKT_PAYLOAD_LEN_MAX] = {0};
-  *(Frame *)pkt = Frame{0xD555555555555555, 0, packet_len,
-                        static_cast<uint8_t>(handler_id), 0};
-  for (uint8_t i = 0; i < packet_len; ++i) {
-    pkt[i + HEADER_SZ] = packet[i];
-  }
-  reinterpret_cast<Frame *>(pkt)->checksum =
-      fast_crc32(pkt, HEADER_SZ + packet_len + PADDING_MAP[packet_len & 0b11]);
-  g_xboard_service.QueueDataForTx(pkt, HEADER_SZ + packet_len);
-}
-
-void XBoardLogic::SetOnConnect(callback_t callback, void *self) {
-  connect_handler = callback;
-  connect_handler_self = self;
-}
-
-void XBoardLogic::SetOnDisconnect(callback_t callback, void *self) {
-  disconnect_handler = callback;
-  disconnect_handler_self = self;
-}
-
-void XBoardLogic::SetOnPacketArrive(callback_t callback, void *self,
-                                    RecvFnId handler_id) {
-  packet_arrive_cbs[handler_id] = {callback, self};
-}
-
-void XBoardLogic::Routine(void *) {
-  SendPing();
-  ParsePacket();
-  CheckPing();
-}
-
-void XBoardLogic::OnByteArrive(void *arg1) {
-  uint8_t b = static_cast<uint8_t>(reinterpret_cast<size_t>(arg1));
-  uint16_t next_prod_head = inc_head(prod_head, 1);
-  if (next_prod_head == cons_head) {
-    // drop the data
-    AssertOverflow();
-    return;
-  }
-  rx_buf[prod_head] = b;
-  prod_head = next_prod_head;
 }
 
 void XBoardLogic::CheckPing() {
