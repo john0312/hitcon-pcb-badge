@@ -184,7 +184,7 @@ void IrLogic::OnBufferReceived(uint8_t *buffer) {
             }
             const uint8_t bitpos =
                 (packet_buf / DECODE_SAMPLE_RATIO - 1) % IR_CHKSUM_SZ;
-            rx_packet.data[rx_packet.size_ - 1] |= decode_bit(bit) << bitpos;
+            rx_packet.data_[rx_packet.size_ - 1] |= decode_bit(bit) << bitpos;
             if (bitpos == IR_CHKSUM_SZ - 1) {
               // packet_end
               packet_buf = 0;
