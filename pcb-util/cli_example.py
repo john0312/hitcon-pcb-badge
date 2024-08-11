@@ -71,10 +71,7 @@ def main_loop(stdscr):
         thread_pool.append(thread_instance)
 
     # scan for stlink change
-    
     start_time = time.time()
-    print("start_time =")
-    print(start_time)
     while True:
         ## list all current avaliable stlink
         
