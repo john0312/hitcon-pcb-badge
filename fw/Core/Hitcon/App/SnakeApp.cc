@@ -1,3 +1,5 @@
+#include <App/MainMenuApp.h>
+#include <App/ShowNameApp.h>
 #include <App/SnakeApp.h>
 #include <Logic/BadgeController.h>
 #include <Logic/RandomPool.h>

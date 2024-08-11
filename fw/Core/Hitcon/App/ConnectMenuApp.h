@@ -1,3 +1,4 @@
+#include <App/ShowNameApp.h>
 #include <App/SnakeApp.h>
 #include <App/TetrisApp.h>
 #include <Logic/BadgeController.h>
@@ -23,7 +24,9 @@ class ConnectMenuApp : public MenuApp {
   ConnectMenuApp() : MenuApp(connect_menu_entries, connect_menu_entries_len) {}
   void OnButtonMode() override {}
   void OnButtonBack() override { badge_controller.change_app(&show_name_app); }
-  void OnButtonLongBack() override { badge_controller.change_app(&show_name_app); }
+  void OnButtonLongBack() override {
+    badge_controller.change_app(&show_name_app);
+  }
 };
 
 extern ConnectMenuApp connect_menu;

@@ -27,7 +27,9 @@ class MainMenuApp : public MenuApp {
   MainMenuApp() : MenuApp(main_menu_entries, main_menu_entries_len) {}
   void OnButtonMode() override { badge_controller.change_app(&show_name_app); }
   void OnButtonBack() override { badge_controller.change_app(&show_name_app); }
-  void OnButtonLongBack() override { badge_controller.change_app(&show_name_app); }
+  void OnButtonLongBack() override {
+    badge_controller.change_app(&show_name_app);
+  }
 };
 
 extern MainMenuApp main_menu;

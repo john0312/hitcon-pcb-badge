@@ -1,3 +1,6 @@
+#ifndef _HITCON_NAME_DISPLAY_APP_H
+#define _HITCON_NAME_DISPLAY_APP_H
+
 #include <App/ShowNameApp.h>
 #include <Logic/BadgeController.h>
 
@@ -21,11 +24,13 @@ class NameDisplayApp : public MenuApp {
  public:
   NameDisplayApp()
       : MenuApp(name_display_menu_entries, name_display_menu_entries_len) {}
-  void OnButtonMode() override { badge_controller.change_app(&show_name_app); }
-  void OnButtonBack() override { badge_controller.change_app(&name_setting_menu); }
-  void OnButtonLongBack() override { badge_controller.change_app(&show_name_app); }
+  void OnButtonMode() override;
+  void OnButtonBack() override;
+  void OnButtonLongBack() override;
 };
 
 extern NameDisplayApp name_display_menu;
 
 }  // namespace hitcon
+
+#endif  // _HITCON_NAME_DISPLAY_APP_H

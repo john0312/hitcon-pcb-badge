@@ -1,5 +1,6 @@
 #include "EditNameApp.h"
 
+#include <App/NameSettingApp.h>
 #include <App/ShowNameApp.h>
 #include <Logic/BadgeController.h>
 #include <Logic/Display/display.h>
