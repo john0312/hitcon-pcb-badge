@@ -5,6 +5,7 @@
 #include <Logic/RandomPool.h>
 #include <Logic/XBoardLogic.h>
 #include <Service/Sched/Scheduler.h>
+#include <Util/uint_to_str.h>
 
 using namespace hitcon::service::sched;
 using namespace hitcon::service::xboard;
@@ -41,6 +42,7 @@ void SnakeApp::Init() {
 }
 
 void SnakeApp::OnEntry() {
+  _game_over = false;
   if (mode == MODE_NONE)  // default game mode is single player
     mode = MODE_SINGLEPLAYER;
   else if (mode == MODE_MULTIPLAYER) {
@@ -74,6 +76,7 @@ void SnakeApp::OnButton(button_t button) {
       if (_last_direction != DIRECTION_DOWN) btn_direction = DIRECTION_UP;
       break;
     case BUTTON_OK:
+      if (_game_over) badge_controller.change_app(this);
       if (_state == STATE_WAIT) {
         _state = STATE_PLAYING;
         if (mode == MODE_MULTIPLAYER) {
@@ -135,7 +138,6 @@ void SnakeApp::InitGame() {
   _len = 2;
   _body[0] = 36;
   _body[1] = 35;
-  _game_over = false;
   GenerateFood();
 }
 
@@ -183,7 +185,9 @@ void SnakeApp::Routine(void* unused) {
   if (OnSnake(new_head)) _game_over = true;
 
   if (_game_over) {
-    display_set_mode_scroll_text("Game Over");
+    char score_frame[16] = "Score: ";
+    uint_to_chr(score_frame + 7, 9, _len - 2);
+    display_set_mode_scroll_text(score_frame);
     if (mode == MODE_MULTIPLAYER) {
       uint8_t code = PACKET_GAME_OVER;
       g_xboard_logic.QueueDataForTx(&code, 1, SNAKE_RECV_ID);
