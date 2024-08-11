@@ -43,7 +43,8 @@ void ShowNameApp::Init() {
 
 void ShowNameApp::OnEntry() {
   display_set_orientation(0);
-  display_set_mode_scroll_text(name);
+  score_cache = gameLogic.GetScore();
+  update_display();
   scheduler.EnablePeriodic(&_routine_task);
 }
 
