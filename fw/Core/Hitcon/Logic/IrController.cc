@@ -44,7 +44,7 @@ void IrController::OnPacketReceived(void* arg) {
   received_packet_cnt++;
 
   IrPacket* packet = reinterpret_cast<IrPacket*>(arg);
-  IrData* data = reinterpret_cast<IrData*>(&packet->data_[1]);
+  IrData* data = reinterpret_cast<IrData*>(packet->data_);
 
   // Game
   if (data->type == packet_type::kGame) {

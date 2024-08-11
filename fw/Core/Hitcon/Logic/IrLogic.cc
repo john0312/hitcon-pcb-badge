@@ -195,6 +195,10 @@ void IrLogic::OnBufferReceived(uint8_t *buffer) {
               const uint32_t chksum =
                   merge_chksum(crc32(rx_packet.data_, rx_packet.size_ - 1));
               if (chksum == rx_packet.data_[rx_packet.size_ - 1]) {
+                // pop checksum
+                rx_packet.data_[rx_packet.size_ - 1] = '\0';
+                rx_packet.size_--;
+                rx_packet.data_[0] = rx_packet.size_;
                 rx_packet_ctrler = rx_packet;
                 callback(callback_arg,
                          reinterpret_cast<void *>(&rx_packet_ctrler));
