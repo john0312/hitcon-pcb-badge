@@ -63,9 +63,6 @@ void DinoApp::OnEdgeButton(button_t button) {
     case BUTTON_UP:
       _dino_state = DINO_JUMP;
       break;
-    case BUTTON_BACK:
-      badge_controller.OnAppEnd(this);
-      break;
   }
 }
 
