@@ -26,10 +26,12 @@
 #include <Service/NoiseSource.h>
 #include <Service/Sched/Scheduler.h>
 #include <Service/XBoardService.h>
+#include <Logic/XBoardGameController.h>
 
 using namespace hitcon;
 using namespace hitcon::service::sched;
 using namespace hitcon::service::xboard;
+using namespace hitcon::xboard_game_controller;
 using hitcon::game::gameLogic;
 
 void TestTaskFunc(void* unused1, void* unused2) {}
@@ -74,6 +76,7 @@ void hitcon_run() {
   hitcon::app::snake::snake_app.Init();
   hitcon::app::dino::dino_app.Init();
   g_usb_logic.Init();
+  g_xboard_game_controller.Init();
 
   // run hardware test mode if MODE/SETTINGS Button is pressed during
   // initializing
