@@ -13,10 +13,8 @@ namespace hitcon {
 namespace ir {
 
 struct IrPacket {
-  // clang-format off
   // IR Packet
-  // | header | size (1byte) | data (1 byte size + n bytes data + 1 byte checksum) |
-  // clang-format on
+  // | header | data (1 byte size + n bytes data + 1 byte checksum) |
 
   IrPacket() : size_(0) {}
 

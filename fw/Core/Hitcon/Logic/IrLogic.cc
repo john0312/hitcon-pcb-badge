@@ -145,6 +145,7 @@ void IrLogic::OnBufferReceived(uint8_t *buffer) {
               // Packet too large.
               packet_state = STATE_RESET;
             } else {
+              rx_packet.data_[0] = rx_packet.size_;
               packet_state = STATE_DATA;
               packet_buf = 0;
             }
@@ -161,10 +162,10 @@ void IrLogic::OnBufferReceived(uint8_t *buffer) {
               packet_state = STATE_RESET;
               break;
             }
-            const uint8_t pos = (packet_buf / DECODE_SAMPLE_RATIO - 1) / 8;
+            const uint8_t pos = (packet_buf / DECODE_SAMPLE_RATIO - 1) / 8 + 1;
             const uint8_t bitpos = (packet_buf / DECODE_SAMPLE_RATIO - 1) % 8;
             rx_packet.data_[pos] |= decode_bit(bit) << bitpos;
-            if (pos == rx_packet.size_ - 1) {
+            if (pos == rx_packet.size_ - 2 && bitpos == 7) {
               // packet data end
               // double buffering
               // Full packet found, restarting.
