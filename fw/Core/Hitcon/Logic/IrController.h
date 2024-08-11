@@ -43,11 +43,13 @@ class IrController {
   IrController();
 
   void Init();
-  void Send2Game(void* game);
+  void Send2Game(void* arg);
+  void ShowText(void* arg);
   void InitBroadcastService(uint8_t game_types);
 
  private:
   bool send_lock;
+  bool show_lock;
   bool recv_lock;
   // TODO: Tune the quadratic function parameters
   uint8_t v[3] = {1, 27, 111};
@@ -57,6 +59,7 @@ class IrController {
 
   hitcon::service::sched::PeriodicTask routine_task;
   hitcon::service::sched::Task send2game_task;
+  hitcon::service::sched::Task showtext_task;
   hitcon::service::sched::Task broadcast_task;
 
   // Called every 1s.
