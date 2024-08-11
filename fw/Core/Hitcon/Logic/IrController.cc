@@ -1,6 +1,7 @@
 #include "IrController.h"
 
 #include <App/HardwareTestApp.h>
+#include <Logic/BadgeController.h>
 #include <Logic/Display/display.h>
 #include <Logic/GameLogic.h>
 #include <Logic/IrController.h>
@@ -27,7 +28,8 @@ IrController::IrController()
       broadcast_task(800, (callback_t)&IrController::BroadcastIr, this),
       send2game_task(800, (callback_t)&IrController::Send2Game, this),
       showtext_task(800, (callback_t)&IrController::ShowText, this),
-      send_lock(true), recv_lock(true), received_packet_cnt(0) {}
+      send_lock(true), show_lock(true), recv_lock(true),
+      received_packet_cnt(0) {}
 
 void IrController::Send2Game(void* arg) {
   GamePacket* game = reinterpret_cast<GamePacket*>(arg);
@@ -40,11 +42,13 @@ void IrController::ShowText(void* arg) {
   show_lock = true;
 }
 
+static char* surprise_msg = "Cool!";
+
 void IrController::Init() {
   irLogic.SetOnPacketReceived((callback_t)&IrController::OnPacketReceived,
                               this);
   badge_controller.SetCallback((callback_t)&IrController::SendShowPacket, this,
-                               "Cool!");
+                               surprise_msg);
   scheduler.Queue(&routine_task, nullptr);
   scheduler.EnablePeriodic(&routine_task);
 }

@@ -62,8 +62,9 @@ void BadgeController::OnButton(void *arg1) {
   }
   if (combo_button_ctr == COMBO_BUTTON_LEN) {
     // surprise
-    if (this->callback) this->callback(callback_arg1, callback_arg2);
     combo_button_ctr = 0;
+    if (this->callback) this->callback(callback_arg1, callback_arg2);
+    return;
   }
 
   if (button == BUTTON_BRIGHTNESS) {
