@@ -80,7 +80,7 @@ def main_loop(stdscr):
         
         # Show "Remove!" message if FNINSHED
         for index, st_obj in enumerate(st_obj_list):
-            if str(st_objq.current_state) == "ST_STATUS.FINISHED":
+            if str(st_obj.current_state) == "ST_STATUS.FINISHED":
                 stdscr.addstr(
                     setting.CURSES_RESERVE_LINE + index,
                     0,

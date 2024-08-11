@@ -10,7 +10,7 @@ import subprocess
 import threading
 import time
 from enum import Enum, auto
-
+import c
 import setting
 
 
