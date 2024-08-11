@@ -7,11 +7,17 @@
 #include <Logic/RandomPool.h>
 #include <Service/Sched/SysTimer.h>
 #include <Service/Sched/Task.h>
+#include <Logic/XBoardLogic.h>
 
 using hitcon::service::sched::SysTimer;
 using hitcon::service::sched::task_callback_t;
+using namespace hitcon::service::xboard;
 
 namespace hitcon {
+
+namespace app {
+
+namespace tetris {
 
 namespace {
 
@@ -32,10 +38,52 @@ TetrisApp::TetrisApp()
 void TetrisApp::OnEntry() {
   // start the update task
   hitcon::service::sched::scheduler.EnablePeriodic(&periodic_task);
+  g_xboard_logic.SetOnPacketArrive((callback_t)&TetrisApp::OnXboardRecv, this, TETRIS_RECV_ID);
 }
+
+static void SendAttackEnemyPacket(int n_lines) {
+  uint8_t data[2] = {PACKET_ATTACK, (uint8_t)n_lines};
+  g_xboard_logic.QueueDataForTx(&data[0], 2, TETRIS_RECV_ID);
+}
+
+void SetSingleplayer() {
+  tetris_app.SetPlayerCount(SINGLEPLAYER);
+}
+
+void SetMultiplayer() {
+  tetris_app.SetPlayerCount(MULTIPLAYER);
+}
+
+void TetrisApp::SetPlayerCount(unsigned playerCount) {
+  switch (playerCount) {
+    case SINGLEPLAYER:
+      game.game_register_attack_enemy_callback(nullptr);
+    break;
+    case MULTIPLAYER:
+      game.game_register_attack_enemy_callback(SendAttackEnemyPacket);
+    break;
+  }
+}
+
 
 void TetrisApp::OnExit() {
   hitcon::service::sched::scheduler.DisablePeriodic(&periodic_task);
+}
+
+void TetrisApp::RecvAttackPacket(PacketCallbackArg *packet) {
+  if (packet->len != 2)
+    return;
+  int n_lines = packet->data[1];
+  game.game_enemy_attack(n_lines);
+}
+
+void TetrisApp::OnXboardRecv(void *arg) {
+  PacketCallbackArg* packet = reinterpret_cast<PacketCallbackArg*>(arg);
+  switch (packet->data[0]) {
+    case PACKET_ATTACK:
+      RecvAttackPacket(packet);
+      break;
+  }
 }
 
 void TetrisApp::OnButton(button_t button) {
@@ -96,5 +144,9 @@ void TetrisApp::periodic_task_callback(void *) {
     display_set_mode_fixed_packed(display_buf);
   }
 }
+
+} // namespace tetris
+
+} // namespace app
 
 }  // namespace hitcon

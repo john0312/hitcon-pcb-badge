@@ -7,12 +7,13 @@
 
 namespace hitcon {
 
-using hitcon::app::snake::SetMultiplayer;
 using hitcon::app::snake::snake_app;
+using hitcon::app::tetris::tetris_app;
+// using hitcon::app::tetris
 
 constexpr menu_entry_t connect_menu_entries[] = {
-    {"Tetris", &tetris_app, nullptr},
-    {"Snake", &snake_app, &SetMultiplayer},
+    {"Tetris", &tetris_app, &hitcon::app::tetris::SetMultiplayer},
+    {"Snake", &snake_app, &hitcon::app::snake::SetMultiplayer},
     {"xchg", nullptr, nullptr},
 };
 
