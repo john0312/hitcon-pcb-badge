@@ -52,6 +52,7 @@ class FlashService {
   size_t _erase_page_id;
   size_t _program_page_id;
   size_t _program_pending_count_;
+  size_t _program_data_offset;
   size_t _wait_cnt;
   bool _erase_only;
 

@@ -62,6 +62,7 @@ bool FlashService::ProgramPage(size_t page_id, uint32_t* data, size_t len) {
     _data_len = len;
     _erase_page_id = 0;
     _program_page_id = 0;
+    _program_data_offset = 0;
     _erase_only = false;
 
     return true;
@@ -88,6 +89,7 @@ bool FlashService::ProgramOnly(size_t page_id, size_t offset, uint32_t* data,
     _data = data;
     my_assert(offset % 4 == 0);
     _program_page_id = offset / 4;
+    _program_data_offset = _program_page_id;
     len /= 4;
     _data_len = _program_page_id + len;
     _state = FS_PROGRAM;
@@ -158,8 +160,9 @@ void FlashService::Routine() {
            i++, _program_page_id++) {
         size_t addr = _addr + _program_page_id * 4;
         _program_pending_count_++;
-        if (HAL_FLASH_Program_IT(FLASH_TYPEPROGRAM_WORD, addr,
-                                 _data[_program_page_id]) != HAL_OK) {
+        if (HAL_FLASH_Program_IT(
+                FLASH_TYPEPROGRAM_WORD, addr,
+                _data[_program_page_id - _program_data_offset]) != HAL_OK) {
           my_assert(false);
         }
       }
