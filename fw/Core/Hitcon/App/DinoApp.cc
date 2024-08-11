@@ -5,6 +5,7 @@
 #include <Logic/Display/display.h>
 #include <Logic/RandomPool.h>
 #include <Service/Sched/Scheduler.h>
+#include <Util/uint_to_str.h>
 
 #include <cmath>
 
@@ -69,7 +70,12 @@ void DinoApp::OnEdgeButton(button_t button) {
 }
 
 void DinoApp::Routine(void* unused) {
-  if (_game_over) gameOver();
+  if (_game_over) {
+    _score_show_time++;
+    if (_score_show_time == DINO_SHOW_SCORE_TIME)
+      badge_controller.change_app(&dino_app);
+    return;
+  }
   // Shift frame
   for (uint8_t i = 0; i < OBSTACAL_FRAME_WIDTH; i++) {
     _obstacle_frame[i] = _obstacle_frame[i + 1];
@@ -133,11 +139,13 @@ void DinoApp::Routine(void* unused) {
 
   if (dinoDied()) {
     _game_over = true;
+    _score_show_time = 0;
+    gameOver();
     return;
   }
   printFrame();
   _dino_ani_frame ^= 1;
-  _score++;
+  if (_score < 9999) _score++;
 }
 
 inline void DinoApp::writeObsByte(uint8_t pos, display_buf_t line) {
@@ -164,7 +172,9 @@ bool DinoApp::dinoDied() {
 
 inline void DinoApp::gameOver() {
   // TODO: show score
-  badge_controller.change_app(&dino_app);
+  char score_frame[12] = "score: ";
+  uint_to_chr(score_frame + 6, 5, _score);
+  display_set_mode_scroll_text(score_frame);
 }
 
 }  // namespace dino
