@@ -1,4 +1,5 @@
 #include <Logic/GameLogic.h>
+#include <Logic/IrController.h>
 #include <Logic/RandomPool.h>
 #include <Logic/XBoardGameController.h>
 #include <Logic/XBoardLogic.h>
@@ -6,18 +7,26 @@
 #include <Service/Sched/Scheduler.h>
 #include <Service/Sched/Task.h>
 
+#include <cstring>
+
 namespace game = hitcon::game;
 namespace xboard = hitcon::service::xboard;
 using namespace hitcon::service::sched;
+using namespace hitcon::ir;
 
 #define MIN(a, b) (((a) < (b)) ? (a) : (b))
 
 namespace hitcon {
 namespace xboard_game_controller {
 
+XBoardGameController g_xboard_game_controller;
+
+// what should the periodic of _send_routine be?
 XBoardGameController::XBoardGameController()
-    : _send_routine(490, (task_callback_t)&XBoardGameController::SendRoutine,
-                    this, 50) {}
+    : _send_routine(500, (task_callback_t)&XBoardGameController::SendRoutine,
+                    this, 500),
+      accept_data_task(
+          500, (task_callback_t)&XBoardGameController::AcceptDataTask, this) {}
 
 void XBoardGameController::Init() {
   xboard::g_xboard_logic.SetOnPacketArrive(
@@ -73,13 +82,15 @@ void XBoardGameController::SendRoutine() {
 
 void XBoardGameController::Queue2XBoard() {
   xboard::g_xboard_logic.QueueDataForTx(
-      to_send, game::kDataSize, xboard::RecvFnId::XBOARD_GAME_CONTROLLER);
+      reinterpret_cast<uint8_t*>(&to_send), game::kDataSize,
+      xboard::RecvFnId::XBOARD_GAME_CONTROLLER);
 }
 
 void XBoardGameController::GetData() {
   send_state = PrepareData;
   int col = g_fast_random_pool.GetRandom() % game::kNumCols;
-  bool ok = game::gameLogic.GetRandomDataForIrTransmission(to_send, &col);
+  to_send.col = col;
+  bool ok = game::gameLogic.GetRandomDataForIrTransmission(to_send.data, &col);
   if (ok) {
     Queue2XBoard();
     send_state = WaitAck;
@@ -92,7 +103,24 @@ void XBoardGameController::RecvAck() {
   }
 }
 
+void XBoardGameController::AcceptDataTask() {
+  while (recv_len > 0) {
+    GamePacket* game = &recv_buffer[recv_cons];
+    game::gameLogic.AcceptData(game->col, game->data);
+    recv_cons = (recv_cons + 1) % RECV_BUFFER_SIZE;
+    --recv_len;
+  }
+}
+
 void XBoardGameController::RemoteRecv(xboard::PacketCallbackArg* pkt) {
+  if (recv_len == RECV_BUFFER_SIZE) {
+    // drop data
+    return;
+  }
+  memcpy(reinterpret_cast<void*>(&recv_buffer[recv_prod]), pkt->data, pkt->len);
+  scheduler.Queue(&accept_data_task, nullptr);
+  recv_prod = (recv_prod + 1) % RECV_BUFFER_SIZE;
+  ++recv_len;
   xboard::g_xboard_logic.QueueDataForTx(
       nullptr, 0, xboard::RecvFnId::XBOARD_GAME_CONTROLLER_ACK);
 }

@@ -1,12 +1,14 @@
 #ifndef LOGIC_XBOARD_GAME_CONTROLLER_DOT_H
 #define LOGIC_XBOARD_GAME_CONTROLLER_DOT_H
 
+#include <Logic/IrController.h>
 #include <Logic/XBoardLogic.h>
 
 namespace hitcon {
 
 namespace xboard_game_controller {
 enum SendState { Idle, PrepareData, WaitAck, Acked };
+constexpr uint8_t RECV_BUFFER_SIZE = 4;
 
 class XBoardGameController {
  public:
@@ -28,9 +30,16 @@ class XBoardGameController {
 
  private:
   hitcon::service::sched::PeriodicTask _send_routine;
+  hitcon::service::sched::Task accept_data_task;
   SendState send_state = Idle;
   uint8_t wait_count = 0;
-  uint8_t to_send[game::kDataSize];
+  // uint8_t to_send[sizeof()];
+  hitcon::ir::GamePacket to_send;
+  uint8_t recv_prod = 0;
+  uint8_t recv_cons = 0;
+  uint8_t recv_len = 0;
+  // uint8_t recv_buffer[sizeof(hitcon::ir::GamePacket)][RECV_BUFFER_SIZE];
+  hitcon::ir::GamePacket recv_buffer[RECV_BUFFER_SIZE];
 
   // How many calls to GetRandomDataForXBoardTransmission() do we need?
   int random_send_left_;
@@ -48,10 +57,13 @@ class XBoardGameController {
   void Queue2XBoard();
   void GetData();
   void RecvAck();
+  void AcceptDataTask();
 
   // remote side
   void RemoteRecv(hitcon::service::xboard::PacketCallbackArg* pkt);
 };
+
+extern XBoardGameController g_xboard_game_controller;
 
 }  // namespace xboard_game_controller
 
