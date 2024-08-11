@@ -110,6 +110,7 @@ void IrLogic::OnBufferReceived(uint8_t *buffer) {
                      buffer_received_ctr < IR_SERVICE_RX_ON_BUFFER_SIZE;
        i++, buffer_received_ctr++) {
     for (uint8_t j = 0; j < 8; j++) {
+      my_assert(buffer_received_ctr < IR_SERVICE_RX_ON_BUFFER_SIZE);
       uint8_t is_on = (buffer[buffer_received_ctr] & (1 << j)) ? 1 : 0;
       switch (packet_state) {
         case STATE_START:
