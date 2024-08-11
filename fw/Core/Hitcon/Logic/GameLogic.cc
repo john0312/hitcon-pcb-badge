@@ -21,14 +21,6 @@ constexpr unsigned kIdleRoutineDelay = 20;
 
 GameLogic gameLogic;
 
-// Implements the ln() with approximate polynomial.
-// The output is in Q9.22 fixed point number, while the input is in
-// uint32_t integer format.
-int32_t q22_ln(uint32_t x) {
-  // Obviously incorrecty, but that's a TODO.
-  return x << 21;
-}
-
 void GameLogic::RandomlySetGridCellValue(int row, int col) {
   for (uint8_t i = 0; i < kDataSize; i++) {
     storage_->cells[col][row].data[i] = g_fast_random_pool.GetRandom();
@@ -185,7 +177,8 @@ void GameLogic::ComputeColumnScore(int col) {
   my_assert(col >= 0 && col < kNumCols);
   uint32_t column_score = 0;
   for (size_t row = 0; row < kNumRows; ++row) {
-    column_score += static_cast<uint32_t>(cache_.cell_score_cache[col][row]);
+    uint32_t cell_score = static_cast<uint32_t>(cache_.cell_score_cache[col][row]);
+    column_score += cell_score*cell_score;
   }
   cache_.col_score_cache[col] = column_score;
 }
@@ -194,7 +187,7 @@ void GameLogic::ComputeFinalScore() {
   cache_.total_score = 0;
   for (int col = 0; col < kNumCols; col++) {
     if (cache_.col_score_cache[col] > 0) {
-      cache_.total_score += q22_ln(cache_.col_score_cache[col]);
+      cache_.total_score += cache_.col_score_cache[col];
     }
   }
 }
@@ -369,7 +362,7 @@ bool GameLogic::RoutineInternal() {
   return idle;
 }
 
-int GameLogic::GetScore() { return cache_.total_score >> 21; }
+int GameLogic::GetScore() { return (cache_.total_score>>4) + 1; }
 
 int GameLogic::GetAcceptDataQueueAvailable() {
   int res =
