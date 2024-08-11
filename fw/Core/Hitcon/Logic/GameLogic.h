@@ -71,6 +71,8 @@ class GameLogic {
     // Each run of Routine() in this state populates one column, and uses
     // in_progress_col_.
     RANDOM_INIT_CELLS,
+    // In this phase, we remove any duplicates in the data.
+    REMOVE_DUPLICATE,
     // In this phase, Routine iterates through every cell in storage_ and
     // populates the corresponding cell_score_cache. After every cell in
     // cell_score_cache is populated, it'll move onto the next phase.

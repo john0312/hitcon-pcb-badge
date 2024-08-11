@@ -221,7 +221,7 @@ bool GameLogic::RoutineInternal() {
       }
 
       if (!all_zero) {
-        routine_state_ = POPULATING_CACHE_CELLS;
+        routine_state_ = REMOVE_DUPLICATE;
         routine_sub_state_ = INIT_SHA3;
         populating_cache_col_ = 0;
         populating_cache_row_ = 0;
@@ -246,13 +246,41 @@ bool GameLogic::RoutineInternal() {
       // If all columns have been initialized, move to the next state.
       if (in_progress_col_ == 0) {
         g_nv_storage.MarkDirty();
-        routine_state_ = POPULATING_CACHE_CELLS;
+        routine_state_ = REMOVE_DUPLICATE;
         populating_cache_col_ = 0;
         populating_cache_row_ = 0;
         routine_sub_state_ = INIT_SHA3;
         break;
       }
       break;
+    }
+    case REMOVE_DUPLICATE: {
+      bool modified = false;
+      for (size_t row = 0; row < kNumRows; ++row) {
+        if (row == populating_cache_row_) continue;
+        if (storage_->cells[populating_cache_col_][row].u64 ==
+            storage_->cells[populating_cache_col_][populating_cache_row_].u64) {
+          RandomlySetGridCellValue(row, in_progress_col_);
+          modified = true;
+          break;
+        }
+      }
+      if (modified) break;
+
+      // Move to the next cell.
+      populating_cache_row_ = (populating_cache_row_ + 1) % kNumRows;
+      // If all cells in the current column have been processed, move to the
+      // next column.
+      if (populating_cache_row_ == 0) {
+        populating_cache_col_ = (populating_cache_col_ + 1) % kNumCols;
+      }
+      // If all columns have been processed, move to the next state.
+      if (populating_cache_col_ == 0 && populating_cache_row_ == 0) {
+        routine_state_ = POPULATING_CACHE_CELLS;
+        populating_cache_col_ = 0;
+        populating_cache_row_ = 0;
+        routine_sub_state_ = INIT_SHA3;
+      }
     }
     case POPULATING_CACHE_CELLS: {
       int score;
@@ -303,8 +331,18 @@ bool GameLogic::RoutineInternal() {
         queue_.PopFront();
         in_progress_col_ = data_pair.first;
         in_progress_data_ = data_pair.second;
-        routine_state_ = COMPUTING_INCOMING_DATA;
-        accept_data_count_++;
+
+        bool duplicated = false;
+        for (size_t row = 0; row < kNumRows; ++row) {
+          if (in_progress_data_.u64 ==
+              storage_->cells[in_progress_col_][row].u64) {
+            duplicated = true;
+          }
+        }
+        if (!duplicated) {
+          routine_state_ = COMPUTING_INCOMING_DATA;
+          accept_data_count_++;
+        }
       } else {
         idle = true;
       }
@@ -331,6 +369,7 @@ bool GameLogic::RoutineInternal() {
           min_row = row;
         }
       }
+
       // Replace the lowest score item with the incoming data, if its score is
       // higher.
       if (in_progress_cell_score_ > min_score) {
