@@ -6,6 +6,7 @@
 #include <Logic/Display/display.h>
 #include <Logic/Display/font.h>
 #include <Logic/GameLogic.h>
+#include <Logic/NvStorage.h>
 #include <Service/Sched/SysTimer.h>
 #include <Service/Sched/Task.h>
 #include <Util/uint_to_str.h>
@@ -28,11 +29,17 @@ ShowNameApp show_name_app;
 ShowNameApp::ShowNameApp()
     : _routine_task(490, (task_callback_t)&ShowNameApp::check_update, this,
                     1000),
-      last_disp_update(0) {
-  strncpy(name, DEFAULT_NAME, NAME_LEN);
-}
+      last_disp_update(0) {}
 
-void ShowNameApp::Init() { scheduler.Queue(&_routine_task, nullptr); }
+void ShowNameApp::Init() {
+  nv_storage_content &content = g_nv_storage.GetCurrentStorage();
+  if (g_nv_storage.IsStorageValid() && strlen(content.name)) {
+    strncpy(name, content.name, NAME_LEN);
+  } else {
+    strncpy(name, DEFAULT_NAME, NAME_LEN);
+  }
+  scheduler.Queue(&_routine_task, nullptr);
+}
 
 void ShowNameApp::OnEntry() {
   display_set_orientation(0);
@@ -105,6 +112,10 @@ void ShowNameApp::update_display() {
 
 void ShowNameApp::SetName(const char *name) {
   strncpy(this->name, name, NAME_LEN);
+  nv_storage_content &content = g_nv_storage.GetCurrentStorage();
+  strncpy(content.name, name, NAME_LEN);
+  g_nv_storage.MarkDirty();
+  g_nv_storage.ForceFlush(nullptr, nullptr);
   update_display();
 }
 

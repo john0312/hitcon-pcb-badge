@@ -1,6 +1,7 @@
 #ifndef SERVICE_NV_STORAGE_H_
 #define SERVICE_NV_STORAGE_H_
 
+#include <App/ShowNameApp.h>
 #include <Logic/GameParam.h>
 #include <Service/FlashService.h>
 #include <Service/Sched/Scheduler.h>
@@ -18,9 +19,7 @@ typedef struct nv_storage_content_t {
 
   // Add any needed data that needs to be persisted here.
   hitcon::game::game_storage_t game_storage;
-
-  // TODO: name
-
+  char name[hitcon::ShowNameApp::NAME_LEN + 1];
 } nv_storage_content;
 
 static_assert(sizeof(nv_storage_content) <= MY_FLASH_PAGE_SIZE,
