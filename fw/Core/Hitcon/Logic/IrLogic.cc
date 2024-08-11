@@ -226,11 +226,11 @@ void IrLogic::SetOnPacketReceived(callback_t callback, void *callback_arg1) {
 
 void IrLogic::EncodePacket(uint8_t *data, size_t len, IrPacket &packet) {
   // size included
-  packet.data_[0] = static_cast<uint8_t>(len);
   memcpy(packet.data_ + 1, data, len * sizeof(data[0]));
   const uint8_t chksum = merge_chksum(crc32(packet.data_, len + 1));
   packet.data_[len + 1] = chksum;
   packet.size_ = len + 2;
+  packet.data_[0] = static_cast<uint8_t>(packet.size_);
 }
 
 bool IrLogic::SendPacket(uint8_t *data, size_t len) {
