@@ -36,11 +36,13 @@ class BadgeController {
   // void OnUsbPlugIn();
 
   // for surprice use
-  void SetCallback(callback_t callback, void *callback_arg1);
+  void SetCallback(callback_t callback, void *callback_arg1,
+                   void *callback_arg2);
 
  private:
   callback_t callback = nullptr;
   void *callback_arg1;
+  void *callback_arg2;
 };
 
 extern BadgeController badge_controller;
