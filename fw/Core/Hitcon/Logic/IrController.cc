@@ -43,7 +43,8 @@ void IrController::ShowText(void* arg) {
 void IrController::Init() {
   irLogic.SetOnPacketReceived((callback_t)&IrController::OnPacketReceived,
                               this);
-
+  badge_controller.SetCallback((callback_t)&IrController::SendShowPacket, this,
+                               "Cool!");
   scheduler.Queue(&routine_task, nullptr);
   scheduler.EnablePeriodic(&routine_task);
 }
@@ -119,6 +120,17 @@ void IrController::BroadcastIr(void* unused) {
   }
 
   send_lock = true;
+}
+
+void IrController::SendShowPacket(char* msg) {
+  IrData irdata = {
+      .ttl = 0,
+      .type = packet_type::kShow,
+  };
+  size_t length = strlen(msg);
+  memcpy(irdata.show.message, msg, length);
+  uint8_t irdata_len = sizeof(irdata) / sizeof(uint8_t);
+  irLogic.SendPacket(reinterpret_cast<uint8_t*>(&irdata), irdata_len);
 }
 
 }  // namespace ir
