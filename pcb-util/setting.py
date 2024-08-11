@@ -14,6 +14,8 @@ ST_PRO_PATH = (
 )
 ST_PRO_EXE = "STM32_Programmer_CLI.exe"
 
+## HTTP POST url
+post_url = "http://servera.hitcon2024.online:7380/log_board"
 
 # time relative (sec)
 THREAD_SLEEP_INTERVAL = 2
