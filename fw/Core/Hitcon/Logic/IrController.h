@@ -12,6 +12,7 @@
 enum class packet_type : uint8_t {
   kGame = 0,
   kShow = 1,
+  kTest = 2,
 };
 
 namespace hitcon {

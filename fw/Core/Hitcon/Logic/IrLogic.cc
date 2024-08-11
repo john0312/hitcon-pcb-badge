@@ -243,9 +243,12 @@ bool IrLogic::SendPacket(uint8_t *data, size_t len) {
     my_assert(0);
     return false;
   }
+  if (!irService.CanSendBufferNow()) return false;
   // TODO: Check if tx_packet is in use.
   EncodePacket(data, len, tx_packet);
-  return irService.SendBuffer(tx_packet.data_, tx_packet.size_, true);
+  bool ret = irService.SendBuffer(tx_packet.data_, tx_packet.size_, true);
+  my_assert(ret);
+  return ret;
 }
 
 int IrLogic::GetLoadFactor() {

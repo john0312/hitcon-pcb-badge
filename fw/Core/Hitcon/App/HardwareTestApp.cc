@@ -2,10 +2,10 @@
 
 #include <App/EditNameApp.h>
 #include <Logic/Display/display.h>
-#include <Logic/IrLogic.h>
+#include <Logic/RandomPool.h>
+#include <Logic/XBoardLogic.h>
 #include <Service/DisplayService.h>
 #include <Service/Sched/Scheduler.h>
-#include <Service/XBoardService.h>
 
 #include <cstring>
 
@@ -19,35 +19,35 @@ HardwareTestApp::HardwareTestApp()
     : task(30, (task_callback_t)&HardwareTestApp::Routine, (void*)this,
            PERIOD / 5) {}
 
-constexpr uint8_t _xboard_data[] = {'R', 'A'};
+constexpr uint8_t _xboard_data[] = {'T', 'U', 'Z', 'K', 'I'};
 constexpr uint8_t _xboard_data_len = sizeof(_xboard_data) / sizeof(uint8_t);
 void HardwareTestApp::CheckXBoard(void* arg1) {
-  uint8_t b = static_cast<uint8_t>(reinterpret_cast<size_t>(arg1));
-
-  if (b == _xboard_data[0] && _count == 0) {
-    _count = 1;
-  } else if (b == _xboard_data[1] && _count == 1) {
-    _count = 2;
-    next_state = TS_IR;
+  PacketCallbackArg* packet = reinterpret_cast<PacketCallbackArg*>(arg1);
+  bool flag = true;
+  if (packet->len != _xboard_data_len) flag = false;
+  for (uint8_t i = 0; i < _xboard_data_len; i++) {
+    if (_xboard_data[i] != packet->data[i]) {
+      flag = false;
+      break;
+    }
   }
+  if (flag) next_state = TS_IR;
 }
 
 void HardwareTestApp::Init() {
   scheduler.Queue(&task, nullptr);
-  g_xboard_service.SetOnByteRx((callback_t)&HardwareTestApp::CheckXBoard,
-                               this);  // TODO: change to XBoardLogic
-  irLogic.SetOnPacketReceived((callback_t)&HardwareTestApp::CheckIr, this);
+  g_xboard_logic.SetOnPacketArrive((callback_t)&HardwareTestApp::CheckXBoard,
+                                   this, TEST_APP_RECV_ID);
 }
 
-constexpr uint8_t _ir_data[] = {'T', 'U', 'Z', 'K', 'I'};
-constexpr uint8_t _ir_data_len = sizeof(_ir_data) / sizeof(uint8_t);
 void HardwareTestApp::CheckIr(void* arg1) {
-  IrPacket* packet = reinterpret_cast<IrPacket*>(arg1);
+  ShowPacket* packet = reinterpret_cast<ShowPacket*>(arg1);
+
   size_t i;
   for (i = 0; i < _ir_data_len; i++) {
-    if (packet->data_[i] != _ir_data[i]) break;
+    if (packet->message[i] != _ir_data.show.message[i]) break;
   }
-  next_state = (i == _ir_data_len) ? TS_PASS : TS_FAIL;
+  if (i == _ir_data_len) next_state = TS_PASS;
 }
 
 void HardwareTestApp::OnEntry() {
@@ -104,14 +104,22 @@ void HardwareTestApp::OnButton(button_t button) {
     case TS_XBOARD:
       if (button == BUTTON_OK) {
         _count = 0;
-        g_xboard_service.QueueDataForTx(const_cast<uint8_t*>(_xboard_data),
-                                        _xboard_data_len);
+        g_xboard_logic.QueueDataForTx(const_cast<uint8_t*>(_xboard_data),
+                                      _xboard_data_len, TEST_APP_RECV_ID);
       }
       break;
     case TS_IR:
       if (button == BUTTON_OK) {
         _count = 0;
-        irLogic.SendPacket(const_cast<uint8_t*>(_ir_data), _ir_data_len);
+        for (uint8_t i = 0; i < IR_TEST_LEN; i++) {
+          _ir_data.show.message[i] = g_fast_random_pool.GetRandom() % 256;
+        }
+
+        _ir_data.ttl = 0;
+        _ir_data.type = packet_type::kTest;
+        _ir_data_len = IR_TEST_LEN;
+        irLogic.SendPacket(reinterpret_cast<uint8_t*>(&_ir_data),
+                           sizeof(_ir_data) / sizeof(uint8_t));
       }
       break;
   }

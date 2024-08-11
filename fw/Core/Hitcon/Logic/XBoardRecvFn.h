@@ -9,6 +9,7 @@ namespace xboard {
 // define your function id before max
 enum RecvFnId {
   SNAKE_RECV_ID,
+  TEST_APP_RECV_ID,
   // MAX is to express the length of callback function array
   MAX
 };
