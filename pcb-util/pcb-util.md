@@ -24,12 +24,15 @@ The pcb-util consist of several utility scripts describing as follows
   3. Printe the array around in organized HEX to verify ELF modification
 - **fw_flash.py (Done)**
   - Class definition for automating the interaction with STM32_Programmer_CLI & ST-Link
-- **setting.py**
-  - Some configurations for fw_flash
 - **cli_example.py (Done)**
   - An example of a multi-thread CLI app that handles each ST-Link
   - Try it out [here](#cli-tool-user-instruction)
   - Some knwown bug can be fix with some notes [here](#faq-of-cli_example)
+- **pcb-util_CLI (Done)**
+  - Integrate cli_examply.py and ReplaceELF.py
+  - TODO: Test logging PerBoardSecret to Server
+- **setting.py**
+  - Some configurations for pcb-util
 - **ui.py**
   - A streamlit app which spawns a web server
   - Check out [here](#try-out-ui) if your want to try it out
@@ -52,19 +55,10 @@ Here are the files that should be in pcb-util to start flashing with CLI tool
 4. fw_flash.py
 5. cli_example.py
 
-
 ## Try CLI tool
-### Generate PerBoardData and put into fw.elf
 1. Run:
     ```
-    python ReplaceELF.py
-    ```
-2. fwMOD.elf should be generated in the directory
-
-### Try out CLI tool 
-1. Run:
-    ```
-    python cli_example.py
+    python pcb-util_CLI.py
     ```
 2. The CLI tool will automatically detect the pcb-badge connected and flash the fwMOD.elf. Remove the pcb-badge once upload was finished
 3. If you add/remove ST-Link connected to the PC, press r'to refresh the list of ST-Link 

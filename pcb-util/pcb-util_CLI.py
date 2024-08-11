@@ -45,6 +45,7 @@ def main_loop(stdscr):
     stdscr.clear()
     curses.start_color()
     curses.init_pair(1, curses.COLOR_WHITE, curses.COLOR_RED)
+    curses.init_pair(2, curses.COLOR_WHITE, curses.COLOR_GREEN)
     stdscr.nodelay(True)  # non-blocking mode, only wait $timeout when meet getch()
     stdscr.timeout(int(setting.CLI_QUIT_SCAN_INTERVAL * 1000))  # in ms
 
@@ -75,11 +76,14 @@ def main_loop(stdscr):
     # scan for stlink change
     start_time = time.time()
     while True:
+        
+        fw_flash.flag_HTTPServerConnnectionError = False
         if fw_flash.flag_HTTPServerConnnectionError:
             stdscr.addstr(
-                0, 0, "============ WANRING: Check Log Server Conenction ============="
+                0, 0, "====== WANRING: Lost Log Server Conenction, Reconnecting ======"
                 , curses.color_pair(1)
             )
+            st_obj.current_state = fw_flash.ST_STATUS.NO_DEVICE
 
         ## list all current avaliable stlink
         
@@ -91,6 +95,7 @@ def main_loop(stdscr):
                     0,
                     f"ST-00{index}({st_obj.SN}) : "
                     + f" Upload Completed. Remove the device!"
+                    , curses.color_pair(2)
                 )
 
         # input scan of list and quit
