@@ -51,7 +51,8 @@ void FlashService::EndOperationCallback(uint32_t value) {
 bool FlashService::IsBusy() { return _state != FS_IDLE; }
 
 bool FlashService::ProgramPage(size_t page_id, uint32_t* data, size_t len) {
-  if (page_id >= 0 && page_id < FLASH_PAGE_COUNT && len < MY_FLASH_PAGE_SIZE) {
+  if (page_id >= 0 && page_id < FLASH_PAGE_COUNT && len < MY_FLASH_PAGE_SIZE &&
+      _state == FS_IDLE) {
     _addr = reinterpret_cast<size_t>(GetPagePointer(page_id));  // begin address
     _data = data;
 
@@ -61,7 +62,36 @@ bool FlashService::ProgramPage(size_t page_id, uint32_t* data, size_t len) {
     _data_len = len;
     _erase_page_id = 0;
     _program_page_id = 0;
+    _erase_only = false;
 
+    return true;
+  }
+  return false;
+}
+
+bool FlashService::ErasePage(size_t page_id) {
+  if (page_id >= 0 && page_id < FLASH_PAGE_COUNT && _state == FS_IDLE) {
+    _addr = reinterpret_cast<size_t>(GetPagePointer(page_id));  // begin address
+    _state = FS_UNLOCK;
+    _erase_page_id = 0;
+    _erase_only = true;
+    return true;
+  }
+  return false;
+}
+
+bool FlashService::ProgramOnly(size_t page_id, size_t offset, uint32_t* data,
+                               size_t len) {
+  if (page_id >= 0 && page_id < FLASH_PAGE_COUNT && len < MY_FLASH_PAGE_SIZE &&
+      _state == FS_IDLE) {
+    _addr = reinterpret_cast<size_t>(GetPagePointer(page_id));
+    _data = data;
+    my_assert(offset % 4 == 0);
+    _program_page_id = offset / 4;
+    len /= 4;
+    _data_len = _program_page_id + len;
+    _state = FS_PROGRAM;
+    _erase_only = false;
     return true;
   }
   return false;
@@ -77,7 +107,11 @@ void FlashService::Routine() {
       break;
     case FS_SUSPEND_WAIT: {
       if (_erase_page_id == kErasePageCount) {
-        _state = FS_PROGRAM;
+        if (_erase_only) {
+          _state = FS_IDLE;
+        } else {
+          _state = FS_PROGRAM;
+        }
         break;
       }
       bool ret = g_suspender.TrySuspend();
