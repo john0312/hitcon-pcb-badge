@@ -36,6 +36,13 @@ class FlashService {
   // Any flash storage after len remains 0.
   bool ProgramPage(size_t page_id, uint32_t* data, size_t len);
 
+  // Erase page but doesn't program it.
+  bool ErasePage(size_t page_id);
+
+  // Program the flash at page_id + offset, program data and len.
+  // Caller is in charge of erasing.
+  bool ProgramOnly(size_t page_id, size_t offset, uint32_t* data, size_t len);
+
  private:
   size_t _data_len;
 
@@ -46,6 +53,7 @@ class FlashService {
   size_t _program_page_id;
   size_t _program_pending_count_;
   size_t _wait_cnt;
+  bool _erase_only;
 
   enum FlashServiceState {
     FS_IDLE,
