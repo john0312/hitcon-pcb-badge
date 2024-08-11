@@ -8,7 +8,6 @@
 #include <Service/Sched/Scheduler.h>
 #include <stddef.h>
 #include <stdint.h>
-#include <cstdint>
 
 enum class packet_type : uint8_t {
   kGame = 0,
@@ -30,7 +29,6 @@ struct ShowPacket {
 
 /*Definition of IR content.*/
 struct IrData {
-  uint8_t sz;
   uint8_t ttl;
   packet_type type;
   union {
