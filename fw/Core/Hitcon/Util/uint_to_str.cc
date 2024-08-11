@@ -8,6 +8,7 @@ unsigned int hitcon::uint_to_chr(char *str, unsigned size, int n) {
     str[count++] = '0' + (n % 10);
     n /= 10;
   }
+  str[count] = 0;
   // reverse string
   char *p1 = str;
   char *p2 = str + strlen(p1) - 1;

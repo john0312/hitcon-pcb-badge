@@ -8,6 +8,7 @@
 #define DINO_OBS_LEAST_DISTANCE 4
 #define OBSTACAL_FRAME_WIDTH (DISPLAY_WIDTH + 3)
 #define DINO_INITIAL_VEL (-DINO_HEIGHT)
+#define DINO_SHOW_SCORE_TIME 60
 
 #include <Logic/Display/display.h>
 #include <Service/Sched/PeriodicTask.h>
@@ -28,7 +29,8 @@ class DinoApp : public App {
   const unsigned char (*_curr_dino_frame)[5];
   int8_t _obstacle_interval;
   uint8_t _generate_obs_rate;
-  uint8_t _score;
+  uint16_t _score;
+  uint8_t _score_show_time;
   uint8_t _game_over : 1;
   uint8_t _dino_ani_frame : 1;
   int8_t _dino_jump_vel : 3;
