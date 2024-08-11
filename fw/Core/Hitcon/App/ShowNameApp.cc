@@ -8,7 +8,7 @@
 #include <Logic/GameLogic.h>
 #include <Service/Sched/SysTimer.h>
 #include <Service/Sched/Task.h>
-#include <Util/int_to_str.h>
+#include <Util/uint_to_str.h>
 
 #include <cstring>
 
