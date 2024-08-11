@@ -18,6 +18,7 @@
 #include <Logic/IrLogic.h>
 #include <Logic/NvStorage.h>
 #include <Logic/UsbLogic.h>
+#include <Logic/XBoardGameController.h>
 #include <Logic/XBoardLogic.h>
 #include <Service/ButtonService.h>
 #include <Service/DisplayService.h>
@@ -26,7 +27,6 @@
 #include <Service/NoiseSource.h>
 #include <Service/Sched/Scheduler.h>
 #include <Service/XBoardService.h>
-#include <Logic/XBoardGameController.h>
 
 using namespace hitcon;
 using namespace hitcon::service::sched;
