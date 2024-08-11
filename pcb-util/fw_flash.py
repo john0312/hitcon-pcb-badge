@@ -26,7 +26,7 @@ class ST_STATUS(Enum):
 def run_command(cmd) -> [str, str]:
     process = subprocess.Popen(
         cmd, shell=True, stdout=subprocess.PIPE, 
-        stderr=subprocess.PIPE, text=True)
+        stderr=subprocess.PIPE, text=True, errors='ignore')
     stdout, stderr = process.communicate()
     return stdout, stderr
 
