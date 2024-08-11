@@ -69,6 +69,17 @@ void XBoardService::Routine(void*) {
     HAL_UART_Transmit_IT(_huart, &_tx_buffer[_tx_buffer_head], 1);
     _tx_buffer_head = (_tx_buffer_head + 1) % kTxBufferSize;
   }
+
+  if (_huart->RxState == HAL_UART_STATE_BUSY_RX) {
+    // We're receiving properly.
+    _rx_stopped_count = 0;
+  } else {
+    _rx_stopped_count++;
+    if (_rx_stopped_count > 15) {
+      TriggerRx();
+      _rx_stopped_count = 0;
+    }
+  }
 }
 
 void XBoardService::TriggerRx() { HAL_UART_Receive_IT(_huart, &rx_byte_, 1); }

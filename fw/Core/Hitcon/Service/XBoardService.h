@@ -55,6 +55,9 @@ class XBoardService {
   int _tx_buffer_head = 0;
   // Next byte from the upper layer.
   int _tx_buffer_tail = 0;
+
+  // This is a huge hack. rx might get stopped so we want to restart it.
+  int _rx_stopped_count = 0;
 };
 
 extern XBoardService g_xboard_service;
