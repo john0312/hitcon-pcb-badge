@@ -1,6 +1,9 @@
 import shutil
 from elftools.elf.elffile import ELFFile
 import numpy as np
+import requests
+import json
+import setting
 
 
 def duplicate_elf_file(original_file_path, new_file_path):
@@ -104,6 +107,17 @@ def print_array_in_hex(array):
     hex_array = [f'0x{value:02x}' for value in array]
     print("Generated random uint8 array in HEX:", hex_array)
     
+def POST_uint8_array(url="http://servera.hitcon2024.online:7380/log_board", 
+                     uint8_array=[]):
+    data = {
+        "board_secret": uint8_array.tolist()
+    }
+
+    response = requests.post(url, data)
+    if response.status_code == 200:
+        print("Success!")
+    else:
+        print(f"Error: {response.status_code}")
 
 if __name__ == "__main__":
 
@@ -123,16 +137,20 @@ if __name__ == "__main__":
     
     # Generate Random array
     replace_array_PerBoardRandom = np.random.randint(0, 256, size=16, dtype=np.uint8)
+    
     replace_array_PerBoardSecret = np.random.randint(0, 256, size=16, dtype=np.uint8)
     
     # Print random array
+    print("\n Geerating PerBoardRandom... \n")
     print_array_in_hex(replace_array_PerBoardRandom)
+    print("\n Geerating PerBoardSecret... \n")
     print_array_in_hex(replace_array_PerBoardSecret)
     
-    # TODO: Record PerBoardSecret to Cloud
-    
-    print("\n TODO: Upload PerBoardSecret to Cloud \n")
-
+    # TODO: Test posting PerBoardSecret to Cloud
+    post_url = setting.post_url
+    print("\n POST PerBoardSecret to http://servera.hitcon2024.online:7380/log_board \n")
+    POST_uint8_array(post_url, replace_array_PerBoardSecret)
+        
     # Duplicate the ELF file
     duplicate_elf_file(original_elf_path, MOD_elf_path)
 
@@ -140,8 +158,10 @@ if __name__ == "__main__":
 
     # find and replace PerBoardRandom array
     search_and_reaplce_array(MOD_elf_path, search_array_PerBoardRandom, replace_array_PerBoardRandom)
-    
+    print("\n PerBoardRandom replacement verified \n")
+
     # find and replace PerBoardSecret array
     search_and_reaplce_array(MOD_elf_path, search_array_PerBoardSecret, replace_array_PerBoardSecret)
-    
+    print("\n PerBoardSecret replacement verified \n")
+
     print("\n Operation Done \n")    

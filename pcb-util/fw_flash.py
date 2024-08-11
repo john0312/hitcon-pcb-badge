@@ -138,6 +138,7 @@ class STLINK():
         else:
             # input command error, e.g. xxx not recognized as an internal or external command
             raise ValueError(err)
+            # TODO: re-initialize the ST-Link 
     
     def upload(self) -> None:
         cmd = self.gen_upload_command()
