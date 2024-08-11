@@ -13,11 +13,15 @@ namespace hitcon {
 namespace ir {
 
 struct IrPacket {
+  // IR Packet
+  // | header | data (1 byte size + n bytes data + 1 byte checksum) |
+
   IrPacket() : size_(0) {}
 
-  // We need to add 2 bytes because we need at least 1 byte to accomodate
-  // the size.
-  uint8_t data_[MAX_PACKET_PAYLOAD_BYTES + 2];
+  // We need to add 3 bytes because we need
+  // at least 1 byte to accomodate the size.
+  // at least 1 byte to accomodate the chksum.
+  uint8_t data_[MAX_PACKET_PAYLOAD_BYTES + 3];
   size_t size_;
 };
 

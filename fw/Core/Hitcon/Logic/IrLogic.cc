@@ -1,6 +1,7 @@
 #include "IrLogic.h"
 
 #include <Logic/IrLogic.h>
+#include <Logic/crc32.h>
 #include <Service/IrService.h>
 #include <Service/Suspender.h>
 
@@ -32,7 +33,8 @@ enum PACKET_STATE {
   STATE_START = 0,
   STATE_SIZE = 1,
   STATE_DATA = 2,
-  STATE_RESET = 3
+  STATE_CHKSUM = 3,
+  STATE_RESET = 4,
 };
 
 enum BIT_STATE {
@@ -54,6 +56,14 @@ static uint8_t decode_bit(uint8_t x) {
     default:
       return BIT_INVALID;
   }
+}
+
+static uint8_t merge_chksum(uint32_t x) {
+  uint8_t ret = 0;
+  for (int i = 0; i < 32; i += 8) {
+    ret ^= (x & (0xffu << i)) >> i;
+  }
+  return ret;
 }
 
 void IrLogic::OnBufferReceivedEnqueueTask(uint8_t *buffer) {
@@ -126,7 +136,7 @@ void IrLogic::OnBufferReceived(uint8_t *buffer) {
               return;
             }
             const uint8_t bitpos = (packet_buf / DECODE_SAMPLE_RATIO - 1);
-            rx_packet.size_ = (rx_packet.size_) | (decode_bit(bit) << bitpos);
+            rx_packet.size_ |= decode_bit(bit) << bitpos;
             bit = 0;
           }
           // end of size section (decode ratio * 1 byte)
@@ -135,6 +145,7 @@ void IrLogic::OnBufferReceived(uint8_t *buffer) {
               // Packet too large.
               packet_state = STATE_RESET;
             } else {
+              rx_packet.data_[0] = rx_packet.size_;
               packet_state = STATE_DATA;
               packet_buf = 0;
             }
@@ -151,18 +162,47 @@ void IrLogic::OnBufferReceived(uint8_t *buffer) {
               packet_state = STATE_RESET;
               break;
             }
-            const uint8_t pos = (packet_buf / DECODE_SAMPLE_RATIO - 1) / 8;
+            const uint8_t pos = (packet_buf / DECODE_SAMPLE_RATIO - 1) / 8 + 1;
             const uint8_t bitpos = (packet_buf / DECODE_SAMPLE_RATIO - 1) % 8;
             rx_packet.data_[pos] |= decode_bit(bit) << bitpos;
-            if (pos == rx_packet.size_) {
-              // packet_end
+            if (pos == rx_packet.size_ - 2 && bitpos == 7) {
+              // packet data end
               // double buffering
               // Full packet found, restarting.
-              packet_state = STATE_RESET;
-              rx_packet_ctrler = rx_packet;
-              callback(callback_arg,
-                       reinterpret_cast<void *>(&rx_packet_ctrler));
+              packet_state = STATE_CHKSUM;
               break;
+            }
+          }
+          break;
+        case STATE_CHKSUM:
+          packet_buf++;
+          bit <<= 1;
+          bit |= is_on;
+          if ((packet_buf % DECODE_SAMPLE_RATIO) == 0) {
+            if (decode_bit(bit) == BIT_INVALID) {
+              packet_state = STATE_RESET;
+              break;
+            }
+            const uint8_t bitpos =
+                (packet_buf / DECODE_SAMPLE_RATIO - 1) % IR_CHKSUM_SZ;
+            rx_packet.data_[rx_packet.size_ - 1] |= decode_bit(bit) << bitpos;
+            if (bitpos == IR_CHKSUM_SZ - 1) {
+              // packet_end
+              packet_buf = 0;
+              packet_state = STATE_RESET;
+
+              // if valid packet
+              const uint32_t chksum =
+                  merge_chksum(crc32(rx_packet.data_, rx_packet.size_ - 1));
+              if (chksum == rx_packet.data_[rx_packet.size_ - 1]) {
+                // pop checksum
+                rx_packet.data_[rx_packet.size_ - 1] = '\0';
+                rx_packet.size_--;
+                rx_packet.data_[0] = rx_packet.size_;
+                rx_packet_ctrler = rx_packet;
+                callback(callback_arg,
+                         reinterpret_cast<void *>(&rx_packet_ctrler));
+              }
             }
           }
           break;
@@ -190,9 +230,11 @@ void IrLogic::SetOnPacketReceived(callback_t callback, void *callback_arg1) {
 
 void IrLogic::EncodePacket(uint8_t *data, size_t len, IrPacket &packet) {
   // size included
-  packet.data_[0] = static_cast<uint8_t>(len);
+  packet.size_ = len + 2;
+  packet.data_[0] = static_cast<uint8_t>(packet.size_);
   memcpy(packet.data_ + 1, data, len * sizeof(data[0]));
-  packet.size_ = len + 1;
+  const uint8_t chksum = merge_chksum(crc32(packet.data_, len + 1));
+  packet.data_[len + 1] = chksum;
 }
 
 bool IrLogic::SendPacket(uint8_t *data, size_t len) {
@@ -201,9 +243,12 @@ bool IrLogic::SendPacket(uint8_t *data, size_t len) {
     my_assert(0);
     return false;
   }
+  if (!irService.CanSendBufferNow()) return false;
   // TODO: Check if tx_packet is in use.
   EncodePacket(data, len, tx_packet);
-  return irService.SendBuffer(tx_packet.data_, tx_packet.size_, true);
+  bool ret = irService.SendBuffer(tx_packet.data_, tx_packet.size_, true);
+  my_assert(ret);
+  return ret;
 }
 
 int IrLogic::GetLoadFactor() {

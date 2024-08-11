@@ -2,6 +2,7 @@
 
 #include <App/ConnectMenuApp.h>
 #include <App/EditNameApp.h>
+#include <App/HardwareTestApp.h>
 #include <App/ShowNameApp.h>
 #include <Logic/XBoardLogic.h>
 #include <Service/DisplayService.h>
@@ -69,11 +70,13 @@ void BadgeController::OnButton(void *arg1) {
 }
 
 void BadgeController::OnXBoardConnect(void *unused) {
-  badge_controller.change_app(&connect_menu);
+  if (current_app != &hardware_test_app)
+    badge_controller.change_app(&connect_menu);
 }
 
 void BadgeController::OnXBoardDisconnect(void *unused) {
-  badge_controller.change_app(&show_name_app);
+  if (current_app != &hardware_test_app)
+    badge_controller.change_app(&show_name_app);
 }
 
 void BadgeController::OnEdgeButton(void *arg1) {

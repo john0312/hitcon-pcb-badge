@@ -1,6 +1,7 @@
 #ifndef HARDWARE_TEST_APP
 #define HARDWARE_TEST_APP
 
+#include <Logic/IrController.h>
 #include <Service/Sched/PeriodicTask.h>
 
 #include "app.h"
@@ -37,17 +38,20 @@ class HardwareTestApp : public App {
   void OnExit() override;
   void OnButton(button_t button) override;
   void Init();
-  void Routine(void* unused);
-  void CheckXBoard(void* arg1);
+  void CheckIr(void* arg1);
+
   PeriodicTask task;
+  static constexpr size_t IR_TEST_LEN = 9;
 
  private:
   uint32_t current_state;
   uint32_t next_state;
   uint32_t start_tick;
   uint8_t _count;
-
-  void CheckIr(void* arg1);
+  hitcon::ir::IrData _ir_data;
+  uint8_t _ir_data_len;
+  void Routine(void* unused);
+  void CheckXBoard(void* arg1);
 };
 
 extern HardwareTestApp hardware_test_app;

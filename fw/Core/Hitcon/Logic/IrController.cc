@@ -1,5 +1,6 @@
 #include "IrController.h"
 
+#include <App/HardwareTestApp.h>
 #include <Logic/GameLogic.h>
 #include <Logic/IrController.h>
 #include <Logic/RandomPool.h>
@@ -44,7 +45,7 @@ void IrController::OnPacketReceived(void* arg) {
   received_packet_cnt++;
 
   IrPacket* packet = reinterpret_cast<IrPacket*>(arg);
-  IrData* data = reinterpret_cast<IrData*>(packet->data_);
+  IrData* data = reinterpret_cast<IrData*>(&packet->data_[1]);
 
   // Game
   if (data->type == packet_type::kGame) {
@@ -52,6 +53,8 @@ void IrController::OnPacketReceived(void* arg) {
       send_lock = false;
       scheduler.Queue(&send2game_task, &data->game);
     }
+  } else if (data->type == packet_type::kTest) {
+    hardware_test_app.CheckIr(&data->show);
   }
 }
 
