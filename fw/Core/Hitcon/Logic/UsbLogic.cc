@@ -25,8 +25,8 @@ void UsbLogic::Init() {
  * 1. check recv have buffer? or set
  * 2. get recv data length
  * 3. implement write script on flash
- * 4. test run script
- * 5. fix set_name
+ * 4. (done) test run script
+ * 5. (done) fix set_name
  */
 void UsbLogic::OnDataRecv(uint8_t* data) {
   // check length?, call this function at outevent
@@ -46,15 +46,13 @@ void UsbLogic::OnDataRecv(uint8_t* data) {
   uint32_t error;
   switch (_state) {
     case USB_STATE_SET_NAME:
-      if (_index == NAME_LEN) {
-        //        g_nv_storage.MarkDirty();
-        show_name_app.SetName(reinterpret_cast<const char*>(_name));
-        _state = USB_STATE_HEADER;
-      }
       for (size_t i = (_index == 0); i < RECV_BUF_LEN; i++, _index++) {
-        //        content.name[_index] = data[i];
-        _name[_index] = data[i];
-        // TODO: maybe need a temp buffer?
+        content.name[_index] = data[i];
+        if (_index - 1 == NAME_LEN) {
+          show_name_app.SetName(reinterpret_cast<const char*>(content.name));
+          _state = USB_STATE_HEADER;
+          break;
+        }
       }
       break;
     case USB_STATE_CLEAR:
