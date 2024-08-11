@@ -23,7 +23,7 @@ NvStorage::NvStorage()
 void NvStorage::Init() {
   int32_t newest_version = -1;
   my_assert(!g_flash_service.IsBusy());
-  for (size_t i = 0; i < FLASH_PAGE_COUNT; i++) {
+  for (size_t i = 1; i < FLASH_PAGE_COUNT; i++) {
     uint8_t* page_data =
         reinterpret_cast<uint8_t*>(g_flash_service.GetPagePointer(i));
     nv_storage_content* page_content =
@@ -64,6 +64,8 @@ void NvStorage::ForceFlushInternal() {
     storage_dirty_ = false;
     next_available_page = (next_available_page + 1) %
                           FLASH_PAGE_COUNT;  // Increment for the next write
+    if(next_available_page == 0)
+      next_available_page = 1;
     content_.version++;
     last_flush_cycle = current_cycle;  // Record the current cycle
   }
