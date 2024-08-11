@@ -32,9 +32,11 @@ void BadgeController::Init() {
       (callback_t)&BadgeController::OnXBoardDisconnect, this);
 }
 
-void BadgeController::SetCallback(callback_t callback, void *callback_arg1) {
+void BadgeController::SetCallback(callback_t callback, void *callback_arg1,
+                                  void *callback_arg2) {
   this->callback = callback;
   this->callback_arg1 = callback_arg1;
+  this->callback_arg2 = callback_arg2;
 }
 
 void BadgeController::change_app(App *new_app) {
@@ -60,7 +62,7 @@ void BadgeController::OnButton(void *arg1) {
   }
   if (combo_button_ctr == COMBO_BUTTON_LEN) {
     // surprise
-    if (this->callback) this->callback(callback_arg1);
+    if (this->callback) this->callback(callback_arg1, callback_arg2);
     combo_button_ctr = 0;
   }
 
