@@ -2,8 +2,8 @@
 #define TETRIS_APP_H
 
 #include <Logic/ButtonLogic.h>
-#include <Service/Sched/Scheduler.h>
 #include <Logic/XBoardLogic.h>
+#include <Service/Sched/Scheduler.h>
 
 #include "TetrisGame.h"
 #include "app.h"
@@ -25,7 +25,6 @@ enum {  // player count
   MULTIPLAYER,
 };
 
-
 // set mode before changing to tetris app
 void SetSingleplayer();
 void SetMultiplayer();
@@ -34,7 +33,7 @@ void SetMultiplayer();
  * The first byte of the packet is the packet tpe
  * 1. attack packet:
  *    Bytes 2 is the number of lines attacked
-*/
+ */
 
 /**
  * The Tetris game.
@@ -59,14 +58,14 @@ class TetrisApp : public App {
   void OnXboardRecv(void *arg);
   void SetPlayerCount(unsigned playerCount);
 
-  void periodic_task_callback(void*);
+  void periodic_task_callback(void *);
 };
 
 extern TetrisApp tetris_app;
 
-} // namespace tetris
+}  // namespace tetris
 
-} // namespace app
+}  // namespace app
 
 }  // namespace hitcon
 
