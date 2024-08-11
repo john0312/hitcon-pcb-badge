@@ -13,6 +13,7 @@
 namespace hitcon {
 namespace game {
 
+using hitcon::service::sched::my_assert;
 using hitcon::service::sched::scheduler;
 using hitcon::service::sched::SysTimer;
 
@@ -46,13 +47,14 @@ void GameLogic::Init(game_storage_t *storage) {
   // if empty, generate random data
   routine_state_ = CHECK_CELLS_VALID;
   populating_cache_col_ = populating_cache_row_ = 0;
-
+  memset(&cache_, 0, sizeof(game_cache_t));
   scheduler.Queue(&routine_task_now, nullptr);
 }
 
 bool GameLogic::AcceptData(int col, uint8_t *data) {
   // TODO: schedule task deal with accepting data
   // game_queue.push(col, data);
+  my_assert(col >= 0 && col < kNumCols);
   std::pair<int, grid_cell_t> p;
   p.first = col;
   memcpy(&p.second.data[0], data, sizeof(p.second));
@@ -180,9 +182,10 @@ bool GameLogic::StepSubRoutine(int col, uint8_t *cell_data, int *out_score) {
 }
 
 void GameLogic::ComputeColumnScore(int col) {
+  my_assert(col >= 0 && col < kNumCols);
   uint32_t column_score = 0;
   for (size_t row = 0; row < kNumRows; ++row) {
-    column_score += cache_.cell_score_cache[col][row];
+    column_score += static_cast<uint32_t>(cache_.cell_score_cache[col][row]);
   }
   cache_.col_score_cache[col] = column_score;
 }
@@ -231,6 +234,7 @@ bool GameLogic::RoutineInternal() {
         routine_sub_state_ = INIT_SHA3;
         populating_cache_col_ = 0;
         populating_cache_row_ = 0;
+        break;
       }
 
       // Move to the next column for the next run
@@ -255,6 +259,7 @@ bool GameLogic::RoutineInternal() {
         populating_cache_col_ = 0;
         populating_cache_row_ = 0;
         routine_sub_state_ = INIT_SHA3;
+        break;
       }
       break;
     }
@@ -338,13 +343,18 @@ bool GameLogic::RoutineInternal() {
       // Replace the lowest score item with the incoming data, if its score is
       // higher.
       if (in_progress_cell_score_ > min_score) {
+        my_assert(min_row != -1 && min_row < kNumRows);
         storage_->cells[in_progress_col_][min_row] = in_progress_data_;
         cache_.cell_score_cache[in_progress_col_][min_row] =
             in_progress_cell_score_;
         g_nv_storage.MarkDirty();
         accepted_data_count_++;
+        routine_state_ = UPDATE_GAME_SCORE;
+      } else {
+        routine_state_ = WAITING_FOR_DATA;
+        populating_cache_col_ = 0;
+        populating_cache_row_ = 0;
       }
-      routine_state_ = UPDATE_GAME_SCORE;
       break;
     }
     case UPDATE_GAME_SCORE: {
