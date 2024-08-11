@@ -1,6 +1,7 @@
 #include "IrController.h"
 
 #include <App/HardwareTestApp.h>
+#include <Logic/Display/display.h>
 #include <Logic/GameLogic.h>
 #include <Logic/IrController.h>
 #include <Logic/RandomPool.h>
@@ -25,12 +26,18 @@ IrController::IrController()
     : routine_task(950, (callback_t)&IrController::RoutineTask, this, 1000),
       broadcast_task(800, (callback_t)&IrController::BroadcastIr, this),
       send2game_task(800, (callback_t)&IrController::Send2Game, this),
+      showtext_task(800, (callback_t)&IrController::ShowText, this),
       send_lock(true), recv_lock(true), received_packet_cnt(0) {}
 
 void IrController::Send2Game(void* arg) {
   GamePacket* game = reinterpret_cast<GamePacket*>(arg);
   gameLogic.AcceptData(game->col, game->data);
   send_lock = true;
+}
+void IrController::ShowText(void* arg) {
+  ShowPacket* show = reinterpret_cast<ShowPacket*>(arg);
+  display_set_mode_scroll_text(show->message);
+  show_lock = true;
 }
 
 void IrController::Init() {
@@ -55,6 +62,11 @@ void IrController::OnPacketReceived(void* arg) {
     }
   } else if (data->type == packet_type::kTest) {
     hardware_test_app.CheckIr(&data->show);
+  } else if (data->type == packet_type::kShow) {
+    if (show_lock) {
+      show_lock = false;
+      scheduler.Queue(&showtext_task, &data->show);
+    }
   }
 }
 
