@@ -125,7 +125,7 @@ void HardwareTestApp::OnButton(button_t button) {
   }
 }
 // clang-format off
-uint8_t buf_fixed[DISPLAY_HEIGHT * DISPLAY_WIDTH] = {
+constexpr uint8_t buf_fixed[DISPLAY_HEIGHT * DISPLAY_WIDTH] = {
   1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
   1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
   1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
@@ -136,7 +136,7 @@ uint8_t buf_fixed[DISPLAY_HEIGHT * DISPLAY_WIDTH] = {
   1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
 };
 
-uint8_t buf_fixed2[DISPLAY_HEIGHT * DISPLAY_WIDTH] = {
+constexpr uint8_t buf_fixed2[DISPLAY_HEIGHT * DISPLAY_WIDTH] = {
   1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0,
   0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1,
   1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0,
@@ -147,7 +147,7 @@ uint8_t buf_fixed2[DISPLAY_HEIGHT * DISPLAY_WIDTH] = {
   0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1,
 };
 
-uint8_t buf_fixed3[DISPLAY_HEIGHT * DISPLAY_WIDTH] = {
+constexpr uint8_t buf_fixed3[DISPLAY_HEIGHT * DISPLAY_WIDTH] = {
   0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1,
   1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0,
   0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1,
