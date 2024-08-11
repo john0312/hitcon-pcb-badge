@@ -11,7 +11,11 @@ import threading
 import time
 from enum import Enum, auto
 import setting
+import ReplaceELF
 
+# Global
+flag_HTTPServerConnnectionError = False
+PerBoardSecret = []
 
 # status enum class
 class ST_STATUS(Enum):
@@ -210,9 +214,13 @@ class STLINK():
         2. action start
         3. state move
         """
+
         # check board still conncted or not at each call
         is_connceted = self.check_board()
-        # is_connceted = True
+        
+        # specify global variables
+        global flag_HTTPServerConnnectionError
+        global PerBoardSecret
         
         # update state (if needed)
         if not is_connceted:
@@ -221,20 +229,46 @@ class STLINK():
             if self.current_state == ST_STATUS.NO_DEVICE:
                 pass
             elif self.current_state == ST_STATUS.UPLOADING:
+                # Modify fw.elf with random PerBoardData and PerBoardSecret
+                response = ReplaceELF.modify_fw_elf()
+                # Record PerBoardSecret
+                if len(response[1]) == 16 :
+                    PerBoardSecret = response[1]
+                    print(f"PerBoardSecret = {PerBoardSecret}")
+                else:
+                    raise ValueError("Invalid PerBoardSecret Array Length")
+                
                 if is_need_verify:
                     self.upload_n_verify()
                 else:
                     self.upload()
+                
             elif self.current_state == ST_STATUS.VERIFYING:
                 if is_need_verify:
                     print("-- verifying")
                 else:
                     print("-- skip verify")
+
             elif self.current_state == ST_STATUS.TRIGGER_EXEC:
+                # Post PerBoardSecret to Cloud Server
+                print("FW download verified, log PerBoardData to Server")
+                print(f"PerBoardSecret = {PerBoardSecret}")
+                response = ReplaceELF.http_post_uint8_array(url="https://pcb-log.hitcon2024.online/log_board"
+                                                            , uint8_array=PerBoardSecret)
+                if response == 200:
+                    print("HTTP POST Success!")
+                    flag_HTTPServerConnnectionError = False
+                else:
+                    print(f"HTTP POST Error: {response}")
+                    flag_HTTPServerConnnectionError = True
+                    self.current_state = ST_STATUS.NO_DEVICE
+                    #raise ValueError("Failed to POST PerBoardSecret to Server")
+
                 self.trigger_exec()
+
+
             elif self.current_state == ST_STATUS.FINISHED:
                 pass
-            
             self.state_move_to_next()
 
     
@@ -297,6 +331,7 @@ if __name__ == "__main__":
             # trigger every device do next, then repeat again and again
             print("\nSN : " + str(st_device.SN))
             print("State : " + str(st_device.current_state))
+            print(f"flag_HTTPServerConnnectionError = {flag_HTTPServerConnnectionError}")
             if st_device.current_state is ST_STATUS.FINISHED:
                 print("-- All finished !!")
                 break
