@@ -71,11 +71,11 @@ class SecureRandomPool {
   hitcon::service::sched::PeriodicTask routine_task;
 
   // A circular queue for holding the to be seeded values.
-  static constexpr size_t kSeedQueueSize = 8;
+  static constexpr size_t kSeedQueueSize = 4;
   CircularQueue<uint64_t, kSeedQueueSize> seed_queue;
 
   // A circular queue for holding the newly minted random values.
-  static constexpr size_t kRandomQueueSize = 8;
+  static constexpr size_t kRandomQueueSize = 4;
   CircularQueue<uint64_t, kRandomQueueSize> random_queue;
 
   RoutineState routine_state;

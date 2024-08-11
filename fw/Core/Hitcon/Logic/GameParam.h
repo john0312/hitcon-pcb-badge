@@ -64,8 +64,8 @@ constexpr size_t InternalGenColCnt =
     sizeof(InternalGenCol) / sizeof(InternalGenCol[0]);
 
 // circular queue size
-constexpr size_t kQueueSize = 32;
-constexpr size_t kInternalGenMinQueueAvailable = 20;
+constexpr size_t kQueueSize = 16;
+constexpr size_t kInternalGenMinQueueAvailable = 12;
 constexpr uint32_t kInternalGenChance = 5000;
 
 }  // namespace game
