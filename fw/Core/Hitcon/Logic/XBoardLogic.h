@@ -55,8 +55,6 @@ class XBoardLogic {
   // - `handler_id`: should be the same as `QueueDataForTx`
   void SetOnPacketArrive(callback_t callback, void *self, RecvFnId handler_id);
 
-  void Routine(void *);
-
  private:
   // buffer variables
 
@@ -66,7 +64,8 @@ class XBoardLogic {
   bool recv_ping = false;
   uint8_t no_ping_count = 0;
 
-  hitcon::service::sched::PeriodicTask _routine_task;
+  hitcon::service::sched::PeriodicTask _parse_routine;
+  hitcon::service::sched::PeriodicTask _ping_routine;
   std::pair<callback_t, void *> packet_arrive_cbs[RecvFnId::MAX] = {};
 
   UsartConnectState connect_state = UsartConnectState::Init;
@@ -83,6 +82,8 @@ class XBoardLogic {
   void OnByteArrive(void *);
   void ParsePacket();
   void CheckPing();
+  void ParseRoutine(void *);
+  void PingRoutine(void *);
 };
 
 extern XBoardLogic g_xboard_logic;

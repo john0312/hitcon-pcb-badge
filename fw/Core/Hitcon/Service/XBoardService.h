@@ -30,7 +30,8 @@ class XBoardService {
   // to be called by interrupt function
   void NotifyRxFinish();
 
-  static constexpr size_t kTxBufferSize = 128;
+  // 48 * 3 = 144, 3 packets
+  static constexpr size_t kTxBufferSize = 160;
 
  private:
   void Routine(void*);
