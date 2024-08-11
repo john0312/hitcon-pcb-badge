@@ -79,6 +79,7 @@ void ShowNameApp::update_display() {
   uint32_t score_ = score_cache;
 
   uint_to_chr(num_str, max_len + 1, score_);
+  num_len = strlen(num_str);
 
   switch (mode) {
     case NameScore:
