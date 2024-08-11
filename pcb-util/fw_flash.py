@@ -261,7 +261,6 @@ class STLINK():
                 else:
                     print(f"HTTP POST Error: {response}")
                     flag_HTTPServerConnnectionError = True
-                    self.current_state = ST_STATUS.NO_DEVICE
                     #raise ValueError("Failed to POST PerBoardSecret to Server")
 
                 self.trigger_exec()
