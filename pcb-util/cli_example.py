@@ -54,7 +54,10 @@ def main_loop(stdscr):
 
     # init all object, depend on how many STLINK(SN) we have
     # these are devices connected BEFORE program start
-    stlink_sn_list = shared_info.list_stlink()
+    try:
+        stlink_sn_list = shared_info.list_stlink()
+    except ValueError as e:
+                print(f"Invalid ST-Link SN: {e}")
     stlink_alive_sn_list = stlink_sn_list
     st_obj_list = []
     print(f"init with : {stlink_sn_list}")
@@ -77,7 +80,7 @@ def main_loop(stdscr):
         
         # Show "Remove!" message if FNINSHED
         for index, st_obj in enumerate(st_obj_list):
-            if str(st_obj.current_state) == "ST_STATUS.FINISHED":
+            if str(st_objq.current_state) == "ST_STATUS.FINISHED":
                 stdscr.addstr(
                     setting.CURSES_RESERVE_LINE + index,
                     0,
@@ -94,7 +97,11 @@ def main_loop(stdscr):
         #    stlink_alive_sn_list = shared_info.list_stlink()
 
         if input_cmd == ord("r"):
-            stlink_alive_sn_list = shared_info.list_stlink()
+            try:
+                stlink_alive_sn_list = shared_info.list_stlink()
+            except ValueError as e:
+                print(f"Invalid ST-Link SN: {e}")
+                
         ## quit the program
         if input_cmd == ord("q"):
             count = 0
