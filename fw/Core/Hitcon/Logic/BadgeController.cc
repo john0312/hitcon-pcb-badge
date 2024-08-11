@@ -4,14 +4,19 @@
 #include <App/EditNameApp.h>
 #include <App/HardwareTestApp.h>
 #include <App/ShowNameApp.h>
+#include <Logic/IrController.h>
 #include <Logic/XBoardLogic.h>
+#include <Secret/secret.h>
 #include <Service/DisplayService.h>
 #include <Service/Sched/Checks.h>
 
+using hitcon::ir::irController;
 using hitcon::service::sched::my_assert;
 
 namespace hitcon {
 BadgeController badge_controller;
+
+int combo_button_ctr = 0;
 
 BadgeController::BadgeController() : current_app(nullptr) {}
 
@@ -25,6 +30,11 @@ void BadgeController::Init() {
       (callback_t)&BadgeController::OnXBoardConnect, this);
   hitcon::service::xboard::g_xboard_logic.SetOnDisconnect(
       (callback_t)&BadgeController::OnXBoardDisconnect, this);
+}
+
+void BadgeController::SetCallback(callback_t callback, void *callback_arg1) {
+  this->callback = callback;
+  this->callback_arg1 = callback_arg1;
 }
 
 void BadgeController::change_app(App *new_app) {
@@ -42,6 +52,17 @@ void BadgeController::OnAppEnd(App *ending_app) {
 
 void BadgeController::OnButton(void *arg1) {
   button_t button = static_cast<button_t>(reinterpret_cast<uintptr_t>(arg1));
+
+  if (button == COMBO_BUTTON[combo_button_ctr]) {
+    combo_button_ctr++;
+  } else {
+    combo_button_ctr = 0;
+  }
+  if (combo_button_ctr == COMBO_BUTTON_LEN) {
+    // surprise
+    if (this->callback) this->callback(callback_arg1);
+    combo_button_ctr = 0;
+  }
 
   if (button == BUTTON_BRIGHTNESS) {
     g_display_brightness = g_display_brightness + 1;

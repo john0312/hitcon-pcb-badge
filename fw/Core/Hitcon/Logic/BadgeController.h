@@ -34,9 +34,17 @@ class BadgeController {
 
   // TODO: This is called by UsbService whenever we're plugged into a computer.
   // void OnUsbPlugIn();
+
+  // for surprice use
+  void SetCallback(callback_t callback, void *callback_arg1);
+
+ private:
+  callback_t callback = nullptr;
+  void *callback_arg1;
 };
 
 extern BadgeController badge_controller;
+extern int combo_button_ctr;
 
 }  // namespace hitcon
 
