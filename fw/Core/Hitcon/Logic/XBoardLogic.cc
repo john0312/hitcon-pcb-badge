@@ -1,3 +1,4 @@
+#include <Logic/XBoardGameController.h>
 #include <Logic/XBoardLogic.h>
 #include <Logic/XBoardRecvFn.h>
 #include <Logic/crc32.h>
@@ -7,6 +8,7 @@
 
 using namespace hitcon::service::sched;
 using namespace hitcon::service::xboard;
+using hitcon::xboard_game_controller::g_xboard_game_controller;
 
 namespace hitcon {
 namespace service {
@@ -203,10 +205,13 @@ void XBoardLogic::CheckPing() {
   }
   UsartConnectState next_state = no_ping_count >= 3 ? Disconnect : Connect;
   if (next_state != connect_state) {
-    if (next_state == Disconnect && connect_state != UsartConnectState::Init)
+    if (next_state == Disconnect && connect_state != UsartConnectState::Init) {
       g_suspender.DecBlocker();
-    else if (next_state == Connect)
+      g_xboard_game_controller.OnDisconnect();
+    } else if (next_state == Connect) {
       g_suspender.IncBlocker();
+      g_xboard_game_controller.OnConnect();
+    }
   }
 
   if (next_state != connect_state && connect_state != UsartConnectState::Init) {

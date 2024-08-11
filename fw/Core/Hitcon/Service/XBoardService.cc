@@ -39,7 +39,14 @@ void XBoardService::SetOnByteRx(callback_t callback, void* callback_arg1) {
   _on_rx_callback_arg1 = callback_arg1;
 }
 
-void XBoardService::NotifyTxFinish() { _tx_busy = false; }
+void XBoardService::NotifyTxFinish() {
+  _tx_busy = false;
+  if (_tx_buffer_head != _tx_buffer_tail && !_tx_busy) {
+    _tx_busy = true;
+    HAL_UART_Transmit_IT(_huart, &_tx_buffer[_tx_buffer_head], 1);
+    _tx_buffer_head = (_tx_buffer_head + 1) % kTxBufferSize;
+  }
+}
 
 void XBoardService::NotifyRxFinish() {
   if (_rx_task_busy) {
@@ -47,8 +54,9 @@ void XBoardService::NotifyRxFinish() {
   } else {
     if (_on_rx_callback) {
       _rx_task_busy = true;
-      scheduler.Queue(&_rx_task,
-                      reinterpret_cast<void*>(static_cast<size_t>(rx_byte_)));
+      OnRxWrapper(reinterpret_cast<void*>(static_cast<size_t>(rx_byte_)));
+      /*scheduler.Queue(&_rx_task,
+                      reinterpret_cast<void*>(static_cast<size_t>(rx_byte_)));*/
     }
   }
   TriggerRx();

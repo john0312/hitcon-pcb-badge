@@ -54,7 +54,7 @@ constexpr size_t IrAllowedBroadcastColCnt =
     sizeof(IrAllowedBroadcastCol) / sizeof(IrAllowedBroadcastCol[0]);
 
 // These columns may be transmitted through XBoard.
-constexpr int XBoardAllowedBroadcastCol[] = {5, 7, 8};
+constexpr int XBoardAllowedBroadcastCol[] = {5, 7, 3};
 constexpr size_t XBoardAllowedBroadcastColCnt =
     sizeof(XBoardAllowedBroadcastCol) / sizeof(XBoardAllowedBroadcastCol[0]);
 

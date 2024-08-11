@@ -65,25 +65,22 @@ void GameLogic::DoRandomData() {
 
 game_cache_t &GameLogic::get_cache() { return cache_; };
 
-bool GameLogic::GetRandomDataForIrTransmission(uint8_t *out_data,
+void GameLogic::GetRandomDataForIrTransmission(uint8_t *out_data,
                                                int *out_col) {
   int col = IrAllowedBroadcastCol[g_fast_random_pool.GetRandom() %
                                   IrAllowedBroadcastColCnt];
   int row = g_fast_random_pool.GetRandom() % kNumRows;
   *out_col = col;
   memcpy(out_data, GetDataCell(col, row), kDataSize);
-  return true;
 }
 
-bool GameLogic::GetRandomDataForXBoardTransmission(uint8_t *out_data,
+void GameLogic::GetRandomDataForXBoardTransmission(uint8_t *out_data,
                                                    int *out_col) {
   int col = XBoardAllowedBroadcastCol[g_fast_random_pool.GetRandom() %
                                       XBoardAllowedBroadcastColCnt];
   int row = g_fast_random_pool.GetRandom() % kNumRows;
   *out_col = col;
   memcpy(out_data, GetDataCell(col, row), kDataSize);
-  return true;
-  return true;
 }
 
 void GameLogic::SetColumnPrefix(uint8_t *out, int col) {
