@@ -1,3 +1,6 @@
+#include <App/ConnectMenuApp.h>
+#include <App/SendDataApp.h>
+#include <Logic/BadgeController.h>
 #include <Logic/GameLogic.h>
 #include <Logic/IrController.h>
 #include <Logic/RandomPool.h>
@@ -23,10 +26,10 @@ XBoardGameController g_xboard_game_controller;
 
 // what should the periodic of _send_routine be?
 XBoardGameController::XBoardGameController()
-    : _send_routine(500, (task_callback_t)&XBoardGameController::SendRoutine,
-                    this, 500),
-      accept_data_task(
-          500, (task_callback_t)&XBoardGameController::AcceptDataTask, this) {}
+    : _send_routine(650, (task_callback_t)&XBoardGameController::SendRoutine,
+                    this, 50),
+      send_state(Idle), current_cycle_(0), successfully_received_(0),
+      ack_timeout_(0), malformed_gamepkt_(0), malformed_ackpkt_(0) {}
 
 void XBoardGameController::Init() {
   xboard::g_xboard_logic.SetOnPacketArrive(
@@ -40,13 +43,25 @@ void XBoardGameController::Init() {
 }
 
 void XBoardGameController::SendPartialData(int percentage) {
-  random_send_left_ = hitcon::game::kNumCols * 100 / percentage;
-  send_state = WaitAck;
+  random_send_left_ += hitcon::game::kNumRows *
+                       hitcon::game::XBoardAllowedBroadcastColCnt * 100 /
+                       percentage;
+  if (send_state == Idle) {
+    send_state = Sending;
+  }
 }
 
 void XBoardGameController::SendOneData() {
-  if (send_state != Idle) return;
-  GetData();
+  // QueueDataForTx copies the data on invocation, so we don't need to ensure
+  // it's life cycle survives the entire transmit process.
+  hitcon::ir::GamePacket to_send;
+  int col;
+  game::gameLogic.GetRandomDataForXBoardTransmission(to_send.data, &col);
+  to_send.col = static_cast<uint8_t>(col);
+  xboard::g_xboard_logic.QueueDataForTx(
+      reinterpret_cast<uint8_t*>(&to_send), sizeof(to_send),
+      xboard::RecvFnId::XBOARD_GAME_CONTROLLER);
+  if (remote_buffer_left_ > 0) remote_buffer_left_--;
 }
 
 void XBoardGameController::SendAllData() {
@@ -58,71 +73,105 @@ void XBoardGameController::SendAllData() {
 bool XBoardGameController::IsBusy() { return send_state != Idle; }
 
 void XBoardGameController::SendRoutine() {
+  current_cycle_++;
+  if (!connected_) return;
+
+  if (current_cycle_ % 8 == 0) {
+    SendAck(0);
+  }
+
   switch (send_state) {
     case Idle:
       break;
-    case PrepareData:
-      GetData();
+    case Sending:
+      if (remote_buffer_left_ > 0) {
+        SendOneData();
+        send_state = WaitAck;
+      }
       break;
     case WaitAck:
-      if (++wait_count > 3) {
+      if (++wait_count > 5) {
         wait_count = 0;
-        Queue2XBoard();
+        send_state = Acked;
+        ack_timeout_++;
       }
       break;
     case Acked:
-      if (--random_send_left_ > 0) {
-        GetData();
+      random_send_left_--;
+      if (random_send_left_ > 0) {
+        send_state = Sending;
       } else {
         send_state = Idle;
+        TryExitApp();
       }
       break;
   }
 }
 
-void XBoardGameController::Queue2XBoard() {
-  xboard::g_xboard_logic.QueueDataForTx(
-      reinterpret_cast<uint8_t*>(&to_send), game::kDataSize,
-      xboard::RecvFnId::XBOARD_GAME_CONTROLLER);
-}
-
-void XBoardGameController::GetData() {
-  send_state = PrepareData;
-  int col = g_fast_random_pool.GetRandom() % game::kNumCols;
-  to_send.col = col;
-  bool ok = game::gameLogic.GetRandomDataForIrTransmission(to_send.data, &col);
-  if (ok) {
-    Queue2XBoard();
-    send_state = WaitAck;
+void XBoardGameController::RecvAck(xboard::PacketCallbackArg* opkt) {
+  if (opkt->len != sizeof(AckPacket)) {
+    malformed_ackpkt_++;
+    return;
   }
-}
+  AckPacket* pkt = reinterpret_cast<AckPacket*>(opkt);
+  remote_buffer_left_ = pkt->available - 2;
+  if (remote_buffer_left_ < 0) remote_buffer_left_ = 0;
+  // Cap the maximum so we don't send too many packets in one go.
+  if (remote_buffer_left_ > 3) remote_buffer_left_ = 3;
 
-void XBoardGameController::RecvAck() {
-  if (send_state == WaitAck) {
-    send_state = Acked;
-  }
-}
-
-void XBoardGameController::AcceptDataTask() {
-  while (recv_len > 0) {
-    GamePacket* game = &recv_buffer[recv_cons];
-    game::gameLogic.AcceptData(game->col, game->data);
-    recv_cons = (recv_cons + 1) % RECV_BUFFER_SIZE;
-    --recv_len;
+  if (pkt->finished != 0) {
+    if (send_state == WaitAck) {
+      // Remote successfully received the packet.
+      successfully_received_++;
+      send_state = Acked;
+    }
   }
 }
 
 void XBoardGameController::RemoteRecv(xboard::PacketCallbackArg* pkt) {
-  if (recv_len == RECV_BUFFER_SIZE) {
-    // drop data
+  if (pkt->len != sizeof(GamePacket)) {
+    malformed_gamepkt_++;
     return;
   }
-  memcpy(reinterpret_cast<void*>(&recv_buffer[recv_prod]), pkt->data, pkt->len);
-  scheduler.Queue(&accept_data_task, nullptr);
-  recv_prod = (recv_prod + 1) % RECV_BUFFER_SIZE;
-  ++recv_len;
+  GamePacket* gpkt = reinterpret_cast<GamePacket*>(pkt->data);
+  bool ret = game::gameLogic.AcceptData(gpkt->col, gpkt->data);
+  data_from_remote_cnt_++;
+  SendAck(ret ? 1 : 0);
+}
+
+void XBoardGameController::SendAck(uint8_t finished) {
+  AckPacket pkt;
+  pkt.finished = finished;
+  pkt.available = static_cast<uint16_t>(
+      hitcon::game::gameLogic.GetAcceptDataQueueAvailable());
   xboard::g_xboard_logic.QueueDataForTx(
-      nullptr, 0, xboard::RecvFnId::XBOARD_GAME_CONTROLLER_ACK);
+      reinterpret_cast<uint8_t*>(&pkt), sizeof(pkt),
+      xboard::RecvFnId::XBOARD_GAME_CONTROLLER_ACK);
+}
+
+void XBoardGameController::TryExitApp() {
+  if (badge_controller.GetCurrentApp() == &g_send_data_app) {
+    if (connected_) {
+      badge_controller.change_app(&connect_menu);
+    } else {
+      badge_controller.OnAppEnd(&g_send_data_app);
+    }
+  }
+}
+
+void XBoardGameController::OnConnect() {
+  connected_ = true;
+  random_send_left_ = 0;
+  remote_buffer_left_ = 0;
+  send_state = Idle;
+}
+
+void XBoardGameController::OnDisconnect() {
+  connected_ = false;
+  random_send_left_ = 0;
+  remote_buffer_left_ = 0;
+  send_state = Idle;
+  TryExitApp();
 }
 
 }  // namespace xboard_game_controller

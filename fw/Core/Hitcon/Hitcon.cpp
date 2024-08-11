@@ -7,6 +7,7 @@
 
 #include <App/DinoApp.h>
 #include <App/HardwareTestApp.h>
+#include <App/SendDataApp.h>
 #include <App/ShowNameApp.h>
 #include <App/SnakeApp.h>
 #include <Hitcon.h>
@@ -57,6 +58,7 @@ void hitcon_run() {
   g_entropy_hub.Init();
   g_fast_random_pool.Init();
   g_secure_random_pool.Init();
+  g_send_data_app.Init();
   g_flash_service.Init();
   g_nv_storage.Init();
   g_display_logic.Init();

@@ -16,6 +16,8 @@ class BadgeController {
 
   void change_app(App *new_app);
 
+  App *GetCurrentApp() { return current_app; };
+
   // This is called whenever a button is pressed, usually called by the button
   // service. arg1 is this pointer, arg2 is the button_t.
   void OnButton(void *arg1);

@@ -108,20 +108,18 @@ void IrController::RoutineTask(void* unused) {
 void IrController::BroadcastIr(void* unused) {
   uint8_t cell_data[kDataSize];
   int col = g_fast_random_pool.GetRandom() % hitcon::game::kNumCols;
-  bool ok = gameLogic.GetRandomDataForIrTransmission(cell_data, &col);
-  if (ok) {
-    IrData irdata = {
-        .ttl = 0,
-        .type = packet_type::kGame,
-        .game =
-            {
-                .col = col,
-            },
-    };
-    memcpy(irdata.game.data, cell_data, kDataSize);
-    uint8_t irdata_len = sizeof(irdata) / sizeof(uint8_t);
-    irLogic.SendPacket(reinterpret_cast<uint8_t*>(&irdata), irdata_len);
-  }
+  gameLogic.GetRandomDataForIrTransmission(cell_data, &col);
+  IrData irdata = {
+      .ttl = 0,
+      .type = packet_type::kGame,
+      .game =
+          {
+              .col = col,
+          },
+  };
+  memcpy(irdata.game.data, cell_data, kDataSize);
+  uint8_t irdata_len = sizeof(irdata) / sizeof(uint8_t);
+  irLogic.SendPacket(reinterpret_cast<uint8_t*>(&irdata), irdata_len);
 
   send_lock = true;
 }

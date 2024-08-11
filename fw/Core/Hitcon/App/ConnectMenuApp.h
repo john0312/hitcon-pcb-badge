@@ -1,3 +1,4 @@
+#include <App/SendDataApp.h>
 #include <App/ShowNameApp.h>
 #include <App/SnakeApp.h>
 #include <App/TetrisApp.h>
@@ -14,7 +15,7 @@ using hitcon::app::tetris::tetris_app;
 constexpr menu_entry_t connect_menu_entries[] = {
     {"Tetris", &tetris_app, &hitcon::app::tetris::SetMultiplayer},
     {"Snake", &snake_app, &hitcon::app::snake::SetMultiplayer},
-    {"xchg", nullptr, nullptr},
+    {"xchg", &g_send_data_app, nullptr},
 };
 
 constexpr int connect_menu_entries_len =

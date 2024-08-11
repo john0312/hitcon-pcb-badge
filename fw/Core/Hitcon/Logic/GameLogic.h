@@ -39,11 +39,11 @@ class GameLogic {
 
   // Get random data cell for IR transmission. Writes data to out_data and
   // column to out_col.
-  bool GetRandomDataForIrTransmission(uint8_t* out_data, int* out_col);
+  void GetRandomDataForIrTransmission(uint8_t* out_data, int* out_col);
 
   // Get random data cell for XBoard transmission. Writes data to out_data and
   // column to out_col.
-  bool GetRandomDataForXBoardTransmission(uint8_t* out_data, int* out_col);
+  void GetRandomDataForXBoardTransmission(uint8_t* out_data, int* out_col);
 
   // How many positions do we have in the accept data queue?
   int GetAcceptDataQueueAvailable();
