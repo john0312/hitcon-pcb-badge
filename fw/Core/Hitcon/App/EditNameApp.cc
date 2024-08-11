@@ -31,8 +31,11 @@ void EditNameApp::OnButton(button_t button) {
     case BUTTON_DOWN:
       editor.decr_current_char();
       break;
-    case BUTTON_BACK:
+    case BUTTON_LONG_BACK:
       badge_controller.change_app(&show_name_app);
+      break;
+    case BUTTON_BACK:
+      badge_controller.change_app(&name_setting_menu);
       break;
     case BUTTON_OK:
       // save the name and exit

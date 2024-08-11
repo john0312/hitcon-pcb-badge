@@ -23,6 +23,8 @@ class MenuApp : public App {
   void OnExit() override;
   void OnButton(button_t button) override;
   virtual void OnButtonMode() = 0;
+  virtual void OnButtonBack() = 0;
+  virtual void OnButtonLongBack() = 0;
 
  protected:
   const menu_entry_t *menu_entries;

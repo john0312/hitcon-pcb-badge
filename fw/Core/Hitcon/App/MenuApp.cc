@@ -47,6 +47,14 @@ void MenuApp::OnButton(button_t button) {
       OnButtonMode();
       break;
 
+    case BUTTON_BACK:
+      OnButtonBack();
+      break;
+
+    case BUTTON_LONG_BACK:
+      OnButtonLongBack();
+      break;
+
     default:
       break;
   }

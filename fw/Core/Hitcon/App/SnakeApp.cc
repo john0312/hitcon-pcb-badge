@@ -1,4 +1,5 @@
 #include <App/SnakeApp.h>
+#include <Logic/BadgeController.h>
 #include <Logic/RandomPool.h>
 #include <Logic/XBoardLogic.h>
 #include <Service/Sched/Scheduler.h>
@@ -80,6 +81,12 @@ void SnakeApp::OnButton(button_t button) {
 
         InitGame();
       }
+      break;
+    case BUTTON_BACK:
+      badge_controller.change_app(&main_menu);
+      break;
+    case BUTTON_LONG_BACK:
+      badge_controller.change_app(&show_name_app);
       break;
     default:
       break;
