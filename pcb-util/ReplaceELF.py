@@ -5,6 +5,19 @@ import requests
 import json
 import setting
 
+original_elf_path = 'fw.elf'  # Original ELF file path
+MOD_elf_path = 'fwMOD.elf'  # New duplicated ELF file path
+
+# Configure the array to find in ELF
+search_array_PerBoardRandom = [
+        0xf1, 0xca, 0x4e, 0xa0, 0x48, 0x2f, 0x27, 0x4d,
+        0x3d, 0xc2, 0x9c, 0x8c, 0xec, 0x36, 0x83, 0x49
+    ]  # Array to find for PerBoardRandom
+    
+search_array_PerBoardSecret = [
+        0x13, 0xac, 0x76, 0xfc, 0x1a, 0xa7, 0x0f, 0x92,
+        0x05, 0x31, 0x1d, 0xa6, 0x28, 0x4c, 0x8e, 0x94
+    ]  # Array to find for PerBoardSecret
 
 def duplicate_elf_file(original_file_path, new_file_path):
     """Duplicate the ELF file."""
@@ -76,68 +89,66 @@ def replace_array_in_elf(elf_file_path, search_array, replace_array):
         array_offset, _ = find_array_in_elf(elf_file_path, search_array)
         if array_offset is None:
             print("Array not found in the ELF file.")
-            return
 
         # Seek to the offset and replace the array
         f.seek(array_offset)
         f.write(bytes(replace_array))
-        print(f"Replace array at offset: {hex(array_offset)}")
+        #print(f"Replace array at offset: {hex(array_offset)}")
+
+    return array_offset
 
 # Find and Replace the array of PerBoardRandom
 def search_and_reaplce_array(elf_file_path, search_array, replace_array):
     array_offset, chunk = find_array_in_elf(elf_file_path, search_array)
     if array_offset is not None:
         print(f"Array found at offset: {hex(array_offset)}")
-        print_hex_around_target_array(elf_file_path, array_offset, search_array)
+        #print_hex_around_target_array(elf_file_path, array_offset, search_array)
         
         # Replace the array
-        replace_array_in_elf(elf_file_path, search_array, replace_array)
+        err = replace_array_in_elf(elf_file_path, search_array, replace_array)
 
         # Find the replaced array again to verify the replacement
         array_offset, chunk = find_array_in_elf(elf_file_path, replace_array)
         if array_offset is not None:
             print(f"Array replaced at offset: {hex(array_offset)}")
-            print_hex_around_target_array(elf_file_path, array_offset, replace_array)
+            #print_hex_around_target_array(elf_file_path, array_offset, replace_array)
         else:
-            print("Array failed to be replaced in the ELF file.")
+            raise ValueError("Array failed to be replaced in the ELF file.")
+        return array_offset
     else:
-        print("Array not found in the ELF file.")
+        raise ValueError("Array not found in the ELF file.")
 
 def print_array_in_hex(array):
     hex_array = [f'0x{value:02x}' for value in array]
     print("Generated random uint8 array in HEX:", hex_array)
     
-def POST_uint8_array(url="http://servera.hitcon2024.online:7380/log_board", 
-                     uint8_array=[]):
+def http_post_uint8_array(url="https://pcb-log.hitcon2024.online/log_board", 
+                     uint8_array=search_array_PerBoardSecret):
     data = {
         "board_secret": uint8_array.tolist()
     }
-
     response = requests.post(url, data)
-    if response.status_code == 200:
-        print("Success!")
-    else:
-        print(f"Error: {response.status_code}")
+
+    return response.status_code
+
+def modify_fw_elf(array_to_replace_PerBoardRandom = search_array_PerBoardRandom
+                  , array_to_replace_PerBoardSecret = search_array_PerBoardSecret
+                  ):
+    replace_array_PerBoardRandom = np.random.randint(0, 256, size=16, dtype=np.uint8)
+    replace_array_PerBoardSecret = np.random.randint(0, 256, size=16, dtype=np.uint8)
+    
+    # Duplicate the ELF file
+    duplicate_elf_file(original_elf_path, MOD_elf_path)
+    # Modify array in ELF
+    array_offset_PerBoardRandom = search_and_reaplce_array(MOD_elf_path, search_array_PerBoardRandom, replace_array_PerBoardRandom)
+    array_offset_PerBoardSecret = search_and_reaplce_array(MOD_elf_path, search_array_PerBoardSecret, replace_array_PerBoardSecret)
+
+    return replace_array_PerBoardRandom, replace_array_PerBoardSecret, array_offset_PerBoardRandom, array_offset_PerBoardSecret
 
 if __name__ == "__main__":
 
-    original_elf_path = 'fw.elf'  # Original ELF file path
-    MOD_elf_path = 'fwMOD.elf'  # New duplicated ELF file path
-
-    # Configure the array to find in ELF
-    search_array_PerBoardRandom = [
-            0xf1, 0xca, 0x4e, 0xa0, 0x48, 0x2f, 0x27, 0x4d,
-            0x3d, 0xc2, 0x9c, 0x8c, 0xec, 0x36, 0x83, 0x49
-        ]  # Array to find for PerBoardRandom
-        
-    search_array_PerBoardSecret = [
-            0x13, 0xac, 0x76, 0xfc, 0x1a, 0xa7, 0x0f, 0x92,
-            0x05, 0x31, 0x1d, 0xa6, 0x28, 0x4c, 0x8e, 0x94
-        ]  # Array to find for PerBoardSecret
-    
     # Generate Random array
     replace_array_PerBoardRandom = np.random.randint(0, 256, size=16, dtype=np.uint8)
-    
     replace_array_PerBoardSecret = np.random.randint(0, 256, size=16, dtype=np.uint8)
     
     # Print random array
@@ -148,9 +159,14 @@ if __name__ == "__main__":
     
     # TODO: Test posting PerBoardSecret to Cloud
     post_url = setting.post_url
-    print("\n POST PerBoardSecret to http://servera.hitcon2024.online:7380/log_board \n")
-    POST_uint8_array(post_url, replace_array_PerBoardSecret)
-        
+    print("\n POST PerBoardSecret to https://pcb-log.hitcon2024.online/log_board \n")
+    
+    response = http_post_uint8_array(post_url, replace_array_PerBoardSecret)
+    if response == 200:
+        print("HTTP POST Success!")
+    else:
+        print(f"Error: {response}")
+
     # Duplicate the ELF file
     duplicate_elf_file(original_elf_path, MOD_elf_path)
 
