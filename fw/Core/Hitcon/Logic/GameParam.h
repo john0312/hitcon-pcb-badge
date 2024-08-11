@@ -20,7 +20,11 @@ typedef int score_t;
 
 // Represents one cell in the grid.
 typedef struct {
-  uint8_t data[kDataSize];
+  union {
+    uint8_t data[kDataSize];
+    uint64_t u64;
+    uint32_t u32[2];
+  };
 } grid_cell_t;
 
 // game_storage_t is persisted to the persistent storage.
