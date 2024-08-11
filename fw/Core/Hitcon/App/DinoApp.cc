@@ -37,7 +37,20 @@ void DinoApp::OnEntry() {
 
 void DinoApp::OnExit() { scheduler.DisablePeriodic(&_routine_task); }
 
-void DinoApp::OnButton(button_t) { return; }
+void DinoApp::OnButton(button_t) {
+
+  switch (button & BUTTON_VALUE_MASK) {
+    case BUTTON_BACK:
+      badge_controller.change_app(&main_menu);
+      break;
+    case BUTTON_LONG_BACK:
+      badge_controller.change_app(&show_name_app);
+      break;
+    default:
+      break;
+  }
+  return;
+}
 
 void DinoApp::OnEdgeButton(button_t button) {
   switch (button & BUTTON_VALUE_MASK) {

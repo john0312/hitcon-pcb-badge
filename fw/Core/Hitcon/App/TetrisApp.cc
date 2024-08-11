@@ -64,6 +64,14 @@ void TetrisApp::OnButton(button_t button) {
         game.game_on_input(hitcon::tetris::DIRECTION_RIGHT);
         break;
 
+      case BUTTON_BACK:
+        badge_controller.change_app(&main_menu);
+        break;
+
+      case BUTTON_LONG_BACK:
+        badge_controller.change_app(&show_name_app);
+        break;
+
       default:
         break;
     }

@@ -22,6 +22,8 @@ class NameDisplayApp : public MenuApp {
   NameDisplayApp()
       : MenuApp(name_display_menu_entries, name_display_menu_entries_len) {}
   void OnButtonMode() override { badge_controller.change_app(&show_name_app); }
+  void OnButtonBack() override { badge_controller.change_app(&name_setting_menu); }
+  void OnButtonLongBack() override { badge_controller.change_app(&show_name_app); }
 };
 
 extern NameDisplayApp name_display_menu;

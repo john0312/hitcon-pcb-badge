@@ -61,6 +61,14 @@ void ShowNameApp::OnButton(button_t button) {
     case BUTTON_MODE:
       badge_controller.change_app(&main_menu);
       break;
+
+    case BUTTON_BACK:
+      badge_controller.change_app(&name_display_menu);
+      break;
+
+    case BUTTON_LONG_BACK:
+      badge_controller.change_app(&show_name_app);
+      break;
   }
 }
 
