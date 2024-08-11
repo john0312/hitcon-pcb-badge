@@ -132,7 +132,6 @@ void XBoardLogic::OnByteArrive(void *arg1) {
 }
 
 void XBoardLogic::ParsePacket() {
-  recv_ping = false;
   size_t bytes_processed = 0;
   while (cons_head != prod_head && bytes_processed < 16) {
     if (rx_buf[cons_head] != 0x55) {
@@ -217,6 +216,7 @@ void XBoardLogic::CheckPing() {
       connect_handler(connect_handler_self, nullptr);
     }
   }
+  recv_ping = false;
   connect_state = next_state;
 }
 
