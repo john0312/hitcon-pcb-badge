@@ -177,8 +177,9 @@ void GameLogic::ComputeColumnScore(int col) {
   my_assert(col >= 0 && col < kNumCols);
   uint32_t column_score = 0;
   for (size_t row = 0; row < kNumRows; ++row) {
-    uint32_t cell_score = static_cast<uint32_t>(cache_.cell_score_cache[col][row]);
-    column_score += cell_score*cell_score;
+    uint32_t cell_score =
+        static_cast<uint32_t>(cache_.cell_score_cache[col][row]);
+    column_score += cell_score * cell_score;
   }
   cache_.col_score_cache[col] = column_score;
 }
@@ -362,7 +363,7 @@ bool GameLogic::RoutineInternal() {
   return idle;
 }
 
-int GameLogic::GetScore() { return (cache_.total_score>>4) + 1; }
+int GameLogic::GetScore() { return (cache_.total_score >> 4) + 1; }
 
 int GameLogic::GetAcceptDataQueueAvailable() {
   int res =
