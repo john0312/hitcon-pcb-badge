@@ -71,6 +71,7 @@ class IrController {
   int prob_f(int);
 
   void BroadcastIr(void* unused);
+  void SendShowPacket(char* msg);
 };
 
 extern IrController irController;
