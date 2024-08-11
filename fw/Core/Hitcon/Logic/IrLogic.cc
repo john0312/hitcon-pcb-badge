@@ -227,7 +227,9 @@ void IrLogic::EncodePacket(uint8_t *data, size_t len, IrPacket &packet) {
   // size included
   packet.data_[0] = static_cast<uint8_t>(len);
   memcpy(packet.data_ + 1, data, len * sizeof(data[0]));
-  packet.size_ = len + 1;
+  const uint8_t chksum = merge_chksum(crc32(packet.data_, len + 1));
+  packet.data_[len + 1] = chksum;
+  packet.size_ = len + 2;
 }
 
 bool IrLogic::SendPacket(uint8_t *data, size_t len) {
