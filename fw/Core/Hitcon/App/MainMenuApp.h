@@ -1,7 +1,7 @@
 #include <App/DinoApp.h>
-#include <App/TetrisApp.h>
 #include <App/ShowNameApp.h>
 #include <App/SnakeApp.h>
+#include <App/TetrisApp.h>
 #include <Logic/BadgeController.h>
 
 #include "MenuApp.h"
