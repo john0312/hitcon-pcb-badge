@@ -119,7 +119,7 @@ void XBoardLogic::ParsePacket() {
     }
     if (header->type < RecvFnId::MAX) {
       PacketCallbackArg packet_cb_arg;
-      memcpy(packet_cb_arg.data, payload, header->len);
+      packet_cb_arg.data = payload;
       packet_cb_arg.len = header->len;
       auto [recv_fn, recv_self] = packet_arrive_cbs[header->type];
       if (recv_fn != nullptr) recv_fn(recv_self, &packet_cb_arg);
