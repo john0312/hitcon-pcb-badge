@@ -30,12 +30,14 @@ TetrisApp tetris_app;
 TetrisApp::TetrisApp()
     : periodic_task(hitcon::tetris::UPDATE_PRIORITY,
                     (task_callback_t)&TetrisApp::periodic_task_callback, this,
-                    hitcon::tetris::UPDATE_INTERVAL),
-      game(tetris_random) {
+                    hitcon::tetris::UPDATE_INTERVAL) {
   hitcon::service::sched::scheduler.Queue(&periodic_task, nullptr);
 }
 
 void TetrisApp::OnEntry() {
+  // start a new game
+  game = hitcon::tetris::TetrisGame(tetris_random);
+
   // start the update task
   hitcon::service::sched::scheduler.EnablePeriodic(&periodic_task);
   g_xboard_logic.SetOnPacketArrive((callback_t)&TetrisApp::OnXboardRecv, this,

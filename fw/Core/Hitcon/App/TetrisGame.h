@@ -117,9 +117,10 @@ class TetrisGame {
   static_assert(BOARD_WIDTH == sizeof(uint8_t) * 8,
                 "TETRIS_BOARD_WIDTH must be 8");
 
-  unsigned (*rand)(void) = nullptr;
+  unsigned (*__rand)(void) = nullptr;
   void (*attack_enemy_callback)(int n_lines) = nullptr;
 
+  inline unsigned rand() { return __rand ? __rand() : 0; }
   void clear_full_line();
   bool rotate_tetromino();
   bool place_tetromino(int x, int y);
@@ -130,6 +131,7 @@ class TetrisGame {
   inline void game_over() { state = GAME_STATE_GAME_OVER; }
 
  public:
+  TetrisGame() = default;
   TetrisGame(unsigned (*rand)(void));
 
   void game_fall_down_tetromino();
