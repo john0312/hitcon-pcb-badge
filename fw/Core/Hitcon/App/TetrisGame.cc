@@ -177,9 +177,11 @@ void TetrisGame::game_draw_to_display(display_buf_t *buf) {
 
 void TetrisGame::game_enemy_attack(int n_lines) {
   // move the current board upward by n_lines
+  unplace_tetromino(current_x, current_y);
   for (int i = 0; i < BOARD_HEIGHT - n_lines; i++) {
     board[i] = board[i + n_lines];
   }
+  place_tetromino(current_x, current_y);
 
   // add n_lines lines of garbage to the bottom of the board
   // note that the garbage lines are full line with 1 bit unset
