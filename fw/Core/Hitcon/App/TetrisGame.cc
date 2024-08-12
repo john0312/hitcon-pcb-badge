@@ -3,7 +3,7 @@
 namespace hitcon {
 namespace tetris {
 
-TetrisGame::TetrisGame(unsigned (*rand)(void)) : rand(rand) {
+TetrisGame::TetrisGame(unsigned (*rand)(void)) : __rand(rand) {
   generate_new_tetromino();
 }
 
@@ -108,7 +108,11 @@ void TetrisGame::fall_down_tetromino() {
 bool TetrisGame::generate_new_tetromino() {
   int new_tetromino;
   do {
-    new_tetromino = rand() % TETROMINO_COUNT;
+    if (__rand == nullptr) {
+      new_tetromino ^= 1;
+    } else {
+      new_tetromino = rand() % TETROMINO_COUNT;
+    }
   } while (new_tetromino == current_tetromino);
   current_tetromino = new_tetromino;
   const auto &t = TETROMINO[current_tetromino][0];
