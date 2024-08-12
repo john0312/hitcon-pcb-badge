@@ -115,6 +115,12 @@ void ioFunction() {
           break;
         }
 
+        case 't': {
+          std::lock_guard<std::mutex> lock(game_mutex);
+          game.game_enemy_attack(2);
+          break;
+        }
+
         default:
           break;
       }
