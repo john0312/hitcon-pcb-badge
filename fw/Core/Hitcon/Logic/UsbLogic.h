@@ -57,12 +57,16 @@ class UsbLogic {
   void Routine(void* unused);
   void WriteRoutine(void* unused);
   uint8_t _temp[RECV_BUF_LEN];
+  callback_t _on_finish_cb;
+  void* _on_finish_arg1;
 
  public:
   hitcon::service::sched::Task on_recv_task;
   UsbLogic();
   void OnDataRecv(void* arg);
-  void RunScript();  // TODO: check connection status
+  // TODO: check connection status
+  void RunScript(callback_t _on_finish_cb, void* on_finish_arg1);
+  void StopScript();
   void Init();
 };
 
