@@ -3,7 +3,6 @@
 #include <Logic/UsbLogic.h>
 #include <Service/FlashService.h>
 #include <Service/Sched/Scheduler.h>
-#include <main.h>
 #include <usb_device.h>
 #include <usbd_custom_hid_if.h>
 
@@ -110,17 +109,17 @@ void UsbLogic::WriteRoutine(void* unused) {
   }
 }
 
-void RunScriptWrapper() {
-  g_usb_logic.RunScript();
-}
-
-void UsbLogic::RunScript() {
+void UsbLogic::RunScript(callback_t cb, void* arg1) {
+  _on_finish_cb = cb;
+  _on_finish_arg1 = arg1;
   _index = -1;
   keyboard_report = {0, 0, 0, 0, 0, 0, 0, 0};
   empty_report = {0, 0, 0, 0, 0, 0, 0, 0};
   scheduler.EnablePeriodic(&_routine_task);
   flag = false;
 }
+
+void UsbLogic::StopScript() { scheduler.DisablePeriodic(&_routine_task); }
 
 // run every 20ms
 void UsbLogic::Routine(void* unused) {
@@ -139,13 +138,18 @@ void UsbLogic::Routine(void* unused) {
     delay_count--;
     return;
   } else if (_index == len) {
-    // TODO: check behavior when finish script
     scheduler.DisablePeriodic(&_routine_task);
+    _on_finish_cb(_on_finish_arg1, nullptr);
     return;
   }
   if (_index == -1) {  // new script begin
     delay_count = 0;
   } else {
+    uint8_t progress = _index * 100 / len;
+    char str[4] = "XX%";
+    str[0] = progress / 10 + '0';
+    str[1] = progress % 10 + '0';
+    display_set_mode_text((str));
     uint8_t* addr = reinterpret_cast<uint8_t*>(SCRIPT_BEGIN_ADDR + _index);
     switch (*addr) {
       case CODE_DELAY:

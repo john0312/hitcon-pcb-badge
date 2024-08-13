@@ -1,9 +1,9 @@
+#include <App/BadUsbApp.h>
 #include <App/DinoApp.h>
 #include <App/ShowNameApp.h>
 #include <App/SnakeApp.h>
 #include <App/TetrisApp.h>
 #include <Logic/BadgeController.h>
-#include <Logic/UsbLogic.h>
 
 #include "MenuApp.h"
 
@@ -15,7 +15,7 @@ using hitcon::app::tetris::tetris_app;
 
 constexpr menu_entry_t main_menu_entries[] = {
     // TODO : change app
-    {"BadUSB", nullptr, &hitcon::usb::RunScriptWrapper},
+    {"BadUSB", &hitcon::usb::bad_usb_app, nullptr},
     {"Snake", &snake_app, &hitcon::app::snake::SetSingleplayer},
     {"Dino", &dino_app, nullptr},
     {"Tetris", &tetris_app, &hitcon::app::tetris::SetSingleplayer},
