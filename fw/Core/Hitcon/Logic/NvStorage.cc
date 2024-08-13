@@ -64,8 +64,7 @@ void NvStorage::ForceFlushInternal() {
     storage_dirty_ = false;
     next_available_page = (next_available_page + 1) %
                           FLASH_PAGE_COUNT;  // Increment for the next write
-    if(next_available_page == 0)
-      next_available_page = 1;
+    if (next_available_page == 0) next_available_page = 1;
     content_.version++;
     last_flush_cycle = current_cycle;  // Record the current cycle
   }

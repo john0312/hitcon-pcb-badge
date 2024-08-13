@@ -77,8 +77,8 @@ void hitcon_run() {
   hitcon::ir::irController.Init();
   hitcon::app::snake::snake_app.Init();
   hitcon::app::dino::dino_app.Init();
-  g_usb_logic.Init();
   g_xboard_game_controller.Init();
+  hitcon::usb::g_usb_logic.Init();
 
   // run hardware test mode if MODE/SETTINGS Button is pressed during
   // initializing
