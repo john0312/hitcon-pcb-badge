@@ -1,35 +1,49 @@
 #include <App/ShowNameApp.h>
 #include <Logic/NvStorage.h>
 #include <Logic/UsbLogic.h>
+#include <Service/FlashService.h>
 #include <Service/Sched/Scheduler.h>
 #include <main.h>
 #include <usb_device.h>
 #include <usbd_custom_hid_if.h>
 
 using namespace hitcon::service::sched;
-// TODO: check name length
+
+/* TODO:
+ * 1. check name length
+ * 2. add usb on connect
+ * 3. add run script progress (XX%)
+ * 4. add hack api
+ */
 
 namespace hitcon {
+namespace usb {
+
 UsbLogic g_usb_logic;
 
 UsbLogic::UsbLogic()
-    : _routine_task(810, (task_callback_t)&UsbLogic::Routine, (void*)this,
-                    DELAY_INTERVAL) {}
+    : on_recv_task(823, (task_callback_t)&UsbLogic::OnDataRecv, this),
+      _routine_task(810, (task_callback_t)&UsbLogic::Routine, (void*)this,
+                    DELAY_INTERVAL),
+      _write_routine_task(810, (task_callback_t)&UsbLogic::WriteRoutine,
+                          (void*)this, WAIT_INTERVAL) {}
 
 void UsbLogic::Init() {
   _state = USB_STATE_HEADER;
   _index = 0;
   scheduler.Queue(&_routine_task, nullptr);
+  scheduler.Queue(&_write_routine_task, nullptr);
 }
-/* TODO:
- * 1. check recv have buffer? or set
- * 2. get recv data length
- * 3. implement write script on flash
- * 4. (done) test run script
- * 5. (done) fix set_name
- */
-void UsbLogic::OnDataRecv(uint8_t* data) {
-  // check length?, call this function at outevent
+
+void UsbLogic::OnDataRecv(void* arg) {
+  uint8_t* data = reinterpret_cast<uint8_t*>(arg);
+  static size_t counter = 0;
+  counter++;
+  if (_state == USB_STATE_ERASE) return;  // erase not finish
+  for (uint8_t i = 0; i < RECV_BUF_LEN; i++) {
+    _temp[i] = data[i];
+  }
+
   if (_state == USB_STATE_HEADER) {
     if (data[0]) {
       _state = static_cast<usb_state_t>(data[0]);
@@ -37,45 +51,67 @@ void UsbLogic::OnDataRecv(uint8_t* data) {
     }
   }
   nv_storage_content& content = g_nv_storage.GetCurrentStorage();
-
-  FLASH_EraseInitTypeDef erase_struct = {
-      .TypeErase = FLASH_TYPEERASE_PAGES,
-      .PageAddress = SCRIPT_BEGIN_ADDR,
-      .NbPages = MY_FLASH_PAGE_SIZE / FLASH_PAGE_SIZE,
-  };
-  uint32_t error;
   switch (_state) {
     case USB_STATE_SET_NAME:
       for (size_t i = (_index == 0); i < RECV_BUF_LEN; i++, _index++) {
         content.name[_index] = data[i];
-        if (_index - 1 == NAME_LEN) {
+        if (_index - 1 == hitcon::ShowNameApp::NAME_LEN) {
           show_name_app.SetName(reinterpret_cast<const char*>(content.name));
           _state = USB_STATE_HEADER;
           break;
         }
       }
       break;
-    case USB_STATE_CLEAR:
-      HAL_FLASH_Unlock();
-      HAL_FLASHEx_Erase(&erase_struct, &error);
-      HAL_FLASH_Lock();
-      if (error != 0xFFFFFFFF) {
-        // TODO: error erase flash
-        return;
-      }
-      _state = USB_STATE_HEADER;
+    case USB_STATE_ERASE:
+      g_flash_service.ErasePage(SCRIPT_FLASH_INDEX);  // TODO: check is busy
+      scheduler.EnablePeriodic(&_write_routine_task);
       break;
     case USB_STATE_START_WRITE:
-      // TODO: use flash service to program page
       // TODO: add checksum
-
-      break;
-    case USB_STATE_STOP_WRITE:
-      _state = USB_STATE_HEADER;
+      _script_len = (data[1] << 8) | data[2];
+      memcpy(_temp, data, RECV_BUF_LEN);
+      _state = USB_STATE_WRITING;
+      _new_data = true;
+      scheduler.EnablePeriodic(&_write_routine_task);
+    case USB_STATE_WRITING:
+      // it seems like first byte of data cannot be 0 so use 0xFC instead
+      if (data[0] == 0xFC) data[0] = 0;
+      memcpy(_temp, data, RECV_BUF_LEN);
+      _new_data = true;
       break;
     default:
       break;
   }
+}
+
+void UsbLogic::WriteRoutine(void* unused) {
+  if (_state == USB_STATE_ERASE) {
+    if (!g_flash_service.IsBusy()) {
+      _state = USB_STATE_HEADER;
+      scheduler.DisablePeriodic(&_write_routine_task);
+      keyboard_report = {0, 0, 0xFF, 0, 0, 0, 0, 0};
+      USBD_CUSTOM_HID_SendReport(
+          &hUsbDeviceFS, reinterpret_cast<uint8_t*>(&keyboard_report), 8);
+    }
+  } else if (_state == USB_STATE_WRITING) {
+    if (!g_flash_service.IsBusy() && _new_data) {
+      keyboard_report = {0, 0, 0xFF, 0, 0, 0, 0, 0};
+      USBD_CUSTOM_HID_SendReport(
+          &hUsbDeviceFS, reinterpret_cast<uint8_t*>(&keyboard_report), 8);
+      g_flash_service.ProgramOnly(SCRIPT_FLASH_INDEX, _index,
+                                  reinterpret_cast<uint32_t*>(_temp), 8);
+      _index += 8;
+      _new_data = false;
+      if (_index >= _script_len + 8) {
+        _state = USB_STATE_HEADER;
+        scheduler.DisablePeriodic(&_write_routine_task);
+      }
+    }
+  }
+}
+
+void RunScriptWrapper() {
+  g_usb_logic.RunScript();
 }
 
 void UsbLogic::RunScript() {
@@ -89,7 +125,8 @@ void UsbLogic::RunScript() {
 // run every 20ms
 void UsbLogic::Routine(void* unused) {
   static uint8_t delay_count = 0;
-
+  uint16_t len = (*(uint8_t*)(SCRIPT_BEGIN_ADDR - 2) << 8) |
+                 *(uint8_t*)(SCRIPT_BEGIN_ADDR - 1);
   if (flag) {
     flag = false;
 
@@ -101,7 +138,7 @@ void UsbLogic::Routine(void* unused) {
   if (delay_count != 0) {
     delay_count--;
     return;
-  } else if (_index == *reinterpret_cast<uint16_t*>(SCRIPT_BEGIN_ADDR - 2)) {
+  } else if (_index == len) {
     // TODO: check behavior when finish script
     scheduler.DisablePeriodic(&_routine_task);
     return;
@@ -134,10 +171,10 @@ void UsbLogic::Routine(void* unused) {
   }
   _index++;
 }
-
+}  // namespace usb
 }  // namespace hitcon
 
 void UsbServiceOnDataReceived(uint8_t* data) {
-  hitcon::g_usb_logic.OnDataRecv(data);
-  // TODO: queue task
+  scheduler.Queue(&hitcon::usb::g_usb_logic.on_recv_task,
+                  reinterpret_cast<uint8_t*>(data));
 }

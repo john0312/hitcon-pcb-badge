@@ -10,15 +10,14 @@ void UsbServiceOnDataReceived(uint8_t* data);
 }
 
 namespace hitcon {
-// TODO: change to logic
+namespace usb {
 constexpr unsigned RECV_BUF_LEN = 8;
 // first 2 bytes is script length
 constexpr unsigned SCRIPT_BEGIN_ADDR =
-    (FLASH_END_ADDR - MY_FLASH_PAGE_SIZE + 1) + 2;
+    FLASH_END_ADDR - FLASH_PAGE_COUNT * MY_FLASH_PAGE_SIZE + 1 + 3;
+constexpr unsigned SCRIPT_FLASH_INDEX = 0;
 
-// TODO: partial program
-// TODO: change to last page from flash service
-constexpr unsigned NAME_LEN = 16;
+void RunScriptWrapper();
 
 struct {
   uint8_t modifier;
@@ -27,17 +26,18 @@ struct {
 } keyboard_report, empty_report;
 
 enum usb_state_t {
-  USB_STATE_HEADER = 0,
+  USB_STATE_HEADER = 0,  // idle
   USB_STATE_SET_NAME = 1,
-  USB_STATE_CLEAR,
+  USB_STATE_ERASE,
   USB_STATE_START_WRITE,
-  USB_STATE_STOP_WRITE,
+  USB_STATE_READ_MEM,
+  USB_STATE_WRITING,
+  USB_STATE_WAITING  // waiting for flash service done
 };
 
 enum {  // script code definition
   CODE_DELAY = 0xFF,
   CODE_MODIFIER = 0xFE,
-  CODE_FINISH = 0xFD,
   CODE_RELEASE = 0x00
 };
 
@@ -45,23 +45,30 @@ class UsbLogic {
  private:
   // run routine task every 20 ms
   static constexpr unsigned DELAY_INTERVAL = 20;
+  static constexpr unsigned WAIT_INTERVAL = 10;
 
   usb_state_t _state;
   int32_t _index;
-  unsigned char _name[NAME_LEN];  // TODO: remove this
+  uint16_t _script_len;
   bool flag;
+  bool _new_data;
   hitcon::service::sched::PeriodicTask _routine_task;
+  hitcon::service::sched::PeriodicTask _write_routine_task;
   void Routine(void* unused);
+  void WriteRoutine(void* unused);
+  uint8_t _temp[RECV_BUF_LEN];
 
  public:
+  hitcon::service::sched::Task on_recv_task;
   UsbLogic();
-  void OnDataRecv(uint8_t* data);
+  void OnDataRecv(void* arg);
   void RunScript();  // TODO: check connection status
   void Init();
 };
 
 extern UsbLogic g_usb_logic;
 
+}  // namespace usb
 }  // namespace hitcon
 
 #endif
