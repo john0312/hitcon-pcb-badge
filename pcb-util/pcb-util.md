@@ -5,8 +5,14 @@ pcb-util provides an utility tool for flashing FW to PCBs more effiecient in pro
 # CLI Tool User Instruction
 ## Preparation
 ### Install STM32ProgrammerCLI.exe
-1. Unzip the en.stm32cubeprg-win32-v2-17-0.zip
-2. Install the SW by double-click SetupSTM32CubeProgrammer_win32 with default configuration
+1. Log in to MyST on STM32 website
+2. Download STM32CubeProgrammer from the [link](https://www.st.com/en/development-tools/stm32cubeprog.html)
+3. Unzip the en.stm32cubeprg-win32-v2-17-0.zip
+4. Install the SW by double-click SetupSTM32CubeProgrammer_win32 with default configuration
+5. Copy the directory to STM32_Programmer_CLI. It should be something like this:
+  ```
+  C:\Program Files (x86)\STMicroelectronics\STM32Cube\STM32CubeProgrammer\bin\STM32_Programmer_CLI.exe
+  ```
 
 ### Prepare files to flash
 Here are the files that should be in pcb-util to start flashing with CLI tool
@@ -16,8 +22,8 @@ Here are the files that should be in pcb-util to start flashing with CLI tool
 4. fw_flash.py
 5. cli_example.py
 
-### Disable pcb-log if Server is not ready
-Please check the pcb-log server is ready. 
+### Check pcb-log Server
+Please check the pcb-log server is ready.
 
 If not, disable this function by changing ```EN_PCB_LOG = 1``` in ```config.ini```
 
@@ -95,7 +101,7 @@ to try it out:
 
 ## FAQ of cli_example
 * curses 出錯 : 
-![alt text](image.png)
+![alt text](dev\image.png)
   * 因留給他的空間不夠，顯示空間拉大就好
 * spyder 終端機跳掉
   * 用 vscode 執行
