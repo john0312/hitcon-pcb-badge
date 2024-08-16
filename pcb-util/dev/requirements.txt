@@ -1,0 +1,4 @@
+numpy==2.0.1
+pyelftools==0.31
+streamlit==1.36.0
+windows-curses==2.3.3
