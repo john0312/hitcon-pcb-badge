@@ -9,18 +9,25 @@ pcb-util provides an utility tool for flashing FW to PCBs more effiecient in pro
 2. Download STM32CubeProgrammer from the [link](https://www.st.com/en/development-tools/stm32cubeprog.html)
 3. Unzip the en.stm32cubeprg-win32-v2-17-0.zip
 4. Install the SW by double-click SetupSTM32CubeProgrammer_win32 with default configuration
-5. Copy the directory to STM32_Programmer_CLI. It should be something like this:
+5. Copy the path to STM32_Programmer_CLI. It should be something like this:
   ```
   C:\Program Files (x86)\STMicroelectronics\STM32Cube\STM32CubeProgrammer\bin\STM32_Programmer_CLI.exe
   ```
 
 ### Prepare files to flash
+1. Download pcb-util_CLI.zip from Github repo.
+2. Extract the folder
+
 Here are the files that should be in pcb-util to start flashing with CLI tool
+
+.\pcb-util_CLI
 1. fw.elf
-2. ReplaceELF.py
-3. config.ini
-4. fw_flash.py
-5. cli_example.py
+2. config.ini
+3. pcb-util_CLI.exe
+
+### Set Path to STM32ProgrammerCLI.exe
+1. Put the path to ```fw.elf``` into ```[Path] FW_ELF_PATH``` in  ```config.ini``` 
+2. Put the path into ```[Path] ST_PPROGRAMMER_PATH``` in  ```config.ini``` 
 
 ### Check pcb-log Server
 Please check the pcb-log server is ready.
