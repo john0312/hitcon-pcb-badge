@@ -13,13 +13,25 @@ import time
 import subprocess
 
 import fw_flash
-import setting
+import configparser
+import os
 
 # const value
 # ------- this part can be changed by frontend ----------
-FW_ELF_PATH = setting.FW_ELF_PATH
-ST_PRO_PATH = setting.ST_PRO_PATH
-ST_PRO_EXE = setting.ST_PRO_EXE
+# Read the .ini file
+config = configparser.ConfigParser()
+config.read('config.ini')
+
+# Extract variables from the .ini file
+FW_ELF_PATH = config.get('Paths', 'FW_ELF_PATH')
+ST_PRO_PATH, ST_PRO_EXE = os.path.split(config.get('Paths', 'ST_PPROGRAMMER_PATH'))
+post_url = config.get('HTTP', 'POST_URL')
+THREAD_SLEEP_INTERVAL = config.getfloat('Settings', 'THREAD_SLEEP_INTERVAL')
+CLI_QUIT_SCAN_INTERVAL = config.getfloat('Settings', 'CLI_QUIT_SCAN_INTERVAL')
+MAX_ST_QTY = config.getint('Settings', 'MAX_ST_QTY')
+CURSES_RESERVE_LINE = config.getint('Settings', 'CURSES_RESERVE_LINE')
+#STLINK_AUTO_DETECTION_INTERVAL = config.getint('Settings', 'STLINK_AUTO_DETECTION_INTERVAL')
+EN_PCB_LOG = config.getint('HTTP', 'EN_PCB_LOG')
 # ------- this part can be changed by frontend ----------
 
 
@@ -47,7 +59,7 @@ def main_loop(stdscr):
     curses.init_pair(1, curses.COLOR_WHITE, curses.COLOR_RED)
     curses.init_pair(2, curses.COLOR_WHITE, curses.COLOR_GREEN)
     stdscr.nodelay(True)  # non-blocking mode, only wait $timeout when meet getch()
-    stdscr.timeout(int(setting.CLI_QUIT_SCAN_INTERVAL * 1000))  # in ms
+    stdscr.timeout(int(CLI_QUIT_SCAN_INTERVAL * 1000))  # in ms
 
     # setup shared value to class
     shared_info = fw_flash.ST_CONFIG(
@@ -61,6 +73,8 @@ def main_loop(stdscr):
         stlink_sn_list = shared_info.list_stlink()
     except ValueError as e:
                 print(f"Invalid ST-Link SN: {e}")
+                st_obj.current_state = fw_flash.ST_STATUS.NO_DEVICE
+
     stlink_alive_sn_list = stlink_sn_list
     st_obj_list = []
     print(f"init with : {stlink_sn_list}")
@@ -77,7 +91,18 @@ def main_loop(stdscr):
     start_time = time.time()
     while True:
         
-        fw_flash.flag_HTTPServerConnnectionError = False
+        if not EN_PCB_LOG:
+            fw_flash.flag_HTTPServerConnnectionError = False
+            stdscr.addstr(
+                MAX_ST_QTY+1, 0, "====== HTTP pcb-log disabled ======"
+                , curses.color_pair(1)
+            )
+        else:
+            stdscr.addstr(
+                MAX_ST_QTY+1, 0, "====== HTTP pcb-log enabled ======"
+                , curses.color_pair(2)
+            )
+        
         if fw_flash.flag_HTTPServerConnnectionError:
             stdscr.addstr(
                 0, 0, "====== WANRING: Lost Log Server Conenction, Reconnecting ======"
@@ -91,7 +116,7 @@ def main_loop(stdscr):
         for index, st_obj in enumerate(st_obj_list):
             if str(st_obj.current_state) == "ST_STATUS.FINISHED":
                 stdscr.addstr(
-                    setting.CURSES_RESERVE_LINE + index,
+                    CURSES_RESERVE_LINE + index,
                     0,
                     f"ST-00{index}({st_obj.SN}) : "
                     + f" Upload Completed. Remove the device!"
@@ -103,7 +128,7 @@ def main_loop(stdscr):
         ## list all current avaliable stlink
         # TODO : auto detect STLINK connection -----> have bug in this part, postponded
         
-        #if time.time()-start_time >1 :
+        #if time.time()-start_time > STLINK_AUTO_DETECTION_INTERVAL :
         #    stlink_alive_sn_list = shared_info.list_stlink()
 
         if input_cmd == ord("r"):
@@ -162,16 +187,16 @@ def main_loop(stdscr):
         ## for exist lines
         for index, st_obj in enumerate(st_obj_list):
             stdscr.addstr(
-                setting.CURSES_RESERVE_LINE + index,
+                CURSES_RESERVE_LINE + index,
                 0,
                 f"ST-00{index}({st_obj.SN}) : "
                 + str(st_obj.current_state)
                 + " " * stdscr.getmaxyx()[1],
             )
         ## for empty linesl
-        for i in range(setting.MAX_ST_QTY - len(st_obj_list)):
+        for i in range(MAX_ST_QTY - len(st_obj_list)):
             stdscr.addstr(
-                setting.CURSES_RESERVE_LINE + len(st_obj_list) + i,
+                CURSES_RESERVE_LINE + len(st_obj_list) + i,
                 0,
                 f"ST-00{len(st_obj_list)+i}() : " + " " * stdscr.getmaxyx()[1],
             )

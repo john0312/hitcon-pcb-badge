@@ -2,6 +2,40 @@
 
 pcb-util provides an utility tool for flashing FW to PCBs more effiecient in production.
 
+# CLI Tool User Instruction
+## Preparation
+### Install STM32ProgrammerCLI.exe
+1. Unzip the en.stm32cubeprg-win32-v2-17-0.zip
+2. Install the SW by double-click SetupSTM32CubeProgrammer_win32 with default configuration
+
+### Prepare files to flash
+Here are the files that should be in pcb-util to start flashing with CLI tool
+1. fw.elf
+2. ReplaceELF.py
+3. config.ini
+4. fw_flash.py
+5. cli_example.py
+
+### Disable pcb-log if Server is not ready
+Please check the pcb-log server is ready. 
+
+If not, disable this function by changing ```EN_PCB_LOG = 1``` in ```config.ini```
+
+
+## Use pcb-util_CLI tool
+1. Run:
+    ```
+    python pcb-util_CLI.py
+    ```
+2. The CLI tool will automatically detect the pcb-badge connected and flash the fwMOD.elf. Remove the pcb-badge once upload was finished
+3. If you add/remove ST-Link connected to the PC, press r'to refresh the list of ST-Link 
+4. press 'q' to quit the CLI tool
+
+---
+---
+
+# For Development or Custom use
+
 ## Dev env
 - Python ver
   * python 3.12
@@ -14,7 +48,7 @@ pcb-util provides an utility tool for flashing FW to PCBs more effiecient in pro
     -  2.17.0
 -  TODO: EXE generation
    - pyinstaller
-     - 6.9.0
+     - 24.2
 
 ## Application
 The pcb-util consist of several utility scripts describing as follows
@@ -40,29 +74,6 @@ The pcb-util consist of several utility scripts describing as follows
   - A streamlit app of a multi-thread CLI app that handles each ST-Link
   - TODO: display connected ST-link
   - TODO: auto-detect ST-Link
-
-# CLI Tool User Instruction
-## Preparation
-### Install STM32ProgrammerCLI.exe
-1. Unzip the en.stm32cubeprg-win32-v2-17-0.zip
-2. Install the SW by double-click SetupSTM32CubeProgrammer_win32 with default configuration
-
-### Prepare files to flash
-Here are the files that should be in pcb-util to start flashing with CLI tool
-1. fw.elf
-2. ReplaceELF.py
-3. setting.py
-4. fw_flash.py
-5. cli_example.py
-
-## Try CLI tool
-1. Run:
-    ```
-    python pcb-util_CLI.py
-    ```
-2. The CLI tool will automatically detect the pcb-badge connected and flash the fwMOD.elf. Remove the pcb-badge once upload was finished
-3. If you add/remove ST-Link connected to the PC, press r'to refresh the list of ST-Link 
-4. press 'q' to quit the app
 
 ## Try out UI
 [Streamlit](https://streamlit.io/)

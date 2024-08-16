@@ -10,12 +10,28 @@ import subprocess
 import threading
 import time
 from enum import Enum, auto
-import setting
 import ReplaceELF
+import configparser
+import os
 
 # Global
 flag_HTTPServerConnnectionError = False
 PerBoardSecret = []
+
+# Read the .ini file
+config = configparser.ConfigParser()
+config.read('config.ini')
+
+# Extract variables from the .ini file
+FW_ELF_PATH = config.get('Paths', 'FW_ELF_PATH')
+ST_PRO_PATH, ST_PRO_EXE = os.path.split(config.get('Paths', 'ST_PPROGRAMMER_PATH'))
+post_url = config.get('HTTP', 'POST_URL')
+THREAD_SLEEP_INTERVAL = config.getfloat('Settings', 'THREAD_SLEEP_INTERVAL')
+CLI_QUIT_SCAN_INTERVAL = config.getfloat('Settings', 'CLI_QUIT_SCAN_INTERVAL')
+MAX_ST_QTY = config.getint('Settings', 'MAX_ST_QTY')
+CURSES_RESERVE_LINE = config.getint('Settings', 'CURSES_RESERVE_LINE')
+EN_PCB_LOG = config.getint('HTTP', 'EN_PCB_LOG')
+
 
 # status enum class
 class ST_STATUS(Enum):
@@ -253,7 +269,7 @@ class STLINK():
                 # Post PerBoardSecret to Cloud Server
                 print("FW download verified, log PerBoardData to Server")
                 print(f"PerBoardSecret = {PerBoardSecret}")
-                response = ReplaceELF.http_post_uint8_array(url="https://pcb-log.hitcon2024.online/log_board"
+                response = ReplaceELF.http_post_uint8_array(url=post_url
                                                             , uint8_array=PerBoardSecret)
                 if response == 200:
                     print("HTTP POST Success!")
@@ -286,7 +302,7 @@ class STLINK():
             print("\nSN : " + str(self.SN))
             print("State : " + str(self.current_state))
             self.do_next(is_need_verify=True)
-            time.sleep(setting.THREAD_SLEEP_INTERVAL)
+            time.sleep(THREAD_SLEEP_INTERVAL)
         print("Thread stop -- SN : " + str(self.SN))
         
 if __name__ == "__main__":
