@@ -2,11 +2,27 @@ import shutil
 from elftools.elf.elffile import ELFFile
 import numpy as np
 import requests
+import configparser
+import os
 import json
-import setting
 
 original_elf_path = 'fw.elf'  # Original ELF file path
 MOD_elf_path = 'fwMOD.elf'  # New duplicated ELF file path
+
+# Read the .ini file
+config = configparser.ConfigParser()
+config.read('config.ini')
+
+# Extract variables from the .ini file
+FW_ELF_PATH = config.get('Paths', 'FW_ELF_PATH')
+ST_PRO_PATH, ST_PRO_EXE = os.path.split(config.get('Paths', 'ST_PPROGRAMMER_PATH'))
+post_url = config.get('HTTP', 'POST_URL')
+THREAD_SLEEP_INTERVAL = config.getfloat('Settings', 'THREAD_SLEEP_INTERVAL')
+CLI_QUIT_SCAN_INTERVAL = config.getfloat('Settings', 'CLI_QUIT_SCAN_INTERVAL')
+MAX_ST_QTY = config.getint('Settings', 'MAX_ST_QTY')
+CURSES_RESERVE_LINE = config.getint('Settings', 'CURSES_RESERVE_LINE')
+#STLINK_AUTO_DETECTION_INTERVAL = config.getint('Settings', 'STLINK_AUTO_DETECTION_INTERVAL')
+EN_PCB_LOG = config.getint('HTTP', 'EN_PCB_LOG')
 
 # Configure the array to find in ELF
 search_array_PerBoardRandom = [
@@ -158,7 +174,6 @@ if __name__ == "__main__":
     print_array_in_hex(replace_array_PerBoardSecret)
     
     # TODO: Test posting PerBoardSecret to Cloud
-    post_url = setting.post_url
     print("\n POST PerBoardSecret to https://pcb-log.hitcon2024.online/log_board \n")
     
     response = http_post_uint8_array(post_url, replace_array_PerBoardSecret)
