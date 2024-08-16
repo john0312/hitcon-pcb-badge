@@ -16,6 +16,7 @@ import os
 
 # Global
 flag_HTTPServerConnnectionError = False
+flag_FwElfNotFound = False
 PerBoardSecret = []
 
 # Read the .ini file
@@ -237,6 +238,7 @@ class STLINK():
         # specify global variables
         global flag_HTTPServerConnnectionError
         global PerBoardSecret
+        global flag_FwElfNotFound
         
         # update state (if needed)
         if not is_connceted:
@@ -245,15 +247,24 @@ class STLINK():
             if self.current_state == ST_STATUS.NO_DEVICE:
                 pass
             elif self.current_state == ST_STATUS.UPLOADING:
-                # Modify fw.elf with random PerBoardData and PerBoardSecret
-                response = ReplaceELF.modify_fw_elf()
-                # Record PerBoardSecret
-                if len(response[1]) == 16 :
-                    PerBoardSecret = response[1]
-                    print(f"PerBoardSecret = {PerBoardSecret}")
-                else:
-                    raise ValueError("Invalid PerBoardSecret Array Length")
                 
+                # Modify fw.elf with random PerBoardData and PerBoardSecret
+                try:
+                    response = ReplaceELF.modify_fw_elf()
+                    flag_FwElfNotFound = False
+                                   
+                    # Record PerBoardSecret
+                    if len(response[1]) == 16 :
+                        PerBoardSecret = response[1]
+                        print(f"PerBoardSecret = {PerBoardSecret}")
+                    else:
+                        raise ValueError("Invalid PerBoardSecret Array Length")
+                
+                except FileNotFoundError as f:
+                    flag_FwElfNotFound = True
+                    print("Cannot find fw.elf in this folder")
+                    self.current_state = ST_STATUS.NO_DEVICE
+                    
                 if is_need_verify:
                     self.upload_n_verify()
                 else:

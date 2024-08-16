@@ -109,6 +109,14 @@ def main_loop(stdscr):
                 , curses.color_pair(1)
             )
             st_obj.current_state = fw_flash.ST_STATUS.NO_DEVICE
+        
+        if fw_flash.flag_FwElfNotFound:
+            stdscr.addstr(
+                0, 0, "====== WANRING: fw.elf not found, Check the folder an restart again ======"
+                , curses.color_pair(1)
+            )
+            st_obj.current_state = fw_flash.ST_STATUS.NO_DEVICE
+            
 
         ## list all current avaliable stlink
         
