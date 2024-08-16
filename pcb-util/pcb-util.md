@@ -44,6 +44,8 @@ If not, disable this function by changing ```EN_PCB_LOG = 1``` in ```config.ini`
 3. If you add/remove ST-Link connected to the PC, press r'to refresh the list of ST-Link 
 4. press 'q' to quit the CLI tool
 
+![alt text](pcb-util_CLI.gif)
+
 ---
 ---
 
