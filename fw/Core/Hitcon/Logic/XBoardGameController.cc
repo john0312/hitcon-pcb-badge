@@ -44,8 +44,8 @@ void XBoardGameController::Init() {
 
 void XBoardGameController::SendPartialData(int percentage) {
   random_send_left_ += hitcon::game::kNumRows *
-                       hitcon::game::XBoardAllowedBroadcastColCnt * 100 /
-                       percentage;
+                       hitcon::game::XBoardAllowedBroadcastColCnt * percentage /
+                       100;
   if (send_state == Idle) {
     send_state = Sending;
   }

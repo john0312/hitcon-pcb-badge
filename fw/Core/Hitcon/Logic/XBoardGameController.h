@@ -35,6 +35,8 @@ class XBoardGameController {
   void OnConnect();
   void OnDisconnect();
 
+  int GetRemainingDataCount() { return random_send_left_; }
+
  private:
   hitcon::service::sched::PeriodicTask _send_routine;
   SendState send_state = Idle;
