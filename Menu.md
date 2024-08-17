@@ -15,4 +15,8 @@ flowchart TD
     N[Board Connect] --> O(Tetris)
     N --> P(Snake)
     N --> Q(xchg)
+    E --> R(ShowScoreApp)
+    F --> R
+    G --> R
+    R --> |Button| B
 ```
