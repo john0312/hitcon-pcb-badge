@@ -13,9 +13,9 @@ using hitcon::app::tetris::tetris_app;
 // using hitcon::app::tetris
 
 constexpr menu_entry_t connect_menu_entries[] = {
+    {"Send", &g_send_data_app, nullptr},
     {"Tetris", &tetris_app, &hitcon::app::tetris::SetMultiplayer},
     {"Snake", &snake_app, &hitcon::app::snake::SetMultiplayer},
-    {"xchg", &g_send_data_app, nullptr},
 };
 
 constexpr int connect_menu_entries_len =
