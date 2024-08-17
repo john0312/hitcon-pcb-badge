@@ -42,6 +42,8 @@ void SetMultiplayer();
  */
 class TetrisApp : public App {
  private:
+  bool multiplayer = false;
+
   hitcon::tetris::TetrisGame game;
   hitcon::service::sched::PeriodicTask periodic_task;
 

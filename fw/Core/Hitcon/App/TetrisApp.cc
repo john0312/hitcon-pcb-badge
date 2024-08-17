@@ -37,6 +37,7 @@ TetrisApp::TetrisApp()
 void TetrisApp::OnEntry() {
   // start a new game
   game = hitcon::tetris::TetrisGame(tetris_random);
+  display_set_mode_scroll_text("Ready?");
 
   // start the update task
   hitcon::service::sched::scheduler.EnablePeriodic(&periodic_task);
@@ -54,13 +55,9 @@ void SetSingleplayer() { tetris_app.SetPlayerCount(SINGLEPLAYER); }
 void SetMultiplayer() { tetris_app.SetPlayerCount(MULTIPLAYER); }
 
 void TetrisApp::SetPlayerCount(unsigned playerCount) {
-  switch (playerCount) {
-    case SINGLEPLAYER:
-      game.game_register_attack_enemy_callback(nullptr);
-      break;
-    case MULTIPLAYER:
-      game.game_register_attack_enemy_callback(SendAttackEnemyPacket);
-      break;
+  multiplayer = (playerCount == MULTIPLAYER);
+  if (multiplayer) {
+    game.game_register_attack_enemy_callback(SendAttackEnemyPacket);
   }
 }
 
@@ -77,69 +74,116 @@ void TetrisApp::RecvAttackPacket(PacketCallbackArg *packet) {
 void TetrisApp::OnXboardRecv(void *arg) {
   PacketCallbackArg *packet = reinterpret_cast<PacketCallbackArg *>(arg);
   switch (packet->data[0]) {
+    case PACKET_GAME_START:
+      game.game_start_playing();
+      break;
+
     case PACKET_ATTACK:
       RecvAttackPacket(packet);
+      break;
+
+    case PACKET_GAME_OVER:
+      game.game_force_over();
       break;
   }
 }
 
 void TetrisApp::OnButton(button_t button) {
-  if (game.game_is_over()) {
-    // exit the app
-    badge_controller.OnAppEnd(this);
+  switch (game.game_get_state()) {
+    case hitcon::tetris::GAME_STATE_WAITING: {
+      if (multiplayer) {
+        uint8_t code = PACKET_GAME_START;
+        g_xboard_logic.QueueDataForTx(&code, 1, TETRIS_RECV_ID);
+      }
+      game.game_start_playing();
+      break;
+    }
 
-  } else {
-    /**
-     * Note that we need to rotate the badge by 90 degrees clockwise to play the
-     * game. Therefore, the button is remapped.
-     */
-    switch (button) {
-      case BUTTON_LEFT:
-        game.game_on_input(hitcon::tetris::DIRECTION_UP);
-        break;
+    case hitcon::tetris::GAME_STATE_GAME_OVER: {
+      // exit the app
+      badge_controller.OnAppEnd(this);
+      break;
+    }
 
-      case BUTTON_RIGHT:
-        game.game_on_input(hitcon::tetris::DIRECTION_DOWN);
-        break;
+    case hitcon::tetris::GAME_STATE_PLAYING: {
+      /**
+       * Note that we need to rotate the badge by 90 degrees clockwise to play
+       * the game. Therefore, the button is remapped.
+       */
+      switch (button) {
+        case BUTTON_LEFT:
+          game.game_on_input(hitcon::tetris::DIRECTION_UP);
+          break;
 
-      case BUTTON_DOWN:
-        game.game_on_input(hitcon::tetris::DIRECTION_LEFT);
-        break;
+        case BUTTON_RIGHT:
+          game.game_on_input(hitcon::tetris::DIRECTION_DOWN);
+          break;
 
-      case BUTTON_UP:
-        game.game_on_input(hitcon::tetris::DIRECTION_RIGHT);
-        break;
+        case BUTTON_DOWN:
+          game.game_on_input(hitcon::tetris::DIRECTION_LEFT);
+          break;
 
-      case BUTTON_BACK:
-        badge_controller.change_app(&main_menu);
-        break;
+        case BUTTON_UP:
+          game.game_on_input(hitcon::tetris::DIRECTION_RIGHT);
+          break;
 
-      case BUTTON_LONG_BACK:
-        badge_controller.change_app(&show_name_app);
-        break;
+        case BUTTON_BACK:
+          badge_controller.change_app(&main_menu);
+          break;
 
-      default:
-        break;
+        case BUTTON_LONG_BACK:
+          badge_controller.change_app(&show_name_app);
+          break;
+
+        default:
+          break;
+      }
     }
   }
 }
 
 void TetrisApp::periodic_task_callback(void *) {
-  if (game.game_is_over()) {
-    // TODO: maybe score?
-  } else {
-    // check if it's time to fall down
-    unsigned now = SysTimer::GetTime();
-    if (now - last_fall_time >= hitcon::tetris::FALL_PERIOD) {
-      game.game_fall_down_tetromino();
-      last_fall_time = now;
+  static hitcon::tetris::TetrisGameState last_state;
+
+  switch (game.game_get_state()) {
+    case hitcon::tetris::GAME_STATE_WAITING: {
+      break;
     }
 
-    // update display buffer
-    display_buf_t display_buf[DISPLAY_WIDTH];
-    game.game_draw_to_display(display_buf);
-    display_set_mode_fixed_packed(display_buf);
+    case hitcon::tetris::GAME_STATE_GAME_OVER: {
+      if (last_state != hitcon::tetris::GAME_STATE_GAME_OVER) {
+        // we need to do something when the game enters end state for the first
+        // time
+
+        // TODO: submit score and show it
+
+        display_set_mode_scroll_text("Game Over");
+
+        if (multiplayer) {
+          uint8_t code = PACKET_GAME_OVER;
+          g_xboard_logic.QueueDataForTx(&code, 1, TETRIS_RECV_ID);
+        }
+      }
+      break;
+    }
+
+    case hitcon::tetris::GAME_STATE_PLAYING: {
+      // check if it's time to fall down
+      unsigned now = SysTimer::GetTime();
+      if (now - last_fall_time >= hitcon::tetris::FALL_PERIOD) {
+        game.game_fall_down_tetromino();
+        last_fall_time = now;
+      }
+
+      // update display buffer
+      display_buf_t display_buf[DISPLAY_WIDTH];
+      game.game_draw_to_display(display_buf);
+      display_set_mode_fixed_packed(display_buf);
+      break;
+    }
   }
+
+  last_state = game.game_get_state();
 }
 
 }  // namespace tetris

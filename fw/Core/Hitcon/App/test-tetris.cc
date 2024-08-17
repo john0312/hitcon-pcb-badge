@@ -55,13 +55,14 @@ void gameFunction() {
         .count();
   };
   auto prev_update = now_ms() - hitcon::tetris::FALL_PERIOD;
+  game.game_start_playing();
   while (1) {
     auto now = now_ms();
     if (now - prev_update >= hitcon::tetris::FALL_PERIOD) {
       std::lock_guard<std::mutex> lock(game_mutex);
       game.game_fall_down_tetromino();
       prev_update = now;
-      if (game.game_is_over()) {
+      if (game.game_get_state() == hitcon::tetris::GAME_STATE_GAME_OVER) {
         break;
       }
     }
@@ -83,7 +84,7 @@ void ioFunction() {
   while (1) {
     {
       std::lock_guard<std::mutex> lock(game_mutex);
-      if (game.game_is_over()) {
+      if (game.game_get_state() == hitcon::tetris::GAME_STATE_GAME_OVER) {
         break;
       }
     }

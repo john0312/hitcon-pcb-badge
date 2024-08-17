@@ -19,6 +19,7 @@ static_assert(BOARD_HEIGHT == DISPLAY_WIDTH,
               "BOARD_HEIGHT must be equal to DISPLAY_WIDTH");
 
 enum TetrisGameState {
+  GAME_STATE_WAITING,
   GAME_STATE_PLAYING,
   GAME_STATE_GAME_OVER,
 };
@@ -101,7 +102,7 @@ const struct tetromino_t {
  */
 class TetrisGame {
  private:
-  TetrisGameState state = GAME_STATE_PLAYING;
+  TetrisGameState state = GAME_STATE_WAITING;
   unsigned last_fall_time = 0;
   int current_tetromino;
   int current_x;
@@ -137,7 +138,9 @@ class TetrisGame {
   void game_fall_down_tetromino();
   void game_on_input(TetrisDirection direction);
   void game_draw_to_display(display_buf_t *buf);
-  inline bool game_is_over() const { return state == GAME_STATE_GAME_OVER; };
+  inline void game_start_playing() { state = GAME_STATE_PLAYING; }
+  inline void game_force_over() { game_over(); }
+  inline TetrisGameState game_get_state() const { return state; };
   inline int game_get_score() const { return score; }
 
   // 2-player game, this function should be called when enemy attacks us.
