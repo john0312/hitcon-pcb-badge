@@ -26,6 +26,7 @@ enum UsartConnectState { Init, Connect, Disconnect };
 constexpr size_t RX_BUF_SZ = 128;
 constexpr size_t PKT_PAYLOAD_LEN_MAX = 32;
 constexpr uint8_t PING_TYPE = 208;
+constexpr uint8_t PONG_TYPE = 209;
 
 class XBoardLogic {
  public:
@@ -62,7 +63,8 @@ class XBoardLogic {
   uint16_t prod_head = 0;
   uint16_t cons_head = 0;
   bool recv_ping = false;
-  uint8_t no_ping_count = 0;
+  bool recv_pong = false;
+  uint8_t no_pong_count = 0;
 
   hitcon::service::sched::PeriodicTask _parse_routine;
   hitcon::service::sched::PeriodicTask _ping_routine;
@@ -79,9 +81,11 @@ class XBoardLogic {
   // return false if no enough bytes to read
   bool TryReadBytes(uint8_t *dst, size_t size, uint16_t head_offset = 0);
   void SendPing();
+  void SendPong();
   void OnByteArrive(void *);
   void ParsePacket();
   void CheckPing();
+  void CheckPong();
   void ParseRoutine(void *);
   void PingRoutine(void *);
 };
