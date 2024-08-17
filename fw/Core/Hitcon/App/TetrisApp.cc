@@ -2,6 +2,7 @@
 
 #include <App/MainMenuApp.h>
 #include <App/ShowNameApp.h>
+#include <App/ShowScoreApp.h>
 #include <Logic/BadgeController.h>
 #include <Logic/Display/display.h>
 #include <Logic/RandomPool.h>
@@ -84,6 +85,9 @@ void TetrisApp::OnXboardRecv(void *arg) {
 
     case PACKET_GAME_OVER:
       game.game_force_over();
+
+      show_score_app.SetScore(game.game_get_score());
+      badge_controller.change_app(&show_score_app);
       break;
 
     case PACKET_ABORT_GAME:
@@ -104,8 +108,7 @@ void TetrisApp::OnButton(button_t button) {
     }
 
     case hitcon::tetris::GAME_STATE_GAME_OVER: {
-      // exit the app
-      badge_controller.OnAppEnd(this);
+      // after ShowScoreApp is implemented, game over won't be handled here
       break;
     }
 
@@ -159,27 +162,19 @@ void TetrisApp::OnButton(button_t button) {
 }
 
 void TetrisApp::periodic_task_callback(void *) {
-  static hitcon::tetris::TetrisGameState last_state;
-
   switch (game.game_get_state()) {
     case hitcon::tetris::GAME_STATE_WAITING: {
       break;
     }
 
     case hitcon::tetris::GAME_STATE_GAME_OVER: {
-      if (last_state != hitcon::tetris::GAME_STATE_GAME_OVER) {
-        // we need to do something when the game enters end state for the first
-        // time
-
-        // TODO: submit score and show it
-
-        display_set_mode_scroll_text("Game Over");
-
-        if (multiplayer) {
-          uint8_t code = PACKET_GAME_OVER;
-          g_xboard_logic.QueueDataForTx(&code, 1, TETRIS_RECV_ID);
-        }
+      if (multiplayer) {
+        uint8_t code = PACKET_GAME_OVER;
+        g_xboard_logic.QueueDataForTx(&code, 1, TETRIS_RECV_ID);
       }
+
+      show_score_app.SetScore(game.game_get_score());
+      badge_controller.change_app(&show_score_app);
       break;
     }
 
@@ -198,8 +193,6 @@ void TetrisApp::periodic_task_callback(void *) {
       break;
     }
   }
-
-  last_state = game.game_get_state();
 }
 
 }  // namespace tetris
