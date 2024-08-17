@@ -10,8 +10,8 @@ namespace hitcon {
 
 class ShowScoreApp : public App {
  public:
-  static constexpr int SCORE_LEN = DISPLAY_SCROLL_MAX_COLUMNS / CHAR_WIDTH;
-  uint8_t display_buf[DISPLAY_SCROLL_MAX_COLUMNS];
+  static constexpr int SCORE_LEN = kDisplayScrollMaxTextLen;
+  uint8_t display_buf[kDisplayScrollMaxTextLen + 1];
 
   ShowScoreApp();
   virtual ~ShowScoreApp() = default;
