@@ -26,17 +26,7 @@ SnakeApp::SnakeApp()
                     INTERVAL) {}
 
 /* TODO:
- *  1. (done) queue task only once
- *  2. random snake begin
  *  3. event when _len = 128
- *  4. store score
- *  6. add OnButton when game over
- *  7. (done 1ms) measure Routine time
- *  8. (done) add Ready... scrolling text
- *  9. (done) implement multi-player mode
- * 10. xboard on connect/disconnect event
- * 11. check connection status
- * 12. (done) add menu to choose game mode
  * 13. dynamic interval?
  * 14. show win/lose and score when game over
  */
@@ -153,8 +143,10 @@ void SnakeApp::InitGame() {
   _direction = DIRECTION_RIGHT;
   _last_direction = DIRECTION_RIGHT;
   _len = 2;
-  _body[0] = 36;
-  _body[1] = 35;
+  uint8_t row = g_fast_random_pool.GetRandom() % (DISPLAY_HEIGHT - 4) + 2;
+  uint8_t col = g_fast_random_pool.GetRandom() % (DISPLAY_WIDTH - 4) + 1;
+  _body[0] = row * DISPLAY_WIDTH + col;
+  _body[1] = _body[0] - 1;
   _score = 0;
   GenerateFood();
 }
