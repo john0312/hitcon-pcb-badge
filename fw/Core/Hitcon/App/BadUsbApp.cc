@@ -14,7 +14,13 @@ void BadUsbApp::OnEntry() {
 
 void BadUsbApp::OnExit() { g_usb_logic.StopScript(); }
 
-void BadUsbApp::OnButton(button_t button) {}
+void BadUsbApp::OnButton(button_t button) {
+  switch (button & BUTTON_VALUE_MASK) {
+    case BUTTON_BACK:
+      badge_controller.OnAppEnd(this);
+      break;
+  }
+}
 
 void BadUsbApp::OnScriptFinished(void *unsed) {
   badge_controller.OnAppEnd(this);
