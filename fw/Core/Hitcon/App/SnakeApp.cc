@@ -141,6 +141,7 @@ void SnakeApp::InitGame() {
   _len = 2;
   _body[0] = 36;
   _body[1] = 35;
+  _score = 0;
   GenerateFood();
 }
 
@@ -188,8 +189,7 @@ void SnakeApp::Routine(void* unused) {
   if (OnSnake(new_head)) _game_over = true;
 
   if (_game_over) {
-    // TODO: score
-    show_score_app.SetScore(0);
+    show_score_app.SetScore(_score);
     if (mode == MODE_MULTIPLAYER) {
       uint8_t code = PACKET_GAME_OVER;
       g_xboard_logic.QueueDataForTx(&code, 1, SNAKE_RECV_ID);
@@ -206,6 +206,7 @@ void SnakeApp::Routine(void* unused) {
       uint8_t code = PACKET_GET_FOOD;
       g_xboard_logic.QueueDataForTx(&code, 1, SNAKE_RECV_ID);
     }
+    _score++;
   }
 
   // shift snake body
