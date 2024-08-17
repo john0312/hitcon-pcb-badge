@@ -75,7 +75,7 @@ void XBoardService::Routine(void*) {
     _rx_stopped_count = 0;
   } else {
     _rx_stopped_count++;
-    if (_rx_stopped_count > 15) {
+    if (_rx_stopped_count > 10) {
       TriggerRx();
       _rx_stopped_count = 0;
     }
@@ -101,4 +101,22 @@ void HAL_UART_TxCpltCallback(UART_HandleTypeDef* huart) {
 
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef* huart) {
   g_xboard_service.NotifyRxFinish();
+}
+
+void HAL_UART_ErrorCallback(UART_HandleTypeDef* huart) {
+  uint32_t osrv = g_xboard_service._huart->Instance->SR;
+  g_xboard_service._huart->Instance->SR = 0x00;
+  uint32_t srv = g_xboard_service._huart->Instance->SR;
+  uint32_t drv = g_xboard_service._huart->Instance->DR;
+  srv = g_xboard_service._huart->Instance->SR;
+  g_xboard_service.sr_accu |= osrv & (~srv);
+  g_xboard_service.sr_clear++;
+}
+
+void HAL_UART_AbortCpltCallback(UART_HandleTypeDef* huart) {
+  my_assert(false);
+}
+
+void HAL_UART_AbortReceiveCpltCallback(UART_HandleTypeDef* huart) {
+  my_assert(false);
 }
