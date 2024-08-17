@@ -36,6 +36,11 @@ TetrisApp::TetrisApp()
   hitcon::service::sched::scheduler.Queue(&periodic_task, nullptr);
 }
 
+static void SendAttackEnemyPacket(int n_lines) {
+  uint8_t data[2] = {PACKET_ATTACK, (uint8_t)n_lines};
+  g_xboard_logic.QueueDataForTx(&data[0], 2, TETRIS_RECV_ID);
+}
+
 void TetrisApp::OnEntry() {
   // start a new game
   game = hitcon::tetris::TetrisGame(tetris_random);
@@ -50,10 +55,6 @@ void TetrisApp::OnEntry() {
                                    TETRIS_RECV_ID);
 }
 
-static void SendAttackEnemyPacket(int n_lines) {
-  uint8_t data[2] = {PACKET_ATTACK, (uint8_t)n_lines};
-  g_xboard_logic.QueueDataForTx(&data[0], 2, TETRIS_RECV_ID);
-}
 
 void SetSingleplayer() { tetris_app.SetPlayerCount(SINGLEPLAYER); }
 
@@ -145,7 +146,7 @@ void TetrisApp::OnButton(button_t button) {
             uint8_t code = PACKET_ABORT_GAME;
             g_xboard_logic.QueueDataForTx(&code, 1, TETRIS_RECV_ID);
           }
-          badge_controller.change_app(&main_menu);
+          badge_controller.OnAppEnd(this);
           break;
 
         case BUTTON_LONG_BACK:
@@ -153,7 +154,7 @@ void TetrisApp::OnButton(button_t button) {
             uint8_t code = PACKET_ABORT_GAME;
             g_xboard_logic.QueueDataForTx(&code, 1, TETRIS_RECV_ID);
           }
-          badge_controller.change_app(&show_name_app);
+          badge_controller.OnAppEnd(this);
           break;
 
         default:
