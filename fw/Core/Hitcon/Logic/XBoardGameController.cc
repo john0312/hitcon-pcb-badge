@@ -38,6 +38,9 @@ void XBoardGameController::Init() {
   xboard::g_xboard_logic.SetOnPacketArrive(
       (callback_t)&XBoardGameController::RecvAck, this,
       xboard::RecvFnId::XBOARD_GAME_CONTROLLER_ACK);
+  xboard::g_xboard_logic.SetOnPacketArrive(
+      (callback_t)&XBoardGameController::OnSendAllTrigger, this,
+      xboard::RecvFnId::XBOARD_GAME_CONTROLLER_SEND_ALL_TRIGGER);
   scheduler.Queue(&_send_routine, nullptr);
   scheduler.EnablePeriodic(&_send_routine);
 }
@@ -64,8 +67,20 @@ void XBoardGameController::SendOneData() {
   if (remote_buffer_left_ > 0) remote_buffer_left_--;
 }
 
+void XBoardGameController::SendExactData(int col, int row) {
+  hitcon::ir::GamePacket to_send;
+  memcpy(to_send.data, game::gameLogic.GetDataCell(col, row), game::kDataSize);
+  to_send.col = static_cast<uint8_t>(col);
+  xboard::g_xboard_logic.QueueDataForTx(
+      reinterpret_cast<uint8_t*>(&to_send), sizeof(to_send),
+      xboard::RecvFnId::XBOARD_GAME_CONTROLLER);
+}
+
 void XBoardGameController::SendAllData() {
-  // TODO
+  if (send_state == Idle) {
+    send_state = SendingAll;
+    send_all_idx_ = 0;
+  }
 }
 
 // private functions
@@ -74,9 +89,9 @@ bool XBoardGameController::IsBusy() { return send_state != Idle; }
 
 void XBoardGameController::SendRoutine() {
   current_cycle_++;
-  if (!connected_) return;
+  if (!connected_ && send_state != SendingAll) return;
 
-  if (current_cycle_ % 8 == 0) {
+  if (connected_ && current_cycle_ % 8 == 0) {
     SendAck(0);
   }
 
@@ -105,7 +120,24 @@ void XBoardGameController::SendRoutine() {
         TryExitApp();
       }
       break;
+    case SendingAll: {
+      for (int i = 0; i < 2; i++) {
+        int col = send_all_idx_ / game::kNumRows;
+        int row = send_all_idx_ % game::kNumRows;
+        SendExactData(col, row);
+        send_all_idx_++;
+        if (send_all_idx_ >= game::kNumRows * game::kNumCols) {
+          send_state = Idle;
+          break;
+        }
+      }
+      break;
+    }
   }
+}
+
+void XBoardGameController::OnSendAllTrigger(xboard::PacketCallbackArg* opkt) {
+  SendAllData();
 }
 
 void XBoardGameController::RecvAck(xboard::PacketCallbackArg* opkt) {
