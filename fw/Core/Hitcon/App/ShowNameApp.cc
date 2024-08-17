@@ -51,6 +51,7 @@ void ShowNameApp::OnEntry() {
   display_set_orientation(0);
   score_cache = gameLogic.GetScore();
   scheduler.EnablePeriodic(&_routine_task);
+  starting_up = false;
   update_display();
 }
 
@@ -85,7 +86,8 @@ void ShowNameApp::check_update() {
     mode = NameScore;
     update_display();
   } else if (mode != Surprise &&
-             SysTimer::GetTime() - last_disp_update > kMinUpdateInterval) {
+             (SysTimer::GetTime() - last_disp_update > kMinUpdateInterval ||
+              starting_up)) {
     if (score_cache != gameLogic.GetScore() && mode != NameOnly) {
       score_cache = gameLogic.GetScore();
       update_display();
@@ -95,10 +97,22 @@ void ShowNameApp::check_update() {
 
 void ShowNameApp::update_display() {
   constexpr int max_len = kDisplayScrollMaxTextLen;
+  static char display_str[max_len + 1];
 
   last_disp_update = SysTimer::GetTime();
 
-  static char display_str[max_len + 1];
+  if (!gameLogic.IsGameReady()) {
+    last_disp_update = 0;
+    if (!starting_up) {
+      constexpr char kStartingStr[] = "Starting...";
+      memcpy(display_str, kStartingStr, sizeof(kStartingStr) + 1);
+      display_set_mode_scroll_text(display_str);
+      starting_up = true;
+    }
+    return;
+  }
+  starting_up = false;
+
   int name_len = strlen(name);
 
   static char num_str[max_len + 1];
