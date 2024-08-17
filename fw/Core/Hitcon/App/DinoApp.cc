@@ -1,6 +1,7 @@
 #include "DinoApp.h"
 
 #include <App/MainMenuApp.h>
+#include <App/ShowScoreApp.h>
 #include <Logic/BadgeController.h>
 #include <Logic/Display/display.h>
 #include <Logic/RandomPool.h>
@@ -168,10 +169,8 @@ bool DinoApp::dinoDied() {
 }
 
 inline void DinoApp::gameOver() {
-  // TODO: show score
-  char score_frame[12] = "score: ";
-  uint_to_chr(score_frame + 6, 5, _score);
-  display_set_mode_scroll_text(score_frame);
+  show_score_app.SetScore(_score);
+  badge_controller.change_app(&show_score_app);
 }
 
 }  // namespace dino
