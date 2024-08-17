@@ -5,6 +5,7 @@
 #include <App/ShowScoreApp.h>
 #include <Logic/BadgeController.h>
 #include <Logic/Display/display.h>
+#include <Logic/GameScore.h>
 #include <Logic/RandomPool.h>
 #include <Logic/XBoardLogic.h>
 #include <Service/Sched/SysTimer.h>
@@ -87,6 +88,7 @@ void TetrisApp::OnXboardRecv(void *arg) {
       game.game_force_over();
 
       show_score_app.SetScore(game.game_get_score());
+      g_game_score.MarkScore(GameScoreType::GAME_TETRIS, _score);
       badge_controller.change_app(&show_score_app);
       break;
 
@@ -174,6 +176,7 @@ void TetrisApp::periodic_task_callback(void *) {
       }
 
       show_score_app.SetScore(game.game_get_score());
+      g_game_score.MarkScore(GameScoreType::GAME_TETRIS, _score);
       badge_controller.change_app(&show_score_app);
       break;
     }

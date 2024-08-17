@@ -3,6 +3,7 @@
 #include <App/ShowScoreApp.h>
 #include <App/SnakeApp.h>
 #include <Logic/BadgeController.h>
+#include <Logic/GameScore.h>
 #include <Logic/RandomPool.h>
 #include <Logic/XBoardLogic.h>
 #include <Service/Sched/Scheduler.h>
@@ -190,6 +191,7 @@ void SnakeApp::Routine(void* unused) {
 
   if (_game_over) {
     show_score_app.SetScore(_score);
+    g_game_score.MarkScore(GameScoreType::GAME_SNAKE, _score);
     if (mode == MODE_MULTIPLAYER) {
       uint8_t code = PACKET_GAME_OVER;
       g_xboard_logic.QueueDataForTx(&code, 1, SNAKE_RECV_ID);
