@@ -40,6 +40,9 @@ void TetrisApp::OnEntry() {
   // start a new game
   game = hitcon::tetris::TetrisGame(tetris_random);
   display_set_mode_scroll_text("Ready?");
+  if (multiplayer) {
+    game.game_register_attack_enemy_callback(SendAttackEnemyPacket);
+  }
 
   // start the update task
   hitcon::service::sched::scheduler.EnablePeriodic(&periodic_task);
@@ -58,9 +61,6 @@ void SetMultiplayer() { tetris_app.SetPlayerCount(MULTIPLAYER); }
 
 void TetrisApp::SetPlayerCount(unsigned playerCount) {
   multiplayer = (playerCount == MULTIPLAYER);
-  if (multiplayer) {
-    game.game_register_attack_enemy_callback(SendAttackEnemyPacket);
-  }
 }
 
 void TetrisApp::OnExit() {
