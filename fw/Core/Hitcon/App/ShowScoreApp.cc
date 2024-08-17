@@ -32,7 +32,14 @@ void ShowScoreApp::ShowScore() {
 }
 
 void ShowScoreApp::OnButton(button_t button) {
-  badge_controller.BackToMenu(this);
+  switch (button) {
+    case BUTTON_BACK:
+    case BUTTON_LONG_BACK:
+      badge_controller.BackToMenu(this);
+      break;
+    default:
+      break;
+  }
 }
 
 }  // namespace hitcon
