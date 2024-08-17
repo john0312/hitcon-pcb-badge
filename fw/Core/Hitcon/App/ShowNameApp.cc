@@ -83,7 +83,7 @@ void ShowNameApp::check_update() {
 }
 
 void ShowNameApp::update_display() {
-  constexpr int max_len = DISPLAY_SCROLL_MAX_COLUMNS / CHAR_WIDTH;
+  constexpr int max_len = kDisplayScrollMaxTextLen;
 
   last_disp_update = SysTimer::GetTime();
 
