@@ -92,48 +92,46 @@ void ioFunction() {
       }
     }
 
-    if (std::fgetc(stdin) != EOF) {
-      char ch = std::fgetc(stdin);
-      switch (ch) {
-        case 'a': {
-          std::lock_guard<std::mutex> lock(game_mutex);
-          game.game_on_input(hitcon::tetris::DIRECTION_LEFT);
-          break;
-        }
-
-        case 'd': {
-          std::lock_guard<std::mutex> lock(game_mutex);
-          game.game_on_input(hitcon::tetris::DIRECTION_RIGHT);
-          break;
-        }
-
-        case 's': {
-          std::lock_guard<std::mutex> lock(game_mutex);
-          game.game_on_input(hitcon::tetris::DIRECTION_DOWN);
-          break;
-        }
-
-        case 'w': {
-          std::lock_guard<std::mutex> lock(game_mutex);
-          game.game_on_input(hitcon::tetris::DIRECTION_UP);
-          break;
-        }
-
-        case 't': {
-          std::lock_guard<std::mutex> lock(game_mutex);
-          game.game_enemy_attack(2);
-          break;
-        }
-
-        case 'f': {
-          std::lock_guard<std::mutex> lock(game_mutex);
-          game.game_on_input(hitcon::tetris::DIRECTION_FAST_DOWN);
-          break;
-        }
-
-        default:
-          break;
+    char ch = std::fgetc(stdin);
+    switch (ch) {
+      case 'a': {
+        std::lock_guard<std::mutex> lock(game_mutex);
+        game.game_on_input(hitcon::tetris::DIRECTION_LEFT);
+        break;
       }
+
+      case 'd': {
+        std::lock_guard<std::mutex> lock(game_mutex);
+        game.game_on_input(hitcon::tetris::DIRECTION_RIGHT);
+        break;
+      }
+
+      case 's': {
+        std::lock_guard<std::mutex> lock(game_mutex);
+        game.game_on_input(hitcon::tetris::DIRECTION_DOWN);
+        break;
+      }
+
+      case 'w': {
+        std::lock_guard<std::mutex> lock(game_mutex);
+        game.game_on_input(hitcon::tetris::DIRECTION_UP);
+        break;
+      }
+
+      case 't': {
+        std::lock_guard<std::mutex> lock(game_mutex);
+        game.game_enemy_attack(2);
+        break;
+      }
+
+      case 'f': {
+        std::lock_guard<std::mutex> lock(game_mutex);
+        game.game_on_input(hitcon::tetris::DIRECTION_FAST_DOWN);
+        break;
+      }
+
+      default:
+        break;
     }
   }
 }
