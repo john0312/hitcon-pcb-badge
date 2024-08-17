@@ -7,7 +7,7 @@
 namespace hitcon {
 
 namespace xboard_game_controller {
-enum SendState { Idle, Sending, WaitAck, Acked };
+enum SendState { Idle, Sending, WaitAck, Acked, SendingAll };
 
 /*Definition of IR content.*/
 struct AckPacket {
@@ -46,8 +46,7 @@ class XBoardGameController {
   int random_send_left_;
 
   // The current index we're sending for SendAllData().
-  int send_all_col_;
-  int send_all_row_;
+  int send_all_idx_;
 
   // How many slot does the remote have available for receiving data?
   int remote_buffer_left_;
@@ -74,6 +73,8 @@ class XBoardGameController {
   // Sends one data with GetRandomDataForXBoardTransmission().
   void SendOneData();
 
+  void SendExactData(int col, int row);
+
   // Callback for receiving AckPacket.
   void RecvAck(hitcon::service::xboard::PacketCallbackArg* opkt);
 
@@ -82,6 +83,9 @@ class XBoardGameController {
 
   // remote side
   void RemoteRecv(hitcon::service::xboard::PacketCallbackArg* pkt);
+
+  // Called when the other side wants all data.
+  void OnSendAllTrigger(hitcon::service::xboard::PacketCallbackArg* opkt);
 
   void TryExitApp();
 };
