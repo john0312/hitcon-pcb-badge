@@ -21,7 +21,7 @@ struct IrPacket {
   // We need to add 3 bytes because we need
   // at least 1 byte to accomodate the size.
   // at least 1 byte to accomodate the chksum.
-  uint8_t data_[MAX_PACKET_PAYLOAD_BYTES + 3];
+  uint8_t data_[MAX_PACKET_PAYLOAD_BYTES + 4];
   size_t size_;
 };
 
