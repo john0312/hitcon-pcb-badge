@@ -13,7 +13,7 @@ void ChangeToNameOnly();
 void ChangeToScoreOnly();
 
 constexpr menu_entry_t name_display_menu_entries[] = {
-    {"Name+Score", nullptr, &ChangeToNameScore},
+    {"Both", nullptr, &ChangeToNameScore},
     {"NameOnly", nullptr, &ChangeToNameOnly},
     {"ScoreOnly", nullptr, &ChangeToScoreOnly},
 };
