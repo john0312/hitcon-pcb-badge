@@ -92,9 +92,21 @@ void SnakeApp::OnButton(button_t button) {
       }
       break;
     case BUTTON_BACK:
+      // local leave
+      if (mode == MODE_MULTIPLAYER) {
+        uint8_t code = PACKET_GAME_LEAVE;
+        g_xboard_logic.QueueDataForTx(&code, 1, SNAKE_RECV_ID);
+      }
+      // leave action
       badge_controller.change_app(&main_menu);
       break;
     case BUTTON_LONG_BACK:
+      // local leave 2
+      if (mode == MODE_MULTIPLAYER) {
+        uint8_t code = PACKET_GAME_LEAVE;
+        g_xboard_logic.QueueDataForTx(&code, 1, SNAKE_RECV_ID);
+      }
+      // leave action 2
       badge_controller.change_app(&show_name_app);
       break;
     default:
@@ -120,8 +132,13 @@ void SnakeApp::OnXBoardRecv(void* arg) {
   PacketCallbackArg* packet = reinterpret_cast<PacketCallbackArg*>(arg);
   switch (packet->data[0]) {
     case PACKET_GAME_OVER:
+      // remote game over
       _game_over = true;
-      display_set_mode_scroll_text("Game Over");
+      // game over screen
+      show_score_app.SetScore(_score);
+      g_game_score.MarkScore(GameScoreType::GAME_SNAKE, _score);
+      badge_controller.change_app(&show_score_app);
+
       break;
     case PACKET_GET_FOOD:
       _len++;
@@ -131,6 +148,12 @@ void SnakeApp::OnXBoardRecv(void* arg) {
         _state = STATE_PLAYING;
         InitGame();
       }
+      break;
+    case PACKET_GAME_LEAVE:
+      // remote leave
+      _game_over = true;
+      // leave action
+      badge_controller.change_app(&main_menu);
       break;
   }
 }
@@ -190,12 +213,14 @@ void SnakeApp::Routine(void* unused) {
   if (OnSnake(new_head)) _game_over = true;
 
   if (_game_over) {
-    show_score_app.SetScore(_score);
-    g_game_score.MarkScore(GameScoreType::GAME_SNAKE, _score);
+    // local game over
     if (mode == MODE_MULTIPLAYER) {
       uint8_t code = PACKET_GAME_OVER;
       g_xboard_logic.QueueDataForTx(&code, 1, SNAKE_RECV_ID);
     }
+    // game over screen
+    show_score_app.SetScore(_score);
+    g_game_score.MarkScore(GameScoreType::GAME_SNAKE, _score);
     badge_controller.change_app(&show_score_app);
     return;
   }
