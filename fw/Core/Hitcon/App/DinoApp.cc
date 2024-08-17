@@ -4,6 +4,7 @@
 #include <App/ShowScoreApp.h>
 #include <Logic/BadgeController.h>
 #include <Logic/Display/display.h>
+#include <Logic/GameScore.h>
 #include <Logic/RandomPool.h>
 #include <Service/Sched/Scheduler.h>
 #include <Util/uint_to_str.h>
@@ -170,6 +171,7 @@ bool DinoApp::dinoDied() {
 
 inline void DinoApp::gameOver() {
   show_score_app.SetScore(_score);
+  g_game_score.MarkScore(GameScoreType::GAME_DINO, _score);
   badge_controller.change_app(&show_score_app);
 }
 
