@@ -4,10 +4,10 @@
 
 unsigned int hitcon::uint_to_chr(char *str, unsigned size, int n) {
   int count = 0;
-  while ((n != 0) && (count < size - 1)) {
+  do {
     str[count++] = '0' + (n % 10);
     n /= 10;
-  }
+  } while ((n != 0) && (count < size - 1));
   str[count] = 0;
   // reverse string
   char *p1 = str;
