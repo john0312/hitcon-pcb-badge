@@ -131,6 +131,10 @@ void TetrisApp::OnButton(button_t button) {
           game.game_on_input(hitcon::tetris::DIRECTION_RIGHT);
           break;
 
+        case BUTTON_OK:
+          game.game_on_input(hitcon::tetris::DIRECTION_FAST_DOWN);
+          break;
+
         case BUTTON_BACK:
           if (multiplayer) {
             uint8_t code = PACKET_ABORT_GAME;

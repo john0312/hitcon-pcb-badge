@@ -29,6 +29,7 @@ enum TetrisDirection {
   DIRECTION_LEFT,
   DIRECTION_RIGHT,
   DIRECTION_DOWN,
+  DIRECTION_FAST_DOWN,
 };
 
 // clang-format off
