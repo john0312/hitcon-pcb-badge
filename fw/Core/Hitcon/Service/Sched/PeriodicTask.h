@@ -34,6 +34,7 @@ class PeriodicTask : public DelayedTask {
   virtual ~PeriodicTask();
   void Enable();
   void Disable();
+  bool IsEnabled() { return enabled; }
 };
 
 } /* namespace sched */
