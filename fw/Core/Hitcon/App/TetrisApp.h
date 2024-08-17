@@ -18,6 +18,7 @@ enum {  // XBOARD
   PACKET_ATTACK = 1,
   PACKET_GAME_START,
   PACKET_GAME_OVER,
+  PACKET_ABORT_GAME,
 };
 
 enum {  // player count
@@ -42,6 +43,8 @@ void SetMultiplayer();
  */
 class TetrisApp : public App {
  private:
+  bool multiplayer = false;
+
   hitcon::tetris::TetrisGame game;
   hitcon::service::sched::PeriodicTask periodic_task;
 
