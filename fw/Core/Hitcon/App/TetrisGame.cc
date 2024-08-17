@@ -27,7 +27,7 @@ void TetrisGame::clear_full_line() {
   }
 
   score += cleared_lines * CLEAR_LINE_SCORE;
-  if (attack_enemy_callback) {
+  if (attack_enemy_callback && cleared_lines > 0) {
     attack_enemy_callback(cleared_lines);
   }
 }
