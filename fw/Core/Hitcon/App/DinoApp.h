@@ -34,6 +34,7 @@ class DinoApp : public App {
   uint8_t _game_over : 1;
   uint8_t _dino_ani_frame : 1;
   int8_t _dino_jump_vel : 3;
+  bool _no_big_cactus = false;
   enum dino_actions { DINO_RUN, DINO_JUMP, DINO_CRUNCH } _dino_state;
   void Routine(void* unused);
   bool dinoDied();

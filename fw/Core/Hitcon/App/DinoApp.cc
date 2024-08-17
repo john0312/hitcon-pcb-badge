@@ -8,6 +8,7 @@
 #include <Logic/RandomPool.h>
 #include <Service/Sched/Scheduler.h>
 #include <Util/uint_to_str.h>
+#include <Secret/secret.h>
 
 #include <cmath>
 
@@ -16,6 +17,8 @@ using namespace hitcon::service::sched;
 namespace hitcon {
 namespace app {
 namespace dino {
+
+int combo_button_ctr = 0;
 
 DinoApp dino_app;
 
@@ -41,6 +44,17 @@ void DinoApp::OnEntry() {
 void DinoApp::OnExit() { scheduler.DisablePeriodic(&_routine_task); }
 
 void DinoApp::OnButton(button_t button) {
+  if (button == COMBO_BUTTON_DINO[combo_button_ctr]) {
+    combo_button_ctr++;
+  } else {
+    combo_button_ctr = (button == COMBO_BUTTON_DINO[0]) ? 1 : 0;
+  }
+  if (combo_button_ctr == COMBO_BUTTON_DINO_LEN) {
+    // surprise
+    combo_button_ctr = (button == COMBO_BUTTON_DINO[0]) ? 1 : 0;
+    _no_big_cactus = true;
+  }
+
   switch (button & BUTTON_VALUE_MASK) {
     case BUTTON_BACK:
       badge_controller.change_app(&main_menu);
@@ -84,26 +98,26 @@ void DinoApp::Routine(void* unused) {
   if (_obstacle_interval > DINO_OBS_LEAST_DISTANCE) {
     if ((_obstacle_interval > DISPLAY_WIDTH * 2) ||
         (g_fast_random_pool.GetRandom() % _generate_obs_rate == 0)) {
-      switch (g_fast_random_pool.GetRandom() % 4) {
+      switch (g_fast_random_pool.GetRandom() % (_no_big_cactus ? 3 : 4)) {
         case 0:  // bird
           writeObsByte(DISPLAY_WIDTH, bird_bitmap[0]);
           writeObsByte(DISPLAY_WIDTH + 1, bird_bitmap[1]);
           writeObsByte(DISPLAY_WIDTH + 2, bird_bitmap[2]);
           _obstacle_interval = -6;
           break;
-        case 1:  // big cactus
+        case 1:  // small tall cactus
+          writeObsByte(DISPLAY_WIDTH, small_tall_cactus_bitmap[0]);
+          _obstacle_interval = -3;
+          break;
+        case 2:  // small short cactus
+          writeObsByte(DISPLAY_WIDTH, small_short_cactus_bitmap[0]);
+          _obstacle_interval = -3;
+          break;
+        case 3:  // big cactus
           writeObsByte(DISPLAY_WIDTH, big_cactus_bitmap[0]);
           writeObsByte(DISPLAY_WIDTH + 1, big_cactus_bitmap[1]);
           writeObsByte(DISPLAY_WIDTH + 2, big_cactus_bitmap[2]);
           _obstacle_interval = -5;
-          break;
-        case 2:  // small tall cactus
-          writeObsByte(DISPLAY_WIDTH, small_tall_cactus_bitmap[0]);
-          _obstacle_interval = -3;
-          break;
-        case 3:  // small short cactus
-          writeObsByte(DISPLAY_WIDTH, small_short_cactus_bitmap[0]);
-          _obstacle_interval = -3;
           break;
         default:
           my_assert(false);
