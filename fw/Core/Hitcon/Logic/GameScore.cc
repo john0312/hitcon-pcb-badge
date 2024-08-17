@@ -2,6 +2,7 @@
 
 #include <Logic/GameLogic.h>
 #include <Logic/GameScore.h>
+#include <Logic/NvStorage.h>
 #include <Service/Sched/SysTimer.h>
 
 #include <cstdlib>
@@ -92,7 +93,8 @@ constexpr int kBusyRoutineDelay = 100;
 }  // namespace
 
 GameScore::GameScore()
-    : routine_task_delayed(920, (callback_t)&GameScore::Routine, this, 0) {}
+    : routine_task_delayed(920, (callback_t)&GameScore::Routine, this, 0),
+      nv_fetched_(false) {}
 
 void GameScore::Init() {
   memset(sent, 0, sizeof(sent));
@@ -115,6 +117,15 @@ void GameScore::Routine(void* args) {
 }
 
 bool GameScore::RoutineInternal() {
+  if (g_nv_storage.IsStorageValid() && !nv_fetched_) {
+    for (size_t i = 0; i < static_cast<size_t>(GameScoreType::GAME_UNUSED_MAX);
+         i++) {
+      if (g_nv_storage.GetCurrentStorage().max_scores[i] > scores[i]) {
+        scores[i] = g_nv_storage.GetCurrentStorage().max_scores[i];
+      }
+    }
+    nv_fetched_ = true;
+  }
   size_t i = last_operation_progress_;
   size_t end = kAchievementCount;
   if (kAchievementPerPass < end) end = kAchievementPerPass;
@@ -150,7 +161,17 @@ bool GameScore::TryAcceptData(size_t row_id) {
 }
 
 void GameScore::MarkScore(GameScoreType game_type, int score) {
-  scores[static_cast<int>(game_type)] = score;
+  const size_t sid = static_cast<int>(game_type);
+  if (score > scores[sid]) {
+    scores[sid] = score;
+    g_nv_storage.GetCurrentStorage().max_scores[sid] = score;
+    g_nv_storage.MarkDirty();
+  }
+}
+
+int GameScore::GetScore(GameScoreType game_type) {
+  const size_t sid = static_cast<int>(game_type);
+  return scores[sid];
 }
 
 }  // namespace hitcon

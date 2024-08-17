@@ -3,6 +3,7 @@
 
 #include <App/ShowNameApp.h>
 #include <Logic/GameParam.h>
+#include <Logic/GameScore.h>
 #include <Service/FlashService.h>
 #include <Service/Sched/Scheduler.h>
 #include <Util/callback.h>
@@ -20,6 +21,9 @@ typedef struct nv_storage_content_t {
   // Add any needed data that needs to be persisted here.
   hitcon::game::game_storage_t game_storage;
   char name[hitcon::ShowNameApp::NAME_LEN + 1];
+
+  uint32_t
+      max_scores[static_cast<size_t>(hitcon::GameScoreType::GAME_UNUSED_MAX)];
 } nv_storage_content;
 
 static_assert(sizeof(nv_storage_content) <= MY_FLASH_PAGE_SIZE,
