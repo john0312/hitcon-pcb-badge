@@ -113,9 +113,7 @@ void HAL_UART_ErrorCallback(UART_HandleTypeDef* huart) {
   g_xboard_service.sr_clear++;
 }
 
-void HAL_UART_AbortCpltCallback(UART_HandleTypeDef* huart) {
-  my_assert(false);
-}
+void HAL_UART_AbortCpltCallback(UART_HandleTypeDef* huart) { my_assert(false); }
 
 void HAL_UART_AbortReceiveCpltCallback(UART_HandleTypeDef* huart) {
   my_assert(false);
