@@ -18,6 +18,7 @@ enum {  // XBOARD
   PACKET_ATTACK = 1,
   PACKET_GAME_START,
   PACKET_GAME_OVER,
+  PACKET_ABORT_GAME,
 };
 
 enum {  // player count
