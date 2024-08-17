@@ -9,8 +9,8 @@ namespace game {
 
 // We've a grid of cells, each cell has some data.
 
-constexpr size_t kNumCols = 8;
-constexpr size_t kNumRows = 16;
+constexpr size_t kNumCols = 16;
+constexpr size_t kNumRows = 8;
 constexpr size_t kDataSize = 8;
 
 // We do a random generation once every kRandomGenPeriodMs ms.
@@ -53,17 +53,18 @@ typedef struct {
 constexpr size_t kColPrefixLen = 8;
 
 // These columns may be broadcasted by the IrController.
-constexpr int IrAllowedBroadcastCol[] = {0, 2, 3, 4, 7};
+constexpr int IrAllowedBroadcastCol[] = {0, 1, 2, 3, 4, 6, 8, 9};
 constexpr size_t IrAllowedBroadcastColCnt =
     sizeof(IrAllowedBroadcastCol) / sizeof(IrAllowedBroadcastCol[0]);
 
 // These columns may be transmitted through XBoard.
-constexpr int XBoardAllowedBroadcastCol[] = {5, 7, 3};
+constexpr int XBoardAllowedBroadcastCol[] = {0, 1, 2, 3,  4,  5, 6,
+                                             7, 8, 9, 11, 13, 15};
 constexpr size_t XBoardAllowedBroadcastColCnt =
     sizeof(XBoardAllowedBroadcastCol) / sizeof(XBoardAllowedBroadcastCol[0]);
 
 // These columns may accept data through internal random generation.
-constexpr int InternalGenCol[] = {0, 1, 2};
+constexpr int InternalGenCol[] = {0, 1, 2, 3, 4};
 constexpr size_t InternalGenColCnt =
     sizeof(InternalGenCol) / sizeof(InternalGenCol[0]);
 
