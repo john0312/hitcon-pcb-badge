@@ -74,6 +74,7 @@ class SnakeApp : public App {
   void OnExit() override;
   void OnButton(button_t button) override;
   void OnXBoardRecv(void* arg);
+  void OnEdgeButton(button_t button) override;
 };
 
 extern SnakeApp snake_app;

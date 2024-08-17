@@ -53,8 +53,9 @@ void SetMultiplayer() { snake_app.mode = MODE_MULTIPLAYER; }
 
 void SnakeApp::OnExit() { scheduler.DisablePeriodic(&_routine_task); }
 
-void SnakeApp::OnButton(button_t button) {
+void SnakeApp::OnEdgeButton(button_t button) {
   direction_t btn_direction = NONE;
+  if (button & BUTTON_KEYUP_BIT) return;
 
   switch (button & BUTTON_VALUE_MASK) {
     case BUTTON_RIGHT:
@@ -82,7 +83,6 @@ void SnakeApp::OnButton(button_t button) {
       }
       break;
     case BUTTON_BACK:
-    case BUTTON_LONG_BACK:
       if (mode == MODE_MULTIPLAYER) {
         uint8_t code = PACKET_GAME_LEAVE;
         g_xboard_logic.QueueDataForTx(&code, 1, SNAKE_RECV_ID);
@@ -95,6 +95,8 @@ void SnakeApp::OnButton(button_t button) {
   if (!btn_direction) return;
   _direction = btn_direction;
 }
+
+void SnakeApp::OnButton(button_t button) {}
 
 bool SnakeApp::OnSnake(uint8_t index) {
   bool on_snake = false;
