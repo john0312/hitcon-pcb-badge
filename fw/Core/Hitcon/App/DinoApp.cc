@@ -6,9 +6,9 @@
 #include <Logic/Display/display.h>
 #include <Logic/GameScore.h>
 #include <Logic/RandomPool.h>
+#include <Secret/secret.h>
 #include <Service/Sched/Scheduler.h>
 #include <Util/uint_to_str.h>
-#include <Secret/secret.h>
 
 #include <cmath>
 
