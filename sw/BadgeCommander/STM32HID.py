@@ -1,3 +1,4 @@
+import math
 import hid
 
 vendor_id = 1155
@@ -28,14 +29,25 @@ def set_name(name):
 #Clear BadUSB
 def clear_badusb():
     send_command([0x02])
+    print("Clearing BadUSB")
+    tmp=device.read(8)
+    if tmp[2] != 0xFF:
+        print("Error")
     
 #Send BadUSB Script
 def send_badusb_script(script):
     datatosend = [0x00]*3
     datatosend[0] = 0x03
     datatosend[1:3] = len(script).to_bytes(2, 'big')
-    print(datatosend+ script)
-    send_command(datatosend + script)
+    datatosend = datatosend+ script
+    for i in range(0, math.ceil(len(datatosend)), 8):
+        print(datatosend[i:i+8])
+        if datatosend[i] == 0:
+            datatosend[i] = 0xFC
+            print(datatosend[i:i+8])
+        send_command(datatosend[i:i+8])
+        if len(datatosend) - 8 != i:
+            tmp=device.read(8)
 
 def send_command(command):
     k=device.write(command)

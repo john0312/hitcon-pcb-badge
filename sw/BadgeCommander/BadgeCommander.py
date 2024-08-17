@@ -56,6 +56,7 @@ def writeBadUSB(scriptPath):
     try:
         rawData=BadUSBTranslation.scriptToHex(scriptPath)
         print(rawData)
+        STM32HID.clear_badusb()
         STM32HID.send_badusb_script(rawData)
     except:
         Messagebox.show_error('Please Connect the PCB Badge to the Computer and try again', 'Error')
