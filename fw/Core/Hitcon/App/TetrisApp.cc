@@ -93,7 +93,7 @@ void TetrisApp::OnXboardRecv(void *arg) {
       break;
 
     case PACKET_ABORT_GAME:
-      badge_controller.change_app(&main_menu);
+      badge_controller.BackToMenu(this);
       break;
   }
 }
@@ -141,19 +141,12 @@ void TetrisApp::OnButton(button_t button) {
           break;
 
         case BUTTON_BACK:
-          if (multiplayer) {
-            uint8_t code = PACKET_ABORT_GAME;
-            g_xboard_logic.QueueDataForTx(&code, 1, TETRIS_RECV_ID);
-          }
-          badge_controller.OnAppEnd(this);
-          break;
-
         case BUTTON_LONG_BACK:
           if (multiplayer) {
             uint8_t code = PACKET_ABORT_GAME;
             g_xboard_logic.QueueDataForTx(&code, 1, TETRIS_RECV_ID);
           }
-          badge_controller.OnAppEnd(this);
+          badge_controller.BackToMenu(this);
           break;
 
         default:

@@ -92,22 +92,12 @@ void SnakeApp::OnButton(button_t button) {
       }
       break;
     case BUTTON_BACK:
-      // local leave
-      if (mode == MODE_MULTIPLAYER) {
-        uint8_t code = PACKET_GAME_LEAVE;
-        g_xboard_logic.QueueDataForTx(&code, 1, SNAKE_RECV_ID);
-      }
-      // leave action
-      badge_controller.change_app(&main_menu);
-      break;
     case BUTTON_LONG_BACK:
-      // local leave 2
       if (mode == MODE_MULTIPLAYER) {
         uint8_t code = PACKET_GAME_LEAVE;
         g_xboard_logic.QueueDataForTx(&code, 1, SNAKE_RECV_ID);
       }
-      // leave action 2
-      badge_controller.change_app(&show_name_app);
+      badge_controller.BackToMenu(this);
       break;
     default:
       break;

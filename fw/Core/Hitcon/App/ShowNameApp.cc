@@ -1,5 +1,6 @@
 #include "ShowNameApp.h"
 
+#include <App/ConnectMenuApp.h>
 #include <App/MainMenuApp.h>
 #include <App/NameSettingApp.h>
 #include <Logic/BadgeController.h>
@@ -15,6 +16,8 @@
 
 using namespace hitcon::service::sched;
 using hitcon::game::gameLogic;
+using hitcon::service::xboard::g_xboard_logic;
+using hitcon::service::xboard::UsartConnectState;
 
 namespace hitcon {
 
@@ -59,11 +62,19 @@ void ShowNameApp::OnExit() {
 void ShowNameApp::OnButton(button_t button) {
   switch (button) {
     case BUTTON_LONG_MODE:
-      badge_controller.change_app(&name_setting_menu);
+      if (g_xboard_logic.GetConnectState() == UsartConnectState::Connect) {
+        badge_controller.change_app(&connect_menu);
+      } else {
+        badge_controller.change_app(&name_setting_menu);
+      }
       break;
 
     case BUTTON_MODE:
-      badge_controller.change_app(&main_menu);
+      if (g_xboard_logic.GetConnectState() == UsartConnectState::Connect) {
+        badge_controller.change_app(&connect_menu);
+      } else {
+        badge_controller.change_app(&main_menu);
+      }
       break;
   }
 }

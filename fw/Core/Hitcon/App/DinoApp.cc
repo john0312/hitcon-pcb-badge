@@ -57,10 +57,8 @@ void DinoApp::OnButton(button_t button) {
 
   switch (button & BUTTON_VALUE_MASK) {
     case BUTTON_BACK:
-      badge_controller.change_app(&main_menu);
-      break;
     case BUTTON_LONG_BACK:
-      badge_controller.change_app(&show_name_app);
+      badge_controller.BackToMenu(this);
       break;
     default:
       break;

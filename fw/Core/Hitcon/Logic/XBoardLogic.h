@@ -56,6 +56,8 @@ class XBoardLogic {
   // - `handler_id`: should be the same as `QueueDataForTx`
   void SetOnPacketArrive(callback_t callback, void *self, RecvFnId handler_id);
 
+  enum UsartConnectState GetConnectState();
+
  private:
   // buffer variables
 

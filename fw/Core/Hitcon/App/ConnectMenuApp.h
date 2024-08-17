@@ -25,10 +25,8 @@ class ConnectMenuApp : public MenuApp {
  public:
   ConnectMenuApp() : MenuApp(connect_menu_entries, connect_menu_entries_len) {}
   void OnButtonMode() override {}
-  void OnButtonBack() override { badge_controller.change_app(&show_name_app); }
-  void OnButtonLongBack() override {
-    badge_controller.change_app(&show_name_app);
-  }
+  void OnButtonBack() override {}
+  void OnButtonLongBack() override {}
 };
 
 extern ConnectMenuApp connect_menu;
