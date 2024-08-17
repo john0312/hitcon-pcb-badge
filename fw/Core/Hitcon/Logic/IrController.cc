@@ -1,6 +1,7 @@
 #include "IrController.h"
 
 #include <App/HardwareTestApp.h>
+#include <App/ShowNameApp.h>
 #include <Logic/BadgeController.h>
 #include <Logic/Display/display.h>
 #include <Logic/GameLogic.h>
@@ -28,8 +29,7 @@ IrController::IrController()
       broadcast_task(800, (callback_t)&IrController::BroadcastIr, this),
       send2game_task(800, (callback_t)&IrController::Send2Game, this),
       showtext_task(800, (callback_t)&IrController::ShowText, this),
-      send_lock(true), show_lock(true), recv_lock(true),
-      received_packet_cnt(0) {}
+      send_lock(true), recv_lock(true), received_packet_cnt(0) {}
 
 void IrController::Send2Game(void* arg) {
   GamePacket* game = reinterpret_cast<GamePacket*>(arg);
@@ -37,18 +37,15 @@ void IrController::Send2Game(void* arg) {
   send_lock = true;
 }
 void IrController::ShowText(void* arg) {
-  ShowPacket* show = reinterpret_cast<ShowPacket*>(arg);
-  display_set_mode_scroll_text(show->message);
-  show_lock = true;
+  show_name_app.SetMode(Surprise);
+  badge_controller.change_app(&show_name_app);
 }
-
-static char* surprise_msg = "Cool!";
 
 void IrController::Init() {
   irLogic.SetOnPacketReceived((callback_t)&IrController::OnPacketReceived,
                               this);
   badge_controller.SetCallback((callback_t)&IrController::SendShowPacket, this,
-                               surprise_msg);
+                               nullptr);
   scheduler.Queue(&routine_task, nullptr);
   scheduler.EnablePeriodic(&routine_task);
 }
@@ -68,10 +65,7 @@ void IrController::OnPacketReceived(void* arg) {
   } else if (data->type == packet_type::kTest) {
     hardware_test_app.CheckIr(&data->show);
   } else if (data->type == packet_type::kShow) {
-    if (show_lock) {
-      show_lock = false;
-      scheduler.Queue(&showtext_task, &data->show);
-    }
+    scheduler.Queue(&showtext_task, &data->show);
   }
 }
 

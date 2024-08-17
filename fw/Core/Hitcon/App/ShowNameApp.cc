@@ -22,6 +22,9 @@ namespace {
 
 // Update once every 15s. Units: ms.
 constexpr unsigned kMinUpdateInterval = 15 * 1000;
+static const char SURPRISE_NAME[] = "Cool!";
+static const int SURPRISE_NAME_LEN = sizeof(SURPRISE_NAME) / sizeof(char);
+static constexpr unsigned SURPRISE_TIME = 10000;
 
 }  // namespace
 ShowNameApp show_name_app;
@@ -44,8 +47,8 @@ void ShowNameApp::Init() {
 void ShowNameApp::OnEntry() {
   display_set_orientation(0);
   score_cache = gameLogic.GetScore();
-  update_display();
   scheduler.EnablePeriodic(&_routine_task);
+  update_display();
 }
 
 void ShowNameApp::OnExit() {
@@ -66,7 +69,12 @@ void ShowNameApp::OnButton(button_t button) {
 }
 
 void ShowNameApp::check_update() {
-  if (SysTimer::GetTime() - last_disp_update > kMinUpdateInterval) {
+  if (mode == Surprise &&
+      SysTimer::GetTime() - last_disp_update > SURPRISE_TIME) {
+    mode = NameScore;
+    update_display();
+  } else if (mode != Surprise &&
+             SysTimer::GetTime() - last_disp_update > kMinUpdateInterval) {
     if (score_cache != gameLogic.GetScore() && mode != NameOnly) {
       score_cache = gameLogic.GetScore();
       update_display();
@@ -104,6 +112,10 @@ void ShowNameApp::update_display() {
     case ScoreOnly:
       strncpy(display_str, num_str, num_len);
       display_str[num_len] = 0;
+      break;
+    case Surprise:
+      strncpy(display_str, SURPRISE_NAME, SURPRISE_NAME_LEN);
+      display_str[SURPRISE_NAME_LEN] = 0;
       break;
     default:
       break;

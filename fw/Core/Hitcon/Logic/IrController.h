@@ -49,7 +49,6 @@ class IrController {
 
  private:
   bool send_lock;
-  bool show_lock;
   bool recv_lock;
   // TODO: Tune the quadratic function parameters
   uint8_t v[3] = {1, 27, 111};
