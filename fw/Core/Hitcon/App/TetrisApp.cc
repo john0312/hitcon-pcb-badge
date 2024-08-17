@@ -55,7 +55,6 @@ void TetrisApp::OnEntry() {
                                    TETRIS_RECV_ID);
 }
 
-
 void SetSingleplayer() { tetris_app.SetPlayerCount(SINGLEPLAYER); }
 
 void SetMultiplayer() { tetris_app.SetPlayerCount(MULTIPLAYER); }
