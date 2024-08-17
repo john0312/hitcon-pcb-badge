@@ -22,9 +22,9 @@ namespace {
 
 // Update once every 15s. Units: ms.
 constexpr unsigned kMinUpdateInterval = 15 * 1000;
-static const char SURPRISE_NAME[] = "Cool!";
+static const char SURPRISE_NAME[] = "You got pwned!";
 static const int SURPRISE_NAME_LEN = sizeof(SURPRISE_NAME) / sizeof(char);
-static constexpr unsigned SURPRISE_TIME = 10000;
+static constexpr unsigned SURPRISE_TIME = 10 * 1000;
 
 }  // namespace
 ShowNameApp show_name_app;

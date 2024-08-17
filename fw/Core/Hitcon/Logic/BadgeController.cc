@@ -58,11 +58,11 @@ void BadgeController::OnButton(void *arg1) {
   if (button == COMBO_BUTTON[combo_button_ctr]) {
     combo_button_ctr++;
   } else {
-    combo_button_ctr = 0;
+    combo_button_ctr = (button == COMBO_BUTTON[0]) ? 1 : 0;
   }
   if (combo_button_ctr == COMBO_BUTTON_LEN) {
     // surprise
-    combo_button_ctr = 0;
+    combo_button_ctr = (button == COMBO_BUTTON[0]) ? 1 : 0;
     if (this->callback) this->callback(callback_arg1, callback_arg2);
     return;
   }
