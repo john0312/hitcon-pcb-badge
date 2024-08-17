@@ -26,7 +26,7 @@ class BadgeController {
 
   // App should call this to denote that the app has ended and wishes to return
   // to the main menu (or similar).
-  void OnAppEnd(App *ending_app);
+  void BackToMenu(App *ending_app);
 
   // TODO: This is called whenever a separate board connects.
   void OnXBoardConnect(void *unused);

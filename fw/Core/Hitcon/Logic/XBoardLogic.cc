@@ -258,6 +258,8 @@ void XBoardLogic::PingRoutine(void *) {
   CheckPong();
 }
 
+enum UsartConnectState XBoardLogic::GetConnectState() { return connect_state; }
+
 }  // namespace xboard
 }  // namespace service
 }  // namespace hitcon

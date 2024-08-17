@@ -3,6 +3,7 @@
 #include <App/ConnectMenuApp.h>
 #include <App/EditNameApp.h>
 #include <App/HardwareTestApp.h>
+#include <App/MainMenuApp.h>
 #include <App/ShowNameApp.h>
 #include <Logic/IrController.h>
 #include <Logic/XBoardLogic.h>
@@ -12,6 +13,8 @@
 
 using hitcon::ir::irController;
 using hitcon::service::sched::my_assert;
+using hitcon::service::xboard::g_xboard_logic;
+using hitcon::service::xboard::UsartConnectState;
 
 namespace hitcon {
 BadgeController badge_controller;
@@ -45,11 +48,14 @@ void BadgeController::change_app(App *new_app) {
   if (current_app) current_app->OnEntry();
 }
 
-void BadgeController::OnAppEnd(App *ending_app) {
+void BadgeController::BackToMenu(App *ending_app) {
   my_assert(current_app == ending_app);
 
-  // TODO: Change this.
-  change_app(&show_name_app);
+  if (g_xboard_logic.GetConnectState() == UsartConnectState::Connect) {
+    change_app(&connect_menu);
+  } else {
+    change_app(&main_menu);
+  }
 }
 
 void BadgeController::OnButton(void *arg1) {

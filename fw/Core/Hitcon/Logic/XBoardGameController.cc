@@ -154,7 +154,7 @@ void XBoardGameController::TryExitApp() {
     if (connected_) {
       badge_controller.change_app(&connect_menu);
     } else {
-      badge_controller.OnAppEnd(&g_send_data_app);
+      badge_controller.BackToMenu(&g_send_data_app);
     }
   }
 }
