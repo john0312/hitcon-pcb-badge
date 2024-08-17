@@ -88,7 +88,7 @@ void TetrisApp::OnXboardRecv(void *arg) {
       game.game_force_over();
 
       show_score_app.SetScore(game.game_get_score());
-      g_game_score.MarkScore(GameScoreType::GAME_TETRIS, _score);
+      g_game_score.MarkScore(GameScoreType::GAME_TETRIS, game.game_get_score());
       badge_controller.change_app(&show_score_app);
       break;
 
@@ -176,7 +176,7 @@ void TetrisApp::periodic_task_callback(void *) {
       }
 
       show_score_app.SetScore(game.game_get_score());
-      g_game_score.MarkScore(GameScoreType::GAME_TETRIS, _score);
+      g_game_score.MarkScore(GameScoreType::GAME_TETRIS, game.game_get_score());
       badge_controller.change_app(&show_score_app);
       break;
     }
