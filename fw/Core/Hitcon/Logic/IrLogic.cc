@@ -212,6 +212,7 @@ void IrLogic::OnBufferReceived(uint8_t *buffer) {
           g_suspender.DecBlocker();
           packet_buf = 0;
           bit = 0;
+          memset(&rx_packet, 0, sizeof(IrPacket));
           break;
 
         default:
