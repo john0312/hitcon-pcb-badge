@@ -22,6 +22,8 @@ class GameScore {
 
   void MarkScore(GameScoreType game_type, int score);
 
+  int GetScore(GameScoreType game_type);
+
  private:
   uint8_t sent[kGameAchievementDataCount / 8 + 1];
   int scores[static_cast<size_t>(GameScoreType::GAME_UNUSED_MAX)];
@@ -29,6 +31,7 @@ class GameScore {
   hitcon::service::sched::DelayedTask routine_task_delayed;
 
   size_t last_operation_progress_;
+  bool nv_fetched_;
 
   void Routine(void* args);
   bool RoutineInternal();
