@@ -1,3 +1,5 @@
+#include "GameScore.h"
+
 #include <Logic/GameLogic.h>
 #include <Logic/GameScore.h>
 #include <Service/Sched/SysTimer.h>
@@ -22,8 +24,62 @@ typedef struct AchievementEntry_t {
 } AchievementEntry;
 
 constexpr AchievementEntry kAchievementEntries[]{
-    {.type = GameScoreType::GAME_TETRIS, .min_score = 10, .data_row = 0},
-    {.type = GameScoreType::GAME_TETRIS, .min_score = 10, .data_row = 0}};
+    // clang-format off
+    /* Tetris */
+    {.type = GameScoreType::GAME_TETRIS, .min_score =0x0080, .data_row = 0x00},
+    {.type = GameScoreType::GAME_TETRIS, .min_score = 0x0100, .data_row = 0x01},
+    {.type = GameScoreType::GAME_TETRIS, .min_score = 0x0200, .data_row = 0x02},
+    {.type = GameScoreType::GAME_TETRIS, .min_score = 0x0400, .data_row = 0x03},
+    {.type = GameScoreType::GAME_TETRIS, .min_score = 0x0800, .data_row = 0x04},
+    {.type = GameScoreType::GAME_TETRIS, .min_score = 0x1000, .data_row = 0x05},
+    {.type = GameScoreType::GAME_TETRIS, .min_score = 0x1800, .data_row = 0x06},
+    {.type = GameScoreType::GAME_TETRIS, .min_score = 0x2000, .data_row = 0x07},
+    {.type = GameScoreType::GAME_TETRIS, .min_score = 0x2800, .data_row = 0x08},
+    {.type = GameScoreType::GAME_TETRIS, .min_score = 0x3000, .data_row = 0x09},
+    {.type = GameScoreType::GAME_TETRIS, .min_score = 0x3800, .data_row = 0x0a},
+    {.type = GameScoreType::GAME_TETRIS, .min_score = 0x4000, .data_row = 0x0b},
+    {.type = GameScoreType::GAME_TETRIS, .min_score = 0x5000, .data_row = 0x0c},
+    {.type = GameScoreType::GAME_TETRIS, .min_score = 0x6000, .data_row = 0x0d},
+    {.type = GameScoreType::GAME_TETRIS, .min_score = 0x7000, .data_row = 0x0e},
+    {.type = GameScoreType::GAME_TETRIS, .min_score = 0x8000, .data_row = 0x0f},
+
+    /* Dino */
+    {.type = GameScoreType::GAME_DINO, .min_score = 0x0020, .data_row = 0x10},
+    {.type = GameScoreType::GAME_DINO, .min_score = 0x0040, .data_row = 0x11},
+    {.type = GameScoreType::GAME_DINO, .min_score = 0x0060, .data_row = 0x12},
+    {.type = GameScoreType::GAME_DINO, .min_score = 0x0080, .data_row = 0x13},
+    {.type = GameScoreType::GAME_DINO, .min_score = 0x00a0, .data_row = 0x14},
+    {.type = GameScoreType::GAME_DINO, .min_score = 0x0100, .data_row = 0x15},
+    {.type = GameScoreType::GAME_DINO, .min_score = 0x0180, .data_row = 0x16},
+    {.type = GameScoreType::GAME_DINO, .min_score = 0x0200, .data_row = 0x17},
+    {.type = GameScoreType::GAME_DINO, .min_score = 0x0280, .data_row = 0x18},
+    {.type = GameScoreType::GAME_DINO, .min_score = 0x0300, .data_row = 0x19},
+    {.type = GameScoreType::GAME_DINO, .min_score = 0x0400, .data_row = 0x1a},
+    {.type = GameScoreType::GAME_DINO, .min_score = 0x0500, .data_row = 0x1b},
+    {.type = GameScoreType::GAME_DINO, .min_score = 0x0600, .data_row = 0x1c},
+    {.type = GameScoreType::GAME_DINO, .min_score = 0x0800, .data_row = 0x1d},
+    {.type = GameScoreType::GAME_DINO, .min_score = 0x0a00, .data_row = 0x1e},
+    {.type = GameScoreType::GAME_DINO, .min_score = 0x1000, .data_row = 0x1f},
+
+    /* Snake */
+    {.type = GameScoreType::GAME_SNAKE, .min_score = 0x08, .data_row = 0x20},
+    {.type = GameScoreType::GAME_SNAKE, .min_score = 0x0c, .data_row = 0x21},
+    {.type = GameScoreType::GAME_SNAKE, .min_score = 0x10, .data_row = 0x22},
+    {.type = GameScoreType::GAME_SNAKE, .min_score = 0x14, .data_row = 0x23},
+    {.type = GameScoreType::GAME_SNAKE, .min_score = 0x18, .data_row = 0x24},
+    {.type = GameScoreType::GAME_SNAKE, .min_score = 0x1c, .data_row = 0x25},
+    {.type = GameScoreType::GAME_SNAKE, .min_score = 0x20, .data_row = 0x26},
+    {.type = GameScoreType::GAME_SNAKE, .min_score = 0x24, .data_row = 0x27},
+    {.type = GameScoreType::GAME_SNAKE, .min_score = 0x28, .data_row = 0x28},
+    {.type = GameScoreType::GAME_SNAKE, .min_score = 0x30, .data_row = 0x29},
+    {.type = GameScoreType::GAME_SNAKE, .min_score = 0x38, .data_row = 0x2a},
+    {.type = GameScoreType::GAME_SNAKE, .min_score = 0x40, .data_row = 0x2b},
+    {.type = GameScoreType::GAME_SNAKE, .min_score = 0x48, .data_row = 0x2c},
+    {.type = GameScoreType::GAME_SNAKE, .min_score = 0x50, .data_row = 0x2d},
+    {.type = GameScoreType::GAME_SNAKE, .min_score = 0x58, .data_row = 0x2e},
+    {.type = GameScoreType::GAME_SNAKE, .min_score = 0x7f, .data_row = 0x2f},
+    // clang-format on
+};
 
 constexpr size_t kAchievementCount =
     sizeof(kAchievementEntries) / sizeof(kAchievementEntries[0]);
