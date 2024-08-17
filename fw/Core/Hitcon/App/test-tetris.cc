@@ -122,6 +122,12 @@ void ioFunction() {
           break;
         }
 
+        case 'f': {
+          std::lock_guard<std::mutex> lock(game_mutex);
+          game.game_on_input(hitcon::tetris::DIRECTION_FAST_DOWN);
+          break;
+        }
+
         default:
           break;
       }
