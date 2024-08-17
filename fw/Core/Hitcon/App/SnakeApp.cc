@@ -1,11 +1,14 @@
 #include <App/MainMenuApp.h>
 #include <App/ShowNameApp.h>
+#include <App/ShowScoreApp.h>
 #include <App/SnakeApp.h>
 #include <Logic/BadgeController.h>
 #include <Logic/RandomPool.h>
 #include <Logic/XBoardLogic.h>
 #include <Service/Sched/Scheduler.h>
 #include <Util/uint_to_str.h>
+
+#include "ShowScoreApp.h"
 
 using namespace hitcon::service::sched;
 using namespace hitcon::service::xboard;
@@ -185,13 +188,13 @@ void SnakeApp::Routine(void* unused) {
   if (OnSnake(new_head)) _game_over = true;
 
   if (_game_over) {
-    char score_frame[16] = "Score: ";
-    uint_to_chr(score_frame + 7, 9, _len - 2);
-    display_set_mode_scroll_text(score_frame);
+    // TODO: score
+    show_score_app.SetScore(0);
     if (mode == MODE_MULTIPLAYER) {
       uint8_t code = PACKET_GAME_OVER;
       g_xboard_logic.QueueDataForTx(&code, 1, SNAKE_RECV_ID);
     }
+    badge_controller.change_app(&show_score_app);
     return;
   }
 
