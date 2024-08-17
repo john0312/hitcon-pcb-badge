@@ -12,11 +12,12 @@ void TetrisGame::clear_full_line() {
   int to = BOARD_HEIGHT - 1;
   int cleared_lines = 0;
   for (; from >= 0; from--) {
-    if (board[from] && board[from] != 0b11111111u) {
+    if (board[from] == 0b11111111u) {
+      cleared_lines++;
+    } else {
       board[to] = board[from];
       if (to != from) {
         board[from] = 0;
-        cleared_lines++;
       }
       to--;
     }

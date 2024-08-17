@@ -16,6 +16,8 @@ std::mutex game_mutex;
 hitcon::tetris::TetrisGame game([]() { return static_cast<unsigned>(rand()); });
 
 void print_buf_90(display_buf_t* buf_) {
+  printf("Score: %d\n", game.game_get_score());
+
   // will rotate 90 degree since tetris is portrait
   uint8_t buf[DISPLAY_WIDTH * DISPLAY_HEIGHT];
   display_buf_unpack(buf, buf_);
@@ -63,6 +65,7 @@ void gameFunction() {
       game.game_fall_down_tetromino();
       prev_update = now;
       if (game.game_get_state() == hitcon::tetris::GAME_STATE_GAME_OVER) {
+        exit(0);
         break;
       }
     }
