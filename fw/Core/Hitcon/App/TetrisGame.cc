@@ -159,8 +159,7 @@ void TetrisGame::game_on_input(TetrisDirection direction) {
       case DIRECTION_FAST_DOWN:
         unplace_tetromino(current_x, current_y);
         while (place_tetromino(current_x, current_y + 1)) {
-          unplace_tetromino(current_x, current_y + 1);
-          current_y++;
+          unplace_tetromino(current_x, current_y);
         }
         place_tetromino(current_x, current_y);
         fall_down_tetromino();
