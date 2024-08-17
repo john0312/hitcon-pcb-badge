@@ -55,6 +55,7 @@ class SnakeApp : public App {
   direction_t _last_direction;
   int8_t _food_index;
   bool _game_over;
+  uint32_t _score;
 
   void GenerateFood();
   void Routine(void* unused);
