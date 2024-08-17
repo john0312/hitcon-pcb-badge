@@ -119,7 +119,14 @@ void UsbLogic::RunScript(callback_t cb, void* arg1) {
   flag = false;
 }
 
-void UsbLogic::StopScript() { scheduler.DisablePeriodic(&_routine_task); }
+void UsbLogic::StopScript() {
+  if (_routine_task.IsEnabled()) scheduler.DisablePeriodic(&_routine_task);
+  if (_write_routine_task.IsEnabled())
+    scheduler.DisablePeriodic(&_write_routine_task);
+
+  USBD_CUSTOM_HID_SendReport(&hUsbDeviceFS,
+                             reinterpret_cast<uint8_t*>(&empty_report), 8);
+}
 
 // run every 20ms
 void UsbLogic::Routine(void* unused) {
