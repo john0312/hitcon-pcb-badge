@@ -103,11 +103,25 @@ void TetrisApp::OnXboardRecv(void *arg) {
 void TetrisApp::OnButton(button_t button) {
   switch (game.game_get_state()) {
     case hitcon::tetris::GAME_STATE_WAITING: {
-      if (multiplayer) {
-        uint8_t code = PACKET_GAME_START;
-        g_xboard_logic.QueueDataForTx(&code, 1, TETRIS_RECV_ID);
+      switch (button) {
+        case BUTTON_OK:
+          if (multiplayer) {
+            uint8_t code = PACKET_GAME_START;
+            g_xboard_logic.QueueDataForTx(&code, 1, TETRIS_RECV_ID);
+          }
+          game.game_start_playing();
+          break;
+        case BUTTON_BACK:
+        case BUTTON_LONG_BACK:
+          if (multiplayer) {
+            uint8_t code = PACKET_ABORT_GAME;
+            g_xboard_logic.QueueDataForTx(&code, 1, TETRIS_RECV_ID);
+          }
+          badge_controller.BackToMenu(this);
+          break;
+        default:
+          break;
       }
-      game.game_start_playing();
       break;
     }
 
