@@ -25,6 +25,7 @@ class TextEditorDisplay {
   void decr_current_char();
   void set_current_char(char c);
   void backspace();
+  void insert();
 
   void draw(uint8_t *buf, int frame) const;
   void draw_packed(display_buf_t *display_buf, int frame) const;

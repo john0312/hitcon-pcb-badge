@@ -28,7 +28,11 @@ void EditNameApp::OnButton(button_t button) {
       }
       break;
     case BUTTON_RIGHT:
-      editor.move_cursor_right();
+      if (mode_key_down) {
+        editor.insert();
+      } else {
+        editor.move_cursor_right();
+      }
       break;
     case BUTTON_UP:
       editor.incr_current_char();

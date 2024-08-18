@@ -79,6 +79,16 @@ void TextEditorDisplay::backspace() {
   --cursor;
 }
 
+void TextEditorDisplay::insert() {
+  size_t len = strlen(text);
+  if (len >= MAX_TEXT_LENGTH) return;
+  for (int8_t i = len; i > 0 && i > cursor; --i) {
+    text[i] = text[i - 1];
+  }
+  text[cursor] = 'A';
+  move_cursor_right();
+}
+
 void TextEditorDisplay::draw(uint8_t *buf, int frame) const {
   display_buf_t display_buf[DISPLAY_WIDTH];
   draw_packed(display_buf, frame);
