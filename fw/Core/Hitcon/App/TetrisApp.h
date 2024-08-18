@@ -48,7 +48,6 @@ class TetrisApp : public App {
   hitcon::tetris::TetrisGame game;
   hitcon::service::sched::PeriodicTask periodic_task;
 
-  unsigned last_fall_time = 0;
   void RecvAttackPacket(hitcon::service::xboard::PacketCallbackArg *packet);
 
  public:

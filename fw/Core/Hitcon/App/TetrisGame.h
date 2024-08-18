@@ -6,11 +6,11 @@
 namespace hitcon {
 namespace tetris {
 
-constexpr unsigned FALL_PERIOD = 1000;            // ms
-constexpr unsigned UPDATE_INTERVAL = 200;         // ms
-constexpr unsigned SPEED_UP_PER_CLEAR_LINE = 50;  // ms
-constexpr unsigned MIN_FALL_PERIOD = 100;         // ms
-constexpr unsigned UPDATE_PRIORITY = 960;
+constexpr int FALL_PERIOD = 1000;            // ms
+constexpr int UPDATE_INTERVAL = 200;         // ms
+constexpr int SPEED_UP_PER_CLEAR_LINE = 50;  // ms
+constexpr int MIN_FALL_PERIOD = 100;         // ms
+constexpr int UPDATE_PRIORITY = 960;
 
 constexpr int BOARD_WIDTH = 8;
 constexpr int BOARD_HEIGHT = 16;
@@ -138,7 +138,7 @@ class TetrisGame {
   TetrisGame() = default;
   TetrisGame(unsigned (*rand)(void));
 
-  void game_fall_down_tetromino();
+  bool game_fall_down_if_its_time(int now, int last_fall_time);
   void game_on_input(TetrisDirection direction);
   void game_draw_to_display(display_buf_t *buf);
   inline void game_start_playing() { state = GAME_STATE_PLAYING; }
