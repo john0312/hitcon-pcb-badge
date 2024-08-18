@@ -73,7 +73,7 @@ class XBoardGameController {
   // Sends one data with GetRandomDataForXBoardTransmission().
   void SendOneData();
 
-  void SendExactData(int col, int row);
+  void SendExactData(int idx);
 
   // Callback for receiving AckPacket.
   void RecvAck(hitcon::service::xboard::PacketCallbackArg* opkt);
