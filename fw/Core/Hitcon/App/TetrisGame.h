@@ -8,7 +8,8 @@ namespace tetris {
 
 constexpr unsigned FALL_PERIOD = 1000;            // ms
 constexpr unsigned UPDATE_INTERVAL = 200;         // ms
-constexpr unsigned SPEED_UP_PER_CLEAR_LINE = 50;  // MS
+constexpr unsigned SPEED_UP_PER_CLEAR_LINE = 50;  // ms
+constexpr unsigned MIN_FALL_PERIOD = 100;         // ms
 constexpr unsigned UPDATE_PRIORITY = 960;
 
 constexpr int BOARD_WIDTH = 8;

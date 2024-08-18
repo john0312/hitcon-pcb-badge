@@ -172,6 +172,8 @@ void TetrisApp::OnButton(button_t button) {
   }
 }
 
+inline unsigned max(unsigned a, unsigned b) { return a > b ? a : b; }
+
 void TetrisApp::periodic_task_callback(void *) {
   switch (game.game_get_state()) {
     case hitcon::tetris::GAME_STATE_WAITING: {
@@ -195,9 +197,10 @@ void TetrisApp::periodic_task_callback(void *) {
       // check if it's time to fall down
       unsigned now = SysTimer::GetTime();
       if (now - last_fall_time >=
-          (hitcon::tetris::FALL_PERIOD -
-           game.game_get_cleared_lines() *
-               hitcon::tetris::SPEED_UP_PER_CLEAR_LINE)) {
+          max(hitcon::tetris::MIN_FALL_PERIOD,
+              hitcon::tetris::FALL_PERIOD -
+                  game.game_get_cleared_lines() *
+                      hitcon::tetris::SPEED_UP_PER_CLEAR_LINE)) {
         game.game_fall_down_tetromino();
         last_fall_time = now;
       }
