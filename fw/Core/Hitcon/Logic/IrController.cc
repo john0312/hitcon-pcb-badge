@@ -35,7 +35,8 @@ IrController::IrController()
       broadcast_task(800, (callback_t)&IrController::BroadcastIr, this),
       send2game_task(800, (callback_t)&IrController::Send2Game, this),
       showtext_task(800, (callback_t)&IrController::ShowText, this),
-      send_lock(true), recv_lock(true), received_packet_cnt(0) {}
+      send_lock(true), recv_lock(true), disable_broadcast(false),
+      received_packet_cnt(0) {}
 
 void IrController::Send2Game(void* arg) {
   GamePacket* game = reinterpret_cast<GamePacket*>(arg);
@@ -106,6 +107,8 @@ void IrController::RoutineTask(void* unused) {
 }
 
 void IrController::BroadcastIr(void* unused) {
+  if (disable_broadcast) return;
+
   uint8_t cell_data[kDataSize];
   int col = g_fast_random_pool.GetRandom() % hitcon::game::kNumCols;
   gameLogic.GetRandomDataForIrTransmission(cell_data, &col);

@@ -47,11 +47,14 @@ class IrController {
   void ShowText(void* arg);
   void InitBroadcastService(uint8_t game_types);
 
+  void SetDisableBroadcast() { disable_broadcast = true; }
+
  private:
   bool send_lock;
   bool recv_lock;
   // TODO: Tune the quadratic function parameters
   uint8_t v[3] = {1, 27, 111};
+  bool disable_broadcast;
 
   // Number of packets received, primarily for debugging.
   size_t received_packet_cnt;
