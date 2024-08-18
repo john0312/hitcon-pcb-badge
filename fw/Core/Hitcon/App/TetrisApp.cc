@@ -172,8 +172,6 @@ void TetrisApp::OnButton(button_t button) {
   }
 }
 
-inline unsigned max(unsigned a, unsigned b) { return a > b ? a : b; }
-
 void TetrisApp::periodic_task_callback(void *) {
   switch (game.game_get_state()) {
     case hitcon::tetris::GAME_STATE_WAITING: {
