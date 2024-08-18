@@ -35,6 +35,7 @@ IrController::IrController()
       broadcast_task(800, (callback_t)&IrController::BroadcastIr, this),
       send2game_task(800, (callback_t)&IrController::Send2Game, this),
       showtext_task(800, (callback_t)&IrController::ShowText, this),
+      showfirework_task(800, (callback_t)&IrController::ShowFireWork, this),
       send_lock(true), recv_lock(true), disable_broadcast(false),
       received_packet_cnt(0), priority_data_len_(0) {}
 
@@ -48,11 +49,16 @@ void IrController::ShowText(void* arg) {
   badge_controller.change_app(&show_name_app);
 }
 
+void IrController::ShowFireWork(void* unused) {
+  // TODO: Send firework
+}
+
 void IrController::Init() {
   irLogic.SetOnPacketReceived((callback_t)&IrController::OnPacketReceived,
                               this);
   badge_controller.SetCallback((callback_t)&IrController::SendShowPacket, this,
                                SURPRISE_NAME);
+  badge_controller.SetCallback((callback_t)&IrController::SendFireWork, this);
   scheduler.Queue(&routine_task, nullptr);
   scheduler.EnablePeriodic(&routine_task);
 }
@@ -73,6 +79,8 @@ void IrController::OnPacketReceived(void* arg) {
     hardware_test_app.CheckIr(&data->show);
   } else if (data->type == packet_type::kShow) {
     scheduler.Queue(&showtext_task, &data->show);
+  } else if (data->type == packet_type::kFirework) {
+    scheduler.Queue(&showfirework_task);
   }
 }
 
@@ -138,6 +146,17 @@ void IrController::SendShowPacket(char* msg) {
   };
   size_t length = strlen(msg);
   memcpy(irdata.show.message, msg, length);
+  memcpy(&priority_data_, &irdata, sizeof(irdata));
+  priority_data_len_ = sizeof(priority_data_) / sizeof(uint8_t);
+  ;
+  TrySendPriority();
+}
+
+void IrController::SendFireWork(void* unused) {
+  IrData irdata = {
+      .ttl = 0,
+      .type = packet_type::kFirework,
+  };
   memcpy(&priority_data_, &irdata, sizeof(irdata));
   priority_data_len_ = sizeof(priority_data_) / sizeof(uint8_t);
   ;

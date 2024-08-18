@@ -13,6 +13,7 @@ enum class packet_type : uint8_t {
   kGame = 0,
   kShow = 1,
   kTest = 2,
+  kFirework = 3,
 };
 
 namespace hitcon {
@@ -45,6 +46,7 @@ class IrController {
   void Init();
   void Send2Game(void* arg);
   void ShowText(void* arg);
+  void ShowFireWork(void* arg);
   void InitBroadcastService(uint8_t game_types);
 
   void SetDisableBroadcast() { disable_broadcast = true; }
@@ -61,6 +63,7 @@ class IrController {
 
   hitcon::service::sched::PeriodicTask routine_task;
   hitcon::service::sched::Task send2game_task;
+  hitcon::service::sched::Task showfirework_task;
   hitcon::service::sched::Task showtext_task;
   hitcon::service::sched::Task broadcast_task;
 
@@ -77,6 +80,7 @@ class IrController {
 
   void BroadcastIr(void* unused);
   void SendShowPacket(char* msg);
+  void SendFireWork(void* unused);
 
   bool TrySendPriority();
 };
