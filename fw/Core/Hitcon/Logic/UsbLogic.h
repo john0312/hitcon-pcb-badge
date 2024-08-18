@@ -63,11 +63,18 @@ class UsbLogic {
     union {
       uint8_t u8[8];
       struct {
-	uint32_t addr;
-	uint32_t content;
+        uint32_t addr;
+        uint32_t content;
       } s;
     };
   } _write_mem_packet;
+  struct ReadMemPacket {
+    union {
+      uint8_t u8[4];
+      uint32_t addr;
+    };
+  } _read_mem_packet;
+
   hitcon::service::sched::PeriodicTask _routine_task;
   hitcon::service::sched::PeriodicTask _write_routine_task;
   void Routine(void* unused);

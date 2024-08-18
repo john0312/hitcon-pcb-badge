@@ -81,19 +81,49 @@ void UsbLogic::OnDataRecv(void* arg) {
       break;
     case USB_STATE_WRITE_MEM:
       for (uint8_t i = (_index == 0); i < RECV_BUF_LEN; i++, _index++) {
-	_write_mem_packet.u8[_index] = data[i];
+        _write_mem_packet.u8[_index] = data[i];
         if (_index == 8) {  // type
           switch (data[i]) {
             case MEM_BYTE:
-              *reinterpret_cast<uint8_t*>(_write_mem_packet.s.addr) = static_cast<uint8_t>(_write_mem_packet.s.content);
+              *reinterpret_cast<uint8_t*>(_write_mem_packet.s.addr) =
+                  static_cast<uint8_t>(_write_mem_packet.s.content);
               break;
             case MEM_HALFWORD:
-              *reinterpret_cast<uint16_t*>(_write_mem_packet.s.addr) = static_cast<uint16_t>(_write_mem_packet.s.content);
+              *reinterpret_cast<uint16_t*>(_write_mem_packet.s.addr) =
+                  static_cast<uint16_t>(_write_mem_packet.s.content);
               break;
             case MEM_WORD:
-              *reinterpret_cast<uint32_t*>(_write_mem_packet.s.addr) = _write_mem_packet.s.content;
+              *reinterpret_cast<uint32_t*>(_write_mem_packet.s.addr) =
+                  _write_mem_packet.s.content;
               break;
           }
+          _state = USB_STATE_HEADER;
+          break;
+        }
+      }
+      break;
+    case USB_STATE_READ_MEM:
+      for (uint8_t i = (_index == 0); i < RECV_BUF_LEN; i++, _index++) {
+        _read_mem_packet.u8[_index] = data[i];
+        if (_index == 4) {
+          keyboard_report = {0, 0, 0, 0, 0, 0, 0, 0};
+          switch (data[i]) {
+            case MEM_BYTE:
+              *reinterpret_cast<uint8_t*>(&keyboard_report.keycode[0]) =
+                  *reinterpret_cast<uint8_t*>(_read_mem_packet.addr);
+              break;
+            case MEM_HALFWORD:
+              *reinterpret_cast<uint16_t*>(&keyboard_report.keycode[0]) =
+                  *reinterpret_cast<uint16_t*>(_read_mem_packet.addr);
+              break;
+            case MEM_WORD:
+              *reinterpret_cast<uint32_t*>(&keyboard_report.keycode[0]) =
+                  *reinterpret_cast<uint32_t*>(_read_mem_packet.addr);
+              break;
+          }
+
+          USBD_CUSTOM_HID_SendReport(
+              &hUsbDeviceFS, reinterpret_cast<uint8_t*>(&keyboard_report), 8);
           _state = USB_STATE_HEADER;
           break;
         }
