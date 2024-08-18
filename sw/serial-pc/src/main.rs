@@ -1,7 +1,14 @@
 use clap::Parser;
 use crc::Crc;
 use parser::{PacketParser, PING_TYPE};
+use rayon::prelude::*;
+use rayon::{
+    iter::{IntoParallelRefIterator, ParallelIterator},
+    str::Bytes,
+};
+use sha3::{Digest, Sha3_256};
 use std::{
+    cell,
     io::{self, Read, Write},
     net::{TcpListener, TcpStream},
     thread,
@@ -79,6 +86,7 @@ fn server(listener: TcpListener) {
     let mut packet_parser = PacketParser::new();
 
     // receive loop
+    let mut cells: Vec<[u8; 8]> = vec![];
     loop {
         let mut serial_buf: Vec<u8> = vec![0; 1024];
         match port.read(serial_buf.as_mut_slice()) {
@@ -98,6 +106,7 @@ fn server(listener: TcpListener) {
                     match pkt.typ {
                         3 => {
                             println!("type={} data={:02X?}", pkt.typ, pkt.data);
+                            cells.push(pkt.data[1..].try_into().unwrap());
                         }
                         _ => {
                             println!("{:?}", pkt);
@@ -105,11 +114,38 @@ fn server(listener: TcpListener) {
                     }
                 }
                 io::stdout().flush().unwrap();
+                if cells.len() == 128 {
+                    break;
+                } else if cells.len() > 130 {
+                    panic!("received too many cells");
+                }
             }
             Err(ref e) if e.kind() == io::ErrorKind::TimedOut => (),
             Err(e) => eprintln!("{:?}", e),
         }
     }
+
+    let score: u32 = cells
+        .par_iter()
+        .map(|cell| {
+            let hash = Sha3_256::digest(cell);
+            let mut count = 0;
+            for byte in hash {
+                match byte.leading_zeros() {
+                    8 => {
+                        count += 8;
+                    }
+                    x => {
+                        count += x;
+                        break;
+                    }
+                }
+            }
+            count * count
+        })
+        .sum();
+    let score = score / 16;
+    println!("scores {:?}", score);
 }
 
 fn client() {
