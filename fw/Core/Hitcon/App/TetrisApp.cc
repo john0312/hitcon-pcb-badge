@@ -205,6 +205,10 @@ void TetrisApp::periodic_task_callback(void *) {
         fall_period = hitcon::tetris::MIN_FALL_PERIOD;
       }
 
+      if (fall_period < hitcon::tetris::MIN_FALL_PERIOD) {
+        fall_period = hitcon::tetris::MIN_FALL_PERIOD;
+      }
+
       if (now - last_fall_time >= fall_period) {
         game.game_fall_down_tetromino();
         last_fall_time = now;
