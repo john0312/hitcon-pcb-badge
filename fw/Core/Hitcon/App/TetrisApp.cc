@@ -194,7 +194,10 @@ void TetrisApp::periodic_task_callback(void *) {
     case hitcon::tetris::GAME_STATE_PLAYING: {
       // check if it's time to fall down
       unsigned now = SysTimer::GetTime();
-      if (now - last_fall_time >= hitcon::tetris::FALL_PERIOD) {
+      if (now - last_fall_time >=
+          (hitcon::tetris::FALL_PERIOD -
+           game.game_get_cleared_lines() *
+               hitcon::tetris::SPEED_UP_PER_CLEAR_LINE)) {
         game.game_fall_down_tetromino();
         last_fall_time = now;
       }

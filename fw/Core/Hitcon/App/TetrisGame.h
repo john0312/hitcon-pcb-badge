@@ -6,8 +6,9 @@
 namespace hitcon {
 namespace tetris {
 
-constexpr unsigned FALL_PERIOD = 1000;     // ms
-constexpr unsigned UPDATE_INTERVAL = 200;  // ms
+constexpr unsigned FALL_PERIOD = 1000;            // ms
+constexpr unsigned UPDATE_INTERVAL = 200;         // ms
+constexpr unsigned SPEED_UP_PER_CLEAR_LINE = 50;  // MS
 constexpr unsigned UPDATE_PRIORITY = 960;
 
 constexpr int BOARD_WIDTH = 8;
@@ -143,6 +144,7 @@ class TetrisGame {
   inline void game_force_over() { game_over(); }
   inline TetrisGameState game_get_state() const { return state; };
   inline int game_get_score() const { return score; }
+  inline int game_get_cleared_lines() const { return score / CLEAR_LINE_SCORE; }
 
   // 2-player game, this function should be called when enemy attacks us.
   void game_enemy_attack(int n_lines);
