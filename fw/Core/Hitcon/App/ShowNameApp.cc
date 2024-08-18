@@ -122,6 +122,7 @@ void ShowNameApp::update_display() {
 
   static char num_str[max_len + 1];
   int num_len = 0;
+  score_cache = gameLogic.GetScore();
   uint32_t score_ = score_cache;
 
   uint_to_chr(num_str, max_len + 1, score_);
