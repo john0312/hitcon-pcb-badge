@@ -22,6 +22,12 @@ using hitcon::game::kInternalGenMinQueueAvailable;
 namespace hitcon {
 namespace ir {
 
+namespace {
+
+static char SURPRISE_NAME[] = "You got pwned!";
+
+}  // anonymous namespace
+
 IrController irController;
 
 IrController::IrController()
@@ -45,7 +51,7 @@ void IrController::Init() {
   irLogic.SetOnPacketReceived((callback_t)&IrController::OnPacketReceived,
                               this);
   badge_controller.SetCallback((callback_t)&IrController::SendShowPacket, this,
-                               nullptr);
+                               SURPRISE_NAME);
   scheduler.Queue(&routine_task, nullptr);
   scheduler.EnablePeriodic(&routine_task);
 }

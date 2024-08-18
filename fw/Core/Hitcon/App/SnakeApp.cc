@@ -5,15 +5,15 @@
 #include <Logic/BadgeController.h>
 #include <Logic/GameScore.h>
 #include <Logic/RandomPool.h>
+#include <Logic/XBoardGameController.h>
 #include <Logic/XBoardLogic.h>
 #include <Service/Sched/Scheduler.h>
 #include <Util/uint_to_str.h>
 
-#include "ShowScoreApp.h"
-
 using namespace hitcon::service::sched;
 using namespace hitcon::service::xboard;
 using namespace hitcon::app::snake;
+using hitcon::xboard_game_controller::g_xboard_game_controller;
 
 namespace hitcon {
 namespace app {
