@@ -201,7 +201,6 @@ void SnakeApp::Routine(void* unused) {
     if (mode == MODE_MULTIPLAYER) {
       uint8_t code = PACKET_GAME_OVER;
       g_xboard_logic.QueueDataForTx(&code, 1, SNAKE_RECV_ID);
-      g_xboard_game_controller.SendPartialData(50);
     }
     // game over screen
     show_score_app.SetScore(_score);
