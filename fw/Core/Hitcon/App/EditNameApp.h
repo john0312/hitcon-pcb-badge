@@ -18,6 +18,7 @@ namespace hitcon {
 class EditNameApp : public App {
  private:
   TextEditorDisplay editor;
+  bool mode_key_down = false;
 
  public:
   EditNameApp();
@@ -26,6 +27,7 @@ class EditNameApp : public App {
   void OnEntry() override;
   void OnExit() override;
   void OnButton(button_t button) override;
+  void OnEdgeButton(button_t button) override;
 };
 
 extern EditNameApp edit_name_app;
