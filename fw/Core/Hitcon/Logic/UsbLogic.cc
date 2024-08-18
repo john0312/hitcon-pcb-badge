@@ -9,10 +9,8 @@
 using namespace hitcon::service::sched;
 
 /* TODO:
- * 1. check name length
- * 2. add usb on connect
- * 3. add run script progress (XX%)
- * 4. add hack api
+ * 1. add usb on connect
+ * 2. impl read mem
  */
 
 namespace hitcon {
@@ -42,6 +40,9 @@ void UsbLogic::OnDataRecv(void* arg) {
   for (uint8_t i = 0; i < RECV_BUF_LEN; i++) {
     _temp[i] = data[i];
   }
+
+  // ignore init event when plug-in on Linux
+  if (data[0] == 1 && data[1] == 0) return;
 
   if (_state == USB_STATE_HEADER) {
     if (data[0]) {
@@ -77,6 +78,26 @@ void UsbLogic::OnDataRecv(void* arg) {
       if (data[0] == 0xFC) data[0] = 0;
       memcpy(_temp, data, RECV_BUF_LEN);
       _new_data = true;
+      break;
+    case USB_STATE_WRITE_MEM:
+      for (uint8_t i = (_index == 0); i < RECV_BUF_LEN; i++, _index++) {
+	_write_mem_packet.u8[_index] = data[i];
+        if (_index == 8) {  // type
+          switch (data[i]) {
+            case MEM_BYTE:
+              *reinterpret_cast<uint8_t*>(_write_mem_packet.s.addr) = static_cast<uint8_t>(_write_mem_packet.s.content);
+              break;
+            case MEM_HALFWORD:
+              *reinterpret_cast<uint16_t*>(_write_mem_packet.s.addr) = static_cast<uint16_t>(_write_mem_packet.s.content);
+              break;
+            case MEM_WORD:
+              *reinterpret_cast<uint32_t*>(_write_mem_packet.s.addr) = _write_mem_packet.s.content;
+              break;
+          }
+          _state = USB_STATE_HEADER;
+          break;
+        }
+      }
       break;
     default:
       break;
