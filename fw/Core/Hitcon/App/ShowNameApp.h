@@ -17,7 +17,7 @@ enum ShowNameMode {
 
 class ShowNameApp : public App {
  public:
-  static constexpr int NAME_LEN = 16;
+  static constexpr int NAME_LEN = kDisplayMaxNameLength;
   static constexpr char *DEFAULT_NAME = "HITCON2024";
 
   char name[NAME_LEN + 1] = {0};
