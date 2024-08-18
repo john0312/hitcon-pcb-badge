@@ -1,3 +1,4 @@
+import base64
 import shutil
 from elftools.elf.elffile import ELFFile
 import numpy as np
@@ -140,9 +141,11 @@ def print_array_in_hex(array):
     
 def http_post_uint8_array(url="https://pcb-log.hitcon2024.online/log_board", 
                      uint8_array=search_array_PerBoardSecret):
+    datatosend = base64.b64encode(uint8_array).decode('utf-8')
     data = {
-        "board_secret": uint8_array.tolist()
+        "board_secret": datatosend
     }
+    data = json.dumps(data)
     response = requests.post(url, data)
 
     return response.status_code
