@@ -128,7 +128,8 @@ bool GameScore::RoutineInternal() {
   }
   size_t i = last_operation_progress_;
   size_t end = kAchievementCount;
-  if (kAchievementPerPass < end) end = kAchievementPerPass;
+  if (last_operation_progress_ + kAchievementPerPass < end)
+    end = last_operation_progress_ + kAchievementPerPass;
   for (; i < end; i++) {
     if (scores[static_cast<size_t>(kAchievementEntries[i].type)] >=
         kAchievementEntries[i].min_score) {
