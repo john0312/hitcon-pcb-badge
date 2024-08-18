@@ -57,9 +57,9 @@ constexpr uint8_t kGameAchievementData[] = {
     DATA(0x0d), // 31
     DATA(0x0d), // 32
     DATA(0x0e), // 33
-    DATA(0x0e), // 34
-    DATA(0x0f), // 35
+    DATA(0x0e), // 35
     DATA(0x0f), // 37
+    DATA(0x0f), // 38
 
     // Snake
     DATA(0x00), // 10
@@ -507,7 +507,7 @@ constexpr size_t PER_IR_PARTITION_SIZE =
     sizeof(kStrayIRData) / sizeof(uint8_t) / PARTITION_LEN / 9;
 
 constexpr uint8_t kStrayXBoardData[] = {};
-constexpr size_t PER_XBoard_PARTITION_SIZE = 
+constexpr size_t PER_XBoard_PARTITION_SIZE =
     sizeof(kStrayXBoardData) / sizeof(uint8_t) / PARTITION_LEN / 9;
 
 // defined HITCON_R1
@@ -596,7 +596,7 @@ constexpr size_t PER_IR_PARTITION_SIZE =
     sizeof(kStrayIRData) / sizeof(uint8_t) / PARTITION_LEN / 9;
 
 constexpr uint8_t kStrayXBoardData[] = {};
-constexpr size_t PER_XBoard_PARTITION_SIZE = 
+constexpr size_t PER_XBoard_PARTITION_SIZE =
     sizeof(kStrayXBoardData) / sizeof(uint8_t) / PARTITION_LEN / 9;
 
 // defined HITCON_R2
@@ -686,7 +686,7 @@ constexpr size_t PER_IR_PARTITION_SIZE =
     sizeof(kStrayIRData) / sizeof(uint8_t) / PARTITION_LEN / 9;
 
 constexpr uint8_t kStrayXBoardData[] = {};
-constexpr size_t PER_XBoard_PARTITION_SIZE = 
+constexpr size_t PER_XBoard_PARTITION_SIZE =
     sizeof(kStrayXBoardData) / sizeof(uint8_t) / PARTITION_LEN / 9;
 
 // defined HITCONR3
@@ -775,7 +775,7 @@ constexpr size_t PER_IR_PARTITION_SIZE =
     sizeof(kStrayIRData) / sizeof(uint8_t) / PARTITION_LEN / 9;
 
 constexpr uint8_t kStrayXBoardData[] = {};
-constexpr size_t PER_XBoard_PARTITION_SIZE = 
+constexpr size_t PER_XBoard_PARTITION_SIZE =
     sizeof(kStrayXBoardData) / sizeof(uint8_t) / PARTITION_LEN / 9;
 
 #endif // HITCON_R4
