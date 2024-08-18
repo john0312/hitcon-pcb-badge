@@ -64,6 +64,9 @@ class IrController {
   hitcon::service::sched::Task showtext_task;
   hitcon::service::sched::Task broadcast_task;
 
+  IrData priority_data_;
+  size_t priority_data_len_;
+
   // Called every 1s.
   void RoutineTask(void* unused);
 
@@ -74,6 +77,8 @@ class IrController {
 
   void BroadcastIr(void* unused);
   void SendShowPacket(char* msg);
+
+  bool TrySendPriority();
 };
 
 extern IrController irController;
