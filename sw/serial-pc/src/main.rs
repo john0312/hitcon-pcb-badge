@@ -11,7 +11,16 @@ use std::{
 mod crc;
 mod parser;
 
-/// Simple program to greet a person
+/// connect to serial
+#[derive(Parser, Debug)]
+#[command(version, about, long_about = None)]
+struct ServerArgs {
+    /// serial device name
+    #[arg(short, long)]
+    dev: Option<String>,
+}
+
+/// Send packet to serial with specific type
 #[derive(Parser, Debug)]
 #[command(version, about, long_about = None)]
 struct ClientArgs {
@@ -39,12 +48,17 @@ fn main() {
 }
 
 fn server(listener: TcpListener) {
+    let args = ServerArgs::parse();
     // baud rate 28800
     let ports = serialport::available_ports().expect("No ports found!");
-    for p in ports {
+    for p in &ports {
         println!("{}", p.port_name);
     }
-    let mut port = serialport::new("/dev/ttyUSB0", 28800)
+    let devname = match args.dev {
+        Some(dev) => dev,
+        None => ports[0].port_name.clone(),
+    };
+    let mut port = serialport::new(devname, 28800)
         .timeout(Duration::from_millis(10))
         .open()
         .expect("Failed to open port");
@@ -77,6 +91,9 @@ fn server(listener: TcpListener) {
                     .into_iter()
                     .filter(|p| p.typ != PING_TYPE)
                     .collect::<Vec<_>>();
+                // TODO: calculate score
+                // cell_score[x][y] = count_prefix_zero(sha3_256(... cell[x][y]))
+                // score = sum([cell_score[x][y]*cell_score[x][y] for x in range(cols) for y in range(rows)])//16
                 for pkt in pkts {
                     match pkt.typ {
                         3 => {
