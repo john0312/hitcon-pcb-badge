@@ -35,7 +35,7 @@ ShowNameApp show_name_app;
 ShowNameApp::ShowNameApp()
     : _routine_task(490, (task_callback_t)&ShowNameApp::check_update, this,
                     1000),
-      last_disp_update(0) {}
+      last_disp_update(0), mode(SHOW_INITIALIZE) {}
 
 void ShowNameApp::Init() {
   nv_storage_content &content = g_nv_storage.GetCurrentStorage();
@@ -81,8 +81,12 @@ void ShowNameApp::OnButton(button_t button) {
 }
 
 void ShowNameApp::check_update() {
-  if (mode == Surprise &&
-      SysTimer::GetTime() - last_disp_update > SURPRISE_TIME) {
+  if (mode == SHOW_INITIALIZE) {
+    // NOTE:if FR complete, load from NV storage
+    mode = NameScore;
+    update_display();
+  } else if (mode == Surprise &&
+             SysTimer::GetTime() - last_disp_update > SURPRISE_TIME) {
     mode = NameScore;
     update_display();
   } else if (mode != Surprise &&
@@ -109,6 +113,7 @@ void ShowNameApp::update_display() {
       display_set_mode_scroll_text(display_str);
       starting_up = true;
     }
+    mode = SHOW_INITIALIZE;
     return;
   }
   starting_up = false;
