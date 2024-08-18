@@ -30,6 +30,7 @@ enum usb_state_t {
   USB_STATE_SET_NAME = 1,
   USB_STATE_ERASE,
   USB_STATE_START_WRITE,
+  USB_STATE_WRITE_MEM,
   USB_STATE_READ_MEM,
   USB_STATE_WRITING,
   USB_STATE_WAITING  // waiting for flash service done
@@ -39,6 +40,12 @@ enum {  // script code definition
   CODE_DELAY = 0xFF,
   CODE_MODIFIER = 0xFE,
   CODE_RELEASE = 0x00
+};
+
+enum {  // definiton for memory read/write type
+  MEM_BYTE = 1,
+  MEM_HALFWORD,
+  MEM_WORD
 };
 
 class UsbLogic {
@@ -52,6 +59,15 @@ class UsbLogic {
   uint16_t _script_len;
   bool flag;
   bool _new_data;
+  struct WriteMemPacket {
+    union {
+      uint8_t u8[8];
+      struct {
+	uint32_t addr;
+	uint32_t content;
+      } s;
+    };
+  } _write_mem_packet;
   hitcon::service::sched::PeriodicTask _routine_task;
   hitcon::service::sched::PeriodicTask _write_routine_task;
   void Routine(void* unused);
