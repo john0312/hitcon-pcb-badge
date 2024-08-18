@@ -49,8 +49,6 @@ void setTerminalRawMode(bool enable) {
   }
 }
 
-inline unsigned max(unsigned a, unsigned b) { return a > b ? a : b; }
-
 // Background function to be run in a separate thread
 void gameFunction() {
   auto now_ms = []() {
@@ -62,6 +60,7 @@ void gameFunction() {
   game.game_start_playing();
   while (1) {
     auto now = now_ms();
+
     unsigned fall_period;
     if (hitcon::tetris::FALL_PERIOD >
         game.game_get_cleared_lines() *
@@ -73,7 +72,7 @@ void gameFunction() {
       fall_period = hitcon::tetris::MIN_FALL_PERIOD;
     }
 
-    if (now - last_fall_time >= fall_period) {
+    if (now - prev_update >= fall_period) {
       std::lock_guard<std::mutex> lock(game_mutex);
       game.game_fall_down_tetromino();
       prev_update = now;
