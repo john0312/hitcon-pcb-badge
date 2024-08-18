@@ -87,6 +87,7 @@ constexpr size_t kGameAchievementDataCount = kGameAchievementDataSize / 9;
 
 constexpr uint8_t PARTITION_LEN = 4;
 constexpr uint32_t PER_DATA_PERIOD = 5 * 60;
+constexpr uint8_t XBOARD_WINDOW_SIZE = 4;
 #if defined SPONSOR
 
 constexpr uint8_t kStrayIRData[] = {
