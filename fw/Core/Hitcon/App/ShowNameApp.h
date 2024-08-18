@@ -9,6 +9,7 @@
 namespace hitcon {
 
 enum ShowNameMode {
+  SHOW_INITIALIZE,
   NameScore,
   NameOnly,
   ScoreOnly,
