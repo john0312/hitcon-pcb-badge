@@ -10,7 +10,7 @@ namespace hitcon {
 
 class TextEditorDisplay {
  public:
-  constexpr static int MAX_TEXT_LENGTH = kDisplayScrollMaxTextLen;
+  constexpr static int MAX_TEXT_LENGTH = kDisplayMaxNameLength;
   constexpr static int BLINK_CURSOR_PERIOD = 250;
 
   char text[MAX_TEXT_LENGTH + 1] = {0};

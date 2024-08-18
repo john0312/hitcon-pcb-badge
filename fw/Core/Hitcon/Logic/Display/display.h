@@ -35,12 +35,13 @@
 #define DISPLAY_MODE_SCROLL 2
 #define DISPLAY_MODE_TEXT_EDITOR 3
 
-#define DISPLAY_SCROLL_MAX_COLUMNS 100
+#define DISPLAY_SCROLL_MAX_COLUMNS 170
 #define DISPLAY_SCROLL_DEFAULT_SPEED 8
 
 constexpr size_t kDisplayScrollMaxTextLen =
     DISPLAY_SCROLL_MAX_COLUMNS / CHAR_WIDTH - 1;
 
+constexpr size_t kDisplayMaxNameLength = kDisplayScrollMaxTextLen - 5;
 using display_buf_t = uint8_t;
 static_assert(sizeof(display_buf_t) == DISPLAY_HEIGHT / 8,
               "The size of display_buf_t should be DISPLAY_HEIGHT / 8");
