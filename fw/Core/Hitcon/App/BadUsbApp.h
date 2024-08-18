@@ -8,7 +8,9 @@ namespace usb {
 
 class BadUsbApp : public App {
  private:
+  bool _wait;
   void OnScriptFinished(void* unused);
+  void OnScriptError(void* unused);
 
  public:
   BadUsbApp();

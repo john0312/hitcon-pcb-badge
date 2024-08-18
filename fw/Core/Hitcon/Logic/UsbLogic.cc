@@ -1,11 +1,12 @@
 #include <App/ShowNameApp.h>
 #include <Logic/NvStorage.h>
 #include <Logic/UsbLogic.h>
+#include <Logic/crc32.h>
 #include <Service/FlashService.h>
 #include <Service/Sched/Scheduler.h>
+#include <main.h>
 #include <usb_device.h>
 #include <usbd_custom_hid_if.h>
-
 using namespace hitcon::service::sched;
 
 /* TODO:
@@ -160,14 +161,18 @@ void UsbLogic::WriteRoutine(void* unused) {
   }
 }
 
-void UsbLogic::RunScript(callback_t cb, void* arg1) {
+void UsbLogic::RunScript(callback_t cb, void* arg1, callback_t err_cb,
+                         void* err_arg1, bool check_crc) {
   _on_finish_cb = cb;
   _on_finish_arg1 = arg1;
+  _on_err_cb = err_cb;
+  _on_err_arg1 = err_arg1;
   _index = -1;
   keyboard_report = {0, 0, 0, 0, 0, 0, 0, 0};
   empty_report = {0, 0, 0, 0, 0, 0, 0, 0};
   scheduler.EnablePeriodic(&_routine_task);
   flag = false;
+  _script_crc_flag = !check_crc;
 }
 
 void UsbLogic::StopScript() {
@@ -182,8 +187,18 @@ void UsbLogic::StopScript() {
 // run every 20ms
 void UsbLogic::Routine(void* unused) {
   static uint8_t delay_count = 0;
-  uint16_t len = (*(uint8_t*)(SCRIPT_BEGIN_ADDR - 2) << 8) |
-                 *(uint8_t*)(SCRIPT_BEGIN_ADDR - 1);
+  uint16_t len = (*(uint8_t*)(SCRIPT_BEGIN_ADDR - 6) << 8) |
+                 *(uint8_t*)(SCRIPT_BEGIN_ADDR - 5);
+  if (!_script_crc_flag) {
+    auto value = fast_crc32(reinterpret_cast<uint8_t*>(SCRIPT_BEGIN_ADDR), len);
+    if (value == *reinterpret_cast<uint32_t*>(SCRIPT_BEGIN_ADDR - 4))
+      _script_crc_flag = true;
+    else {
+      StopScript();
+      _on_err_cb(_on_err_arg1, nullptr);
+      return;
+    }
+  }
   if (flag) {
     flag = false;
 

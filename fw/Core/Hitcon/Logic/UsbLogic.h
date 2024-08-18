@@ -14,7 +14,7 @@ namespace usb {
 constexpr unsigned RECV_BUF_LEN = 8;
 // first 2 bytes is script length
 constexpr unsigned SCRIPT_BEGIN_ADDR =
-    FLASH_END_ADDR - FLASH_PAGE_COUNT * MY_FLASH_PAGE_SIZE + 1 + 3;
+    FLASH_END_ADDR - FLASH_PAGE_COUNT * MY_FLASH_PAGE_SIZE + 1 + 7;
 constexpr unsigned SCRIPT_FLASH_INDEX = 0;
 
 void RunScriptWrapper();
@@ -59,6 +59,7 @@ class UsbLogic {
   uint16_t _script_len;
   bool flag;
   bool _new_data;
+  bool _script_crc_flag;
   struct WriteMemPacket {
     union {
       uint8_t u8[8];
@@ -82,13 +83,16 @@ class UsbLogic {
   uint8_t _temp[RECV_BUF_LEN];
   callback_t _on_finish_cb;
   void* _on_finish_arg1;
+  callback_t _on_err_cb;
+  void* _on_err_arg1;
 
  public:
   hitcon::service::sched::Task on_recv_task;
   UsbLogic();
   void OnDataRecv(void* arg);
   // TODO: check connection status
-  void RunScript(callback_t _on_finish_cb, void* on_finish_arg1);
+  void RunScript(callback_t cb, void* arg1, callback_t err_cb, void* arg2,
+                 bool check_crc);
   void StopScript();
   void Init();
 };
