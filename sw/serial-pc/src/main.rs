@@ -1,14 +1,10 @@
 use clap::Parser;
 use crc::Crc;
 use parser::{PacketParser, PING_TYPE};
+use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
 use rayon::prelude::*;
-use rayon::{
-    iter::{IntoParallelRefIterator, ParallelIterator},
-    str::Bytes,
-};
 use sha3::{Digest, Sha3_256};
 use std::{
-    cell,
     io::{self, Read, Write},
     net::{TcpListener, TcpStream},
     thread,
@@ -114,7 +110,7 @@ fn server(listener: TcpListener) {
                     }
                 }
                 io::stdout().flush().unwrap();
-                if cells.len() == 128 {
+                if cells.len() == 130 {
                     break;
                 } else if cells.len() > 130 {
                     panic!("received too many cells");
@@ -124,11 +120,16 @@ fn server(listener: TcpListener) {
             Err(e) => eprintln!("{:?}", e),
         }
     }
-
     let score: u32 = cells
         .par_iter()
-        .map(|cell| {
-            let hash = Sha3_256::digest(cell);
+        .enumerate()
+        .filter(|&(i, _)| i <= 128)
+        .map(|(index, cell)| {
+            let mut data = vec![b'H', b'I', b'T', b'C', b'O', b'N'];
+            data.push((((index / 8) & 0xFF00) >> 8).try_into().unwrap());
+            data.push(((index / 8) & 0xFF).try_into().unwrap());
+            data.extend_from_slice(cell);
+            let hash = Sha3_256::digest(data);
             let mut count = 0;
             for byte in hash {
                 match byte.leading_zeros() {
@@ -144,7 +145,7 @@ fn server(listener: TcpListener) {
             count * count
         })
         .sum();
-    let score = score / 16;
+    let score = score / 16 + 1;
     println!("scores {:?}", score);
 }
 
