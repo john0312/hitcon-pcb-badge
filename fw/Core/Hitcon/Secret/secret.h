@@ -252,6 +252,10 @@ constexpr uint8_t kStrayXBoardData[] = {
 #undef DATA
 #endif
 
+constexpr int kPartitionOffset = 0x0;
+
+constexpr uint8_t kPartitionPacketId = 0x4;
+
 constexpr size_t kPartitionCount = 4;
 
 constexpr size_t kIrPartitionSize =

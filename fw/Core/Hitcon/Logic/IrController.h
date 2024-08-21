@@ -3,6 +3,7 @@
 
 #include <Logic/GameLogic.h>
 #include <Logic/IrLogic.h>
+#include <Secret/secret.h>
 #include <Service/IrService.h>
 #include <Service/Sched/PeriodicTask.h>
 #include <Service/Sched/Scheduler.h>
@@ -13,6 +14,7 @@ enum class packet_type : uint8_t {
   kGame = 0,
   kShow = 1,
   kTest = 2,
+  kPartition = hitcon::kPartitionPacketId,
 };
 
 namespace hitcon {
@@ -28,6 +30,10 @@ struct ShowPacket {
   char message[16];
 };
 
+struct PartitionPacket {
+  uint8_t partition;
+};
+
 /*Definition of IR content.*/
 struct IrData {
   uint8_t ttl;
@@ -35,6 +41,7 @@ struct IrData {
   union {
     struct GamePacket game;
     struct ShowPacket show;
+    struct PartitionPacket partition;
   };
 };
 
