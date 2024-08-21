@@ -56,8 +56,8 @@ impl PacketParser {
                 .range(0..HEADER_SZ + (data_len as usize))
                 .copied()
                 .collect();
-            for i in 12..16 {
-                pkt_bytes[i] = 0
+            for byte in pkt_bytes.iter_mut().take(16).skip(12) {
+                *byte = 0;
             }
             match pkt_bytes.len() % 4 {
                 1 => {
