@@ -1,1 +1,1 @@
-pyinstaller -F --noconsole sw/BadgeCommander/BadgeCommander.py
+pyinstaller --noconfirm --onefile --windowed --collect-all "PIL"  "/home/justin/Documents/GitHub/hitcon-pcb-badge/sw/BadgeCommander/BadgeCommander.py"

@@ -137,6 +137,14 @@ ZOOM_VALUE = getZoomValue()
 
 # Create the main window
 root = ttk.Window('HITCON PCB Badge Commander', 'cyborg')
+#apply app icon from base64 imageres.HITCONICON
+Icon=ttk.PhotoImage(data=imageres.HITCONICON)
+root.iconphoto(False, Icon)
+#apply app icon to all windows
+root.iconphoto(True, Icon)
+
+
+# Set the window size
 windowWidth = int(500 * ZOOM_VALUE)
 windowHeight = int(290 * ZOOM_VALUE)
 root.geometry(f'{windowWidth}x{windowHeight}')
