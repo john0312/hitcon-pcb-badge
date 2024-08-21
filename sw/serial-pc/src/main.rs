@@ -4,6 +4,7 @@ use parser::{PacketParser, PING_TYPE};
 use rayon::prelude::*;
 use sha3::{Digest, Sha3_256};
 use std::{
+    cmp::Ordering,
     io::{self, Read, Write},
     net::{TcpListener, TcpStream},
     thread,
@@ -78,7 +79,7 @@ fn server(listener: TcpListener) {
             let mut buf = [0; 1024];
             let len = stream.read(&mut buf).unwrap();
             let buf = buf[..len].to_vec();
-            p2.write(&buf).unwrap();
+            p2.write_all(&buf).unwrap();
             println!("serial_send(hex): `{:02X?}`", buf);
         }
     });
@@ -95,7 +96,7 @@ fn server(listener: TcpListener) {
                 packet_parser.extend(&serial_buf[..t]);
                 let pkts = packet_parser.parse();
                 if !pkts.is_empty() && dump {
-                    port.write(&make_pkt(5)).unwrap();
+                    port.write_all(&make_pkt(5)).unwrap();
                     dump = false;
                 }
                 let pkts = pkts
@@ -114,10 +115,14 @@ fn server(listener: TcpListener) {
                     }
                 }
                 io::stdout().flush().unwrap();
-                if cells.len() == 130 {
-                    break;
-                } else if cells.len() > 130 {
-                    panic!("received too many cells");
+                match cells.len().cmp(&130) {
+                    Ordering::Equal => {
+                        break;
+                    }
+                    Ordering::Greater => {
+                        panic!("received too many cells");
+                    }
+                    Ordering::Less => (),
                 }
             }
             Err(ref e) if e.kind() == io::ErrorKind::TimedOut => (),
@@ -128,7 +133,7 @@ fn server(listener: TcpListener) {
         .into_par_iter()
         .filter(|cell| cell[0] < 16)
         .map(|cell| {
-            let data = b"HITCON\0".to_vec().into_iter().chain(cell.into_iter());
+            let data = b"HITCON\0".iter().copied().chain(cell);
             let data = data.collect::<Vec<_>>();
             let hash = Sha3_256::digest(&data);
             let mut count = 0;
@@ -156,7 +161,7 @@ fn client() {
         TcpStream::connect("127.0.0.1:7878").expect("Couldn't connect to the server...");
     let pkt = make_pkt(args.pkt_type);
     println!("send `{:02X?}`", pkt);
-    stream.write(&pkt).unwrap();
+    stream.write_all(&pkt).unwrap();
 }
 
 fn make_pkt(pkt_type: u8) -> Vec<u8> {
@@ -171,5 +176,5 @@ fn make_pkt(pkt_type: u8) -> Vec<u8> {
     let checksum = c.hash_bytes(&pkt);
     pkt.drain(pkt.len() - 4..);
     pkt.extend(checksum);
-    return pkt;
+    pkt
 }
