@@ -168,6 +168,15 @@ void ShowNameApp::SetMode(const enum ShowNameMode mode) {
   update_display();
 }
 
+void ShowNameApp::SetSurpriseMsg(const char *msg) {
+  int len = strlen(msg);
+  if (len >= kDisplayScrollMaxTextLen) {
+    len = kDisplayScrollMaxTextLen;
+  }
+  memcpy(surprise_msg, msg, len);
+  surprise_msg[len] = 0;
+}
+
 enum ShowNameMode ShowNameApp::GetMode() { return mode; }
 
 }  // namespace hitcon

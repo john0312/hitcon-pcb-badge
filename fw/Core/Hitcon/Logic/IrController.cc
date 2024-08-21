@@ -45,6 +45,8 @@ void IrController::Send2Game(void* arg) {
   send_lock = true;
 }
 void IrController::ShowText(void* arg) {
+  struct ShowPacket* pkt = reinterpret_cast<struct ShowPacket*>(arg);
+  show_name_app.SetSurpriseMsg(pkt->message);
   show_name_app.SetMode(Surprise);
   badge_controller.change_app(&show_name_app);
 }
