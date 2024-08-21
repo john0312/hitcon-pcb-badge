@@ -15,6 +15,8 @@ constexpr size_t COMBO_BUTTON_DINO_LEN =
     sizeof(COMBO_BUTTON_DINO) / sizeof(button_t);
 extern int combo_button_ctr;
 
+#define DATA(col) (col), 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08
+
 constexpr uint8_t kGameAchievementData[] = {
     // First byte is the column
     // 0x00,
@@ -82,6 +84,186 @@ constexpr size_t kGameAchievementDataSize =
     sizeof(kGameAchievementData) / sizeof(kGameAchievementData[0]);
 static_assert(kGameAchievementDataSize % 9 == 0);
 constexpr size_t kGameAchievementDataCount = kGameAchievementDataSize / 9;
+
+constexpr uint32_t kPerDataPeriod = 5 * 60;
+constexpr uint8_t kXBoardWindowSize = 4;
+
+constexpr uint8_t kStrayIRData[] = {
+    // First byte is the column
+    // 0x00,
+    // Repeat...
+
+    // clang-format off
+    /* PARTITION 1 */
+    DATA(0x0a), // 15
+    DATA(0x0b), // 15
+    DATA(0x0c), // 15
+    DATA(0x0f), // 15
+    DATA(0x0a), // 15
+    DATA(0x0b), // 15
+    DATA(0x0c), // 15
+    DATA(0x0f), // 15
+    DATA(0x0a), // 16
+    DATA(0x0b), // 16
+    DATA(0x0c), // 16
+    DATA(0x0f), // 16
+    DATA(0x0a), // 16
+    DATA(0x0b), // 16
+    DATA(0x0c), // 16
+    DATA(0x0f), // 16
+
+    /* PARTITION 2 */
+    DATA(0x0a), // 17
+    DATA(0x0b), // 17
+    DATA(0x0c), // 17
+    DATA(0x0f), // 17
+    DATA(0x0a), // 17
+    DATA(0x0b), // 17
+    DATA(0x0c), // 17
+    DATA(0x0f), // 17
+    DATA(0x0a), // 18
+    DATA(0x0b), // 18
+    DATA(0x0c), // 18
+    DATA(0x0f), // 18
+    DATA(0x0a), // 18
+    DATA(0x0b), // 18
+    DATA(0x0c), // 18
+    DATA(0x0f), // 18
+
+    /* PARTITION 3 */
+    DATA(0x0a), // 19
+    DATA(0x0b), // 19
+    DATA(0x0c), // 19
+    DATA(0x0f), // 19
+    DATA(0x0a), // 19
+    DATA(0x0b), // 19
+    DATA(0x0c), // 19
+    DATA(0x0f), // 19
+    DATA(0x0a), // 20
+    DATA(0x0b), // 20
+    DATA(0x0c), // 20
+    DATA(0x0f), // 20
+    DATA(0x0a), // 20
+    DATA(0x0b), // 20
+    DATA(0x0c), // 20
+    DATA(0x0f), // 20
+
+    /* PARTITION 4 */
+    DATA(0x0a), // 21
+    DATA(0x0b), // 21
+    DATA(0x0c), // 21
+    DATA(0x0f), // 21
+    DATA(0x0a), // 21
+    DATA(0x0b), // 21
+    DATA(0x0c), // 21
+    DATA(0x0f), // 21
+    DATA(0x0a), // 22
+    DATA(0x0b), // 22
+    DATA(0x0c), // 22
+    DATA(0x0f), // 22
+    DATA(0x0a), // 22
+    DATA(0x0b), // 22
+    DATA(0x0c), // 22
+    DATA(0x0f), // 22
+    // clang-format on
+};
+
+constexpr uint8_t kStrayXBoardData[] = {
+    // First byte is the column
+    // 0x00,
+    // Repeat...
+
+    // clang-format off
+    /* PARTITION 1 */
+    DATA(0x0a), // 17
+    DATA(0x0b), // 17
+    DATA(0x0c), // 17
+    DATA(0x0d), // 17
+    DATA(0x0e), // 17
+    DATA(0x0f), // 17
+    DATA(0x0a), // 17
+    DATA(0x0b), // 17
+    DATA(0x0c), // 18
+    DATA(0x0d), // 18
+    DATA(0x0e), // 18
+    DATA(0x0f), // 18
+    DATA(0x0a), // 18
+    DATA(0x0b), // 18
+    DATA(0x0c), // 18
+    DATA(0x0d), // 18
+
+    /* PARTITION 2 */
+    DATA(0x0e), // 19
+    DATA(0x0f), // 19
+    DATA(0x0a), // 19
+    DATA(0x0b), // 19
+    DATA(0x0c), // 19
+    DATA(0x0d), // 19
+    DATA(0x0e), // 19
+    DATA(0x0f), // 19
+    DATA(0x0a), // 20
+    DATA(0x0b), // 20
+    DATA(0x0c), // 20
+    DATA(0x0d), // 20
+    DATA(0x0e), // 20
+    DATA(0x0f), // 20
+    DATA(0x0a), // 20
+    DATA(0x0b), // 20
+
+    /* PARTITION 3 */
+    DATA(0x0c), // 21
+    DATA(0x0d), // 21
+    DATA(0x0e), // 21
+    DATA(0x0f), // 21
+    DATA(0x0a), // 21
+    DATA(0x0b), // 21
+    DATA(0x0c), // 21
+    DATA(0x0d), // 21
+    DATA(0x0e), // 22
+    DATA(0x0f), // 22
+    DATA(0x0a), // 22
+    DATA(0x0b), // 22
+    DATA(0x0c), // 22
+    DATA(0x0d), // 22
+    DATA(0x0e), // 22
+    DATA(0x0f), // 22
+
+    /* PARTITION 4 */
+    DATA(0x0a), // 23
+    DATA(0x0b), // 23
+    DATA(0x0c), // 23
+    DATA(0x0d), // 23
+    DATA(0x0e), // 23
+    DATA(0x0f), // 23
+    DATA(0x0a), // 23
+    DATA(0x0b), // 23
+    DATA(0x0c), // 24
+    DATA(0x0d), // 24
+    DATA(0x0e), // 24
+    DATA(0x0f), // 24
+    DATA(0x0a), // 24
+    DATA(0x0b), // 24
+    DATA(0x0c), // 24
+    DATA(0x0d), // 24
+    // clang-format on
+};
+
+#ifdef DATA
+#undef DATA
+#endif
+
+constexpr size_t kPartitionCount = 4;
+
+constexpr size_t kIrPartitionSize =
+    sizeof(kStrayIRData) / sizeof(kStrayIRData[0]) / kPartitionCount / 9;
+constexpr size_t kXBoardPartitionSize = sizeof(kStrayXBoardData) /
+                                        sizeof(kStrayXBoardData[0]) /
+                                        kPartitionCount / 9;
+
+// From 0 to 0x10000, 0x10000 is using it 100% of the time.
+constexpr int kIrUsePreparedChance = 0x8000;
+// From 0 to 0x10000, 0x10000 is using it 100% of the time.
+constexpr int kXBoardUsePreparedChance = 0x8000;
 
 }  // namespace hitcon
 #endif  // HITCON_SECRET_SECRET_H

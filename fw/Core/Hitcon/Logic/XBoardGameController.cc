@@ -4,6 +4,7 @@
 #include <Logic/GameLogic.h>
 #include <Logic/GameScore.h>
 #include <Logic/IrController.h>
+#include <Logic/PreparedData.h>
 #include <Logic/RandomPool.h>
 #include <Logic/XBoardGameController.h>
 #include <Logic/XBoardLogic.h>
@@ -60,7 +61,7 @@ void XBoardGameController::SendOneData() {
   // it's life cycle survives the entire transmit process.
   hitcon::ir::GamePacket to_send;
   int col;
-  game::gameLogic.GetRandomDataForXBoardTransmission(to_send.data, &col);
+  g_prepared_data.GetRandomDataForXBoardTransmission(to_send.data, &col);
   to_send.col = static_cast<uint8_t>(col);
   xboard::g_xboard_logic.QueueDataForTx(
       reinterpret_cast<uint8_t*>(&to_send), sizeof(to_send),
