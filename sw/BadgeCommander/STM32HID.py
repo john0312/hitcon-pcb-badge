@@ -1,6 +1,7 @@
 import math
 import time
 import hid
+import crc32
 
 vendor_id = 1155
 product_id = 22352
@@ -38,7 +39,10 @@ def send_badusb_script(script):
     datatosend = [0x00]*3
     datatosend[0] = 0x03
     datatosend[1:3] = len(script).to_bytes(2, 'big')
-    datatosend = datatosend+ script
+    crc = crc32.Crc32(0x04C11DB7)
+    script = script+ [0x00]*(4-len(script)%4)
+    checksum = crc.crc_int_to_bytes(crc.calculate(script))
+    datatosend = datatosend+checksum+ script
     for i in range(0, math.ceil(len(datatosend)), 8):
         print(datatosend[i: i+8])
         if datatosend[i] == 0:
