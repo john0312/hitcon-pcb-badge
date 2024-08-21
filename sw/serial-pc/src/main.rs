@@ -1,7 +1,6 @@
 use clap::Parser;
 use crc::Crc;
 use parser::{PacketParser, PING_TYPE};
-use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
 use rayon::prelude::*;
 use sha3::{Digest, Sha3_256};
 use std::{
@@ -21,6 +20,9 @@ struct ServerArgs {
     /// serial device name
     #[arg(short, long)]
     dev: Option<String>,
+    /// dump column data and calculate score
+    #[arg(long)]
+    dump: bool,
 }
 
 /// Send packet to serial with specific type
@@ -52,6 +54,8 @@ fn main() {
 
 fn server(listener: TcpListener) {
     let args = ServerArgs::parse();
+    let mut dump = args.dump;
+
     // baud rate 28800
     let ports = serialport::available_ports().expect("No ports found!");
     for p in &ports {
@@ -88,9 +92,12 @@ fn server(listener: TcpListener) {
         match port.read(serial_buf.as_mut_slice()) {
             Ok(t) => {
                 println!("serial_recv(hex): {:02X?}", &serial_buf[..t]);
-                // buffer.extend(&serial_buf[..t]);
                 packet_parser.extend(&serial_buf[..t]);
                 let pkts = packet_parser.parse();
+                if !pkts.is_empty() && dump {
+                    port.write(&make_pkt(5)).unwrap();
+                    dump = false;
+                }
                 let pkts = pkts
                     .into_iter()
                     .filter(|p| p.typ != PING_TYPE)
