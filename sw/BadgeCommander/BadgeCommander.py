@@ -56,8 +56,11 @@ def writeBadUSB(scriptPath):
     try:
         rawData=BadUSBTranslation.scriptToHex(scriptPath)
         print(rawData)
+        #print raw data as hex
+        print(' '.join(format(x, '02x') for x in rawData))
         STM32HID.clear_badusb()
         STM32HID.send_badusb_script(rawData)
+        Messagebox.show_info('BadUSB Script has been written to the Badge', 'Success')
     except:
         Messagebox.show_error('Please Connect the PCB Badge to the Computer and try again', 'Error')
         checkBadgeConnection()
@@ -80,6 +83,8 @@ OutSideFrame.pack(fill='both', expand=True, padx=int(10*ZOOM_VALUE), pady=int(10
 custom_font = tkFont.Font(family='SquareFont', size=12)
 tkFont.nametofont("TkDefaultFont").configure(family="SquareFont", size=12)
 
+print(ZOOM_VALUE)
+
 # ImageLabel
 if ZOOM_VALUE == 1:
     HITCONImage = ttk.PhotoImage(data=imageres.HITCON100x)
@@ -90,7 +95,8 @@ elif ZOOM_VALUE == 1.5:
 elif ZOOM_VALUE == 1.75:
     HITCONImage = ttk.PhotoImage(data=imageres.HITCON150x)
 elif ZOOM_VALUE == 2:
-    HITCONImage = ttk.PhotoImage(data=imageres.HITCON200x)
+    HITCONImage = ttk.PhotoImage(data=imageres.HITCON175x)
+    print('2')
 else:
     HITCONImage = ttk.PhotoImage(data=imageres.HITCON100x)
     
