@@ -21,7 +21,7 @@ def get_hid_device():
 def set_name(name):
     if name == 4:
         addr = 536870936
-        datatosend = [4] + list(addr.to_bytes(4, 'little'))
+        datatosend = [0,4] + list(addr.to_bytes(4, 'little'))
         content = list(int(126).to_bytes(4, 'little'))
         datatosend += content + [1]
         print(datatosend)
@@ -29,7 +29,7 @@ def set_name(name):
         return
     elif name == 5:
         addr = 536870936
-        datatosend = [5] + list(addr.to_bytes(4, 'little')) + [1]
+        datatosend = [0,5] + list(addr.to_bytes(4, 'little')) + [1]+[0]*2
         print(datatosend)
         send_command(datatosend)
         print(device.read(8))
@@ -88,7 +88,7 @@ def close_device():
 if __name__ == '__main__':
     get_hid_device()
     # set_name("TAT")
-    set_name('')
-    # set_name(4) # write mem
-    # set_name(5) # read mem
+    #set_name('')
+    #set_name(4) # write mem
+    set_name(5) # read mem
 

@@ -47,6 +47,57 @@ def getZoomValue():
         zoomValue = 1
     return zoomValue
 
+def writeMemory(addr, data, mode):
+    #translate mode to int (Byte(8bit)', 'Hfwd(16bit)', 'Word(32bit))
+    print(mode)
+    if mode==0:
+        mode=1
+    elif mode==1:
+        mode=2
+    elif mode==2:
+        mode=3
+    else:
+        Messagebox.show_error('Please Select a Valid Mode', 'Error')
+        return
+    
+    try:
+        k=STM32HID.write_memory(addr, data, mode)
+        print(k)
+    except:
+        Messagebox.show_error('Please Connect the PCB Badge to the Computer and try again', 'Error')
+        checkBadgeConnection()
+
+def readMemory(addr, mode):
+    #translate mode to int (Byte(8bit)', 'Hfwd(16bit)', 'Word(32bit))
+    print(mode)
+    if mode==0:
+        mode=1
+    elif mode==1:
+        mode=2
+    elif mode==2:
+        mode=3
+    else:
+        Messagebox.show_error('Please Select a Valid Mode', 'Error')
+        return
+    
+    try:
+        k=STM32HID.read_memory(addr, mode)
+        #translate the return value from byte array to hex string
+        k=''.join(format(x, '02x') for x in k)
+        print(k)
+        
+        #put the return value to the content entrybox
+        contentEntry.delete(0, tk.END)
+        if mode==1:
+            contentEntry.insert(0, k[0:2])
+        elif mode==2:
+            contentEntry.insert(0, k[0:4])
+        elif mode==3:
+            contentEntry.insert(0, k[0:8])
+    except:
+        Messagebox.show_error('Please Connect the PCB Badge to the Computer and try again', 'Error')
+        checkBadgeConnection()
+
 def setName(Name):
     k=STM32HID.set_name(Name)
     
@@ -137,7 +188,7 @@ nameLabel.pack(side='top', fill='x', padx=int(10*ZOOM_VALUE), pady=int(10*ZOOM_V
 entryFrame = ttk.Frame(SetNameFrame)
 entryFrame.pack(side='top', fill='x', padx=int(10*ZOOM_VALUE))
 entry_text = tk.StringVar()
-nameEntry = ttk.Entry(entryFrame, textvariable = entry_text, font=('SquareFont',16))
+nameEntry = ttk.Entry(entryFrame, textvariable = entry_text, font=('Arial',16))
 nameEntry.pack(side='top',fill='x', ipadx=int(10*ZOOM_VALUE), ipady=int(5*ZOOM_VALUE))
 #setnameButton
 setNameButton = ttk.Button(SetNameFrame, text='Set Name', command=lambda: setName(entry_text.get()), bootstyle='light')
@@ -146,8 +197,8 @@ setNameButton.pack(side='right', padx=int(10*ZOOM_VALUE), pady=int(10*ZOOM_VALUE
 #Limit the character length of the nameEntry
 def character_limit(entry_text):
     # 限制長度
-    if len(entry_text.get()) > 16:
-        entry_text.set(entry_text.get()[:16])
+    if len(entry_text.get()) > 22:
+        entry_text.set(entry_text.get()[:22])
     # 只允許 ASCII 字母和符號
     valid_text = re.sub(r'[^ -~]', '', entry_text.get())
     if entry_text.get() != valid_text:
@@ -174,7 +225,7 @@ writeButton = ttk.Button(BadUSBFrame, text='Write Script to Badge', command=lamb
 writeButton.pack(side='right', padx=int(10*ZOOM_VALUE), pady=int(10*ZOOM_VALUE), ipadx=int(10*ZOOM_VALUE), ipady=int(0*ZOOM_VALUE))
 
 memoryFrame = ttk.Frame()
-memoryLabel = ttk.Label(memoryFrame, text='Address:              Content:  Type:', font=('SquareFont', 12))
+memoryLabel = ttk.Label(memoryFrame, text='Address:          Content:        Type:', font=('SquareFont', 12))
 memoryLabel.pack(side='top', fill='x', padx=int(10*ZOOM_VALUE), pady=int(10*ZOOM_VALUE))
 memoryEntryFrame = ttk.Frame(memoryFrame)
 memoryEntryFrame.pack(side='top', fill='x', padx=int(10*ZOOM_VALUE))
@@ -198,16 +249,16 @@ def character_limit4memory(entry_text):
 memoryEntry_text.trace_add("write", lambda *args: character_limit4memory(memoryEntry_text))
 
 memoryContent_text = tk.StringVar()
-contentEntryPrefix = ttk.Label(memoryEntryFrame, text='     0x', font=('SquareFont', 12))
+contentEntryPrefix = ttk.Label(memoryEntryFrame, text=' 0x', font=('SquareFont', 12))
 contentEntryPrefix.pack(side='left')
-contentEntry = ttk.Entry(memoryEntryFrame, textvariable=memoryContent_text, font=('SquareFont', 12), width=3)
+contentEntry = ttk.Entry(memoryEntryFrame, textvariable=memoryContent_text, font=('SquareFont', 12), width=6)
 contentEntry.pack(side='left', ipadx=int(10*ZOOM_VALUE))
 
 #Limit the character length of the nameEntry
 def character_limit4memoryContent(entry_text):
     # 限制長度
-    if len(entry_text.get()) > 4:
-        entry_text.set(entry_text.get()[:4])
+    if len(entry_text.get()) > 8:
+        entry_text.set(entry_text.get()[:8])
     # 只允許 hex 字母和符號
     valid_text = re.sub(r'[^0-9A-Fa-f]', '', entry_text.get())
     if entry_text.get() != valid_text:
@@ -219,9 +270,9 @@ typeCombobox.pack(side='right', ipadx=int(10*ZOOM_VALUE))
 
 memoryButtonFrame = ttk.Frame(memoryFrame)
 memoryButtonFrame.pack(side='top', fill='x')
-readButton = ttk.Button(memoryButtonFrame, text='Read Memory', bootstyle='light')
+readButton = ttk.Button(memoryButtonFrame, text='Read Memory', bootstyle='light', command=lambda: readMemory(memoryEntry_text.get(), typeCombobox.current()))
 readButton.pack(side='left', padx=int(10*ZOOM_VALUE), pady=int(10*ZOOM_VALUE), ipadx=int(10*ZOOM_VALUE), ipady=int(0*ZOOM_VALUE))
-writeButton = ttk.Button(memoryButtonFrame, text='Write Memory', bootstyle='light')
+writeButton = ttk.Button(memoryButtonFrame, text='Write Memory', bootstyle='light', command=lambda: writeMemory(memoryEntry_text.get(), memoryContent_text.get(), typeCombobox.current()))
 writeButton.pack(side='right', padx=int(10*ZOOM_VALUE), pady=int(10*ZOOM_VALUE), ipadx=int(10*ZOOM_VALUE), ipady=int(0*ZOOM_VALUE))
 
 

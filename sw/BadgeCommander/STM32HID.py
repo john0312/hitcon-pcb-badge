@@ -20,7 +20,7 @@ def get_hid_device():
 
 # Set ShowName App Name
 def set_name(name):
-    datatosend = [0x00]*17
+    datatosend = [0x00]*23
     datatosend[0] = 0x01
     datatosend[1:len(name)+1] = [ord(c) for c in name]
     print(datatosend)
@@ -33,6 +33,33 @@ def clear_badusb():
     send_command([0x00]+[0x02])
     print("Clearing BadUSB")
     time.sleep(1)
+    
+def read_memory(addr, mode):
+    #hex string to 4 bytes array
+    addr = [int(addr[i:i+2], 16) for i in range(0, len(addr), 2)]
+    datatosend = [0x05]+addr+[mode]+[0x00]*2
+    print(datatosend)
+    send_command(datatosend)
+    r=device.read(8)
+    print(r)
+    return r
+
+def write_memory(addr, data, mode):
+    #hex string to 4 bytes array
+    addr = [int(addr[i:i+2], 16) for i in range(0, len(addr), 2)]
+    data = [int(data[i:i+2], 16) for i in range(0, len(data), 2)]
+    # 根據模式把data補齊成四個byte
+    if mode==1:
+        data = data + [0x00]*(4-len(data))
+    elif mode==2:
+        data = data + [0x00]*(4-len(data))
+    elif mode==3:
+        data = data + [0x00]*(4-len(data))
+    datatosend = [0x04]+addr+data+[mode]
+    print(datatosend)
+    send_command(datatosend)
+
+    return
     
 #Send BadUSB Script
 def send_badusb_script(script):
