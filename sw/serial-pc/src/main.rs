@@ -82,7 +82,7 @@ fn server(listener: TcpListener) {
     let mut packet_parser = PacketParser::new();
 
     // receive loop
-    let mut cells: Vec<[u8; 8]> = vec![];
+    let mut cells: Vec<Vec<u8>> = vec![];
     loop {
         let mut serial_buf: Vec<u8> = vec![0; 1024];
         match port.read(serial_buf.as_mut_slice()) {
@@ -95,14 +95,11 @@ fn server(listener: TcpListener) {
                     .into_iter()
                     .filter(|p| p.typ != PING_TYPE)
                     .collect::<Vec<_>>();
-                // TODO: calculate score
-                // cell_score[x][y] = count_prefix_zero(sha3_256(... cell[x][y]))
-                // score = sum([cell_score[x][y]*cell_score[x][y] for x in range(cols) for y in range(rows)])//16
                 for pkt in pkts {
                     match pkt.typ {
                         3 => {
                             println!("type={} data={:02X?}", pkt.typ, pkt.data);
-                            cells.push(pkt.data[1..].try_into().unwrap());
+                            cells.push(pkt.data);
                         }
                         _ => {
                             println!("{:?}", pkt);
@@ -121,15 +118,12 @@ fn server(listener: TcpListener) {
         }
     }
     let score: u32 = cells
-        .par_iter()
-        .enumerate()
-        .filter(|&(i, _)| i <= 128)
-        .map(|(index, cell)| {
-            let mut data = vec![b'H', b'I', b'T', b'C', b'O', b'N'];
-            data.push((((index / 8) & 0xFF00) >> 8).try_into().unwrap());
-            data.push(((index / 8) & 0xFF).try_into().unwrap());
-            data.extend_from_slice(cell);
-            let hash = Sha3_256::digest(data);
+        .into_par_iter()
+        .filter(|cell| cell[0] < 16)
+        .map(|cell| {
+            let data = b"HITCON\0".to_vec().into_iter().chain(cell.into_iter());
+            let data = data.collect::<Vec<_>>();
+            let hash = Sha3_256::digest(&data);
             let mut count = 0;
             for byte in hash {
                 match byte.leading_zeros() {
@@ -146,7 +140,7 @@ fn server(listener: TcpListener) {
         })
         .sum();
     let score = score / 16 + 1;
-    println!("scores {:?}", score);
+    println!("score {:?}", score);
 }
 
 fn client() {
