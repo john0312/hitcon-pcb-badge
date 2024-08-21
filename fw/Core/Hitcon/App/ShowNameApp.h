@@ -36,6 +36,8 @@ class ShowNameApp : public App {
   void SetMode(const enum ShowNameMode mode);
   enum ShowNameMode GetMode();
 
+  void SetSurpriseMsg(const char *msg);
+
   void check_update();
 
  private:
@@ -44,6 +46,7 @@ class ShowNameApp : public App {
   hitcon::service::sched::PeriodicTask _routine_task;
   uint32_t score_cache = 0;
 
+  char surprise_msg[kDisplayScrollMaxTextLen + 1];
   bool starting_up;
   unsigned last_disp_update;
 };
