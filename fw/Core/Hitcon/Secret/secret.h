@@ -97,58 +97,58 @@ constexpr uint8_t kStrayIRData[] = {
 
     // clang-format off
     /* PARTITION 1 */
-    DATA(0x0a), // 15
-    DATA(0x0b), // 15
-    DATA(0x0c), // 15
-    DATA(0x0f), // 15
-    DATA(0x0a), // 15
-    DATA(0x0b), // 15
-    DATA(0x0c), // 15
-    DATA(0x0f), // 15
-    DATA(0x0a), // 16
-    DATA(0x0b), // 16
-    DATA(0x0c), // 16
-    DATA(0x0f), // 16
-    DATA(0x0a), // 16
-    DATA(0x0b), // 16
-    DATA(0x0c), // 16
-    DATA(0x0f), // 16
+    DATA(0x0a), // 9
+    DATA(0x0b), // 9
+    DATA(0x0c), // 9
+    DATA(0x0f), // 9
+    DATA(0x0a), // 9
+    DATA(0x0b), // 9
+    DATA(0x0c), // 9
+    DATA(0x0f), // 9
+    DATA(0x0a), // 10
+    DATA(0x0b), // 10
+    DATA(0x0c), // 10
+    DATA(0x0f), // 10
+    DATA(0x0a), // 10
+    DATA(0x0b), // 10
+    DATA(0x0c), // 10
+    DATA(0x0f), // 10
 
     /* PARTITION 2 */
-    DATA(0x0a), // 17
-    DATA(0x0b), // 17
-    DATA(0x0c), // 17
-    DATA(0x0f), // 17
-    DATA(0x0a), // 17
-    DATA(0x0b), // 17
-    DATA(0x0c), // 17
-    DATA(0x0f), // 17
-    DATA(0x0a), // 18
-    DATA(0x0b), // 18
-    DATA(0x0c), // 18
-    DATA(0x0f), // 18
-    DATA(0x0a), // 18
-    DATA(0x0b), // 18
-    DATA(0x0c), // 18
-    DATA(0x0f), // 18
+    DATA(0x0a), // 13
+    DATA(0x0b), // 13
+    DATA(0x0c), // 13
+    DATA(0x0f), // 13
+    DATA(0x0a), // 13
+    DATA(0x0b), // 13
+    DATA(0x0c), // 13
+    DATA(0x0f), // 13
+    DATA(0x0a), // 14
+    DATA(0x0b), // 14
+    DATA(0x0c), // 14
+    DATA(0x0f), // 14
+    DATA(0x0a), // 14
+    DATA(0x0b), // 14
+    DATA(0x0c), // 14
+    DATA(0x0f), // 14
 
     /* PARTITION 3 */
-    DATA(0x0a), // 19
-    DATA(0x0b), // 19
-    DATA(0x0c), // 19
-    DATA(0x0f), // 19
-    DATA(0x0a), // 19
-    DATA(0x0b), // 19
-    DATA(0x0c), // 19
-    DATA(0x0f), // 19
-    DATA(0x0a), // 20
-    DATA(0x0b), // 20
-    DATA(0x0c), // 20
-    DATA(0x0f), // 20
-    DATA(0x0a), // 20
-    DATA(0x0b), // 20
-    DATA(0x0c), // 20
-    DATA(0x0f), // 20
+    DATA(0x0a), // 17
+    DATA(0x0b), // 17
+    DATA(0x0c), // 17
+    DATA(0x0f), // 17
+    DATA(0x0a), // 17
+    DATA(0x0b), // 17
+    DATA(0x0c), // 17
+    DATA(0x0f), // 17
+    DATA(0x0a), // 18
+    DATA(0x0b), // 18
+    DATA(0x0c), // 18
+    DATA(0x0f), // 18
+    DATA(0x0a), // 18
+    DATA(0x0b), // 18
+    DATA(0x0c), // 18
+    DATA(0x0f), // 18
 
     /* PARTITION 4 */
     DATA(0x0a), // 21
@@ -177,58 +177,58 @@ constexpr uint8_t kStrayXBoardData[] = {
 
     // clang-format off
     /* PARTITION 1 */
-    DATA(0x0a), // 17
-    DATA(0x0b), // 17
-    DATA(0x0c), // 17
-    DATA(0x0d), // 17
-    DATA(0x0e), // 17
-    DATA(0x0f), // 17
-    DATA(0x0a), // 17
-    DATA(0x0b), // 17
-    DATA(0x0c), // 18
-    DATA(0x0d), // 18
-    DATA(0x0e), // 18
-    DATA(0x0f), // 18
-    DATA(0x0a), // 18
-    DATA(0x0b), // 18
-    DATA(0x0c), // 18
-    DATA(0x0d), // 18
+    DATA(0x0a), // 11
+    DATA(0x0b), // 11
+    DATA(0x0c), // 11
+    DATA(0x0d), // 11
+    DATA(0x0e), // 11
+    DATA(0x0f), // 11
+    DATA(0x0a), // 11
+    DATA(0x0b), // 11
+    DATA(0x0c), // 12
+    DATA(0x0d), // 12
+    DATA(0x0e), // 12
+    DATA(0x0f), // 12
+    DATA(0x0a), // 12
+    DATA(0x0b), // 12
+    DATA(0x0c), // 12
+    DATA(0x0d), // 12
 
     /* PARTITION 2 */
+    DATA(0x0e), // 15
+    DATA(0x0f), // 15
+    DATA(0x0a), // 15
+    DATA(0x0b), // 15
+    DATA(0x0c), // 15
+    DATA(0x0d), // 15
+    DATA(0x0e), // 15
+    DATA(0x0f), // 15
+    DATA(0x0a), // 16
+    DATA(0x0b), // 16
+    DATA(0x0c), // 16
+    DATA(0x0d), // 16
+    DATA(0x0e), // 16
+    DATA(0x0f), // 16
+    DATA(0x0a), // 16
+    DATA(0x0b), // 16
+
+    /* PARTITION 3 */
+    DATA(0x0c), // 19
+    DATA(0x0d), // 19
     DATA(0x0e), // 19
     DATA(0x0f), // 19
     DATA(0x0a), // 19
     DATA(0x0b), // 19
     DATA(0x0c), // 19
     DATA(0x0d), // 19
-    DATA(0x0e), // 19
-    DATA(0x0f), // 19
+    DATA(0x0e), // 20
+    DATA(0x0f), // 20
     DATA(0x0a), // 20
     DATA(0x0b), // 20
     DATA(0x0c), // 20
     DATA(0x0d), // 20
     DATA(0x0e), // 20
     DATA(0x0f), // 20
-    DATA(0x0a), // 20
-    DATA(0x0b), // 20
-
-    /* PARTITION 3 */
-    DATA(0x0c), // 21
-    DATA(0x0d), // 21
-    DATA(0x0e), // 21
-    DATA(0x0f), // 21
-    DATA(0x0a), // 21
-    DATA(0x0b), // 21
-    DATA(0x0c), // 21
-    DATA(0x0d), // 21
-    DATA(0x0e), // 22
-    DATA(0x0f), // 22
-    DATA(0x0a), // 22
-    DATA(0x0b), // 22
-    DATA(0x0c), // 22
-    DATA(0x0d), // 22
-    DATA(0x0e), // 22
-    DATA(0x0f), // 22
 
     /* PARTITION 4 */
     DATA(0x0a), // 23
@@ -264,24 +264,42 @@ constexpr uint8_t kStrayIRData[] = {
 
     // clang-format off
     /* PARTITION 1 */
-    DATA(0x00), // 15
-    DATA(0x02), // 15
-    DATA(0x04), // 15
-    DATA(0x06), // 15
-    DATA(0x08), // 15
-    DATA(0x0a), // 15
-    DATA(0x0c), // 15
-    DATA(0x0e), // 15
-    DATA(0x00), // 16
-    DATA(0x02), // 16
-    DATA(0x04), // 16
-    DATA(0x06), // 16
-    DATA(0x08), // 16
-    DATA(0x0a), // 16
-    DATA(0x0c), // 16
-    DATA(0x0e), // 16
+    DATA(0x00), // 9
+    DATA(0x02), // 9
+    DATA(0x04), // 9
+    DATA(0x06), // 9
+    DATA(0x08), // 9
+    DATA(0x0a), // 9
+    DATA(0x0c), // 9
+    DATA(0x0e), // 9
+    DATA(0x00), // 10
+    DATA(0x02), // 10
+    DATA(0x04), // 10
+    DATA(0x06), // 10
+    DATA(0x08), // 10
+    DATA(0x0a), // 10
+    DATA(0x0c), // 10
+    DATA(0x0e), // 10
 
     /* PARTITION 2 */
+    DATA(0x00), // 13
+    DATA(0x02), // 13
+    DATA(0x04), // 13
+    DATA(0x06), // 13
+    DATA(0x08), // 13
+    DATA(0x0a), // 13
+    DATA(0x0c), // 13
+    DATA(0x0e), // 13
+    DATA(0x00), // 14
+    DATA(0x02), // 14
+    DATA(0x04), // 14
+    DATA(0x06), // 14
+    DATA(0x08), // 14
+    DATA(0x0a), // 14
+    DATA(0x0c), // 14
+    DATA(0x0e), // 14
+
+    /* PARTITION 3 */
     DATA(0x00), // 17
     DATA(0x02), // 17
     DATA(0x04), // 17
@@ -298,24 +316,6 @@ constexpr uint8_t kStrayIRData[] = {
     DATA(0x0a), // 18
     DATA(0x0c), // 18
     DATA(0x0e), // 18
-
-    /* PARTITION 3 */
-    DATA(0x00), // 19
-    DATA(0x02), // 19
-    DATA(0x04), // 19
-    DATA(0x06), // 19
-    DATA(0x08), // 19
-    DATA(0x0a), // 19
-    DATA(0x0c), // 19
-    DATA(0x0e), // 19
-    DATA(0x00), // 20
-    DATA(0x02), // 20
-    DATA(0x04), // 20
-    DATA(0x06), // 20
-    DATA(0x08), // 20
-    DATA(0x0a), // 20
-    DATA(0x0c), // 20
-    DATA(0x0e), // 20
 
     /* PARTITION 4 */
     DATA(0x00), // 21
@@ -344,24 +344,42 @@ constexpr uint8_t kStrayXBoardData[] = {
 
     // clang-format off
     /* PARTITION 1 */
-    DATA(0x00), // 17
-    DATA(0x01), // 17
-    DATA(0x02), // 17
-    DATA(0x03), // 17
-    DATA(0x04), // 17
-    DATA(0x05), // 17
-    DATA(0x06), // 17
-    DATA(0x07), // 17
-    DATA(0x08), // 18
-    DATA(0x09), // 18
-    DATA(0x0a), // 18
-    DATA(0x0b), // 18
-    DATA(0x0c), // 18
-    DATA(0x0d), // 18
-    DATA(0x0e), // 18
-    DATA(0x0f), // 18
+    DATA(0x00), // 11
+    DATA(0x01), // 11
+    DATA(0x02), // 11
+    DATA(0x03), // 11
+    DATA(0x04), // 11
+    DATA(0x05), // 11
+    DATA(0x06), // 11
+    DATA(0x07), // 11
+    DATA(0x08), // 12
+    DATA(0x09), // 12
+    DATA(0x0a), // 12
+    DATA(0x0b), // 12
+    DATA(0x0c), // 12
+    DATA(0x0d), // 12
+    DATA(0x0e), // 12
+    DATA(0x0f), // 12
 
     /* PARTITION 2 */
+    DATA(0x00), // 15
+    DATA(0x01), // 15
+    DATA(0x02), // 15
+    DATA(0x03), // 15
+    DATA(0x04), // 15
+    DATA(0x05), // 15
+    DATA(0x06), // 15
+    DATA(0x07), // 15
+    DATA(0x08), // 16
+    DATA(0x09), // 16
+    DATA(0x0a), // 16
+    DATA(0x0b), // 16
+    DATA(0x0c), // 16
+    DATA(0x0d), // 16
+    DATA(0x0e), // 16
+    DATA(0x0f), // 16
+
+    /* PARTITION 3 */
     DATA(0x00), // 19
     DATA(0x01), // 19
     DATA(0x02), // 19
@@ -378,24 +396,6 @@ constexpr uint8_t kStrayXBoardData[] = {
     DATA(0x0d), // 20
     DATA(0x0e), // 20
     DATA(0x0f), // 20
-
-    /* PARTITION 3 */
-    DATA(0x00), // 21
-    DATA(0x01), // 21
-    DATA(0x02), // 21
-    DATA(0x03), // 21
-    DATA(0x04), // 21
-    DATA(0x05), // 21
-    DATA(0x06), // 21
-    DATA(0x07), // 21
-    DATA(0x08), // 22
-    DATA(0x09), // 22
-    DATA(0x0a), // 22
-    DATA(0x0b), // 22
-    DATA(0x0c), // 22
-    DATA(0x0d), // 22
-    DATA(0x0e), // 22
-    DATA(0x0f), // 22
 
     /* PARTITION 4 */
     DATA(0x00), // 23
@@ -431,58 +431,58 @@ constexpr uint8_t kStrayIRData[] = {
 
     // clang-format off
     /* PARTITION 1 */
-    DATA(0x00), // 14
-    DATA(0x01), // 14
-    DATA(0x02), // 14
-    DATA(0x00), // 14
-    DATA(0x01), // 14
-    DATA(0x02), // 14
-    DATA(0x00), // 14
-    DATA(0x01), // 14
-    DATA(0x02), // 15
-    DATA(0x00), // 15
-    DATA(0x01), // 15
-    DATA(0x02), // 15
-    DATA(0x00), // 15
-    DATA(0x01), // 15
-    DATA(0x02), // 15
-    DATA(0x00), // 15
+    DATA(0x00), // 8
+    DATA(0x01), // 8
+    DATA(0x02), // 8
+    DATA(0x00), // 8
+    DATA(0x01), // 8
+    DATA(0x02), // 8
+    DATA(0x00), // 8
+    DATA(0x01), // 8
+    DATA(0x02), // 9
+    DATA(0x00), // 9
+    DATA(0x01), // 9
+    DATA(0x02), // 9
+    DATA(0x00), // 9
+    DATA(0x01), // 9
+    DATA(0x02), // 9
+    DATA(0x00), // 9
 
     /* PARTITION 2 */
-    DATA(0x01), // 16
-    DATA(0x02), // 16
-    DATA(0x00), // 16
-    DATA(0x01), // 16
-    DATA(0x02), // 16
-    DATA(0x00), // 16
-    DATA(0x01), // 16
-    DATA(0x02), // 16
-    DATA(0x00), // 17
-    DATA(0x01), // 17
-    DATA(0x02), // 17
-    DATA(0x00), // 17
-    DATA(0x01), // 17
-    DATA(0x02), // 17
-    DATA(0x00), // 17
-    DATA(0x01), // 17
+    DATA(0x01), // 12
+    DATA(0x02), // 12
+    DATA(0x00), // 12
+    DATA(0x01), // 12
+    DATA(0x02), // 12
+    DATA(0x00), // 12
+    DATA(0x01), // 12
+    DATA(0x02), // 12
+    DATA(0x00), // 13
+    DATA(0x01), // 13
+    DATA(0x02), // 13
+    DATA(0x00), // 13
+    DATA(0x01), // 13
+    DATA(0x02), // 13
+    DATA(0x00), // 13
+    DATA(0x01), // 13
 
     /* PARTITION 3 */
-    DATA(0x02), // 18
-    DATA(0x00), // 18
-    DATA(0x01), // 18
-    DATA(0x02), // 18
-    DATA(0x00), // 18
-    DATA(0x01), // 18
-    DATA(0x02), // 18
-    DATA(0x00), // 18
-    DATA(0x01), // 19
-    DATA(0x02), // 19
-    DATA(0x00), // 19
-    DATA(0x01), // 19
-    DATA(0x02), // 19
-    DATA(0x00), // 19
-    DATA(0x01), // 19
-    DATA(0x02), // 19
+    DATA(0x02), // 16
+    DATA(0x00), // 16
+    DATA(0x01), // 16
+    DATA(0x02), // 16
+    DATA(0x00), // 16
+    DATA(0x01), // 16
+    DATA(0x02), // 16
+    DATA(0x00), // 16
+    DATA(0x01), // 17
+    DATA(0x02), // 17
+    DATA(0x00), // 17
+    DATA(0x01), // 17
+    DATA(0x02), // 17
+    DATA(0x00), // 17
+    DATA(0x01), // 17
+    DATA(0x02), // 17
 
     /* PARTITION 4 */
     DATA(0x00), // 20
@@ -520,58 +520,58 @@ constexpr uint8_t kStrayIRData[] = {
 
     // clang-format off
     /* PARTITION 1 */
-    DATA(0x02), // 14
-    DATA(0x03), // 14
-    DATA(0x04), // 14
-    DATA(0x02), // 14
-    DATA(0x03), // 14
-    DATA(0x04), // 14
-    DATA(0x02), // 14
-    DATA(0x03), // 14
-    DATA(0x04), // 15
-    DATA(0x02), // 15
-    DATA(0x03), // 15
-    DATA(0x04), // 15
-    DATA(0x02), // 15
-    DATA(0x03), // 15
-    DATA(0x04), // 15
-    DATA(0x02), // 15
+    DATA(0x02), // 8
+    DATA(0x03), // 8
+    DATA(0x04), // 8
+    DATA(0x02), // 8
+    DATA(0x03), // 8
+    DATA(0x04), // 8
+    DATA(0x02), // 8
+    DATA(0x03), // 8
+    DATA(0x04), // 9
+    DATA(0x02), // 9
+    DATA(0x03), // 9
+    DATA(0x04), // 9
+    DATA(0x02), // 9
+    DATA(0x03), // 9
+    DATA(0x04), // 9
+    DATA(0x02), // 9
 
     /* PARTITION 2 */
-    DATA(0x03), // 16
-    DATA(0x04), // 16
-    DATA(0x02), // 16
-    DATA(0x03), // 16
-    DATA(0x04), // 16
-    DATA(0x02), // 16
-    DATA(0x03), // 16
-    DATA(0x04), // 16
-    DATA(0x02), // 17
-    DATA(0x03), // 17
-    DATA(0x04), // 17
-    DATA(0x02), // 17
-    DATA(0x03), // 17
-    DATA(0x04), // 17
-    DATA(0x02), // 17
-    DATA(0x03), // 17
+    DATA(0x03), // 12
+    DATA(0x04), // 12
+    DATA(0x02), // 12
+    DATA(0x03), // 12
+    DATA(0x04), // 12
+    DATA(0x02), // 12
+    DATA(0x03), // 12
+    DATA(0x04), // 12
+    DATA(0x02), // 13
+    DATA(0x03), // 13
+    DATA(0x04), // 13
+    DATA(0x02), // 13
+    DATA(0x03), // 13
+    DATA(0x04), // 13
+    DATA(0x02), // 13
+    DATA(0x03), // 13
 
     /* PARTITION 3 */
-    DATA(0x04), // 18
-    DATA(0x02), // 18
-    DATA(0x03), // 18
-    DATA(0x04), // 18
-    DATA(0x02), // 18
-    DATA(0x03), // 18
-    DATA(0x04), // 18
-    DATA(0x02), // 18
-    DATA(0x03), // 19
-    DATA(0x04), // 19
-    DATA(0x02), // 19
-    DATA(0x03), // 19
-    DATA(0x04), // 19
-    DATA(0x02), // 19
-    DATA(0x03), // 19
-    DATA(0x04), // 19
+    DATA(0x04), // 16
+    DATA(0x02), // 16
+    DATA(0x03), // 16
+    DATA(0x04), // 16
+    DATA(0x02), // 16
+    DATA(0x03), // 16
+    DATA(0x04), // 16
+    DATA(0x02), // 16
+    DATA(0x03), // 17
+    DATA(0x04), // 17
+    DATA(0x02), // 17
+    DATA(0x03), // 17
+    DATA(0x04), // 17
+    DATA(0x02), // 17
+    DATA(0x03), // 17
+    DATA(0x04), // 17
 
     /* PARTITION 4 */
     DATA(0x02), // 20
@@ -610,58 +610,58 @@ constexpr uint8_t kStrayIRData[] = {
 
     // clang-format off
     /* PARTITION 1 */
-    DATA(0x04), // 14
-    DATA(0x05), // 14
-    DATA(0x06), // 14
-    DATA(0x04), // 14
-    DATA(0x05), // 14
-    DATA(0x06), // 14
-    DATA(0x04), // 14
-    DATA(0x05), // 14
-    DATA(0x06), // 15
-    DATA(0x04), // 15
-    DATA(0x05), // 15
-    DATA(0x06), // 15
-    DATA(0x04), // 15
-    DATA(0x05), // 15
-    DATA(0x06), // 15
-    DATA(0x04), // 15
+    DATA(0x04), // 8
+    DATA(0x05), // 8
+    DATA(0x06), // 8
+    DATA(0x04), // 8
+    DATA(0x05), // 8
+    DATA(0x06), // 8
+    DATA(0x04), // 8
+    DATA(0x05), // 8
+    DATA(0x06), // 9
+    DATA(0x04), // 9
+    DATA(0x05), // 9
+    DATA(0x06), // 9
+    DATA(0x04), // 9
+    DATA(0x05), // 9
+    DATA(0x06), // 9
+    DATA(0x04), // 9
 
     /* PARTITION 2 */
-    DATA(0x05), // 16
-    DATA(0x06), // 16
-    DATA(0x04), // 16
-    DATA(0x05), // 16
-    DATA(0x06), // 16
-    DATA(0x04), // 16
-    DATA(0x05), // 16
-    DATA(0x06), // 16
-    DATA(0x04), // 17
-    DATA(0x05), // 17
-    DATA(0x06), // 17
-    DATA(0x04), // 17
-    DATA(0x05), // 17
-    DATA(0x06), // 17
-    DATA(0x04), // 17
-    DATA(0x05), // 17
+    DATA(0x05), // 12
+    DATA(0x06), // 12
+    DATA(0x04), // 12
+    DATA(0x05), // 12
+    DATA(0x06), // 12
+    DATA(0x04), // 12
+    DATA(0x05), // 12
+    DATA(0x06), // 12
+    DATA(0x04), // 13
+    DATA(0x05), // 13
+    DATA(0x06), // 13
+    DATA(0x04), // 13
+    DATA(0x05), // 13
+    DATA(0x06), // 13
+    DATA(0x04), // 13
+    DATA(0x05), // 13
 
     /* PARTITION 3 */
-    DATA(0x06), // 18
-    DATA(0x04), // 18
-    DATA(0x05), // 18
-    DATA(0x06), // 18
-    DATA(0x04), // 18
-    DATA(0x05), // 18
-    DATA(0x06), // 18
-    DATA(0x04), // 18
-    DATA(0x05), // 19
-    DATA(0x06), // 19
-    DATA(0x04), // 19
-    DATA(0x05), // 19
-    DATA(0x06), // 19
-    DATA(0x04), // 19
-    DATA(0x05), // 19
-    DATA(0x06), // 19
+    DATA(0x06), // 16
+    DATA(0x04), // 16
+    DATA(0x05), // 16
+    DATA(0x06), // 16
+    DATA(0x04), // 16
+    DATA(0x05), // 16
+    DATA(0x06), // 16
+    DATA(0x04), // 16
+    DATA(0x05), // 17
+    DATA(0x06), // 17
+    DATA(0x04), // 17
+    DATA(0x05), // 17
+    DATA(0x06), // 17
+    DATA(0x04), // 17
+    DATA(0x05), // 17
+    DATA(0x06), // 17
 
     /* PARTITION 4 */
     DATA(0x04), // 20
@@ -699,58 +699,58 @@ constexpr uint8_t kStrayIRData[] = {
 
     // clang-format off
     /* PARTITION 1 */
-    DATA(0x06), // 14
-    DATA(0x07), // 14
-    DATA(0x08), // 14
-    DATA(0x06), // 14
-    DATA(0x07), // 14
-    DATA(0x08), // 14
-    DATA(0x06), // 14
-    DATA(0x07), // 14
-    DATA(0x08), // 15
-    DATA(0x06), // 15
-    DATA(0x07), // 15
-    DATA(0x08), // 15
-    DATA(0x06), // 15
-    DATA(0x07), // 15
-    DATA(0x08), // 15
-    DATA(0x06), // 15
+    DATA(0x06), // 8
+    DATA(0x07), // 8
+    DATA(0x08), // 8
+    DATA(0x06), // 8
+    DATA(0x07), // 8
+    DATA(0x08), // 8
+    DATA(0x06), // 8
+    DATA(0x07), // 8
+    DATA(0x08), // 9
+    DATA(0x06), // 9
+    DATA(0x07), // 9
+    DATA(0x08), // 9
+    DATA(0x06), // 9
+    DATA(0x07), // 9
+    DATA(0x08), // 9
+    DATA(0x06), // 9
 
     /* PARTITION 2 */
-    DATA(0x07), // 16
-    DATA(0x08), // 16
-    DATA(0x06), // 16
-    DATA(0x07), // 16
-    DATA(0x08), // 16
-    DATA(0x06), // 16
-    DATA(0x07), // 16
-    DATA(0x08), // 16
-    DATA(0x06), // 17
-    DATA(0x07), // 17
-    DATA(0x08), // 17
-    DATA(0x06), // 17
-    DATA(0x07), // 17
-    DATA(0x08), // 17
-    DATA(0x06), // 17
-    DATA(0x07), // 17
+    DATA(0x07), // 12
+    DATA(0x08), // 12
+    DATA(0x06), // 12
+    DATA(0x07), // 12
+    DATA(0x08), // 12
+    DATA(0x06), // 12
+    DATA(0x07), // 12
+    DATA(0x08), // 12
+    DATA(0x06), // 13
+    DATA(0x07), // 13
+    DATA(0x08), // 13
+    DATA(0x06), // 13
+    DATA(0x07), // 13
+    DATA(0x08), // 13
+    DATA(0x06), // 13
+    DATA(0x07), // 13
 
     /* PARTITION 3 */
-    DATA(0x08), // 18
-    DATA(0x06), // 18
-    DATA(0x07), // 18
-    DATA(0x08), // 18
-    DATA(0x06), // 18
-    DATA(0x07), // 18
-    DATA(0x08), // 18
-    DATA(0x06), // 18
-    DATA(0x07), // 19
-    DATA(0x08), // 19
-    DATA(0x06), // 19
-    DATA(0x07), // 19
-    DATA(0x08), // 19
-    DATA(0x06), // 19
-    DATA(0x07), // 19
-    DATA(0x08), // 19
+    DATA(0x08), // 16
+    DATA(0x06), // 16
+    DATA(0x07), // 16
+    DATA(0x08), // 16
+    DATA(0x06), // 16
+    DATA(0x07), // 16
+    DATA(0x08), // 16
+    DATA(0x06), // 16
+    DATA(0x07), // 17
+    DATA(0x08), // 17
+    DATA(0x06), // 17
+    DATA(0x07), // 17
+    DATA(0x08), // 17
+    DATA(0x06), // 17
+    DATA(0x07), // 17
+    DATA(0x08), // 17
 
     /* PARTITION 4 */
     DATA(0x06), // 20
