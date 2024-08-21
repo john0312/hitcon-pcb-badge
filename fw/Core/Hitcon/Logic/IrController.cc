@@ -6,6 +6,7 @@
 #include <Logic/Display/display.h>
 #include <Logic/GameLogic.h>
 #include <Logic/IrController.h>
+#include <Logic/PreparedData.h>
 #include <Logic/RandomPool.h>
 #include <Service/IrService.h>
 #include <Service/Sched/Scheduler.h>
@@ -115,7 +116,7 @@ void IrController::BroadcastIr(void* unused) {
 
   uint8_t cell_data[kDataSize];
   int col = g_fast_random_pool.GetRandom() % hitcon::game::kNumCols;
-  gameLogic.GetRandomDataForIrTransmission(cell_data, &col);
+  g_prepared_data.GetRandomDataForIrTransmission(cell_data, &col);
   IrData irdata = {
       .ttl = 0,
       .type = packet_type::kGame,

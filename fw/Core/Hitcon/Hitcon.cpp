@@ -19,6 +19,7 @@
 #include <Logic/IrController.h>
 #include <Logic/IrLogic.h>
 #include <Logic/NvStorage.h>
+#include <Logic/PreparedData.h>
 #include <Logic/UsbLogic.h>
 #include <Logic/XBoardGameController.h>
 #include <Logic/XBoardLogic.h>
@@ -59,6 +60,7 @@ void hitcon_run() {
   g_entropy_hub.Init();
   g_fast_random_pool.Init();
   g_secure_random_pool.Init();
+  g_prepared_data.Init();
   g_send_data_app.Init();
   g_game_score.Init();
   g_flash_service.Init();
