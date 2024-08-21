@@ -1,3 +1,5 @@
+#include <App/ShowNameApp.h>
+#include <Logic/BadgeController.h>
 #include <Logic/EntropyHub.h>
 #include <Logic/GameLogic.h>
 #include <Logic/PreparedData.h>
@@ -20,7 +22,7 @@ PreparedData g_prepared_data;
 
 PreparedData::PreparedData()
     : current_partition_(0), ir_idx_(-1), xboard_idx_(-1), elapsed_sec_(0),
-      init_finish_(false),
+      partition_change_(-1), init_finish_(false),
       routine_task(985, (task_callback_t)&PreparedData::Routine, this, 1000) {}
 
 void PreparedData::Init() {
@@ -63,6 +65,10 @@ void PreparedData::GetRandomDataForXBoardTransmission(uint8_t* out_data,
   }
 }
 
+void PreparedData::SetPartitionAndShow(int partition) {
+  partition = (partition + kPartitionOffset) & 0x0FF;
+}
+
 void PreparedData::Routine() {
   elapsed_sec_++;
 
@@ -83,6 +89,20 @@ void PreparedData::Routine() {
     if (kXBoardPartitionSize) {
       xboard_idx_ = (xboard_idx_ + 1) % kXBoardPartitionSize;
     }
+  }
+
+  if (partition_change_ != -1) {
+    SetPartition(partition_change_);
+    if (current_partition_ == partition_change_) {
+      char msg[5];
+      msg[0] = 'P';
+      msg[1] = '0' + current_partition_;
+      msg[2] = '\0';
+      show_name_app.SetSurpriseMsg(msg);
+      show_name_app.SetMode(Surprise);
+      badge_controller.change_app(&show_name_app);
+    }
+    partition_change_ = -1;
   }
 }
 

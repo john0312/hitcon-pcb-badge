@@ -76,6 +76,8 @@ void IrController::OnPacketReceived(void* arg) {
     hardware_test_app.CheckIr(&data->show);
   } else if (data->type == packet_type::kShow) {
     scheduler.Queue(&showtext_task, &data->show);
+  } else if (data->type == packet_type::kPartition) {
+    g_prepared_data.SetPartitionAndShow(data->partition.partition);
   }
 }
 

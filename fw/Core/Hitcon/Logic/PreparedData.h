@@ -18,6 +18,8 @@ class PreparedData {
     }
   }
 
+  void SetPartitionAndShow(int partition);
+
   int GetPartition(int partition) { return current_partition_; }
 
   void GetRandomDataForIrTransmission(uint8_t* out_data, int* out_col);
@@ -29,6 +31,7 @@ class PreparedData {
   int xboard_idx_;
 
   int elapsed_sec_;
+  int partition_change_;
 
   bool init_finish_;
 
