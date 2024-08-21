@@ -121,6 +121,18 @@ void XBoardLogic::SendPing() {
   g_xboard_service.QueueDataForTx(pkt, sizeof(pkt));
 }
 
+void XBoardLogic::SendPong() {
+  uint8_t pkt[HEADER_SZ] = {0};
+  *reinterpret_cast<Frame *>(pkt) =
+      Frame{0xD555555555555555, 0, 0, PONG_TYPE, 0};
+  reinterpret_cast<Frame *>(pkt)->checksum = fast_crc32(pkt, HEADER_SZ);
+  // for (int i = 0; i < sizeof(Frame); i++) {
+  //   pkt[i] = (0x11+i)&0x0FF;
+  //   pkt[i] = 0;
+  // }
+  g_xboard_service.QueueDataForTx(pkt, sizeof(pkt));
+}
+
 void XBoardLogic::OnByteArrive(void *arg1) {
   uint8_t b = static_cast<uint8_t>(reinterpret_cast<size_t>(arg1));
   uint16_t next_prod_head = inc_head(prod_head, 1);
@@ -182,6 +194,12 @@ void XBoardLogic::ParsePacket() {
       recv_ping = true;
       continue;
     }
+    if (header->type == PONG_TYPE) {
+      recv_pong = true;
+      continue;
+    }
+
+    // app callbacks
     if (header->type < RecvFnId::MAX) {
       PacketCallbackArg packet_cb_arg;
       packet_cb_arg.data = payload;
@@ -195,15 +213,22 @@ void XBoardLogic::ParsePacket() {
 }
 
 void XBoardLogic::CheckPing() {
-  if (!recv_ping) {
-    if (connect_state == UsartConnectState::Init) no_ping_count = 3;
-    if (no_ping_count < 3) {
-      ++no_ping_count;
+  if (recv_ping) {
+    SendPong();
+  }
+  recv_ping = false;
+}
+
+void XBoardLogic::CheckPong() {
+  if (!recv_pong) {
+    if (connect_state == UsartConnectState::Init) no_pong_count = 3;
+    if (no_pong_count < 3) {
+      ++no_pong_count;
     }
   } else {
-    no_ping_count = 0;
+    no_pong_count = 0;
   }
-  UsartConnectState next_state = no_ping_count >= 3 ? Disconnect : Connect;
+  UsartConnectState next_state = no_pong_count >= 3 ? Disconnect : Connect;
   if (next_state != connect_state) {
     if (next_state == Disconnect && connect_state != UsartConnectState::Init) {
       g_suspender.DecBlocker();
@@ -221,7 +246,7 @@ void XBoardLogic::CheckPing() {
       connect_handler(connect_handler_self, nullptr);
     }
   }
-  recv_ping = false;
+  recv_pong = false;
   connect_state = next_state;
 }
 
@@ -230,7 +255,10 @@ void XBoardLogic::ParseRoutine(void *) { ParsePacket(); }
 void XBoardLogic::PingRoutine(void *) {
   SendPing();
   CheckPing();
+  CheckPong();
 }
+
+enum UsartConnectState XBoardLogic::GetConnectState() { return connect_state; }
 
 }  // namespace xboard
 }  // namespace service

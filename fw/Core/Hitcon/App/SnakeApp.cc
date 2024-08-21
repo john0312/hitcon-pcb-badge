@@ -1,8 +1,11 @@
 #include <App/MainMenuApp.h>
 #include <App/ShowNameApp.h>
+#include <App/ShowScoreApp.h>
 #include <App/SnakeApp.h>
 #include <Logic/BadgeController.h>
+#include <Logic/GameScore.h>
 #include <Logic/RandomPool.h>
+#include <Logic/XBoardGameController.h>
 #include <Logic/XBoardLogic.h>
 #include <Service/Sched/Scheduler.h>
 #include <Util/uint_to_str.h>
@@ -10,6 +13,7 @@
 using namespace hitcon::service::sched;
 using namespace hitcon::service::xboard;
 using namespace hitcon::app::snake;
+using hitcon::xboard_game_controller::g_xboard_game_controller;
 
 namespace hitcon {
 namespace app {
@@ -22,17 +26,7 @@ SnakeApp::SnakeApp()
                     INTERVAL) {}
 
 /* TODO:
- *  1. (done) queue task only once
- *  2. random snake begin
  *  3. event when _len = 128
- *  4. store score
- *  6. add OnButton when game over
- *  7. (done 1ms) measure Routine time
- *  8. (done) add Ready... scrolling text
- *  9. (done) implement multi-player mode
- * 10. xboard on connect/disconnect event
- * 11. check connection status
- * 12. (done) add menu to choose game mode
  * 13. dynamic interval?
  * 14. show win/lose and score when game over
  */
@@ -59,8 +53,9 @@ void SetMultiplayer() { snake_app.mode = MODE_MULTIPLAYER; }
 
 void SnakeApp::OnExit() { scheduler.DisablePeriodic(&_routine_task); }
 
-void SnakeApp::OnButton(button_t button) {
+void SnakeApp::OnEdgeButton(button_t button) {
   direction_t btn_direction = NONE;
+  if (button & BUTTON_KEYUP_BIT) return;
 
   switch (button & BUTTON_VALUE_MASK) {
     case BUTTON_RIGHT:
@@ -88,10 +83,11 @@ void SnakeApp::OnButton(button_t button) {
       }
       break;
     case BUTTON_BACK:
-      badge_controller.change_app(&main_menu);
-      break;
-    case BUTTON_LONG_BACK:
-      badge_controller.change_app(&show_name_app);
+      if (mode == MODE_MULTIPLAYER) {
+        uint8_t code = PACKET_GAME_LEAVE;
+        g_xboard_logic.QueueDataForTx(&code, 1, SNAKE_RECV_ID);
+      }
+      badge_controller.BackToMenu(this);
       break;
     default:
       break;
@@ -99,6 +95,8 @@ void SnakeApp::OnButton(button_t button) {
   if (!btn_direction) return;
   _direction = btn_direction;
 }
+
+void SnakeApp::OnButton(button_t button) {}
 
 bool SnakeApp::OnSnake(uint8_t index) {
   bool on_snake = false;
@@ -116,8 +114,13 @@ void SnakeApp::OnXBoardRecv(void* arg) {
   PacketCallbackArg* packet = reinterpret_cast<PacketCallbackArg*>(arg);
   switch (packet->data[0]) {
     case PACKET_GAME_OVER:
+      // remote game over
       _game_over = true;
-      display_set_mode_scroll_text("Game Over");
+      // game over screen
+      show_score_app.SetScore(_score);
+      g_game_score.MarkScore(GameScoreType::GAME_SNAKE, _score);
+      badge_controller.change_app(&show_score_app);
+
       break;
     case PACKET_GET_FOOD:
       _len++;
@@ -128,6 +131,12 @@ void SnakeApp::OnXBoardRecv(void* arg) {
         InitGame();
       }
       break;
+    case PACKET_GAME_LEAVE:
+      // remote leave
+      _game_over = true;
+      // leave action
+      badge_controller.change_app(&main_menu);
+      break;
   }
 }
 
@@ -136,8 +145,11 @@ void SnakeApp::InitGame() {
   _direction = DIRECTION_RIGHT;
   _last_direction = DIRECTION_RIGHT;
   _len = 2;
-  _body[0] = 36;
-  _body[1] = 35;
+  uint8_t row = g_fast_random_pool.GetRandom() % (DISPLAY_HEIGHT - 4) + 2;
+  uint8_t col = g_fast_random_pool.GetRandom() % (DISPLAY_WIDTH - 4) + 1;
+  _body[0] = row * DISPLAY_WIDTH + col;
+  _body[1] = _body[0] - 1;
+  _score = 0;
   GenerateFood();
 }
 
@@ -185,13 +197,16 @@ void SnakeApp::Routine(void* unused) {
   if (OnSnake(new_head)) _game_over = true;
 
   if (_game_over) {
-    char score_frame[16] = "Score: ";
-    uint_to_chr(score_frame + 7, 9, _len - 2);
-    display_set_mode_scroll_text(score_frame);
+    // local game over
     if (mode == MODE_MULTIPLAYER) {
       uint8_t code = PACKET_GAME_OVER;
       g_xboard_logic.QueueDataForTx(&code, 1, SNAKE_RECV_ID);
+      g_xboard_game_controller.SendPartialData(50);
     }
+    // game over screen
+    show_score_app.SetScore(_score);
+    g_game_score.MarkScore(GameScoreType::GAME_SNAKE, _score);
+    badge_controller.change_app(&show_score_app);
     return;
   }
 
@@ -203,6 +218,7 @@ void SnakeApp::Routine(void* unused) {
       uint8_t code = PACKET_GET_FOOD;
       g_xboard_logic.QueueDataForTx(&code, 1, SNAKE_RECV_ID);
     }
+    _score++;
   }
 
   // shift snake body

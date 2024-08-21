@@ -55,6 +55,7 @@ void HardwareTestApp::OnEntry() {
   start_tick = HAL_GetTick();
   _count = 0;
   scheduler.EnablePeriodic(&task);
+  irController.SetDisableBroadcast();
 }
 
 void HardwareTestApp::OnExit() { scheduler.DisablePeriodic(&task); }

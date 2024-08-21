@@ -166,7 +166,7 @@ void display_set_mode_scroll_packed(const display_buf_t *buf, int n_col) {
 void display_set_mode_scroll_text(const char *text, int speed) {
   int len = strlen(text);
   if (len >= kDisplayScrollMaxTextLen) {
-    len = kDisplayScrollMaxTextLen - 1;
+    len = kDisplayScrollMaxTextLen;
   }
   memset(display_set_mode_internal_text_buffer, 0,
          sizeof(display_set_mode_internal_text_buffer));
@@ -212,7 +212,7 @@ void display_set_mode_internal_taskfunc(void *arg1, void *arg2) {
     case SET_MODE_ST_FINAL: {
       int len = strlen(display_set_mode_internal_text_buffer);
       if (len >= kDisplayScrollMaxTextLen) {
-        len = kDisplayScrollMaxTextLen - 1;
+        len = kDisplayScrollMaxTextLen;
       }
       int n_col = (len * CHAR_WIDTH > DISPLAY_SCROLL_MAX_COLUMNS)
                       ? DISPLAY_SCROLL_MAX_COLUMNS

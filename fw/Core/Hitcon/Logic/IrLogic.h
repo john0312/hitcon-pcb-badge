@@ -21,7 +21,7 @@ struct IrPacket {
   // We need to add 3 bytes because we need
   // at least 1 byte to accomodate the size.
   // at least 1 byte to accomodate the chksum.
-  uint8_t data_[MAX_PACKET_PAYLOAD_BYTES + 3];
+  uint8_t data_[MAX_PACKET_PAYLOAD_BYTES + 4];
   size_t size_;
 };
 
@@ -60,8 +60,8 @@ class IrLogic {
   IrPacket rx_packet_ctrler;
   IrPacket tx_packet;
 
-  // To split OnBufferReceived into pieces
-  size_t buffer_received_ctr;
+  // This variable is a mystery.
+  size_t dummy1 = 0xBAADF00D;
 
   // Total periods collected for load factor computation.
   size_t lf_total_period;
@@ -72,6 +72,9 @@ class IrLogic {
   // Load factor after low pass filter.
   // In Q15.16 fixed point.
   uint32_t lowpass_loadfactor;
+
+  // To split OnBufferReceived into pieces
+  size_t buffer_received_ctr;
 };
 
 extern IrLogic irLogic;

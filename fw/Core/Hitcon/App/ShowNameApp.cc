@@ -1,5 +1,6 @@
 #include "ShowNameApp.h"
 
+#include <App/ConnectMenuApp.h>
 #include <App/MainMenuApp.h>
 #include <App/NameSettingApp.h>
 #include <Logic/BadgeController.h>
@@ -15,6 +16,8 @@
 
 using namespace hitcon::service::sched;
 using hitcon::game::gameLogic;
+using hitcon::service::xboard::g_xboard_logic;
+using hitcon::service::xboard::UsartConnectState;
 
 namespace hitcon {
 
@@ -22,6 +25,9 @@ namespace {
 
 // Update once every 15s. Units: ms.
 constexpr unsigned kMinUpdateInterval = 15 * 1000;
+static const char SURPRISE_NAME[] = "You got pwned!";
+static const int SURPRISE_NAME_LEN = sizeof(SURPRISE_NAME) / sizeof(char);
+static constexpr unsigned SURPRISE_TIME = 10 * 1000;
 
 }  // namespace
 ShowNameApp show_name_app;
@@ -29,7 +35,7 @@ ShowNameApp show_name_app;
 ShowNameApp::ShowNameApp()
     : _routine_task(490, (task_callback_t)&ShowNameApp::check_update, this,
                     1000),
-      last_disp_update(0) {}
+      last_disp_update(0), mode(SHOW_INITIALIZE) {}
 
 void ShowNameApp::Init() {
   nv_storage_content &content = g_nv_storage.GetCurrentStorage();
@@ -44,8 +50,9 @@ void ShowNameApp::Init() {
 void ShowNameApp::OnEntry() {
   display_set_orientation(0);
   score_cache = gameLogic.GetScore();
-  update_display();
   scheduler.EnablePeriodic(&_routine_task);
+  starting_up = false;
+  update_display();
 }
 
 void ShowNameApp::OnExit() {
@@ -56,17 +63,35 @@ void ShowNameApp::OnExit() {
 void ShowNameApp::OnButton(button_t button) {
   switch (button) {
     case BUTTON_LONG_MODE:
-      badge_controller.change_app(&name_setting_menu);
+      if (g_xboard_logic.GetConnectState() == UsartConnectState::Connect) {
+        badge_controller.change_app(&connect_menu);
+      } else {
+        badge_controller.change_app(&name_setting_menu);
+      }
       break;
 
     case BUTTON_MODE:
-      badge_controller.change_app(&main_menu);
+      if (g_xboard_logic.GetConnectState() == UsartConnectState::Connect) {
+        badge_controller.change_app(&connect_menu);
+      } else {
+        badge_controller.change_app(&main_menu);
+      }
       break;
   }
 }
 
 void ShowNameApp::check_update() {
-  if (SysTimer::GetTime() - last_disp_update > kMinUpdateInterval) {
+  if (mode == SHOW_INITIALIZE) {
+    // NOTE:if FR complete, load from NV storage
+    mode = NameScore;
+    update_display();
+  } else if (mode == Surprise &&
+             SysTimer::GetTime() - last_disp_update > SURPRISE_TIME) {
+    mode = NameScore;
+    update_display();
+  } else if (mode != Surprise &&
+             (SysTimer::GetTime() - last_disp_update > kMinUpdateInterval ||
+              starting_up)) {
     if (score_cache != gameLogic.GetScore() && mode != NameOnly) {
       score_cache = gameLogic.GetScore();
       update_display();
@@ -75,15 +100,29 @@ void ShowNameApp::check_update() {
 }
 
 void ShowNameApp::update_display() {
-  constexpr int max_len = DISPLAY_SCROLL_MAX_COLUMNS / CHAR_WIDTH;
+  constexpr int max_len = kDisplayScrollMaxTextLen;
+  static char display_str[max_len + 1];
 
   last_disp_update = SysTimer::GetTime();
 
-  static char display_str[max_len + 1];
+  if (!gameLogic.IsGameReady()) {
+    last_disp_update = 0;
+    if (!starting_up) {
+      constexpr char kStartingStr[] = "Starting...";
+      memcpy(display_str, kStartingStr, sizeof(kStartingStr) + 1);
+      display_set_mode_scroll_text(display_str);
+      starting_up = true;
+    }
+    mode = SHOW_INITIALIZE;
+    return;
+  }
+  starting_up = false;
+
   int name_len = strlen(name);
 
   static char num_str[max_len + 1];
   int num_len = 0;
+  score_cache = gameLogic.GetScore();
   uint32_t score_ = score_cache;
 
   uint_to_chr(num_str, max_len + 1, score_);
@@ -104,6 +143,10 @@ void ShowNameApp::update_display() {
     case ScoreOnly:
       strncpy(display_str, num_str, num_len);
       display_str[num_len] = 0;
+      break;
+    case Surprise:
+      strncpy(display_str, SURPRISE_NAME, SURPRISE_NAME_LEN);
+      display_str[SURPRISE_NAME_LEN] = 0;
       break;
     default:
       break;

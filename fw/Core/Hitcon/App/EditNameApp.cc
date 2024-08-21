@@ -21,10 +21,18 @@ void EditNameApp::OnExit() {}
 void EditNameApp::OnButton(button_t button) {
   switch (button) {
     case BUTTON_LEFT:
-      editor.move_cursor_left();
+      if (mode_key_down) {
+        editor.backspace();
+      } else {
+        editor.move_cursor_left();
+      }
       break;
     case BUTTON_RIGHT:
-      editor.move_cursor_right();
+      if (mode_key_down) {
+        editor.insert();
+      } else {
+        editor.move_cursor_right();
+      }
       break;
     case BUTTON_UP:
       editor.incr_current_char();
@@ -42,6 +50,18 @@ void EditNameApp::OnButton(button_t button) {
       // save the name and exit
       show_name_app.SetName(editor.text);
       badge_controller.change_app(&show_name_app);
+      break;
+  }
+}
+
+void EditNameApp::OnEdgeButton(button_t button) {
+  switch (button & BUTTON_VALUE_MASK) {
+    case BUTTON_MODE:
+      if (button & BUTTON_KEYDOWN_BIT) {
+        mode_key_down = true;
+      } else if (button & BUTTON_KEYUP_BIT) {
+        mode_key_down = false;
+      }
       break;
   }
 }

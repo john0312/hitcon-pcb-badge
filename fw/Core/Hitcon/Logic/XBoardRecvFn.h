@@ -13,6 +13,7 @@ enum RecvFnId {
   TETRIS_RECV_ID,
   XBOARD_GAME_CONTROLLER,
   XBOARD_GAME_CONTROLLER_ACK,
+  XBOARD_GAME_CONTROLLER_SEND_ALL_TRIGGER,
   // MAX is to express the length of callback function array
   MAX
 };

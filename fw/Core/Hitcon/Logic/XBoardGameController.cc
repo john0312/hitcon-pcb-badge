@@ -2,6 +2,7 @@
 #include <App/SendDataApp.h>
 #include <Logic/BadgeController.h>
 #include <Logic/GameLogic.h>
+#include <Logic/GameScore.h>
 #include <Logic/IrController.h>
 #include <Logic/RandomPool.h>
 #include <Logic/XBoardGameController.h>
@@ -38,14 +39,17 @@ void XBoardGameController::Init() {
   xboard::g_xboard_logic.SetOnPacketArrive(
       (callback_t)&XBoardGameController::RecvAck, this,
       xboard::RecvFnId::XBOARD_GAME_CONTROLLER_ACK);
+  xboard::g_xboard_logic.SetOnPacketArrive(
+      (callback_t)&XBoardGameController::OnSendAllTrigger, this,
+      xboard::RecvFnId::XBOARD_GAME_CONTROLLER_SEND_ALL_TRIGGER);
   scheduler.Queue(&_send_routine, nullptr);
   scheduler.EnablePeriodic(&_send_routine);
 }
 
 void XBoardGameController::SendPartialData(int percentage) {
   random_send_left_ += hitcon::game::kNumRows *
-                       hitcon::game::XBoardAllowedBroadcastColCnt * 100 /
-                       percentage;
+                       hitcon::game::XBoardAllowedBroadcastColCnt * percentage /
+                       100;
   if (send_state == Idle) {
     send_state = Sending;
   }
@@ -64,8 +68,46 @@ void XBoardGameController::SendOneData() {
   if (remote_buffer_left_ > 0) remote_buffer_left_--;
 }
 
+void XBoardGameController::SendExactData(int idx) {
+  hitcon::ir::GamePacket to_send;
+
+  if (idx >= game::kNumRows * game::kNumCols) {
+    memset(to_send.data, 0, sizeof(to_send.data));
+    to_send.col = 0x7F;
+    if (idx == game::kNumRows * game::kNumCols) {
+      // Send score.
+      int32_t s = g_game_score.GetScore(GameScoreType::GAME_TETRIS);
+      memcpy(&(to_send.data[0]), &s, sizeof(int32_t));
+      s = g_game_score.GetScore(GameScoreType::GAME_SNAKE);
+      memcpy(&(to_send.data[4]), &s, sizeof(int32_t));
+      to_send.col = 0x7E;
+    } else if (idx == game::kNumRows * game::kNumCols + 1) {
+      int32_t s = g_game_score.GetScore(GameScoreType::GAME_DINO);
+      memcpy(&(to_send.data[0]), &s, sizeof(int32_t));
+      s = 0;
+      memcpy(&(to_send.data[4]), &s, sizeof(int32_t));
+      to_send.col = 0x7D;
+    }
+    xboard::g_xboard_logic.QueueDataForTx(
+        reinterpret_cast<uint8_t*>(&to_send), sizeof(to_send),
+        xboard::RecvFnId::XBOARD_GAME_CONTROLLER);
+    return;
+  }
+
+  int col = idx / game::kNumRows;
+  int row = idx % game::kNumRows;
+  memcpy(to_send.data, game::gameLogic.GetDataCell(col, row), game::kDataSize);
+  to_send.col = static_cast<uint8_t>(col);
+  xboard::g_xboard_logic.QueueDataForTx(
+      reinterpret_cast<uint8_t*>(&to_send), sizeof(to_send),
+      xboard::RecvFnId::XBOARD_GAME_CONTROLLER);
+}
+
 void XBoardGameController::SendAllData() {
-  // TODO
+  if (send_state == Idle) {
+    send_state = SendingAll;
+    send_all_idx_ = 0;
+  }
 }
 
 // private functions
@@ -74,9 +116,9 @@ bool XBoardGameController::IsBusy() { return send_state != Idle; }
 
 void XBoardGameController::SendRoutine() {
   current_cycle_++;
-  if (!connected_) return;
+  if (!connected_ && send_state != SendingAll) return;
 
-  if (current_cycle_ % 8 == 0) {
+  if (connected_ && current_cycle_ % 8 == 0) {
     SendAck(0);
   }
 
@@ -105,7 +147,22 @@ void XBoardGameController::SendRoutine() {
         TryExitApp();
       }
       break;
+    case SendingAll: {
+      for (int i = 0; i < 2; i++) {
+        SendExactData(send_all_idx_);
+        send_all_idx_++;
+        if (send_all_idx_ >= game::kNumRows * game::kNumCols + 2) {
+          send_state = Idle;
+          break;
+        }
+      }
+      break;
+    }
   }
+}
+
+void XBoardGameController::OnSendAllTrigger(xboard::PacketCallbackArg* opkt) {
+  SendAllData();
 }
 
 void XBoardGameController::RecvAck(xboard::PacketCallbackArg* opkt) {
@@ -154,7 +211,7 @@ void XBoardGameController::TryExitApp() {
     if (connected_) {
       badge_controller.change_app(&connect_menu);
     } else {
-      badge_controller.OnAppEnd(&g_send_data_app);
+      badge_controller.BackToMenu(&g_send_data_app);
     }
   }
 }

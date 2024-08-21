@@ -16,6 +16,8 @@ std::mutex game_mutex;
 hitcon::tetris::TetrisGame game([]() { return static_cast<unsigned>(rand()); });
 
 void print_buf_90(display_buf_t* buf_) {
+  printf("Score: %d\n", game.game_get_score());
+
   // will rotate 90 degree since tetris is portrait
   uint8_t buf[DISPLAY_WIDTH * DISPLAY_HEIGHT];
   display_buf_unpack(buf, buf_);
@@ -55,13 +57,27 @@ void gameFunction() {
         .count();
   };
   auto prev_update = now_ms() - hitcon::tetris::FALL_PERIOD;
+  game.game_start_playing();
   while (1) {
     auto now = now_ms();
-    if (now - prev_update >= hitcon::tetris::FALL_PERIOD) {
+
+    unsigned fall_period;
+    if (hitcon::tetris::FALL_PERIOD >
+        game.game_get_cleared_lines() *
+            hitcon::tetris::SPEED_UP_PER_CLEAR_LINE) {
+      fall_period = hitcon::tetris::FALL_PERIOD -
+                    game.game_get_cleared_lines() *
+                        hitcon::tetris::SPEED_UP_PER_CLEAR_LINE;
+    } else {
+      fall_period = hitcon::tetris::MIN_FALL_PERIOD;
+    }
+
+    if (now - prev_update >= fall_period) {
       std::lock_guard<std::mutex> lock(game_mutex);
       game.game_fall_down_tetromino();
       prev_update = now;
-      if (game.game_is_over()) {
+      if (game.game_get_state() == hitcon::tetris::GAME_STATE_GAME_OVER) {
+        exit(0);
         break;
       }
     }
@@ -83,41 +99,51 @@ void ioFunction() {
   while (1) {
     {
       std::lock_guard<std::mutex> lock(game_mutex);
-      if (game.game_is_over()) {
+      if (game.game_get_state() == hitcon::tetris::GAME_STATE_GAME_OVER) {
         break;
       }
     }
 
-    if (std::fgetc(stdin) != EOF) {
-      char ch = std::fgetc(stdin);
-      switch (ch) {
-        case 'a': {
-          std::lock_guard<std::mutex> lock(game_mutex);
-          game.game_on_input(hitcon::tetris::DIRECTION_LEFT);
-          break;
-        }
-
-        case 'd': {
-          std::lock_guard<std::mutex> lock(game_mutex);
-          game.game_on_input(hitcon::tetris::DIRECTION_RIGHT);
-          break;
-        }
-
-        case 's': {
-          std::lock_guard<std::mutex> lock(game_mutex);
-          game.game_on_input(hitcon::tetris::DIRECTION_DOWN);
-          break;
-        }
-
-        case 'w': {
-          std::lock_guard<std::mutex> lock(game_mutex);
-          game.game_on_input(hitcon::tetris::DIRECTION_UP);
-          break;
-        }
-
-        default:
-          break;
+    char ch = std::fgetc(stdin);
+    switch (ch) {
+      case 'a': {
+        std::lock_guard<std::mutex> lock(game_mutex);
+        game.game_on_input(hitcon::tetris::DIRECTION_LEFT);
+        break;
       }
+
+      case 'd': {
+        std::lock_guard<std::mutex> lock(game_mutex);
+        game.game_on_input(hitcon::tetris::DIRECTION_RIGHT);
+        break;
+      }
+
+      case 's': {
+        std::lock_guard<std::mutex> lock(game_mutex);
+        game.game_on_input(hitcon::tetris::DIRECTION_DOWN);
+        break;
+      }
+
+      case 'w': {
+        std::lock_guard<std::mutex> lock(game_mutex);
+        game.game_on_input(hitcon::tetris::DIRECTION_UP);
+        break;
+      }
+
+      case 't': {
+        std::lock_guard<std::mutex> lock(game_mutex);
+        game.game_enemy_attack(2);
+        break;
+      }
+
+      case 'f': {
+        std::lock_guard<std::mutex> lock(game_mutex);
+        game.game_on_input(hitcon::tetris::DIRECTION_FAST_DOWN);
+        break;
+      }
+
+      default:
+        break;
     }
   }
 }

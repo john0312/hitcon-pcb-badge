@@ -1,18 +1,17 @@
 #include <App/ShowNameApp.h>
 #include <Logic/NvStorage.h>
 #include <Logic/UsbLogic.h>
+#include <Logic/crc32.h>
 #include <Service/FlashService.h>
 #include <Service/Sched/Scheduler.h>
+#include <main.h>
 #include <usb_device.h>
 #include <usbd_custom_hid_if.h>
-
 using namespace hitcon::service::sched;
 
 /* TODO:
- * 1. check name length
- * 2. add usb on connect
- * 3. add run script progress (XX%)
- * 4. add hack api
+ * 1. add usb on connect
+ * 2. impl read mem
  */
 
 namespace hitcon {
@@ -42,6 +41,9 @@ void UsbLogic::OnDataRecv(void* arg) {
   for (uint8_t i = 0; i < RECV_BUF_LEN; i++) {
     _temp[i] = data[i];
   }
+
+  // ignore init event when plug-in on Linux
+  if (data[0] == 1 && data[1] == 0) return;
 
   if (_state == USB_STATE_HEADER) {
     if (data[0]) {
@@ -78,6 +80,56 @@ void UsbLogic::OnDataRecv(void* arg) {
       memcpy(_temp, data, RECV_BUF_LEN);
       _new_data = true;
       break;
+    case USB_STATE_WRITE_MEM:
+      for (uint8_t i = (_index == 0); i < RECV_BUF_LEN; i++, _index++) {
+        _write_mem_packet.u8[_index] = data[i];
+        if (_index == 8) {  // type
+          switch (data[i]) {
+            case MEM_BYTE:
+              *reinterpret_cast<uint8_t*>(_write_mem_packet.s.addr) =
+                  static_cast<uint8_t>(_write_mem_packet.s.content);
+              break;
+            case MEM_HALFWORD:
+              *reinterpret_cast<uint16_t*>(_write_mem_packet.s.addr) =
+                  static_cast<uint16_t>(_write_mem_packet.s.content);
+              break;
+            case MEM_WORD:
+              *reinterpret_cast<uint32_t*>(_write_mem_packet.s.addr) =
+                  _write_mem_packet.s.content;
+              break;
+          }
+          _state = USB_STATE_HEADER;
+          break;
+        }
+      }
+      break;
+    case USB_STATE_READ_MEM:
+      for (uint8_t i = (_index == 0); i < RECV_BUF_LEN; i++, _index++) {
+        _read_mem_packet.u8[_index] = data[i];
+        if (_index == 4) {
+          keyboard_report = {0, 0, 0, 0, 0, 0, 0, 0};
+          switch (data[i]) {
+            case MEM_BYTE:
+              *reinterpret_cast<uint8_t*>(&keyboard_report.keycode[0]) =
+                  *reinterpret_cast<uint8_t*>(_read_mem_packet.addr);
+              break;
+            case MEM_HALFWORD:
+              *reinterpret_cast<uint16_t*>(&keyboard_report.keycode[0]) =
+                  *reinterpret_cast<uint16_t*>(_read_mem_packet.addr);
+              break;
+            case MEM_WORD:
+              *reinterpret_cast<uint32_t*>(&keyboard_report.keycode[0]) =
+                  *reinterpret_cast<uint32_t*>(_read_mem_packet.addr);
+              break;
+          }
+
+          USBD_CUSTOM_HID_SendReport(
+              &hUsbDeviceFS, reinterpret_cast<uint8_t*>(&keyboard_report), 8);
+          _state = USB_STATE_HEADER;
+          break;
+        }
+      }
+      break;
     default:
       break;
   }
@@ -109,14 +161,18 @@ void UsbLogic::WriteRoutine(void* unused) {
   }
 }
 
-void UsbLogic::RunScript(callback_t cb, void* arg1) {
+void UsbLogic::RunScript(callback_t cb, void* arg1, callback_t err_cb,
+                         void* err_arg1, bool check_crc) {
   _on_finish_cb = cb;
   _on_finish_arg1 = arg1;
+  _on_err_cb = err_cb;
+  _on_err_arg1 = err_arg1;
   _index = -1;
   keyboard_report = {0, 0, 0, 0, 0, 0, 0, 0};
   empty_report = {0, 0, 0, 0, 0, 0, 0, 0};
   scheduler.EnablePeriodic(&_routine_task);
   flag = false;
+  _script_crc_flag = !check_crc;
 }
 
 void UsbLogic::StopScript() {
@@ -131,8 +187,18 @@ void UsbLogic::StopScript() {
 // run every 20ms
 void UsbLogic::Routine(void* unused) {
   static uint8_t delay_count = 0;
-  uint16_t len = (*(uint8_t*)(SCRIPT_BEGIN_ADDR - 2) << 8) |
-                 *(uint8_t*)(SCRIPT_BEGIN_ADDR - 1);
+  uint16_t len = (*(uint8_t*)(SCRIPT_BEGIN_ADDR - 6) << 8) |
+                 *(uint8_t*)(SCRIPT_BEGIN_ADDR - 5);
+  if (!_script_crc_flag) {
+    auto value = fast_crc32(reinterpret_cast<uint8_t*>(SCRIPT_BEGIN_ADDR), len);
+    if (value == *reinterpret_cast<uint32_t*>(SCRIPT_BEGIN_ADDR - 4))
+      _script_crc_flag = true;
+    else {
+      StopScript();
+      _on_err_cb(_on_err_arg1, nullptr);
+      return;
+    }
+  }
   if (flag) {
     flag = false;
 

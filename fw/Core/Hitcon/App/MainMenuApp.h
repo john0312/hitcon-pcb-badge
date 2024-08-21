@@ -1,5 +1,6 @@
 #include <App/BadUsbApp.h>
 #include <App/DinoApp.h>
+#include <App/ScoreHistApp.h>
 #include <App/ShowNameApp.h>
 #include <App/SnakeApp.h>
 #include <App/TetrisApp.h>
@@ -19,6 +20,7 @@ constexpr menu_entry_t main_menu_entries[] = {
     {"Snake", &snake_app, &hitcon::app::snake::SetSingleplayer},
     {"Dino", &dino_app, nullptr},
     {"Tetris", &tetris_app, &hitcon::app::tetris::SetSingleplayer},
+    {"Show Scores", &score_hist::g_score_hist, nullptr},
 };
 
 constexpr int main_menu_entries_len =

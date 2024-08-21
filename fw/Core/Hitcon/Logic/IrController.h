@@ -47,12 +47,14 @@ class IrController {
   void ShowText(void* arg);
   void InitBroadcastService(uint8_t game_types);
 
+  void SetDisableBroadcast() { disable_broadcast = true; }
+
  private:
   bool send_lock;
-  bool show_lock;
   bool recv_lock;
   // TODO: Tune the quadratic function parameters
   uint8_t v[3] = {1, 27, 111};
+  bool disable_broadcast;
 
   // Number of packets received, primarily for debugging.
   size_t received_packet_cnt;
@@ -61,6 +63,9 @@ class IrController {
   hitcon::service::sched::Task send2game_task;
   hitcon::service::sched::Task showtext_task;
   hitcon::service::sched::Task broadcast_task;
+
+  IrData priority_data_;
+  size_t priority_data_len_;
 
   // Called every 1s.
   void RoutineTask(void* unused);
@@ -72,6 +77,8 @@ class IrController {
 
   void BroadcastIr(void* unused);
   void SendShowPacket(char* msg);
+
+  bool TrySendPriority();
 };
 
 extern IrController irController;

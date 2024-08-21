@@ -33,14 +33,17 @@ class XBoardService {
   // 48 * 3 = 144, 3 packets
   static constexpr size_t kTxBufferSize = 160;
 
+  UART_HandleTypeDef* _huart = &huart2;
+
+  uint32_t sr_accu = 0;
+  uint32_t sr_clear = 0;
+
  private:
   void Routine(void*);
 
   void TriggerRx();
 
   void OnRxWrapper(void* arg2);
-
-  UART_HandleTypeDef* _huart = &huart2;
 
   callback_t _on_rx_callback;
   void* _on_rx_callback_arg1;
@@ -55,6 +58,9 @@ class XBoardService {
   int _tx_buffer_head = 0;
   // Next byte from the upper layer.
   int _tx_buffer_tail = 0;
+
+  // This is a huge hack. rx might get stopped so we want to restart it.
+  int _rx_stopped_count = 0;
 };
 
 extern XBoardService g_xboard_service;

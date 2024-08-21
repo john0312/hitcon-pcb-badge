@@ -6,8 +6,10 @@
 namespace hitcon {
 namespace tetris {
 
-constexpr unsigned FALL_PERIOD = 1000;     // ms
-constexpr unsigned UPDATE_INTERVAL = 200;  // ms
+constexpr unsigned FALL_PERIOD = 1000;            // ms
+constexpr unsigned UPDATE_INTERVAL = 200;         // ms
+constexpr unsigned SPEED_UP_PER_CLEAR_LINE = 50;  // ms
+constexpr unsigned MIN_FALL_PERIOD = 100;         // ms
 constexpr unsigned UPDATE_PRIORITY = 960;
 
 constexpr int BOARD_WIDTH = 8;
@@ -19,6 +21,7 @@ static_assert(BOARD_HEIGHT == DISPLAY_WIDTH,
               "BOARD_HEIGHT must be equal to DISPLAY_WIDTH");
 
 enum TetrisGameState {
+  GAME_STATE_WAITING,
   GAME_STATE_PLAYING,
   GAME_STATE_GAME_OVER,
 };
@@ -28,6 +31,7 @@ enum TetrisDirection {
   DIRECTION_LEFT,
   DIRECTION_RIGHT,
   DIRECTION_DOWN,
+  DIRECTION_FAST_DOWN,
 };
 
 // clang-format off
@@ -101,7 +105,7 @@ const struct tetromino_t {
  */
 class TetrisGame {
  private:
-  TetrisGameState state = GAME_STATE_PLAYING;
+  TetrisGameState state = GAME_STATE_WAITING;
   unsigned last_fall_time = 0;
   int current_tetromino;
   int current_x;
@@ -117,9 +121,10 @@ class TetrisGame {
   static_assert(BOARD_WIDTH == sizeof(uint8_t) * 8,
                 "TETRIS_BOARD_WIDTH must be 8");
 
-  unsigned (*rand)(void) = nullptr;
+  unsigned (*__rand)(void) = nullptr;
   void (*attack_enemy_callback)(int n_lines) = nullptr;
 
+  inline unsigned rand() { return __rand ? __rand() : 0; }
   void clear_full_line();
   bool rotate_tetromino();
   bool place_tetromino(int x, int y);
@@ -130,13 +135,17 @@ class TetrisGame {
   inline void game_over() { state = GAME_STATE_GAME_OVER; }
 
  public:
+  TetrisGame() = default;
   TetrisGame(unsigned (*rand)(void));
 
   void game_fall_down_tetromino();
   void game_on_input(TetrisDirection direction);
   void game_draw_to_display(display_buf_t *buf);
-  inline bool game_is_over() const { return state == GAME_STATE_GAME_OVER; };
+  inline void game_start_playing() { state = GAME_STATE_PLAYING; }
+  inline void game_force_over() { game_over(); }
+  inline TetrisGameState game_get_state() const { return state; };
   inline int game_get_score() const { return score; }
+  inline int game_get_cleared_lines() const { return score / CLEAR_LINE_SCORE; }
 
   // 2-player game, this function should be called when enemy attacks us.
   void game_enemy_attack(int n_lines);

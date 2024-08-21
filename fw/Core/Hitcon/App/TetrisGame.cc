@@ -3,7 +3,7 @@
 namespace hitcon {
 namespace tetris {
 
-TetrisGame::TetrisGame(unsigned (*rand)(void)) : rand(rand) {
+TetrisGame::TetrisGame(unsigned (*rand)(void)) : __rand(rand) {
   generate_new_tetromino();
 }
 
@@ -12,11 +12,12 @@ void TetrisGame::clear_full_line() {
   int to = BOARD_HEIGHT - 1;
   int cleared_lines = 0;
   for (; from >= 0; from--) {
-    if (board[from] && board[from] != 0b11111111u) {
+    if (board[from] == 0b11111111u) {
+      cleared_lines++;
+    } else {
       board[to] = board[from];
       if (to != from) {
         board[from] = 0;
-        cleared_lines++;
       }
       to--;
     }
@@ -26,7 +27,7 @@ void TetrisGame::clear_full_line() {
   }
 
   score += cleared_lines * CLEAR_LINE_SCORE;
-  if (attack_enemy_callback) {
+  if (attack_enemy_callback && cleared_lines > 0) {
     attack_enemy_callback(cleared_lines);
   }
 }
@@ -108,7 +109,11 @@ void TetrisGame::fall_down_tetromino() {
 bool TetrisGame::generate_new_tetromino() {
   int new_tetromino;
   do {
-    new_tetromino = rand() % TETROMINO_COUNT;
+    if (__rand == nullptr) {
+      new_tetromino ^= 1;
+    } else {
+      new_tetromino = rand() % TETROMINO_COUNT;
+    }
   } while (new_tetromino == current_tetromino);
   current_tetromino = new_tetromino;
   const auto &t = TETROMINO[current_tetromino][0];
@@ -152,6 +157,15 @@ void TetrisGame::game_on_input(TetrisDirection direction) {
         }
         break;
 
+      case DIRECTION_FAST_DOWN:
+        unplace_tetromino(current_x, current_y);
+        while (place_tetromino(current_x, current_y + 1)) {
+          unplace_tetromino(current_x, current_y);
+        }
+        place_tetromino(current_x, current_y);
+        fall_down_tetromino();
+        break;
+
       default:
         break;
     }
@@ -173,9 +187,11 @@ void TetrisGame::game_draw_to_display(display_buf_t *buf) {
 
 void TetrisGame::game_enemy_attack(int n_lines) {
   // move the current board upward by n_lines
+  unplace_tetromino(current_x, current_y);
   for (int i = 0; i < BOARD_HEIGHT - n_lines; i++) {
     board[i] = board[i + n_lines];
   }
+  place_tetromino(current_x, current_y);
 
   // add n_lines lines of garbage to the bottom of the board
   // note that the garbage lines are full line with 1 bit unset

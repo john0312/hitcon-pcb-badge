@@ -24,6 +24,7 @@ enum {  // XBOARD
   PACKET_GET_FOOD = 1,
   PACKET_GAME_START,
   PACKET_GAME_OVER,
+  PACKET_GAME_LEAVE,
 };
 
 enum {
@@ -55,6 +56,7 @@ class SnakeApp : public App {
   direction_t _last_direction;
   int8_t _food_index;
   bool _game_over;
+  uint32_t _score;
 
   void GenerateFood();
   void Routine(void* unused);
@@ -72,6 +74,7 @@ class SnakeApp : public App {
   void OnExit() override;
   void OnButton(button_t button) override;
   void OnXBoardRecv(void* arg);
+  void OnEdgeButton(button_t button) override;
 };
 
 extern SnakeApp snake_app;
