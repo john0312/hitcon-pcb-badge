@@ -506,8 +506,7 @@ constexpr uint8_t kStrayIRData[] = {
     // clang-format on
 };
 
-constexpr uint8_t kStrayXBoardData[] = {
-};
+constexpr uint8_t kStrayXBoardData[] = {};
 
 #elif defined HITCON_R2
 
@@ -594,8 +593,7 @@ constexpr uint8_t kStrayIRData[] = {
     // clang-format on
 };
 
-constexpr uint8_t kStrayXBoardData[] = {
-};
+constexpr uint8_t kStrayXBoardData[] = {};
 
 #elif defined HITCON_R3
 
@@ -784,7 +782,7 @@ constexpr bool kLegacySurpriseBehaviour = false;
 
 static_assert(false);
 
-#endif // HITCON_R4
+#endif  // HITCON_R4
 
 #ifdef DATA
 #undef DATA
