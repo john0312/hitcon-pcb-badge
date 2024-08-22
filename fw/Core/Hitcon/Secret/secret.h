@@ -250,6 +250,7 @@ constexpr uint8_t kStrayXBoardData[] = {
 };
 
 constexpr bool kForceShowNameOnly = false;
+constexpr bool kLegacySurpriseBehaviour = false;
 
 #ifdef DATA
 #undef DATA

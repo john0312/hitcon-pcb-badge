@@ -8,6 +8,7 @@
 #include <Logic/IrController.h>
 #include <Logic/PreparedData.h>
 #include <Logic/RandomPool.h>
+#include <Secret/secret.h>
 #include <Service/IrService.h>
 #include <Service/Sched/Scheduler.h>
 #include <stdlib.h>
@@ -46,7 +47,11 @@ void IrController::Send2Game(void* arg) {
 }
 void IrController::ShowText(void* arg) {
   struct ShowPacket* pkt = reinterpret_cast<struct ShowPacket*>(arg);
-  show_name_app.SetSurpriseMsg(pkt->message);
+  if (kLegacySurpriseBehaviour) {
+    show_name_app.SetSurpriseMsg(SURPRISE_NAME);
+  } else {
+    show_name_app.SetSurpriseMsg(pkt->message);
+  }
   show_name_app.SetMode(Surprise);
   badge_controller.change_app(&show_name_app);
 }
