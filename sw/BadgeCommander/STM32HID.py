@@ -13,27 +13,27 @@ def get_hid_device():
         for key in keys:
             print("%s : %s" % (key, device_dict[key]))
         print()
-        
+
     global device
     device = hid.device()
     device.open(vendor_id, product_id)
 
 # Set ShowName App Name
 def set_name(name):
-    datatosend = [0x00]*23
+    datatosend = [0x00]*32
     datatosend[0] = 0x01
     datatosend[1:len(name)+1] = [ord(c) for c in name]
     print(datatosend)
     k=send_command(datatosend)
     return k
-    
+
 #BadUSB Commands
 #Clear BadUSB
 def clear_badusb():
     send_command([0x00]+[0x02])
     print("Clearing BadUSB")
     time.sleep(1)
-    
+
 def read_memory(addr, mode):
     #hex string to 4 bytes array
     addr = [int(addr[i:i+2], 16) for i in range(0, len(addr), 2)]
@@ -60,7 +60,7 @@ def write_memory(addr, data, mode):
     send_command(datatosend)
 
     return
-    
+
 #Send BadUSB Script
 def send_badusb_script(script):
     datatosend = [0x00]*3
@@ -78,7 +78,7 @@ def send_badusb_script(script):
         send_command(datatosend[i: i+8])
         if len(datatosend) - 8 != i:
             device.read(8) # wait for response
-    
+
     # for i in range(0, math.ceil(len(datatosend)), 8):
         # print(datatosend[i:i+8])
         # if datatosend[i] == 0:
@@ -97,13 +97,13 @@ def send_badusb_script(script):
 def send_command(command):
     k=device.write(command)
     return k
-    
+
 
 def close_device():
     device.close()
 
 
 if __name__ == '__main__':
-    get_hid_device()    
+    get_hid_device()
     close_device()
 
