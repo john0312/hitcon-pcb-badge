@@ -66,7 +66,7 @@ void PreparedData::GetRandomDataForXBoardTransmission(uint8_t* out_data,
 }
 
 void PreparedData::SetPartitionAndShow(int partition) {
-  partition = (partition + kPartitionOffset) & 0x0FF;
+  partition_change_ = (partition + kPartitionOffset) & 0x0FF;
 }
 
 void PreparedData::Routine() {
