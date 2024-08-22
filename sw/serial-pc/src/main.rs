@@ -129,6 +129,21 @@ fn server(listener: TcpListener) {
             Err(e) => eprintln!("{:?}", e),
         }
     }
+    let mut dino = 0_u32;
+    let mut tetris = 0_u32;
+    let mut snake = 0_u32;
+    cells.iter().filter(|cell| cell[0] >= 16).for_each(|cell| {
+        match cell[0] {
+            125 => {
+                dino = u32::from_le_bytes(cell[1..5].try_into().unwrap());
+            }
+            126 => {
+                tetris = u32::from_le_bytes(cell[1..5].try_into().unwrap());
+                snake = u32::from_le_bytes(cell[5..9].try_into().unwrap());
+            }
+            _ => (),
+        }
+    });
     let score: u32 = cells
         .into_par_iter()
         .filter(|cell| cell[0] < 16)
@@ -152,7 +167,10 @@ fn server(listener: TcpListener) {
         })
         .sum();
     let score = score / 16 + 1;
-    println!("score {:?}", score);
+    println!("dino {}", dino);
+    println!("tetris {}", tetris);
+    println!("snake {}", snake);
+    println!("score {}", score);
 }
 
 fn client() {
