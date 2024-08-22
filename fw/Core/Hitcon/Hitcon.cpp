@@ -38,7 +38,9 @@ using namespace hitcon::xboard_game_controller;
 using hitcon::game::gameLogic;
 
 void TestTaskFunc(void* unused1, void* unused2) {}
-void TestTask2Func(void* unused1, void* unused2) {}
+void TestTask2Func(void* unused1, void* unused2) {
+  hitcon::ir::irController.SendPartitionPacket(0);
+}
 
 Task TestTask1(900, (task_callback_t)&TestTaskFunc, nullptr);
 PeriodicTask TestTask2(950, (task_callback_t)&TestTask2Func, nullptr, 201);
