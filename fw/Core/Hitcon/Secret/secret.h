@@ -249,6 +249,8 @@ constexpr uint8_t kStrayXBoardData[] = {
     // clang-format on
 };
 
+constexpr bool kForceShowNameOnly = false;
+
 #ifdef DATA
 #undef DATA
 #endif

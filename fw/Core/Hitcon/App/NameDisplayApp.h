@@ -3,6 +3,7 @@
 
 #include <App/ShowNameApp.h>
 #include <Logic/BadgeController.h>
+#include <Secret/secret.h>
 
 #include "MenuApp.h"
 
@@ -13,12 +14,14 @@ void ChangeToNameOnly();
 void ChangeToScoreOnly();
 
 constexpr menu_entry_t name_display_menu_entries[] = {
-    {"Both", nullptr, &ChangeToNameScore},
     {"NameOnly", nullptr, &ChangeToNameOnly},
+    {"Both", nullptr, &ChangeToNameScore},
     {"ScoreOnly", nullptr, &ChangeToScoreOnly},
 };
 constexpr int name_display_menu_entries_len =
-    sizeof(name_display_menu_entries) / sizeof(menu_entry_t);
+    kForceShowNameOnly
+        ? 1
+        : sizeof(name_display_menu_entries) / sizeof(menu_entry_t);
 
 class NameDisplayApp : public MenuApp {
  public:

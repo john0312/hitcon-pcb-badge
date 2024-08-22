@@ -8,6 +8,7 @@
 #include <Logic/Display/font.h>
 #include <Logic/GameLogic.h>
 #include <Logic/NvStorage.h>
+#include <Secret/secret.h>
 #include <Service/Sched/SysTimer.h>
 #include <Service/Sched/Task.h>
 #include <Util/uint_to_str.h>
@@ -128,6 +129,9 @@ void ShowNameApp::update_display() {
   uint_to_chr(num_str, max_len + 1, score_);
   num_len = strlen(num_str);
 
+  if (kForceShowNameOnly && (mode == NameScore || mode == ScoreOnly)) {
+    mode = NameOnly;
+  }
   switch (mode) {
     case NameScore:
       if (name_len > max_len - num_len - 1) name_len = max_len - num_len - 1;
