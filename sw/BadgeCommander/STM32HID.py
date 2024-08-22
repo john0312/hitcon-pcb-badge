@@ -30,9 +30,9 @@ def set_name(name):
 #BadUSB Commands
 #Clear BadUSB
 def clear_badusb():
-    send_command([0x00]+[0x02])
+    send_command([0x02] + [0]*7)
     print("Clearing BadUSB")
-    time.sleep(1)
+    device.read(8)
 
 def read_memory(addr, mode):
     #hex string to 4 bytes array
@@ -67,8 +67,13 @@ def send_badusb_script(script):
     datatosend[0] = 0x03
     datatosend[1:3] = len(script).to_bytes(2, 'big')
     crc = crc32.Crc32(0x04C11DB7)
-    script = script+ [0x00]*(4-len(script)%4)
-    checksum = crc.crc_int_to_bytes(crc.calculate(script))
+    # Correct checksum is to add padding
+    # script = script+ [0x00]*(4-len(script)%4)
+    # The checksum is incorrect, but this is the current firmware
+    _script = script
+    if len(_script) % 4 > 0:
+        _script = _script[:len(_script)-(len(_script)%4)]
+    checksum = list(crc.calculate(_script).to_bytes(4, 'little'))
     datatosend = datatosend+checksum+ script
     for i in range(0, math.ceil(len(datatosend)), 8):
         print(datatosend[i: i+8])
