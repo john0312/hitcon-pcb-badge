@@ -148,10 +148,13 @@ void ShowNameApp::update_display() {
       strncpy(display_str, num_str, num_len);
       display_str[num_len] = 0;
       break;
-    case Surprise:
-      strncpy(display_str, SURPRISE_NAME, SURPRISE_NAME_LEN);
-      display_str[SURPRISE_NAME_LEN] = 0;
+    case Surprise: {
+      int surprise_msg_len = strlen(surprise_msg);
+      if (surprise_msg_len > max_len) surprise_msg_len = max_len;
+      memcpy(display_str, surprise_msg, surprise_msg_len);
+      display_str[surprise_msg_len] = 0;
       break;
+    }
     default:
       break;
   }
