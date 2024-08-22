@@ -55,6 +55,7 @@ class IrController {
   void InitBroadcastService(uint8_t game_types);
 
   void SetDisableBroadcast() { disable_broadcast = true; }
+  void SendPartitionPacket(unsigned char id);
 
  private:
   bool send_lock;
@@ -71,6 +72,7 @@ class IrController {
   hitcon::service::sched::Task showtext_task;
   hitcon::service::sched::Task broadcast_task;
 
+  IrData ir_parition_data_;
   IrData priority_data_;
   size_t priority_data_len_;
 

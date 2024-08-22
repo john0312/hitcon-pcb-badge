@@ -136,6 +136,17 @@ void IrController::BroadcastIr(void* unused) {
   send_lock = true;
 }
 
+void IrController::SendPartitionPacket(unsigned char id) {
+  id += 256-kPartitionOffset;
+  ir_parition_data_ = {
+      .ttl = 0,
+      .type = packet_type::kPartition,
+  };
+  ir_parition_data_.partition.partition = id;
+
+  irLogic.SendPacket(reinterpret_cast<uint8_t*>(&ir_parition_data_), 3);
+}
+
 void IrController::SendShowPacket(char* msg) {
   IrData irdata = {
       .ttl = 0,
