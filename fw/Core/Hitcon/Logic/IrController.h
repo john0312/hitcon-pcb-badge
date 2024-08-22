@@ -55,7 +55,7 @@ class IrController {
   void InitBroadcastService(uint8_t game_types);
 
   void SetDisableBroadcast() { disable_broadcast = true; }
-  void SendPartitionPacket(unsigned char id);
+  void SendPartitionPacket(int id);
 
  private:
   bool send_lock;
