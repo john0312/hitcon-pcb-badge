@@ -89,6 +89,13 @@ constexpr size_t kGameAchievementDataCount = kGameAchievementDataSize / 9;
 constexpr uint32_t kPerDataPeriod = 5 * 60;
 constexpr uint8_t kXBoardWindowSize = 4;
 
+#define ATTENDEE
+
+#if defined SPONSOR
+
+constexpr bool kForceShowNameOnly = true;
+constexpr bool kLegacySurpriseBehaviour = true;
+
 constexpr uint8_t kStrayIRData[] = {
     // First byte is the column
     // 0x00,
@@ -249,8 +256,535 @@ constexpr uint8_t kStrayXBoardData[] = {
     // clang-format on
 };
 
+#elif defined SPEAKER
+
+constexpr bool kForceShowNameOnly = false;
+constexpr bool kLegacySurpriseBehaviour = true;
+
+constexpr uint8_t kStrayIRData[] = {
+    // First byte is the column
+    // 0x00,
+    // Repeat...
+
+    // clang-format off
+    /* PARTITION 1 */
+    DATA(0x0a), // 15
+    DATA(0x0b), // 15
+    DATA(0x0c), // 15
+    DATA(0x0f), // 15
+    DATA(0x0a), // 15
+    DATA(0x0b), // 15
+    DATA(0x0c), // 15
+    DATA(0x0f), // 15
+    DATA(0x0a), // 16
+    DATA(0x0b), // 16
+    DATA(0x0c), // 16
+    DATA(0x0f), // 16
+    DATA(0x0a), // 16
+    DATA(0x0b), // 16
+    DATA(0x0c), // 16
+    DATA(0x0f), // 16
+
+    /* PARTITION 2 */
+    DATA(0x0a), // 17
+    DATA(0x0b), // 17
+    DATA(0x0c), // 17
+    DATA(0x0f), // 17
+    DATA(0x0a), // 17
+    DATA(0x0b), // 17
+    DATA(0x0c), // 17
+    DATA(0x0f), // 17
+    DATA(0x0a), // 18
+    DATA(0x0b), // 18
+    DATA(0x0c), // 18
+    DATA(0x0f), // 18
+    DATA(0x0a), // 18
+    DATA(0x0b), // 18
+    DATA(0x0c), // 18
+    DATA(0x0f), // 18
+
+    /* PARTITION 3 */
+    DATA(0x0a), // 19
+    DATA(0x0b), // 19
+    DATA(0x0c), // 19
+    DATA(0x0f), // 19
+    DATA(0x0a), // 19
+    DATA(0x0b), // 19
+    DATA(0x0c), // 19
+    DATA(0x0f), // 19
+    DATA(0x0a), // 20
+    DATA(0x0b), // 20
+    DATA(0x0c), // 20
+    DATA(0x0f), // 20
+    DATA(0x0a), // 20
+    DATA(0x0b), // 20
+    DATA(0x0c), // 20
+    DATA(0x0f), // 20
+
+    /* PARTITION 4 */
+    DATA(0x0a), // 21
+    DATA(0x0b), // 21
+    DATA(0x0c), // 21
+    DATA(0x0f), // 21
+    DATA(0x0a), // 21
+    DATA(0x0b), // 21
+    DATA(0x0c), // 21
+    DATA(0x0f), // 21
+    DATA(0x0a), // 22
+    DATA(0x0b), // 22
+    DATA(0x0c), // 22
+    DATA(0x0f), // 22
+    DATA(0x0a), // 22
+    DATA(0x0b), // 22
+    DATA(0x0c), // 22
+    DATA(0x0f), // 22
+    // clang-format on
+};
+
+constexpr uint8_t kStrayXBoardData[] = {
+    // First byte is the column
+    // 0x00,
+    // Repeat...
+
+    // clang-format off
+    /* PARTITION 1 */
+    DATA(0x0a), // 17
+    DATA(0x0b), // 17
+    DATA(0x0c), // 17
+    DATA(0x0d), // 17
+    DATA(0x0e), // 17
+    DATA(0x0f), // 17
+    DATA(0x0a), // 17
+    DATA(0x0b), // 17
+    DATA(0x0c), // 18
+    DATA(0x0d), // 18
+    DATA(0x0e), // 18
+    DATA(0x0f), // 18
+    DATA(0x0a), // 18
+    DATA(0x0b), // 18
+    DATA(0x0c), // 18
+    DATA(0x0d), // 18
+
+    /* PARTITION 2 */
+    DATA(0x0e), // 19
+    DATA(0x0f), // 19
+    DATA(0x0a), // 19
+    DATA(0x0b), // 19
+    DATA(0x0c), // 19
+    DATA(0x0d), // 19
+    DATA(0x0e), // 19
+    DATA(0x0f), // 19
+    DATA(0x0a), // 20
+    DATA(0x0b), // 20
+    DATA(0x0c), // 20
+    DATA(0x0d), // 20
+    DATA(0x0e), // 20
+    DATA(0x0f), // 20
+    DATA(0x0a), // 20
+    DATA(0x0b), // 20
+
+    /* PARTITION 3 */
+    DATA(0x0c), // 21
+    DATA(0x0d), // 21
+    DATA(0x0e), // 21
+    DATA(0x0f), // 21
+    DATA(0x0a), // 21
+    DATA(0x0b), // 21
+    DATA(0x0c), // 21
+    DATA(0x0d), // 21
+    DATA(0x0e), // 22
+    DATA(0x0f), // 22
+    DATA(0x0a), // 22
+    DATA(0x0b), // 22
+    DATA(0x0c), // 22
+    DATA(0x0d), // 22
+    DATA(0x0e), // 22
+    DATA(0x0f), // 22
+
+    /* PARTITION 4 */
+    DATA(0x0a), // 23
+    DATA(0x0b), // 23
+    DATA(0x0c), // 23
+    DATA(0x0d), // 23
+    DATA(0x0e), // 23
+    DATA(0x0f), // 23
+    DATA(0x0a), // 23
+    DATA(0x0b), // 23
+    DATA(0x0c), // 24
+    DATA(0x0d), // 24
+    DATA(0x0e), // 24
+    DATA(0x0f), // 24
+    DATA(0x0a), // 24
+    DATA(0x0b), // 24
+    DATA(0x0c), // 24
+    DATA(0x0d), // 24
+    // clang-format on
+};
+
+#elif defined HITCON_R1
+
+constexpr bool kForceShowNameOnly = true;
+constexpr bool kLegacySurpriseBehaviour = false;
+
+constexpr uint8_t kStrayIRData[] = {
+    // First byte is the column
+    // 0x00,
+    // Repeat...
+
+    // clang-format off
+    /* PARTITION 1 */
+    DATA(0x0a), // 15
+    DATA(0x0b), // 15
+    DATA(0x0c), // 15
+    DATA(0x0f), // 15
+    DATA(0x0a), // 15
+    DATA(0x0b), // 15
+    DATA(0x0c), // 15
+    DATA(0x0f), // 15
+    DATA(0x0a), // 16
+    DATA(0x0b), // 16
+    DATA(0x0c), // 16
+    DATA(0x0f), // 16
+    DATA(0x0a), // 16
+    DATA(0x0b), // 16
+    DATA(0x0c), // 16
+    DATA(0x0f), // 16
+
+    /* PARTITION 2 */
+    DATA(0x0a), // 17
+    DATA(0x0b), // 17
+    DATA(0x0c), // 17
+    DATA(0x0f), // 17
+    DATA(0x0a), // 17
+    DATA(0x0b), // 17
+    DATA(0x0c), // 17
+    DATA(0x0f), // 17
+    DATA(0x0a), // 18
+    DATA(0x0b), // 18
+    DATA(0x0c), // 18
+    DATA(0x0f), // 18
+    DATA(0x0a), // 18
+    DATA(0x0b), // 18
+    DATA(0x0c), // 18
+    DATA(0x0f), // 18
+
+    /* PARTITION 3 */
+    DATA(0x0a), // 19
+    DATA(0x0b), // 19
+    DATA(0x0c), // 19
+    DATA(0x0f), // 19
+    DATA(0x0a), // 19
+    DATA(0x0b), // 19
+    DATA(0x0c), // 19
+    DATA(0x0f), // 19
+    DATA(0x0a), // 20
+    DATA(0x0b), // 20
+    DATA(0x0c), // 20
+    DATA(0x0f), // 20
+    DATA(0x0a), // 20
+    DATA(0x0b), // 20
+    DATA(0x0c), // 20
+    DATA(0x0f), // 20
+
+    /* PARTITION 4 */
+    DATA(0x0a), // 21
+    DATA(0x0b), // 21
+    DATA(0x0c), // 21
+    DATA(0x0f), // 21
+    DATA(0x0a), // 21
+    DATA(0x0b), // 21
+    DATA(0x0c), // 21
+    DATA(0x0f), // 21
+    DATA(0x0a), // 22
+    DATA(0x0b), // 22
+    DATA(0x0c), // 22
+    DATA(0x0f), // 22
+    DATA(0x0a), // 22
+    DATA(0x0b), // 22
+    DATA(0x0c), // 22
+    DATA(0x0f), // 22
+    // clang-format on
+};
+
+constexpr uint8_t kStrayXBoardData[] = {
+};
+
+#elif defined HITCON_R2
+
+constexpr bool kForceShowNameOnly = true;
+constexpr bool kLegacySurpriseBehaviour = false;
+
+constexpr uint8_t kStrayIRData[] = {
+    // First byte is the column
+    // 0x00,
+    // Repeat...
+
+    // clang-format off
+    /* PARTITION 1 */
+    DATA(0x0a), // 15
+    DATA(0x0b), // 15
+    DATA(0x0c), // 15
+    DATA(0x0f), // 15
+    DATA(0x0a), // 15
+    DATA(0x0b), // 15
+    DATA(0x0c), // 15
+    DATA(0x0f), // 15
+    DATA(0x0a), // 16
+    DATA(0x0b), // 16
+    DATA(0x0c), // 16
+    DATA(0x0f), // 16
+    DATA(0x0a), // 16
+    DATA(0x0b), // 16
+    DATA(0x0c), // 16
+    DATA(0x0f), // 16
+
+    /* PARTITION 2 */
+    DATA(0x0a), // 17
+    DATA(0x0b), // 17
+    DATA(0x0c), // 17
+    DATA(0x0f), // 17
+    DATA(0x0a), // 17
+    DATA(0x0b), // 17
+    DATA(0x0c), // 17
+    DATA(0x0f), // 17
+    DATA(0x0a), // 18
+    DATA(0x0b), // 18
+    DATA(0x0c), // 18
+    DATA(0x0f), // 18
+    DATA(0x0a), // 18
+    DATA(0x0b), // 18
+    DATA(0x0c), // 18
+    DATA(0x0f), // 18
+
+    /* PARTITION 3 */
+    DATA(0x0a), // 19
+    DATA(0x0b), // 19
+    DATA(0x0c), // 19
+    DATA(0x0f), // 19
+    DATA(0x0a), // 19
+    DATA(0x0b), // 19
+    DATA(0x0c), // 19
+    DATA(0x0f), // 19
+    DATA(0x0a), // 20
+    DATA(0x0b), // 20
+    DATA(0x0c), // 20
+    DATA(0x0f), // 20
+    DATA(0x0a), // 20
+    DATA(0x0b), // 20
+    DATA(0x0c), // 20
+    DATA(0x0f), // 20
+
+    /* PARTITION 4 */
+    DATA(0x0a), // 21
+    DATA(0x0b), // 21
+    DATA(0x0c), // 21
+    DATA(0x0f), // 21
+    DATA(0x0a), // 21
+    DATA(0x0b), // 21
+    DATA(0x0c), // 21
+    DATA(0x0f), // 21
+    DATA(0x0a), // 22
+    DATA(0x0b), // 22
+    DATA(0x0c), // 22
+    DATA(0x0f), // 22
+    DATA(0x0a), // 22
+    DATA(0x0b), // 22
+    DATA(0x0c), // 22
+    DATA(0x0f), // 22
+    // clang-format on
+};
+
+constexpr uint8_t kStrayXBoardData[] = {
+};
+
+#elif defined HITCON_R3
+
+constexpr bool kForceShowNameOnly = true;
+constexpr bool kLegacySurpriseBehaviour = false;
+
+constexpr uint8_t kStrayIRData[] = {
+    // First byte is the column
+    // 0x00,
+    // Repeat...
+
+    // clang-format off
+    /* PARTITION 1 */
+    DATA(0x0a), // 15
+    DATA(0x0b), // 15
+    DATA(0x0c), // 15
+    DATA(0x0f), // 15
+    DATA(0x0a), // 15
+    DATA(0x0b), // 15
+    DATA(0x0c), // 15
+    DATA(0x0f), // 15
+    DATA(0x0a), // 16
+    DATA(0x0b), // 16
+    DATA(0x0c), // 16
+    DATA(0x0f), // 16
+    DATA(0x0a), // 16
+    DATA(0x0b), // 16
+    DATA(0x0c), // 16
+    DATA(0x0f), // 16
+
+    /* PARTITION 2 */
+    DATA(0x0a), // 17
+    DATA(0x0b), // 17
+    DATA(0x0c), // 17
+    DATA(0x0f), // 17
+    DATA(0x0a), // 17
+    DATA(0x0b), // 17
+    DATA(0x0c), // 17
+    DATA(0x0f), // 17
+    DATA(0x0a), // 18
+    DATA(0x0b), // 18
+    DATA(0x0c), // 18
+    DATA(0x0f), // 18
+    DATA(0x0a), // 18
+    DATA(0x0b), // 18
+    DATA(0x0c), // 18
+    DATA(0x0f), // 18
+
+    /* PARTITION 3 */
+    DATA(0x0a), // 19
+    DATA(0x0b), // 19
+    DATA(0x0c), // 19
+    DATA(0x0f), // 19
+    DATA(0x0a), // 19
+    DATA(0x0b), // 19
+    DATA(0x0c), // 19
+    DATA(0x0f), // 19
+    DATA(0x0a), // 20
+    DATA(0x0b), // 20
+    DATA(0x0c), // 20
+    DATA(0x0f), // 20
+    DATA(0x0a), // 20
+    DATA(0x0b), // 20
+    DATA(0x0c), // 20
+    DATA(0x0f), // 20
+
+    /* PARTITION 4 */
+    DATA(0x0a), // 21
+    DATA(0x0b), // 21
+    DATA(0x0c), // 21
+    DATA(0x0f), // 21
+    DATA(0x0a), // 21
+    DATA(0x0b), // 21
+    DATA(0x0c), // 21
+    DATA(0x0f), // 21
+    DATA(0x0a), // 22
+    DATA(0x0b), // 22
+    DATA(0x0c), // 22
+    DATA(0x0f), // 22
+    DATA(0x0a), // 22
+    DATA(0x0b), // 22
+    DATA(0x0c), // 22
+    DATA(0x0f), // 22
+    // clang-format on
+};
+
+constexpr uint8_t kStrayXBoardData[] = {};
+
+#elif defined HITCON_R4
+
+constexpr bool kForceShowNameOnly = true;
+constexpr bool kLegacySurpriseBehaviour = false;
+
+constexpr uint8_t kStrayIRData[] = {
+    // First byte is the column
+    // 0x00,
+    // Repeat...
+
+    // clang-format off
+    /* PARTITION 1 */
+    DATA(0x0a), // 15
+    DATA(0x0b), // 15
+    DATA(0x0c), // 15
+    DATA(0x0f), // 15
+    DATA(0x0a), // 15
+    DATA(0x0b), // 15
+    DATA(0x0c), // 15
+    DATA(0x0f), // 15
+    DATA(0x0a), // 16
+    DATA(0x0b), // 16
+    DATA(0x0c), // 16
+    DATA(0x0f), // 16
+    DATA(0x0a), // 16
+    DATA(0x0b), // 16
+    DATA(0x0c), // 16
+    DATA(0x0f), // 16
+
+    /* PARTITION 2 */
+    DATA(0x0a), // 17
+    DATA(0x0b), // 17
+    DATA(0x0c), // 17
+    DATA(0x0f), // 17
+    DATA(0x0a), // 17
+    DATA(0x0b), // 17
+    DATA(0x0c), // 17
+    DATA(0x0f), // 17
+    DATA(0x0a), // 18
+    DATA(0x0b), // 18
+    DATA(0x0c), // 18
+    DATA(0x0f), // 18
+    DATA(0x0a), // 18
+    DATA(0x0b), // 18
+    DATA(0x0c), // 18
+    DATA(0x0f), // 18
+
+    /* PARTITION 3 */
+    DATA(0x0a), // 19
+    DATA(0x0b), // 19
+    DATA(0x0c), // 19
+    DATA(0x0f), // 19
+    DATA(0x0a), // 19
+    DATA(0x0b), // 19
+    DATA(0x0c), // 19
+    DATA(0x0f), // 19
+    DATA(0x0a), // 20
+    DATA(0x0b), // 20
+    DATA(0x0c), // 20
+    DATA(0x0f), // 20
+    DATA(0x0a), // 20
+    DATA(0x0b), // 20
+    DATA(0x0c), // 20
+    DATA(0x0f), // 20
+
+    /* PARTITION 4 */
+    DATA(0x0a), // 21
+    DATA(0x0b), // 21
+    DATA(0x0c), // 21
+    DATA(0x0f), // 21
+    DATA(0x0a), // 21
+    DATA(0x0b), // 21
+    DATA(0x0c), // 21
+    DATA(0x0f), // 21
+    DATA(0x0a), // 22
+    DATA(0x0b), // 22
+    DATA(0x0c), // 22
+    DATA(0x0f), // 22
+    DATA(0x0a), // 22
+    DATA(0x0b), // 22
+    DATA(0x0c), // 22
+    DATA(0x0f), // 22
+    // clang-format on
+};
+
+constexpr uint8_t kStrayXBoardData[] = {};
+
+#elif defined ATTENDEE
+
+constexpr uint8_t kStrayIRData[] = {};
+
+constexpr uint8_t kStrayXBoardData[] = {};
+
 constexpr bool kForceShowNameOnly = false;
 constexpr bool kLegacySurpriseBehaviour = false;
+
+#else
+
+static_assert(false);
+
+#endif // HITCON_R4
 
 #ifdef DATA
 #undef DATA
