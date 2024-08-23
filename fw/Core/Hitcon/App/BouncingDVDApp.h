@@ -19,11 +19,15 @@ namespace app {
 
 namespace bouncing_dvd {
 
+#define HITCON_BOUNCING_SMALL
+
+#ifdef HITCON_BOUNCING_SMALL
 /**
  *   X.X   XXX   XXX   XXX   XXX   XXX
  * H XXX I .X. T .X. C X.. O X.X N X.X
  *   X.X   XXX   .X.   XXX   XXX   X.X
  */
+
 constexpr int FONT_WIDTH = 3;
 constexpr int FONT_HEIGHT = 3;
 constexpr int FONT[][FONT_HEIGHT][FONT_WIDTH] = {
@@ -34,6 +38,53 @@ constexpr int FONT[][FONT_HEIGHT][FONT_WIDTH] = {
     {{1, 1, 1}, {1, 0, 1}, {1, 1, 1}},  // O
     {{1, 1, 1}, {1, 0, 1}, {1, 0, 1}},  // N
 };
+
+#else  // HITCON_BOUNCING_BIG
+
+/**
+ *   X...X   XXXXX   XXXXX   XXXXX   XXXXX   X...X
+ *   X...X   ..X..   ..X..   X....   X...X   XX..X
+ * H XXXXX I ..X.. T ..X.. C X.... O X...X N X.X.X
+ *   X...X   ..X..   ..X..   X....   X...X   X..XX
+ *   X...X   XXXXX   ..X..   XXXXX   XXXXX   X...X
+ */
+constexpr int FONT_WIDTH = 5;
+constexpr int FONT_HEIGHT = 5;
+constexpr int FONT[][FONT_HEIGHT][FONT_WIDTH] = {
+    {{1, 0, 0, 0, 1},
+     {1, 0, 0, 0, 1},
+     {1, 1, 1, 1, 1},
+     {1, 0, 0, 0, 1},
+     {1, 0, 0, 0, 1}},  // H
+    {{1, 1, 1, 1, 1},
+     {0, 0, 1, 0, 0},
+     {0, 0, 1, 0, 0},
+     {0, 0, 1, 0, 0},
+     {1, 1, 1, 1, 1}},  // I
+    {{1, 1, 1, 1, 1},
+     {0, 0, 1, 0, 0},
+     {0, 0, 1, 0, 0},
+     {0, 0, 1, 0, 0},
+     {0, 0, 1, 0, 0}},  // T
+    {{1, 1, 1, 1, 1},
+     {1, 0, 0, 0, 0},
+     {1, 0, 0, 0, 0},
+     {1, 0, 0, 0, 0},
+     {1, 1, 1, 1, 1}},  // C
+    {{1, 1, 1, 1, 1},
+     {1, 0, 0, 0, 1},
+     {1, 0, 0, 0, 1},
+     {1, 0, 0, 0, 1},
+     {1, 1, 1, 1, 1}},  // O
+    {{1, 0, 0, 0, 1},
+     {1, 1, 0, 0, 1},
+     {1, 0, 1, 0, 1},
+     {1, 0, 0, 1, 1},
+     {1, 0, 0, 0, 1}},  // N
+};
+
+#endif  // HITCON_BOUNCING_SMALL
+
 constexpr int TEXT_LENGTH =
     sizeof(FONT) / (FONT_WIDTH * FONT_HEIGHT) / sizeof(int);
 constexpr int UPDATE_PRIORITY = 960;
