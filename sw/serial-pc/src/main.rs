@@ -31,8 +31,14 @@ struct ServerArgs {
 #[command(version, about, long_about = None)]
 struct ClientArgs {
     /// Send packet type
-    #[arg(short, long)]
-    pkt_type: u8,
+    #[arg(long)]
+    send_game_data: bool,
+    #[arg(long)]
+    pkt_type: Option<u8>,
+    #[arg(long)]
+    col: Option<u8>,
+    #[arg(long)]
+    data_int: Option<u64>,
 }
 
 fn main() {
@@ -96,7 +102,7 @@ fn server(listener: TcpListener) {
                 packet_parser.extend(&serial_buf[..t]);
                 let pkts = packet_parser.parse();
                 if !pkts.is_empty() && dump {
-                    port.write_all(&make_pkt(5)).unwrap();
+                    port.write_all(&make_pkt(5, &[])).unwrap();
                     dump = false;
                 }
                 let pkts = pkts
@@ -177,22 +183,48 @@ fn client() {
     let args = ClientArgs::parse();
     let mut stream =
         TcpStream::connect("127.0.0.1:7878").expect("Couldn't connect to the server...");
-    let pkt = make_pkt(args.pkt_type);
-    println!("send `{:02X?}`", pkt);
-    stream.write_all(&pkt).unwrap();
+
+    if args.send_game_data {
+        let col = args.col.unwrap();
+        // python's equalivalent code: `data = bytes([args.col, *args.data_int.to_bytes(8, 'big')])`
+        let mut data: Vec<u8> = vec![];
+        data.push(col);
+        data.extend(args.data_int.unwrap().to_be_bytes().iter());
+        let pkt = make_pkt(3, &data);
+        println!("send `{:02X?}`", pkt);
+        stream.write_all(&pkt).unwrap();
+    } else {
+        let pkt = make_pkt(5, &[]);
+        println!("send `{:02X?}`", pkt);
+        stream.write_all(&pkt).unwrap();
+    }
 }
 
-fn make_pkt(pkt_type: u8) -> Vec<u8> {
-    // preamble, id, len, type, checksum
+fn make_pkt(type_: u8, data: &[u8]) -> Vec<u8> {
     let mut pkt: Vec<_> = b"\x55\x55\x55\x55\x55\x55\x55\xd5".to_vec();
-    pkt.extend(b"\0\0");
-    pkt.extend(b"\0");
-    // pkt.extend(b"\x05");
-    pkt.extend([pkt_type]);
-    pkt.extend(b"\0\0\0\0");
-    let c = Crc::default();
-    let checksum = c.hash_bytes(&pkt);
+    pkt.extend(b"\0\0"); // id
+    pkt.extend([data.len() as u8]); // len
+    pkt.extend([type_]); // type
+    pkt.extend(b"\0\0\0\0"); // placeholder of checksum
+    // copy a pkt and calculate checksum
+    let mut pkt2 = pkt.clone();
+    pkt2.extend(data);
+    match pkt2.len() % 4 {
+        1 => {
+            pkt2.extend([0, 0, 0]);
+        }
+        2 => {
+            pkt2.extend([0, 0]);
+        }
+        3 => {
+            pkt2.extend([0]);
+        }
+        _ => (),
+    }
+    let checksum = Crc::default().hash_bytes(&pkt2);
+    // finalize pkt
     pkt.drain(pkt.len() - 4..);
     pkt.extend(checksum);
+    pkt.extend(data);
     pkt
 }
