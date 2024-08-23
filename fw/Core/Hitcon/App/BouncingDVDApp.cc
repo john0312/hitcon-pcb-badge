@@ -15,13 +15,16 @@ void BouncingDVD::update(int now) {
 
   int new_x = x + dx;
   int new_y = y + dy;
+  constexpr bool stop_on_border = false;
   bool cross_border = false;
   if (!(0 <= new_x && (new_x + FONT_WIDTH - 1) < DISPLAY_WIDTH)) {
     dx = -dx;
+    if (!stop_on_border) x = x + dx;
     cross_border = true;
   }
   if (!(0 <= new_y && (new_y + FONT_HEIGHT - 1) < DISPLAY_HEIGHT)) {
     dy = -dy;
+    if (!stop_on_border) y = y + dy;
     cross_border = true;
   }
   if (cross_border) {
