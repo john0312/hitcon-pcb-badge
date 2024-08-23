@@ -11,7 +11,8 @@ def scriptToHex(scriptPath):
     data = [x.strip() for x in data]
     for line in data:
         if line.startswith("REPEAT"):
-            lastCommand=lastCommand*int(line.split(" ")[1])
+            hexData=lastCommand*int(line.split(" ")[1])
+            print("REPEAT")
         elif line.startswith("STRING_DELAY") or line.startswith("STRINGDELAY"):
             global nextStringDelay
             nextStringDelay=int(int(line.split(" ")[1])/10)

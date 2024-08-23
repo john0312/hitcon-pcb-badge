@@ -36,6 +36,7 @@ REM Alt code input demo
 ENTER
 
 STRING =
+REPEAT 20
 ENTER
 ENTER
 
