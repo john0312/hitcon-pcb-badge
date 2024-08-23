@@ -69,7 +69,10 @@ void BadgeController::OnButton(void *arg1) {
   if (combo_button_ctr == COMBO_BUTTON_LEN) {
     // surprise
     combo_button_ctr = (button == COMBO_BUTTON[0]) ? 1 : 0;
-    if (this->callback) this->callback(callback_arg1, callback_arg2);
+    if (this->callback) {
+      badge_controller.SetStoredApp(badge_controller.GetCurrentApp());
+      this->callback(callback_arg1, callback_arg2);
+    }
     return;
   }
 
