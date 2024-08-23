@@ -23,7 +23,7 @@ GameLogic gameLogic;
 
 void GameLogic::RandomlySetGridCellValue(int row, int col) {
   for (uint8_t i = 0; i < kDataSize; i++) {
-    storage_->cells[col][row].data[i] = g_fast_random_pool.GetRandom();
+    storage_->cells[col][row].data[i] = g_fast_random_pool.GetRandom() & 0x0FF;
   }
 }
 
@@ -260,7 +260,7 @@ bool GameLogic::RoutineInternal() {
         if (row == populating_cache_row_) continue;
         if (storage_->cells[populating_cache_col_][row].u64 ==
             storage_->cells[populating_cache_col_][populating_cache_row_].u64) {
-          RandomlySetGridCellValue(row, in_progress_col_);
+          RandomlySetGridCellValue(row, populating_cache_col_);
           modified = true;
           break;
         }
@@ -281,7 +281,7 @@ bool GameLogic::RoutineInternal() {
         populating_cache_row_ = 0;
         routine_sub_state_ = INIT_SHA3;
       }
-    }
+    } break;
     case POPULATING_CACHE_CELLS: {
       int score;
       bool sub_routine_complete = StepSubRoutine(
