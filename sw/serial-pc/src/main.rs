@@ -138,8 +138,10 @@ fn server(listener: TcpListener) {
     let mut dino = 0_u32;
     let mut tetris = 0_u32;
     let mut snake = 0_u32;
-    cells.iter().filter(|cell| cell[0] >= 16).for_each(|cell| {
-        match cell[0] {
+    cells
+        .iter()
+        .filter(|cell| cell[0] >= 16)
+        .for_each(|cell| match cell[0] {
             125 => {
                 dino = u32::from_le_bytes(cell[1..5].try_into().unwrap());
             }
@@ -148,8 +150,7 @@ fn server(listener: TcpListener) {
                 snake = u32::from_le_bytes(cell[5..9].try_into().unwrap());
             }
             _ => (),
-        }
-    });
+        });
     let score: u32 = cells
         .into_par_iter()
         .filter(|cell| cell[0] < 16)
@@ -194,7 +195,8 @@ fn client() {
         println!("send `{:02X?}`", pkt);
         stream.write_all(&pkt).unwrap();
     } else {
-        let pkt = make_pkt(5, &[]);
+        let type_ = args.pkt_type.unwrap();
+        let pkt = make_pkt(type_, &[]);
         println!("send `{:02X?}`", pkt);
         stream.write_all(&pkt).unwrap();
     }
@@ -206,6 +208,7 @@ fn make_pkt(type_: u8, data: &[u8]) -> Vec<u8> {
     pkt.extend([data.len() as u8]); // len
     pkt.extend([type_]); // type
     pkt.extend(b"\0\0\0\0"); // placeholder of checksum
+
     // copy a pkt and calculate checksum
     let mut pkt2 = pkt.clone();
     pkt2.extend(data);
