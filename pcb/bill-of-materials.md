@@ -8,6 +8,7 @@ Bill of Material
 - LED Matrix: 0603
 - AMS1117: SOT223
 - IRM3638: DIP3
+- IR LED 940nm: 0603
 - AAA Battery
   * 有很多小廠，要尋找並詢價還有取得Datasheet
 - Crystal: 2016
