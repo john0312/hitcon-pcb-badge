@@ -114,4 +114,11 @@ void BadgeController::OnEdgeButton(void *arg1) {
   current_app->OnEdgeButton(button);
 }
 
+void BadgeController::SetStoredApp(App *app) { stored_app = app; }
+
+void BadgeController::RestoreApp() {
+  if (stored_app) change_app(stored_app);
+  stored_app = nullptr;
+}
+
 }  // namespace hitcon

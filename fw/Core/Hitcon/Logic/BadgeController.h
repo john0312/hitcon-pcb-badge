@@ -41,10 +41,15 @@ class BadgeController {
   void SetCallback(callback_t callback, void *callback_arg1,
                    void *callback_arg2);
 
+  // for interrupt resume
+  void SetStoredApp(App *app);
+  void RestoreApp();
+
  private:
   callback_t callback = nullptr;
   void *callback_arg1;
   void *callback_arg2;
+  App *stored_app;
 };
 
 extern BadgeController badge_controller;
