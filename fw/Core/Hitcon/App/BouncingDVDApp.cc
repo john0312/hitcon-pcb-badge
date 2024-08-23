@@ -89,10 +89,12 @@ BouncingDVDApp::BouncingDVDApp()
 }
 
 void BouncingDVDApp::OnEntry() {
+  display_set_orientation(0);
   hitcon::service::sched::scheduler.EnablePeriodic(&periodic_task);
 }
 
 void BouncingDVDApp::OnExit() {
+  display_set_orientation(1);
   hitcon::service::sched::scheduler.DisablePeriodic(&periodic_task);
 }
 
