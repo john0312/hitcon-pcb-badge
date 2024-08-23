@@ -19,19 +19,21 @@ void BouncingDVD::update(int now) {
   bool cross_border = false;
   if (!(0 <= new_x && (new_x + FONT_WIDTH - 1) < DISPLAY_WIDTH)) {
     dx = -dx;
-    if (!stop_on_border) x = x + dx;
+    new_x = x + dx;
+    new_y = y + dy;
     cross_border = true;
   }
   if (!(0 <= new_y && (new_y + FONT_HEIGHT - 1) < DISPLAY_HEIGHT)) {
     dy = -dy;
-    if (!stop_on_border) y = y + dy;
+    new_x = x + dx;
+    new_y = y + dy;
     cross_border = true;
   }
   if (cross_border) {
     current_char = (current_char + 1) % TEXT_LENGTH;
   }
 
-  if (!cross_border) {
+  if (!cross_border || !stop_on_border) {
     x = new_x;
     y = new_y;
   }
