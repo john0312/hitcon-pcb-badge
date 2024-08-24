@@ -602,7 +602,6 @@ constexpr size_t PER_XBoard_PARTITION_SIZE =
 // defined HITCON_R2
 #elif defined HITCON_R3
 
-
 constexpr uint8_t kStrayIRData[] = {
     // First byte is the column
     // 0x00,
@@ -778,7 +777,7 @@ constexpr uint8_t kStrayXBoardData[] = {};
 constexpr size_t PER_XBoard_PARTITION_SIZE =
     sizeof(kStrayXBoardData) / sizeof(uint8_t) / PARTITION_LEN / 9;
 
-#endif // HITCON_R4
+#endif  // HITCON_R4
 
 #ifdef DATA
 #undef DATA
