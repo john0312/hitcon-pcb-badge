@@ -1,1 +1,3 @@
+*.log
+cache
 secret-out*.h
