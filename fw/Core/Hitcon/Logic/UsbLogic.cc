@@ -189,6 +189,12 @@ void UsbLogic::Routine(void* unused) {
   static uint8_t delay_count = 0;
   uint16_t len = (*(uint8_t*)(SCRIPT_BEGIN_ADDR - 6) << 8) |
                  *(uint8_t*)(SCRIPT_BEGIN_ADDR - 5);
+  if (len > MAX_SCRIPT_LEN) {
+    StopScript();
+    _on_err_cb(_on_err_arg1,
+               reinterpret_cast<void*>(const_cast<char*>(EMPTY_SCRIPT_MSG)));
+    return;
+  }
   if (!_script_crc_flag) {
     auto value = fast_crc32(reinterpret_cast<uint8_t*>(SCRIPT_BEGIN_ADDR), len);
     if (value == *reinterpret_cast<uint32_t*>(SCRIPT_BEGIN_ADDR - 4))

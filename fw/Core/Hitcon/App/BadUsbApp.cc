@@ -35,9 +35,13 @@ void BadUsbApp::OnScriptFinished(void* unsed) {
   badge_controller.BackToMenu(this);
 }
 
-void BadUsbApp::OnScriptError(void* unused) {
+void BadUsbApp::OnScriptError(void* msg) {
   _wait = true;
-  display_set_mode_scroll_text("checksum fail");
+  if (msg != nullptr) {
+    display_set_mode_scroll_text(reinterpret_cast<char*>(msg));
+  } else {
+    display_set_mode_scroll_text("checksum fail");
+  }
 }
 
 }  // namespace usb

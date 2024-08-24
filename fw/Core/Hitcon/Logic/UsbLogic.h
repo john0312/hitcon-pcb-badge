@@ -17,6 +17,10 @@ constexpr unsigned SCRIPT_BEGIN_ADDR =
     FLASH_END_ADDR - FLASH_PAGE_COUNT * MY_FLASH_PAGE_SIZE + 1 + 7;
 constexpr unsigned SCRIPT_FLASH_INDEX = 0;
 
+// storage size for script
+constexpr uint16_t MAX_SCRIPT_LEN = 2048 - 7;
+constexpr char EMPTY_SCRIPT_MSG[] = "No script";
+
 void RunScriptWrapper();
 
 struct {
