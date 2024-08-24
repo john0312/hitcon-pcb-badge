@@ -1,6 +1,7 @@
 #include <App/BadUsbApp.h>
 #include <App/BouncingDVDApp.h>
 #include <App/DinoApp.h>
+#include <App/DisplayFrameBuf.h>
 #include <App/ScoreHistApp.h>
 #include <App/ShowNameApp.h>
 #include <App/SnakeApp.h>
@@ -13,6 +14,7 @@ namespace hitcon {
 
 using hitcon::app::bouncing_dvd::bouncing_dvd_app;
 using hitcon::app::dino::dino_app;
+using hitcon::app::display_frame_buf::display_frame_buf_app;
 using hitcon::app::snake::snake_app;
 using hitcon::app::tetris::tetris_app;
 
@@ -24,6 +26,7 @@ constexpr menu_entry_t main_menu_entries[] = {
     {"Tetris", &tetris_app, &hitcon::app::tetris::SetSingleplayer},
     {"Show Scores", &score_hist::g_score_hist, nullptr},
     {"Bouncing DVD", &bouncing_dvd_app, nullptr},
+    {"Display Buf", &display_frame_buf_app, nullptr},
 };
 
 constexpr int main_menu_entries_len =
