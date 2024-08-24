@@ -89,6 +89,7 @@ void ShowNameApp::check_update() {
              SysTimer::GetTime() - last_disp_update > SURPRISE_TIME) {
     mode = NameScore;
     update_display();
+    badge_controller.RestoreApp();
   } else if (mode != Surprise &&
              (SysTimer::GetTime() - last_disp_update > kMinUpdateInterval ||
               starting_up)) {

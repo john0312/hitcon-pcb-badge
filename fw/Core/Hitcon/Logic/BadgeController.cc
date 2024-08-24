@@ -69,7 +69,10 @@ void BadgeController::OnButton(void *arg1) {
   if (combo_button_ctr == COMBO_BUTTON_LEN) {
     // surprise
     combo_button_ctr = (button == COMBO_BUTTON[0]) ? 1 : 0;
-    if (this->callback) this->callback(callback_arg1, callback_arg2);
+    if (this->callback) {
+      badge_controller.SetStoredApp(badge_controller.GetCurrentApp());
+      this->callback(callback_arg1, callback_arg2);
+    }
     return;
   }
 
@@ -112,6 +115,13 @@ void BadgeController::OnXBoardDisconnect(void *unused) {
 void BadgeController::OnEdgeButton(void *arg1) {
   button_t button = static_cast<button_t>(reinterpret_cast<uintptr_t>(arg1));
   current_app->OnEdgeButton(button);
+}
+
+void BadgeController::SetStoredApp(App *app) { stored_app = app; }
+
+void BadgeController::RestoreApp() {
+  if (stored_app) change_app(stored_app);
+  stored_app = nullptr;
 }
 
 }  // namespace hitcon
