@@ -53,7 +53,8 @@ def main():
             num = random.choice(candidates)
             candidates.remove(num)
 
-            print(f'{col} {num} (num_of_0 = {avg_score_per_grid})')
+            # print(f'{col} {num} (num_of_0 = {avg_score_per_grid})')
+            print(f'cargo run -- --send-game-data --col {col} --data-int {num}')
 
 
 if __name__ == '__main__':
