@@ -1,10 +1,9 @@
 #ifndef SERVICE_FLASH_SERVICE_H_
 #define SERVICE_FLASH_SERVICE_H_
 
+#include <Service/Sched/Scheduler.h>
 #include <stddef.h>
 #include <stdint.h>
-
-#include <Service/Sched/Scheduler.h>
 
 namespace hitcon {
 
@@ -36,7 +35,15 @@ class FlashService {
   // len must be lesser than FLASH_PAGE_SIZE.
   // Any flash storage after len remains 0.
   bool ProgramPage(size_t page_id, uint32_t* data, size_t len);
-private:
+
+  // Erase page but doesn't program it.
+  bool ErasePage(size_t page_id);
+
+  // Program the flash at page_id + offset, program data and len.
+  // Caller is in charge of erasing.
+  bool ProgramOnly(size_t page_id, size_t offset, uint32_t* data, size_t len);
+
+ private:
   size_t _data_len;
 
   size_t _page_id;
@@ -45,13 +52,17 @@ private:
   size_t _erase_page_id;
   size_t _program_page_id;
   size_t _program_pending_count_;
+  size_t _program_data_offset;
   size_t _wait_cnt;
+  bool _erase_only;
 
   enum FlashServiceState {
     FS_IDLE,
     FS_UNLOCK,
+    FS_SUSPEND_WAIT,
     FS_ERASE,
     FS_ERASE_WAIT,
+    FS_RESUME_WAIT,
     FS_PROGRAM,
     FS_PROGRAM_WAIT,
   };
@@ -61,15 +72,14 @@ private:
   FlashServiceState _state;
 
   void Routine();
-  
+
   static constexpr size_t kErasePageCount = 2;
-  static constexpr size_t kProgramPerRun = 32;
+  static constexpr size_t kProgramPerRun = 8;
 };
 
 // Global singleton instance of FlashService.
 extern FlashService g_flash_service;
 
 }  // namespace hitcon
-
 
 #endif  // SERVICE_FLASH_SERVICE_H_

@@ -1,7 +1,9 @@
 #include "IrLogic.h"
 
 #include <Logic/IrLogic.h>
+#include <Logic/crc32.h>
 #include <Service/IrService.h>
+#include <Service/Suspender.h>
 
 #include <cstdint>
 #include <cstring>
@@ -15,7 +17,8 @@ IrLogic irLogic;
 service::sched::Task OnBufferReceivedTask(
     490, (service::sched::task_callback_t)&IrLogic::OnBufferReceived, &irLogic);
 
-IrLogic::IrLogic() {}
+IrLogic::IrLogic()
+    : lf_total_period(0), lf_nonzero_period(0), lowpass_loadfactor(0) {}
 
 void IrLogic::Init() {
   // Set callback
@@ -30,6 +33,8 @@ enum PACKET_STATE {
   STATE_START = 0,
   STATE_SIZE = 1,
   STATE_DATA = 2,
+  STATE_CHKSUM = 3,
+  STATE_RESET = 4,
 };
 
 enum BIT_STATE {
@@ -53,9 +58,45 @@ static uint8_t decode_bit(uint8_t x) {
   }
 }
 
+static uint8_t merge_chksum(uint32_t x) {
+  uint8_t ret = 0;
+  for (int i = 0; i < 32; i += 8) {
+    ret ^= (x & (0xffu << i)) >> i;
+  }
+  return ret;
+}
+
 void IrLogic::OnBufferReceivedEnqueueTask(uint8_t *buffer) {
   buffer_received_ctr = 0;
   service::sched::scheduler.Queue(&OnBufferReceivedTask, buffer);
+
+  static_assert(IR_SERVICE_RX_ON_BUFFER_SIZE % IR_LOADFACTOR_PERIOD == 0);
+  static_assert(IR_LOADFACTOR_PERIOD % sizeof(uint32_t) == 0);
+  size_t pos = 0;
+  uint32_t current_period = 0;
+  uint32_t *u32_buffer = reinterpret_cast<uint32_t *>(buffer);
+  for (int i = 0; i < IR_SERVICE_RX_ON_BUFFER_SIZE / IR_LOADFACTOR_PERIOD;
+       i++) {
+    current_period = 0;
+    for (int j = 0; j < IR_LOADFACTOR_PERIOD / sizeof(uint32_t); j++) {
+      current_period |= u32_buffer[pos];
+      pos++;
+    }
+    if (current_period) {
+      lf_nonzero_period++;
+    }
+    lf_total_period++;
+  }
+  if (lf_total_period >= IR_LOADFACTOR_SAMPLING_COUNT) {
+    // current_lf is in Q15.16 fixed point.
+    uint32_t current_lf = (lf_nonzero_period << 16) / lf_total_period;
+    // Apply a low pass filter.
+    lowpass_loadfactor =
+        ((LF_ALPHA_COMPL * lowpass_loadfactor) + (LF_ALPHA * current_lf)) >> 10;
+    // Reset the counters.
+    lf_nonzero_period = 0;
+    lf_total_period = 0;
+  }
 }
 
 void IrLogic::OnBufferReceived(uint8_t *buffer) {
@@ -68,8 +109,11 @@ void IrLogic::OnBufferReceived(uint8_t *buffer) {
   for (size_t i = 0; i < IR_SERVICE_RX_BUFFER_PER_RUN &&
                      buffer_received_ctr < IR_SERVICE_RX_ON_BUFFER_SIZE;
        i++, buffer_received_ctr++) {
+    my_assert(buffer_received_ctr < IR_SERVICE_RX_ON_BUFFER_SIZE);
+    uint8_t current_byte = buffer[buffer_received_ctr];
     for (uint8_t j = 0; j < 8; j++) {
-      uint8_t is_on = (buffer[buffer_received_ctr] & (1 << j)) ? 1 : 0;
+      uint8_t is_on = current_byte & 0x01;
+      current_byte = current_byte >> 1;
       switch (packet_state) {
         case STATE_START:
           packet_buf <<= 1;
@@ -77,6 +121,7 @@ void IrLogic::OnBufferReceived(uint8_t *buffer) {
           if ((packet_buf & IR_PACKET_HEADER_MASK) ==
               (IR_PACKET_HEADER_PACKED & IR_PACKET_HEADER_MASK)) {
             packet_state = STATE_SIZE;
+            g_suspender.IncBlocker();
             rx_packet.size_ = 0;
             packet_buf = 0;
             bit = 0;
@@ -90,19 +135,20 @@ void IrLogic::OnBufferReceived(uint8_t *buffer) {
           if ((packet_buf & 3) == 0) {
             if (decode_bit(bit) == BIT_INVALID) {
               // decode error
-              packet_state = STATE_START;
+              packet_state = STATE_RESET;
               return;
             }
             const uint8_t bitpos = (packet_buf / DECODE_SAMPLE_RATIO - 1);
-            rx_packet.size_ = (rx_packet.size_) | (decode_bit(bit) << bitpos);
+            rx_packet.size_ |= decode_bit(bit) << bitpos;
             bit = 0;
           }
           // end of size section (decode ratio * 1 byte)
           if (packet_buf == DECODE_SAMPLE_RATIO * 8) {
             if (rx_packet.size_ >= MAX_PACKET_PAYLOAD_BYTES) {
               // Packet too large.
-              packet_state = STATE_START;
+              packet_state = STATE_RESET;
             } else {
+              rx_packet.data_[0] = rx_packet.size_;
               packet_state = STATE_DATA;
               packet_buf = 0;
             }
@@ -116,21 +162,61 @@ void IrLogic::OnBufferReceived(uint8_t *buffer) {
           if ((packet_buf % DECODE_SAMPLE_RATIO) == 0) {
             if (decode_bit(bit) == BIT_INVALID) {
               // decode error
-              packet_state = STATE_START;
-              return;
+              packet_state = STATE_RESET;
+              break;
             }
-            const uint8_t pos = (packet_buf / DECODE_SAMPLE_RATIO - 1) / 8;
+            const uint8_t pos = (packet_buf / DECODE_SAMPLE_RATIO - 1) / 8 + 1;
             const uint8_t bitpos = (packet_buf / DECODE_SAMPLE_RATIO - 1) % 8;
             rx_packet.data_[pos] |= decode_bit(bit) << bitpos;
-            if (pos == rx_packet.size_) {
-              // packet_end
+            if (pos == rx_packet.size_ - 2 && bitpos == 7) {
+              // packet data end
               // double buffering
-              rx_packet_ctrler = rx_packet;
-              callback(callback_arg,
-                       reinterpret_cast<void *>(&rx_packet_ctrler));
+              // Full packet found, restarting.
+              packet_state = STATE_CHKSUM;
+              break;
             }
           }
           break;
+        case STATE_CHKSUM:
+          packet_buf++;
+          bit <<= 1;
+          bit |= is_on;
+          if ((packet_buf % DECODE_SAMPLE_RATIO) == 0) {
+            if (decode_bit(bit) == BIT_INVALID) {
+              packet_state = STATE_RESET;
+              break;
+            }
+            const uint8_t bitpos =
+                (packet_buf / DECODE_SAMPLE_RATIO - 1) % IR_CHKSUM_SZ;
+            rx_packet.data_[rx_packet.size_ - 1] |= decode_bit(bit) << bitpos;
+            if (bitpos == IR_CHKSUM_SZ - 1) {
+              // packet_end
+              packet_buf = 0;
+              packet_state = STATE_RESET;
+
+              // if valid packet
+              const uint32_t chksum =
+                  merge_chksum(crc32(rx_packet.data_, rx_packet.size_ - 1));
+              if (chksum == rx_packet.data_[rx_packet.size_ - 1]) {
+                // pop checksum
+                rx_packet.data_[rx_packet.size_ - 1] = '\0';
+                rx_packet.size_--;
+                rx_packet.data_[0] = rx_packet.size_;
+                rx_packet_ctrler = rx_packet;
+                callback(callback_arg,
+                         reinterpret_cast<void *>(&rx_packet_ctrler));
+              }
+            }
+          }
+          break;
+        case STATE_RESET:
+          packet_state = STATE_START;
+          g_suspender.DecBlocker();
+          packet_buf = 0;
+          bit = 0;
+          memset(&rx_packet, 0, sizeof(IrPacket));
+          break;
+
         default:
           break;
       }
@@ -148,9 +234,11 @@ void IrLogic::SetOnPacketReceived(callback_t callback, void *callback_arg1) {
 
 void IrLogic::EncodePacket(uint8_t *data, size_t len, IrPacket &packet) {
   // size included
-  packet.data_[0] = static_cast<uint8_t>(len);
+  packet.size_ = len + 2;
+  packet.data_[0] = static_cast<uint8_t>(packet.size_);
   memcpy(packet.data_ + 1, data, len * sizeof(data[0]));
-  packet.size_ = len + 1;
+  const uint8_t chksum = merge_chksum(crc32(packet.data_, len + 1));
+  packet.data_[len + 1] = chksum;
 }
 
 bool IrLogic::SendPacket(uint8_t *data, size_t len) {
@@ -159,14 +247,20 @@ bool IrLogic::SendPacket(uint8_t *data, size_t len) {
     my_assert(0);
     return false;
   }
+  if (!irService.CanSendBufferNow()) return false;
   // TODO: Check if tx_packet is in use.
   EncodePacket(data, len, tx_packet);
-  return irService.SendBuffer(tx_packet.data_, tx_packet.size_, true);
+  bool ret = irService.SendBuffer(tx_packet.data_, tx_packet.size_, true);
+  my_assert(ret);
+  return ret;
 }
 
 int IrLogic::GetLoadFactor() {
-  // TODO
-  return 0;
+  int ret = lowpass_loadfactor;
+  ret = ret * 100 * LF_MAX_SCALE;
+  ret = ret >> 16;
+  if (ret > 100) ret = 100;
+  return ret;
 }
 
 }  // namespace ir

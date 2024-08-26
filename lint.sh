@@ -17,7 +17,7 @@ else
   TARGET_DIR="$1/fw/Core/Hitcon"
 fi
 
-TARGET_FILES=$(find $TARGET_DIR -type f -name "*.cc" -o -name "*.cpp" -o -name "*.c")
+TARGET_FILES=$(find $TARGET_DIR -type f -name "*.cc" -o -name "*.cpp" -o -name "*.c" -o -name "*.h")
 
 if $auto_fmt; then 
   echo "Auto format"

@@ -39,7 +39,14 @@ void XBoardService::SetOnByteRx(callback_t callback, void* callback_arg1) {
   _on_rx_callback_arg1 = callback_arg1;
 }
 
-void XBoardService::NotifyTxFinish() { _tx_busy = false; }
+void XBoardService::NotifyTxFinish() {
+  _tx_busy = false;
+  if (_tx_buffer_head != _tx_buffer_tail && !_tx_busy) {
+    _tx_busy = true;
+    HAL_UART_Transmit_IT(_huart, &_tx_buffer[_tx_buffer_head], 1);
+    _tx_buffer_head = (_tx_buffer_head + 1) % kTxBufferSize;
+  }
+}
 
 void XBoardService::NotifyRxFinish() {
   if (_rx_task_busy) {
@@ -47,8 +54,9 @@ void XBoardService::NotifyRxFinish() {
   } else {
     if (_on_rx_callback) {
       _rx_task_busy = true;
-      scheduler.Queue(&_rx_task,
-                      reinterpret_cast<void*>(static_cast<size_t>(rx_byte_)));
+      OnRxWrapper(reinterpret_cast<void*>(static_cast<size_t>(rx_byte_)));
+      /*scheduler.Queue(&_rx_task,
+                      reinterpret_cast<void*>(static_cast<size_t>(rx_byte_)));*/
     }
   }
   TriggerRx();
@@ -60,6 +68,17 @@ void XBoardService::Routine(void*) {
     _tx_busy = true;
     HAL_UART_Transmit_IT(_huart, &_tx_buffer[_tx_buffer_head], 1);
     _tx_buffer_head = (_tx_buffer_head + 1) % kTxBufferSize;
+  }
+
+  if (_huart->RxState == HAL_UART_STATE_BUSY_RX) {
+    // We're receiving properly.
+    _rx_stopped_count = 0;
+  } else {
+    _rx_stopped_count++;
+    if (_rx_stopped_count > 10) {
+      TriggerRx();
+      _rx_stopped_count = 0;
+    }
   }
 }
 
@@ -82,4 +101,20 @@ void HAL_UART_TxCpltCallback(UART_HandleTypeDef* huart) {
 
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef* huart) {
   g_xboard_service.NotifyRxFinish();
+}
+
+void HAL_UART_ErrorCallback(UART_HandleTypeDef* huart) {
+  uint32_t osrv = g_xboard_service._huart->Instance->SR;
+  g_xboard_service._huart->Instance->SR = 0x00;
+  uint32_t srv = g_xboard_service._huart->Instance->SR;
+  uint32_t drv = g_xboard_service._huart->Instance->DR;
+  srv = g_xboard_service._huart->Instance->SR;
+  g_xboard_service.sr_accu |= osrv & (~srv);
+  g_xboard_service.sr_clear++;
+}
+
+void HAL_UART_AbortCpltCallback(UART_HandleTypeDef* huart) { my_assert(false); }
+
+void HAL_UART_AbortReceiveCpltCallback(UART_HandleTypeDef* huart) {
+  my_assert(false);
 }

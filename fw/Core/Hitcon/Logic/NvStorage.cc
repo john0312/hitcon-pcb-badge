@@ -10,6 +10,10 @@ using hitcon::service::sched::my_assert;
 using hitcon::service::sched::scheduler;
 
 namespace hitcon {
+
+// How long between each Flash write? In units of 0.1s.
+constexpr int kMinFlushInterval = 500;
+
 NvStorage g_nv_storage;
 
 NvStorage::NvStorage()
@@ -19,7 +23,7 @@ NvStorage::NvStorage()
 void NvStorage::Init() {
   int32_t newest_version = -1;
   my_assert(!g_flash_service.IsBusy());
-  for (size_t i = 0; i < FLASH_PAGE_COUNT; i++) {
+  for (size_t i = 1; i < FLASH_PAGE_COUNT; i++) {
     uint8_t* page_data =
         reinterpret_cast<uint8_t*>(g_flash_service.GetPagePointer(i));
     nv_storage_content* page_content =
@@ -60,6 +64,7 @@ void NvStorage::ForceFlushInternal() {
     storage_dirty_ = false;
     next_available_page = (next_available_page + 1) %
                           FLASH_PAGE_COUNT;  // Increment for the next write
+    if (next_available_page == 0) next_available_page = 1;
     content_.version++;
     last_flush_cycle = current_cycle;  // Record the current cycle
   }
@@ -79,10 +84,10 @@ void NvStorage::Routine(void* unused) {
     on_done_cb = nullptr;
   }
 
-  if ((force_flush || current_cycle - last_flush_cycle >= 300)) {
+  if ((force_flush || current_cycle - last_flush_cycle >= kMinFlushInterval)) {
     // Programming/Erasing within the first 3s may cause issues.
     if (current_cycle >= 30) {
-      // ForceFlushInternal();
+      ForceFlushInternal();
       force_flush = false;
     }
   }

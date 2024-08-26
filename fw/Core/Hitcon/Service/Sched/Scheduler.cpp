@@ -69,11 +69,13 @@ bool Scheduler::EnablePeriodic(PeriodicTask *task) {
     AssertOverflow();
     return false;
   }
-  bool ret = delayedTasks.Add(task);
-  if (!ret) {
-    AssertOverflow();
-  } else {
-    task->EnterQueue();
+  if (currentTask != task) {
+    bool ret = delayedTasks.Add(task);
+    if (!ret) {
+      AssertOverflow();
+    } else {
+      task->EnterQueue();
+    }
   }
   task->Enable();
   return true;
@@ -87,6 +89,17 @@ bool Scheduler::DisablePeriodic(PeriodicTask *task) {
   if (!disabledPeriodicTasks.Add(task)) {
     AssertOverflow();
     return false;
+  }
+  DelayedHouseKeeping();
+  {
+    bool removed = tasks.Remove(task);
+    if (removed) {
+      task->ExitQueue();
+    }
+    removed = delayedTasks.Remove(task);
+    if (removed) {
+      task->ExitQueue();
+    }
   }
   task->Disable();
   return true;
@@ -149,7 +162,9 @@ void Scheduler::Run() {
     TaskRecord record;
     record.startTime = SysTimer::GetTime();
     record.task = &top;
+    currentTask = &top;
     top.Run();
+    currentTask = nullptr;
     record.endTime = SysTimer::GetTime();
     taskRecords[record_index] = record;
     record_index++;

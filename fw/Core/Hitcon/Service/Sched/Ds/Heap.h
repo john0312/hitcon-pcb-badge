@@ -16,93 +16,79 @@ namespace sched {
 
 namespace heap {
 
-inline unsigned ParentIdx(unsigned i) {
-	return (i-1)/2;
-}
+inline unsigned ParentIdx(unsigned i) { return (i - 1) / 2; }
 
-inline unsigned ChildIdx1(unsigned i) {
-	return (i*2)+1;
-}
+inline unsigned ChildIdx1(unsigned i) { return (i * 2) + 1; }
 
-inline unsigned ChildIdx2(unsigned i) {
-	return (i*2)+2;
-}
+inline unsigned ChildIdx2(unsigned i) { return (i * 2) + 2; }
 
 } /* namespace heap */
 
-template<class T, unsigned capacity>
+template <class T, unsigned capacity>
 class Heap {
-	unsigned sz;
-	T *storage[capacity];
-private:
-	unsigned GetIdx(T &t) {
-		for (unsigned i = 0; i < sz; ++i) {
-			if (t == *storage[i])
-				return i;
-		}
-		return sz;
-	}
+  unsigned sz;
+  T *storage[capacity];
 
-	void Heapify(unsigned i) {
-		while (i > 0) {
-			unsigned parIdx = heap::ParentIdx(i);
-			T **cur = &storage[i], **par = &storage[parIdx];
-			if (**cur < **par) {
-			    T* tmp1 = *cur;
-			    *cur = *par;
-			    *par = tmp1;
-			}
-			i = parIdx;
-		}
-	}
+ private:
+  unsigned GetIdx(T &t) {
+    for (unsigned i = 0; i < sz; ++i) {
+      if (t == *storage[i]) return i;
+    }
+    return sz;
+  }
 
-	void ReverseHeapify(unsigned i) {
-		while (heap::ChildIdx1(i) < sz) {
-			unsigned i1 = heap::ChildIdx1(i);
-			unsigned i2 = heap::ChildIdx2(i);
-			unsigned smallest = i;
-			if (i1 < sz && *storage[i1] < *storage[smallest])
-				smallest = i1;
-			if (i2 < sz && *storage[i2] < *storage[smallest])
-				smallest = i2;
-			if (i == smallest)
-				break;
-			T* tmp1 = storage[i];
-			storage[i] = storage[smallest];
-			storage[smallest] = tmp1;
-			i = smallest;
-		}
-	}
-public:
-	Heap() {}
+  void Heapify(unsigned i) {
+    while (i > 0) {
+      unsigned parIdx = heap::ParentIdx(i);
+      T **cur = &storage[i], **par = &storage[parIdx];
+      if (**cur < **par) {
+        T *tmp1 = *cur;
+        *cur = *par;
+        *par = tmp1;
+      }
+      i = parIdx;
+    }
+  }
 
-	virtual ~Heap() {}
+  void ReverseHeapify(unsigned i) {
+    while (heap::ChildIdx1(i) < sz) {
+      unsigned i1 = heap::ChildIdx1(i);
+      unsigned i2 = heap::ChildIdx2(i);
+      unsigned smallest = i;
+      if (i1 < sz && *storage[i1] < *storage[smallest]) smallest = i1;
+      if (i2 < sz && *storage[i2] < *storage[smallest]) smallest = i2;
+      if (i == smallest) break;
+      T *tmp1 = storage[i];
+      storage[i] = storage[smallest];
+      storage[smallest] = tmp1;
+      i = smallest;
+    }
+  }
 
-	bool Add(T *t) {
-		if (sz >= capacity)
-			return false;
-		storage[sz++] = t;
-		Heapify(sz-1);
-		return true;
-	}
+ public:
+  Heap() {}
 
-	bool Remove(T *t) {
-		unsigned idx = GetIdx(*t);
-		if (idx == sz)
-			return false;
-		storage[idx] = storage[--sz];
-		storage[sz] = nullptr;
-		ReverseHeapify(idx);
-		return true;
-	}
+  virtual ~Heap() {}
 
-	T &Top() {
-		return *storage[0];
-	}
+  bool Add(T *t) {
+    if (sz >= capacity) return false;
+    storage[sz++] = t;
+    Heapify(sz - 1);
+    return true;
+  }
 
-	unsigned size() {
-		return sz;
-	}
+  bool Remove(T *t) {
+    unsigned idx = GetIdx(*t);
+    if (idx == sz) return false;
+    storage[idx] = storage[--sz];
+    storage[sz] = nullptr;
+    ReverseHeapify(idx);
+    return true;
+  }
+
+  T &Top() { return *storage[0]; }
+
+  unsigned size() { return sz; }
 };
 
 } /* namespace sched */

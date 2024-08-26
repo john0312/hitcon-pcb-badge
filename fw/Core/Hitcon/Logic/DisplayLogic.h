@@ -21,7 +21,8 @@ class DisplayLogic {
 
   // This is called by DisplayService to request for frames.
   void OnRequestFrame(void* unused);
-  void HandlePopulate(void * arg);
+  void HandlePopulate(void* arg);
+
  private:
   Task task;
   display_buf_t buffer_[DISPLAY_WIDTH * DISPLAY_FRAME_BATCH];

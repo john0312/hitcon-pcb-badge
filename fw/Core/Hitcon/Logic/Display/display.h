@@ -35,11 +35,13 @@
 #define DISPLAY_MODE_SCROLL 2
 #define DISPLAY_MODE_TEXT_EDITOR 3
 
-#define DISPLAY_SCROLL_MAX_COLUMNS 100
+#define DISPLAY_SCROLL_MAX_COLUMNS 170
 #define DISPLAY_SCROLL_DEFAULT_SPEED 8
 
-constexpr size_t kDisplayScrollMaxTextLen = DISPLAY_SCROLL_MAX_COLUMNS / CHAR_WIDTH - 1;
+constexpr size_t kDisplayScrollMaxTextLen =
+    DISPLAY_SCROLL_MAX_COLUMNS / CHAR_WIDTH - 1;
 
+constexpr size_t kDisplayMaxNameLength = kDisplayScrollMaxTextLen - 5;
 using display_buf_t = uint8_t;
 static_assert(sizeof(display_buf_t) == DISPLAY_HEIGHT / 8,
               "The size of display_buf_t should be DISPLAY_HEIGHT / 8");
@@ -124,9 +126,6 @@ inline void display_buf_rotate_180(display_buf_t *buf) {
 
 void display_init();
 
-// Toggle the orientation of the display.
-void display_toggle_orientation();
-
 // Get the frame of the display at the given frame.
 // The size of `buf` should be DISPLAY_HEIGHT * DISPLAY_WIDTH
 void display_get_frame(uint8_t *buf, int frame);
@@ -157,8 +156,8 @@ void display_set_mode_text(const char *text);
 
 // Rasterize `text` to the underlying display buffer.
 // If the text is too long, the output will be truncated.
-void display_set_mode_scroll_text(const char *text, int speed);
-void display_set_mode_scroll_text(const char *text);
+void display_set_mode_scroll_text(const char *text,
+                                  int speed = DISPLAY_SCROLL_DEFAULT_SPEED);
 
 enum DisplaySetModeState {
   SET_MODE_IDLE,
@@ -166,7 +165,7 @@ enum DisplaySetModeState {
   SET_MODE_ST_FINAL
 };
 
-void display_set_mode_internal_taskfunc(void* arg1, void* arg2);
+void display_set_mode_internal_taskfunc(void *arg1, void *arg2);
 
 namespace hitcon {
 class TextEditorDisplay;
@@ -175,5 +174,9 @@ class TextEditorDisplay;
 // Set the display to the text editor mode. The logic is outsourced to the
 // `TextEditorDisplay` class.
 void display_set_mode_editor(hitcon::TextEditorDisplay *editor);
+extern int display_set_mode_orientation;
+
+// Set display orientation
+void display_set_orientation(int orientation);
 
 #endif

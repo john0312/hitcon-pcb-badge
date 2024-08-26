@@ -1,55 +1,61 @@
 #include "MenuApp.h"
 
-#include <App/ShowNameApp.h>
 #include <Logic/BadgeController.h>
+#include <Logic/Display/display.h>
 
 namespace hitcon {
 
-struct menu_entry_t {
-  const char *name;
-  App *app;
-};
-menu_entry_t menu_entries[] = {
-    {"game", /* TODO */ &show_name_app},
-    {"USB", /* TODO */ &show_name_app},
-    {"infrared", /* TODO */ &show_name_app},
-};
-int menu_entry_index;
+MenuApp::MenuApp(const menu_entry_t *menu_entries, const int menu_entry_size)
+    : menu_entries(menu_entries), menu_entry_size(menu_entry_size) {
+  menu_entry_index = 0;
+}
 
-MenuApp menu_app;
-
-MenuApp::MenuApp() { menu_entry_index = 0; }
-
-void MenuApp::OnEntry() {}
+void MenuApp::OnEntry() {
+  display_set_mode_scroll_text(menu_entries[menu_entry_index].name);
+}
 
 void MenuApp::OnExit() {}
 
 void MenuApp::OnButton(button_t button) {
   switch (button) {
-    // go back to show_name_app
-    case BUTTON_MODE:
-      badge_controller.change_app(&show_name_app);
-      break;
-
-    // button up and down to focus on other apps
     case BUTTON_UP:
       menu_entry_index++;
-      if (menu_entry_index >= sizeof(menu_entries) / sizeof(menu_entry_t)) {
+      if (menu_entry_index >= menu_entry_size) {
         menu_entry_index = 0;
       }
-      // TODO: display the text of the focused app
-      // should create a new api: display_set_menu_text(const char *text)
+      display_set_mode_scroll_text(menu_entries[menu_entry_index].name);
       break;
+
     case BUTTON_DOWN:
       menu_entry_index--;
       if (menu_entry_index < 0) {
-        menu_entry_index = sizeof(menu_entries) / sizeof(menu_entry_t) - 1;
+        menu_entry_index = menu_entry_size - 1;
       }
-      // TODO: display the text of the focused app
+      display_set_mode_scroll_text(menu_entries[menu_entry_index].name);
       break;
 
     case BUTTON_OK:
-      badge_controller.change_app(menu_entries[menu_entry_index].app);
+      if (menu_entries[menu_entry_index].func != nullptr) {
+        (menu_entries[menu_entry_index].func)();
+      }
+      if (menu_entries[menu_entry_index].app != nullptr) {
+        badge_controller.change_app(menu_entries[menu_entry_index].app);
+      }
+      break;
+
+    case BUTTON_MODE:
+      OnButtonMode();
+      break;
+
+    case BUTTON_BACK:
+      OnButtonBack();
+      break;
+
+    case BUTTON_LONG_BACK:
+      OnButtonLongBack();
+      break;
+
+    default:
       break;
   }
 }

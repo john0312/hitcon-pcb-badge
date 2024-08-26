@@ -3,6 +3,7 @@
 
 #include <Logic/keccak.h>
 #include <Logic/pcg32.h>
+#include <Service/PerBoardData.h>
 #include <Service/Sched/Scheduler.h>
 #include <stddef.h>
 #include <stdint.h>
@@ -40,21 +41,21 @@ class SecureRandomPool {
   // keccakf() run due to scheduling.
   void Routine(void* unused);
 
- private:
-  // Try to seed once into the state if there's seed in the queue.
-  // Seeding involves xor'ing the corresponding bytes in the state then run
-  // keccakf(). Return true if one such operation has been done and that signals
-  // to the caller that we can't run another keccakf() in the same Routine()
-  // run.
-  bool TrySeed();
+  static constexpr size_t kPerBoardRandRounds =
+      PerBoardData::kRandomLen / sizeof(uint64_t);
+  static constexpr size_t kMinAdcSeedCount = 10;
+  static constexpr size_t kExtraSeedRounds = 2;
+  // Must be seeded this amount of times before GetRandom() will be ready.
+  static constexpr int kMinSeedCountBeforeReady =
+      kMinAdcSeedCount + kPerBoardRandRounds + kExtraSeedRounds;
 
-  // Try to pull one random out if we've enough entropy considering seed_count
-  // and there's room in the random queue. This involves getting the
-  // corresponding bytes in the state. After getting the bytes, keccakf() is
-  // invoked. Return true if one such operation has been done and that signals
-  // to the caller that we can't run another keccakf() in the same Routine()
-  // run.
-  bool TryRandom();
+ private:
+  enum RoutineState {
+    SECURE_ROUTINE_IDLE,
+    SECURE_SEED_START,
+    SECURE_KECCAKF,
+    SECURE_RANDOM_START,
+  };
 
   // Set to true after Init.
   bool init_finished;
@@ -70,19 +71,15 @@ class SecureRandomPool {
   hitcon::service::sched::PeriodicTask routine_task;
 
   // A circular queue for holding the to be seeded values.
-  static constexpr size_t kSeedQueueSize = 8;
-  uint64_t seed_queue[kSeedQueueSize];
-  size_t seed_queue_head;
-  size_t seed_queue_tail;
+  static constexpr size_t kSeedQueueSize = 4;
+  CircularQueue<uint64_t, kSeedQueueSize> seed_queue;
 
   // A circular queue for holding the newly minted random values.
-  static constexpr size_t kRandomQueueSize = 8;
-  uint64_t random_queue[kRandomQueueSize];
-  size_t random_queue_head;
-  size_t random_queue_tail;
+  static constexpr size_t kRandomQueueSize = 4;
+  CircularQueue<uint64_t, kRandomQueueSize> random_queue;
 
-  // Must be seeded this amount of times before GetRandom() will be ready.
-  static constexpr int kMinSeedCountBeforeReady = 64;
+  RoutineState routine_state;
+  int keccakf_round;
 };
 
 // Fast random pool uses the PCG32 for faster but non-secure random generation.

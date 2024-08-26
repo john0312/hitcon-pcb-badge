@@ -4,6 +4,7 @@
 #include <Service/DisplayService.h>
 #include <Service/Sched/Scheduler.h>
 #include <Service/Sched/Task.h>
+#include <Service/Suspender.h>
 #include <main.h>
 #include <tim.h>
 
@@ -11,6 +12,8 @@ using namespace hitcon::service::sched;
 using namespace hitcon;
 namespace hitcon {
 DisplayService g_display_service;
+uint8_t g_display_brightness = 3;
+uint8_t g_display_standby = 0;
 
 DisplayService::DisplayService()
     : task(169, (task_callback_t)&DisplayService::RequestFrameWrapper,
@@ -28,15 +31,21 @@ DisplayService::DisplayService()
 
 request_cb_param tmp_request_cb_param;
 void DisplayTransferHalfComplete(DMA_HandleTypeDef* hdma) {
-  tmp_request_cb_param.callback = g_display_service.request_frame_callback_arg1;
-  tmp_request_cb_param.buf_index = 0;
-  scheduler.Queue(&(g_display_service.task), &tmp_request_cb_param);
+  if (!g_suspender.IsSuspended()) {
+    tmp_request_cb_param.callback =
+        g_display_service.request_frame_callback_arg1;
+    tmp_request_cb_param.buf_index = 0;
+    scheduler.Queue(&(g_display_service.task), &tmp_request_cb_param);
+  }
 }
 
 void DisplayTransferComplete(DMA_HandleTypeDef* hdma) {
-  tmp_request_cb_param.callback = g_display_service.request_frame_callback_arg1;
-  tmp_request_cb_param.buf_index = 1;
-  scheduler.Queue(&(g_display_service.task), &tmp_request_cb_param);
+  if (!g_suspender.IsSuspended()) {
+    tmp_request_cb_param.callback =
+        g_display_service.request_frame_callback_arg1;
+    tmp_request_cb_param.buf_index = 1;
+    scheduler.Queue(&(g_display_service.task), &tmp_request_cb_param);
+  }
 }
 
 void DisplayService::Init() {
@@ -98,20 +107,40 @@ void DisplayService::PopulateFrames(display_buf_t* buffer,
       0B0000'0000'0000'0000 << 16 | 0B0000'0011'1100'0000,  // 1111
       0B0000'0010'0000'0000 << 16 | 0B0000'0001'1100'0000,  // 0111
   };
-  for (uint8_t i = 0; i < 8; i++) {
-    for (int8_t j = 1; j >= 0; j--) {  // j=0 left matrix, j=1 right
-      uint32_t temp = 0;
-      uint8_t current_row = 2 * i + j;
-      for (uint8_t k = 0; k < 8; k++) {  // set A~G pin
-        if (buffer[k + j * 8] & (1 << i))
-          temp |= (1 << gpio_pin[k]);
-        else
-          temp |= (1 << 16 << gpio_pin[k]);
+
+  if (display_set_mode_orientation) {
+    for (uint8_t i = 0; i < 8; i++) {
+      for (int8_t j = 1; j >= 0; j--) {  // j=0 left matrix, j=1 right
+        uint32_t temp = 0;
+        uint8_t current_row = 2 * i + j;
+        for (uint8_t k = 0; k < 8; k++) {  // set A~G pin
+          if (buffer[k + j * 8] & (1 << i))
+            temp |= (1 << gpio_pin[k]);
+          else
+            temp |= (1 << 16 << gpio_pin[k]);
+        }
+        temp |= row_map[current_row];
+        double_buffer[current_row + buffer_index * DISPLAY_FRAME_SIZE +
+                      current_buffer_index * DISPLAY_FRAME_SIZE *
+                          DISPLAY_FRAME_BATCH] = temp;
       }
-      temp |= row_map[current_row];
-      double_buffer[current_row + buffer_index * DISPLAY_FRAME_SIZE +
-                    current_buffer_index * DISPLAY_FRAME_SIZE *
-                        DISPLAY_FRAME_BATCH] = temp;
+    }
+  } else {
+    for (uint8_t i = 0; i < 8; i++) {
+      for (int8_t j = 1; j >= 0; j--) {  // j=0 left matrix, j=1 right
+        uint32_t temp = 0;
+        uint8_t current_row = 2 * i + j;
+        for (uint8_t k = 0; k < 8; k++) {  // set A~G pin
+          if (buffer[(7 - k) + (1 - j) * 8] & (1 << (7 - i)))
+            temp |= (1 << gpio_pin[k]);
+          else
+            temp |= (1 << 16 << gpio_pin[k]);
+        }
+        temp |= row_map[current_row];
+        double_buffer[current_row + buffer_index * DISPLAY_FRAME_SIZE +
+                      current_buffer_index * DISPLAY_FRAME_SIZE *
+                          DISPLAY_FRAME_BATCH] = temp;
+      }
     }
   }
 }
@@ -122,7 +151,8 @@ void DisplayService::RequestFrameWrapper(request_cb_param* arg) {
 }
 
 void DisplayService::SetBrightness(uint8_t brightness) {
-  uint8_t value = brightness / 10.0 * (htim3.Init.Period);
+  uint8_t value =
+      brightness * 1.0 / DISPLAY_MAX_BRIGHTNESS * (htim3.Init.Period);
   __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_2, value);
 }
 }  // namespace hitcon

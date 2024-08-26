@@ -5,14 +5,22 @@
  *      Author: aoaaceai
  */
 
+#include <App/DinoApp.h>
 #include <App/HardwareTestApp.h>
+#include <App/SendDataApp.h>
+#include <App/ShowNameApp.h>
+#include <App/SnakeApp.h>
 #include <Hitcon.h>
 #include <Logic/BadgeController.h>
 #include <Logic/ButtonLogic.h>
 #include <Logic/DisplayLogic.h>
+#include <Logic/EntropyHub.h>
+#include <Logic/GameScore.h>
 #include <Logic/IrController.h>
 #include <Logic/IrLogic.h>
 #include <Logic/NvStorage.h>
+#include <Logic/UsbLogic.h>
+#include <Logic/XBoardGameController.h>
 #include <Logic/XBoardLogic.h>
 #include <Service/ButtonService.h>
 #include <Service/DisplayService.h>
@@ -25,6 +33,7 @@
 using namespace hitcon;
 using namespace hitcon::service::sched;
 using namespace hitcon::service::xboard;
+using namespace hitcon::xboard_game_controller;
 using hitcon::game::gameLogic;
 
 void TestTaskFunc(void* unused1, void* unused2) {}
@@ -39,7 +48,7 @@ void PostSchedInit(void* unused1, void* unused2) {
   scheduler.Queue(&TestTask2, nullptr);
   scheduler.EnablePeriodic(&TestTask2);
   g_display_service.Init();
-  g_display_service.SetBrightness(3);
+  g_display_service.SetBrightness(g_display_brightness);
 }
 
 Task InitTask(200, (task_callback_t)&PostSchedInit, nullptr);
@@ -47,6 +56,11 @@ Task InitTask(200, (task_callback_t)&PostSchedInit, nullptr);
 void hitcon_run() {
   display_init();
   g_noise_source.Init();
+  g_entropy_hub.Init();
+  g_fast_random_pool.Init();
+  g_secure_random_pool.Init();
+  g_send_data_app.Init();
+  g_game_score.Init();
   g_flash_service.Init();
   g_nv_storage.Init();
   g_display_logic.Init();
@@ -56,10 +70,17 @@ void hitcon_run() {
   g_xboard_service.Init();
   g_xboard_logic.Init();
   gameLogic.Init(&(g_nv_storage.GetCurrentStorage().game_storage));
+  show_name_app.Init();
+
+  // this call shownameapp onentry
   badge_controller.Init();
   hitcon::ir::irService.Init();
   hitcon::ir::irLogic.Init();
   hitcon::ir::irController.Init();
+  hitcon::app::snake::snake_app.Init();
+  hitcon::app::dino::dino_app.Init();
+  g_xboard_game_controller.Init();
+  hitcon::usb::g_usb_logic.Init();
 
   // run hardware test mode if MODE/SETTINGS Button is pressed during
   // initializing

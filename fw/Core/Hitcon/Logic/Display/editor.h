@@ -10,8 +10,7 @@ namespace hitcon {
 
 class TextEditorDisplay {
  public:
-  constexpr static int MAX_TEXT_LENGTH =
-      DISPLAY_SCROLL_MAX_COLUMNS / CHAR_WIDTH;
+  constexpr static int MAX_TEXT_LENGTH = kDisplayMaxNameLength;
   constexpr static int BLINK_CURSOR_PERIOD = 250;
 
   char text[MAX_TEXT_LENGTH + 1] = {0};
@@ -25,6 +24,8 @@ class TextEditorDisplay {
   void incr_current_char();
   void decr_current_char();
   void set_current_char(char c);
+  void backspace();
+  void insert();
 
   void draw(uint8_t *buf, int frame) const;
   void draw_packed(display_buf_t *display_buf, int frame) const;

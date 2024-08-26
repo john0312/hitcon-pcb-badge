@@ -1,14 +1,14 @@
 #ifndef LOGIC_GAME_DOT_H_
 #define LOGIC_GAME_DOT_H_
 
-#include <stddef.h>
-#include <stdint.h>
-#include <utility>
-
-#include <Service/Sched/Scheduler.h>
 #include <Logic/GameParam.h>
 #include <Logic/keccak.h>
+#include <Service/Sched/Scheduler.h>
 #include <Util/CircularQueue.h>
+#include <stddef.h>
+#include <stdint.h>
+
+#include <utility>
 
 namespace hitcon {
 namespace game {
@@ -16,25 +16,46 @@ namespace game {
 // Implements the natural log ln() with approximate polynomial.
 // The output is in Q9.22 fixed point number, while the input is in
 // uint32_t integer format.
-int32_t q22_ln(uint32_t) ;
+int32_t q22_ln(uint32_t);
 
 class GameLogic {
  public:
   GameLogic();
 
   // Initialize the game. If storage is NULL, generate a new one.
-  void Init(game_storage_t *storage = nullptr);
+  void Init(game_storage_t* storage = nullptr);
 
   // Accept data received from a peer or anywhere else.
   // Generally this queues into queue_ and let Routine() handle the rest.
   // Only fails if the queue is full.
-  bool AcceptData(int col, uint8_t *data);
+  bool AcceptData(int col, uint8_t* data);
 
   // Retrieve the data from a specific cell in the game grid.
-  uint8_t* GetDataCell(int col, int row);
+  uint8_t* GetDataCell(int col, int row) {
+    return &(storage_->cells[col][row].data[0]);
+  }
 
-  // Get random data cell for IR transmission. Writes data to out_data and column to out_col.
-  bool GetRandomDataForIrTransmission(uint8_t* out_data, int* out_col);
+  game_cache_t& get_cache();
+
+  // Get random data cell for IR transmission. Writes data to out_data and
+  // column to out_col.
+  void GetRandomDataForIrTransmission(uint8_t* out_data, int* out_col);
+
+  // Get random data cell for XBoard transmission. Writes data to out_data and
+  // column to out_col.
+  void GetRandomDataForXBoardTransmission(uint8_t* out_data, int* out_col);
+
+  // How many positions do we have in the accept data queue?
+  int GetAcceptDataQueueAvailable();
+
+  // Return the current total score.
+  int GetScore();
+
+  // Call this to generate random data internally.
+  void DoRandomData();
+
+  // Returns true if the game logic is ready, ie. all caches are populated.
+  bool IsGameReady() { return game_ready; }
 
  private:
   game_storage_t* storage_;
@@ -50,6 +71,8 @@ class GameLogic {
     // Each run of Routine() in this state populates one column, and uses
     // in_progress_col_.
     RANDOM_INIT_CELLS,
+    // In this phase, we remove any duplicates in the data.
+    REMOVE_DUPLICATE,
     // In this phase, Routine iterates through every cell in storage_ and
     // populates the corresponding cell_score_cache. After every cell in
     // cell_score_cache is populated, it'll move onto the next phase.
@@ -87,7 +110,8 @@ class GameLogic {
     UPDATE_COL_PREFIX,
     // In this sub state, we run UpdateWord() on the actual cell data.
     UPDATE_CELL_DATA,
-    // In this sub state, we run Finalize() on the sha3 state, we run 1 round at a time.
+    // In this sub state, we run Finalize() on the sha3 state, we run 1 round at
+    // a time.
     FINALIZE_SHA3,
     // In this sub state, we comute the number of prefix 0 bit in the output.
     COMPUTE_SCORE
@@ -120,16 +144,25 @@ class GameLogic {
 
   CircularQueue<std::pair<int, grid_cell_t>, kQueueSize> queue_;
 
-  hitcon::service::sched::PeriodicTask routine_task;
+  hitcon::service::sched::Task routine_task_now;
+  hitcon::service::sched::DelayedTask routine_task_delayed;
+
+  bool game_ready;
+
+  // Only used for debugging.
+  int random_data_count_;
+  int accept_data_count_;
+  int accepted_data_count_;
 
   // A simple helper function that sets out to the column prefix for the
   // given column. It'll be set to the value of "HITCON" and the last 2 byte
   // is the MSB and LSB of uint16_t of col.
-  void SetColumnPrefix(uint8_t *out, int col);
+  void SetColumnPrefix(uint8_t* out, int col);
 
   // A simple routine function that attempts to populate the cache and handle
   // any items in the AcceptData queue.
   void Routine();
+  bool RoutineInternal();
 
   // Iterate through the sub routine enums one step per call.
   // If we just finished the last step in the sub routine, the we'll return true
@@ -155,7 +188,7 @@ class GameLogic {
 
 extern GameLogic gameLogic;
 
-}  // namespace hitcon
 }  // namespace game
+}  // namespace hitcon
 
-#endif // LOGIC_GAME_DOT_H_
+#endif  // LOGIC_GAME_DOT_H_

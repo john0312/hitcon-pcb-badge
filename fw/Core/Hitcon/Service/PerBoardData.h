@@ -1,13 +1,13 @@
 #ifndef HITCON_SERVICE_PERBOARDDATA_H_
 #define HITCON_SERVICE_PERBOARDDATA_H_
 
-#include <stdint.h>
 #include <stddef.h>
+#include <stdint.h>
 
 namespace hitcon {
 
 class PerBoardData {
-public:
+ public:
   constexpr PerBoardData();
 
   const uint8_t* GetPerBoardRandom();

@@ -1,0 +1,92 @@
+DELAY 1000
+ENTER
+ENTER
+
+DELAY 500
+ENTER
+ENTER
+
+DELAY 1000
+CTRL-ALT t
+
+DELAY 500
+STRING kate
+ENTER
+
+DELAY 750
+
+CTRL n
+
+DELAY 500
+
+STRING Hello World!
+ENTER
+
+REM Copy-Paste previous string
+UP
+HOME
+SHIFT DOWN
+CTRL c
+RIGHT
+CTRL v
+CTRL v
+
+REM Alt code input demo
+
+ENTER
+
+STRING =
+REPEAT 20
+ENTER
+ENTER
+
+STRING               _.-------.._                    -,
+ENTER
+HOME
+STRING           .-"```"--..,,_/ /`-,               -,  \ 
+ENTER
+HOME
+STRING        .:"          /:/  /'\  \     ,_...,  `. |  |
+ENTER
+HOME
+STRING       /       ,----/:/  /`\ _\~`_-"`     _;
+ENTER
+HOME
+STRING      '      / /`"""'\ \ \.~`_-'      ,-"'/ 
+ENTER
+HOME
+STRING     |      | |  0    | | .-'      ,/`  /
+ENTER
+HOME
+STRING    |    ,..\ \     ,.-"`       ,/`    /
+ENTER
+HOME
+STRING   ;    :    `/`""\`           ,/--==,/-----,
+ENTER
+HOME
+STRING   |    `-...|        -.___-Z:_______J...---;
+ENTER
+HOME
+STRING   :         `                           _-'
+ENTER
+HOME
+STRING  _L_  _     ___  ___  ___  ___  ____--"`
+ENTER
+HOME
+STRING | __|| |   |_ _|| _ \| _ \| __|| _ \ 
+ENTER
+HOME
+STRING | _| | |__  | | |  _/|  _/| _| |   / 
+ENTER
+HOME
+STRING |_|  |____||___||_|  |_|  |___||_|_\ 
+ENTER
+HOME
+ENTER
+
+STRING Flipper Zero BadUSB feature is compatible with USB Rubber Ducky script format
+ENTER
+STRING More information about script syntax can be found here:
+ENTER
+STRING https://github.com/flipperdevices/flipperzero-firmware/blob/dev/documentation/file_formats/BadUsbScriptFormat.md
+ENTER

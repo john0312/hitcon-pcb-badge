@@ -1,4 +1,5 @@
 /fw/.settings/language.settings.xml
+fw/.settings/stm32cubeide.project.prefs
 *.lck
 \#auto_saved_files\#
 pcb/kicad/pcb_badge/pcb_badge-backups/*.zip
@@ -9,3 +10,12 @@ pcb/kicad/pcb_badge/fp-info-cache
 pcb/kicad/pcb_badge/fp-info-cache
 /sw/BadgeCommander/.venv
 /sw/BadgeCommander/__pycache__
+/.venv
+*.spec
+/build/BadgeCommander
+/dist
+/pcb-util/.venv
+/sw/BadgeCommander/build
+/sw/BadgeCommander/dist
+/sw/BadgeCommander/output
+BadgeCommander v1.0a.zip
