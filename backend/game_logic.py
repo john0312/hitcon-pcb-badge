@@ -1,9 +1,10 @@
 from schemas import ActivityEvent, ProximityEvent
+from config import Config
 
 
 class GameLogic:
-    def __init__(self):
-        pass
+    def __init__(self, config: Config):
+        self.config = config
 
     # ===== APIs for CryptoAuthLayer =====
     async def on_activity_event(evt: ActivityEvent):

@@ -1,12 +1,14 @@
 from typing import Optional
 from crypto_auth_layer import CryptoAuthLayer
 from schemas import IrPacket
+from config import Config
 import uuid
 
 
 class PacketProcessor:
-    def __init__(self, crypto_auth: CryptoAuthLayer):
+    def __init__(self, config: Config, crypto_auth: CryptoAuthLayer):
         self.crypto_auth = crypto_auth
+        self.config = config
 
     # ===== Interface to HTTP =====
     async def on_receive_packet(self, ir_packet: IrPacket):

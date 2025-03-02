@@ -1,0 +1,2 @@
+
+mongo_conn: "mongodb://localhost:27017/badge"
