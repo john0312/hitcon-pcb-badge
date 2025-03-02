@@ -7,7 +7,6 @@
 #include <Logic/Display/display.h>
 #include <Logic/GameScore.h>
 #include <Logic/RandomPool.h>
-#include <Logic/XBoardGameController.h>
 #include <Logic/XBoardLogic.h>
 #include <Service/Sched/SysTimer.h>
 #include <Service/Sched/Task.h>
@@ -15,7 +14,6 @@
 using hitcon::service::sched::SysTimer;
 using hitcon::service::sched::task_callback_t;
 using namespace hitcon::service::xboard;
-using hitcon::xboard_game_controller::g_xboard_game_controller;
 
 namespace hitcon {
 
@@ -182,7 +180,6 @@ void TetrisApp::periodic_task_callback(void *) {
       if (multiplayer) {
         uint8_t code = PACKET_GAME_OVER;
         g_xboard_logic.QueueDataForTx(&code, 1, TETRIS_RECV_ID);
-        g_xboard_game_controller.SendPartialData(50);
       }
 
       show_score_app.SetScore(game.game_get_score());

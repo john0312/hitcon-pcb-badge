@@ -5,7 +5,6 @@
 #include <Logic/BadgeController.h>
 #include <Logic/GameScore.h>
 #include <Logic/RandomPool.h>
-#include <Logic/XBoardGameController.h>
 #include <Logic/XBoardLogic.h>
 #include <Service/Sched/Scheduler.h>
 #include <Util/uint_to_str.h>
@@ -13,7 +12,6 @@
 using namespace hitcon::service::sched;
 using namespace hitcon::service::xboard;
 using namespace hitcon::app::snake;
-using hitcon::xboard_game_controller::g_xboard_game_controller;
 
 namespace hitcon {
 namespace app {
@@ -201,7 +199,6 @@ void SnakeApp::Routine(void* unused) {
     if (mode == MODE_MULTIPLAYER) {
       uint8_t code = PACKET_GAME_OVER;
       g_xboard_logic.QueueDataForTx(&code, 1, SNAKE_RECV_ID);
-      g_xboard_game_controller.SendPartialData(50);
     }
     // game over screen
     show_score_app.SetScore(_score);

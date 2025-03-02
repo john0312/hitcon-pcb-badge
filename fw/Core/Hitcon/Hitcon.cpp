@@ -7,7 +7,6 @@
 
 #include <App/DinoApp.h>
 #include <App/HardwareTestApp.h>
-#include <App/SendDataApp.h>
 #include <App/ShowNameApp.h>
 #include <App/SnakeApp.h>
 #include <Hitcon.h>
@@ -19,9 +18,7 @@
 #include <Logic/IrController.h>
 #include <Logic/IrLogic.h>
 #include <Logic/NvStorage.h>
-#include <Logic/PreparedData.h>
 #include <Logic/UsbLogic.h>
-#include <Logic/XBoardGameController.h>
 #include <Logic/XBoardLogic.h>
 #include <Service/ButtonService.h>
 #include <Service/DisplayService.h>
@@ -34,8 +31,6 @@
 using namespace hitcon;
 using namespace hitcon::service::sched;
 using namespace hitcon::service::xboard;
-using namespace hitcon::xboard_game_controller;
-using hitcon::game::gameLogic;
 
 void TestTaskFunc(void* unused1, void* unused2) {}
 void TestTask2Func(void* unused1, void* unused2) {}
@@ -60,8 +55,6 @@ void hitcon_run() {
   g_entropy_hub.Init();
   g_fast_random_pool.Init();
   g_secure_random_pool.Init();
-  g_prepared_data.Init();
-  g_send_data_app.Init();
   g_game_score.Init();
   g_flash_service.Init();
   g_nv_storage.Init();
@@ -71,7 +64,6 @@ void hitcon_run() {
   g_button_service.Init();
   g_xboard_service.Init();
   g_xboard_logic.Init();
-  gameLogic.Init(&(g_nv_storage.GetCurrentStorage().game_storage));
   show_name_app.Init();
 
   // this call shownameapp onentry
@@ -81,7 +73,6 @@ void hitcon_run() {
   hitcon::ir::irController.Init();
   hitcon::app::snake::snake_app.Init();
   hitcon::app::dino::dino_app.Init();
-  g_xboard_game_controller.Init();
   hitcon::usb::g_usb_logic.Init();
 
   // run hardware test mode if MODE/SETTINGS Button is pressed during
