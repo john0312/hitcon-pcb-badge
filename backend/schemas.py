@@ -24,3 +24,18 @@ class ProximityEvent(BaseModel):
     event_id: Optional[uuid.UUID]
     user: int
     signature: int
+
+
+class Display(BaseModel):
+    bar_1: str
+    bar_2: str
+    winning_color: str
+
+
+# For Mongo collections `stations`
+class Station(BaseModel):
+    station_id: uuid.UUID
+    station_key: str
+    display: Optional[Display]
+    tx: List[IrPacket]
+    rx: List[IrPacket]
