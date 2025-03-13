@@ -4,7 +4,7 @@ from packet_processor import PacketProcessor
 from crypto_auth_layer import CryptoAuthLayer
 from game_logic import GameLogic
 from config import Config
-from schemas import Station, IrPacket, Display
+from schemas import Station, IrPacketRequestSchema, Display
 
 config = Config("config.yaml")
 app = FastAPI()
@@ -33,13 +33,13 @@ async def read_root():
 
 
 @router.get("/tx")
-async def tx(station: Station = Depends(get_station)) -> list[IrPacket]:
+async def tx(station: Station = Depends(get_station)) -> list[IrPacketRequestSchema]:
     # Backend asks the base station to send a packet.
     pass
 
 
 @router.post("/rx")
-async def rx(ir_packet: IrPacket, station: Station = Depends(get_station)):
+async def rx(ir_packet: IrPacketRequestSchema, station: Station = Depends(get_station)):
     # Base station received a packet, sending it to the backend.
     pass
 

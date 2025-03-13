@@ -12,6 +12,12 @@ class IrPacket(BaseModel):
     # to_stn is True for backend -> base station packet, False otherwise.
 
 
+# For http requests
+class IrPacketRequestSchema(BaseModel):
+    packet_id: Optional[uuid.UUID]
+    data: bytes
+
+
 class ActivityEvent(BaseModel):
     event_id: Optional[uuid.UUID]
     packet_ids: List[uuid.UUID]
