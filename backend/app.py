@@ -1,4 +1,5 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, APIRouter, Depends, Security, HTTPException
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from packet_processor import PacketProcessor
 from crypto_auth_layer import CryptoAuthLayer
 from game_logic import GameLogic
@@ -14,6 +15,17 @@ packet_processor_instance = PacketProcessor(
 )
 
 router = APIRouter(prefix="/v1")
+security = HTTPBearer()
+
+async def get_station(credentials: HTTPAuthorizationCredentials = Security(security)) -> Station:
+    key = credentials.credentials
+
+    # TODO: check key against database
+    # if key not in stations:
+    #     raise HTTPException(status_code=401, detail="Invalid key")
+
+    return Station(station_id="1", station_key="key", display=Display(bar_1="bar1", bar_2="bar2", winning_color="red"), tx=[], rx=[])
+
 
 @app.get("/")
 async def read_root():
@@ -21,19 +33,19 @@ async def read_root():
 
 
 @router.get("/tx")
-async def tx() -> list[IrPacket]:
+async def tx(station: Station = Depends(get_station)) -> list[IrPacket]:
     # Backend asks the base station to send a packet.
     pass
 
 
 @router.post("/rx")
-async def rx(ir_packet: IrPacket):
+async def rx(ir_packet: IrPacket, station: Station = Depends(get_station)):
     # Base station received a packet, sending it to the backend.
     pass
 
 
 @router.get("/station-display")
-async def station_display() -> Display:
+async def station_display(station: Station = Depends(get_station)) -> Display:
     pass
 
 
