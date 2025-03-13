@@ -7,7 +7,7 @@ class IrPacket(BaseModel):
     packet_id: Optional[uuid.UUID]
     # The packet_id to avoid duplication at base station.
     data: bytes
-    station_id: int
+    station_id: uuid.UUID
     to_stn: bool
     # to_stn is True for backend -> base station packet, False otherwise.
 
