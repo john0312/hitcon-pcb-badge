@@ -45,3 +45,20 @@ class Station(BaseModel):
     display: Optional[Display]
     tx: List[IrPacket]
     rx: List[IrPacket]
+
+# Elliptic Curve Crytography related.
+# Curve is hardcoded.
+class EccPoint(BaseModel):
+    x: int
+    y: int
+
+class EccPublicKey(BaseModel):
+    point: EccPoint
+
+class EccSignature(BaseModel):
+    pub: Optional[EccPublicKey]
+    r: int
+    s: int
+
+class EccPrivateKey(BaseModel):
+    dA: int

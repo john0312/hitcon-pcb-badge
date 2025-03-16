@@ -1,7 +1,7 @@
 from typing import Optional
 from schemas import IrPacket
 from config import Config
-
+from ecc_utils import ecc_sign, ecc_verify
 
 class CryptoAuthLayer:
     def __init__(self, config: Config):
