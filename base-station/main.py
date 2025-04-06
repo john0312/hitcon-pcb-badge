@@ -8,7 +8,7 @@ import asyncio
 async def main():
     config = Config("config.yaml")
     backend = BackendInterface(config=config)
-    ir = IrInterface()
+    ir = IrInterface(config=config)
     processor = PacketProcessor(backend=backend, ir=ir)
 
 
