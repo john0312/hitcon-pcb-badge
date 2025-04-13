@@ -1,6 +1,25 @@
 from typing import Optional, List
-from pydantic import BaseModel
+from pydantic import BaseModel, Field, BeforeValidator
+from typing import Annotated
+from enum import Enum
 import uuid
+
+PyObjectId = Annotated[str, BeforeValidator(str)]
+PyBinary = Annotated[bytes, BeforeValidator(bytes)]
+
+PACKET_HASH_LEN = 6
+IR_USERNAME_LEN = 4
+
+class PacketType(Enum):
+    kGame = 0  # disabled
+    kShow = 1
+    kTest = 2
+    # Packet types for 2025
+    kAcknowledge = 3
+    kProximity = 4
+    kPubAnnounce = 5
+    kActivity = 6
+    kScoreAnnounce = 7
 
 
 class IrPacket(BaseModel):
@@ -16,6 +35,14 @@ class IrPacket(BaseModel):
 class IrPacketRequestSchema(BaseModel):
     packet_id: Optional[uuid.UUID]
     data: bytes
+
+
+# For Mongo
+class IrPacketObject(BaseModel):
+    # id: Optional[PyObjectId] = Field(alias="_id", default=None)
+    packet_id: Optional[uuid.UUID]
+    data: PyBinary
+    hash: PyBinary
 
 
 class ActivityEvent(BaseModel):
@@ -40,11 +67,27 @@ class Display(BaseModel):
 
 # For Mongo collections `stations`
 class Station(BaseModel):
+    id: Optional[PyObjectId] = Field(alias="_id", default=None)
     station_id: uuid.UUID
     station_key: str
     display: Optional[Display]
-    tx: List[IrPacket]
-    rx: List[IrPacket]
+    tx: List[PyObjectId]
+    rx: List[PyObjectId]
+
+    class Config:
+        json_encoders = {
+            uuid.UUID: str
+        }
+
+
+# For Mongo collections `users`
+class User(BaseModel):
+    id: Optional[PyObjectId] = Field(alias="_id", default=None)
+    username: int
+    pubkey: int
+    # Tracking the last station the user was seen
+    station_id: Optional[uuid.UUID]
+
 
 # Elliptic Curve Crytography related.
 # Curve is hardcoded.
