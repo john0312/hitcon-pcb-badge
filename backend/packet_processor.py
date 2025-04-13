@@ -19,7 +19,39 @@ class PacketProcessor:
 
     # ===== Interface to HTTP =====
     async def on_receive_packet(self, ir_packet: IrPacketRequestSchema, station: Station) -> None:
-        pass
+        if await self.handle_acknowledgment(ir_packet):
+            # If the packet is an acknowledgment, we don't need to do anything else.
+            return
+
+        packet = IrPacket(
+            packet_id=ir_packet.packet_id,
+            data=ir_packet.data,
+            station_id=station.station_id,
+            to_stn=False
+        )
+
+        # verify the packet
+        # it would throw an exception if the packet is invalid
+        await self.crypto_auth.on_packet_received(packet)
+
+        if await self.handle_proximity(ir_packet):
+            # If the packet is a proximity event, we don't need to do anything else.
+            return
+
+        hv = self.packet_hash(ir_packet)
+        db_packet = IrPacketObject(packet_id=ir_packet.packet_id, data=Binary(ir_packet.data), hash=Binary(hv))
+
+        # add the packet to the database
+        result = await self.packets.update_one(
+            {"station_id": station.station_id},
+            {"$push": {"rx": db_packet.model_dump()}}
+        )
+
+        # add packet ObjectId to station rx list
+        await self.stations.update_one(
+            {"station_id": station.station_id},
+            {"$push": {"rx": result.upserted_id}}
+        )
 
 
     async def has_packet_for_tx(self, station: Station) -> Iterator[IrPacketRequestSchema]:
@@ -42,6 +74,52 @@ class PacketProcessor:
         Get the packet hash. TODO: This is a placeholder implementation and should be replaced with actual hashing logic.
         """
         return ir_packet.data[-(PACKET_HASH_LEN):]
+
+
+    async def handle_acknowledgment(self, ir_packet: IrPacketRequestSchema, station: Station) -> bool:
+        # Handle acknowledgment from the base station.
+        # This is where we would update the database or perform any other necessary actions.
+        packet_type = self.get_packet_type(ir_packet)
+        if packet_type == PacketType.kAcknowledge:
+            hv = self.packet_hash(ir_packet)
+
+            # Acknowledge the packet and remove it from the tx list.
+            packets = await self.packets.find({"station_id": station.station_id, "hash": hv})
+
+            await self.stations.update_one(
+                {"station_id": station.station_id},
+                {"$pullAll": {"tx": packets}}
+            )
+
+            # Remove the packet from the database.
+            await self.packets.update_many(
+                {"station_id": station.station_id},
+                {"$pull": {"tx": {"hash": hv}}}
+            )
+            
+            return True
+
+        return False
+
+
+    async def handle_proximity(self, ir_packet: IrPacketRequestSchema, station: Station) -> bool:
+        # Handle proximity packets.
+        # This is where we would update the database or perform any other necessary actions.
+        packet_type = self.get_packet_type(ir_packet)
+        if packet_type == PacketType.kProximity:
+            # Process proximity event
+            offset = 1
+            username = ir_packet.data[offset:offset+IR_USERNAME_LEN]
+
+            # update users' last station
+            await self.users.update_one(
+                {"username": username},
+                {"$set": {"station_id": station.station_id}}
+            )
+
+            return True
+
+        return False
 
 
     def get_packet_type(self, ir_packet: IrPacketRequestSchema) -> Optional[PacketType]:
