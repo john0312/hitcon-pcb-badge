@@ -35,3 +35,31 @@ class PacketProcessor:
         ir_packet's packet_id field can be left empty, if empty, will auto populate.
         """
         pass
+
+    # ===== Internal methods =====
+    def packet_hash(self, ir_packet: IrPacketRequestSchema) -> bytes:
+        """
+        Get the packet hash. TODO: This is a placeholder implementation and should be replaced with actual hashing logic.
+        """
+        return ir_packet.data[-(PACKET_HASH_LEN):]
+
+
+    def get_packet_type(self, ir_packet: IrPacketRequestSchema) -> Optional[PacketType]:
+        # Determine the type of packet based on its contents.
+        # This is a placeholder implementation and should be replaced with actual logic.
+        raw_type = ir_packet.data[0]
+        packet_type = PacketType(raw_type)
+        if packet_type in PacketType:
+            return packet_type
+        else:
+            return None
+
+
+    async def get_user_last_station_uuid(self, username: int) -> Optional[uuid.UUID]:
+        # Get the station associated with a user.
+        user = await self.users.find_one({"username": username})
+
+        if user:
+            return user.get("station_id")
+        else:
+            return None
