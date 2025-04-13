@@ -1,4 +1,4 @@
-from typing import Optional, Iterator
+from typing import Optional, AsyncIterator
 from bson import Binary
 from pymongo.asynchronous.database import AsyncDatabase
 from crypto_auth_layer import CryptoAuthLayer
@@ -54,8 +54,14 @@ class PacketProcessor:
         )
 
 
-    async def has_packet_for_tx(self, station: Station) -> Iterator[IrPacketRequestSchema]:
-        pass
+    async def has_packet_for_tx(self, station: Station) -> AsyncIterator[IrPacketRequestSchema]:
+        packets = self.packets.find({"packet_id": {"$in": station.tx}})
+        async for packet in packets:
+            # Convert the packet to IrPacketRequestSchema and yield it.
+            yield IrPacketRequestSchema(
+                packet_id=packet["packet_id"],
+                data=packet["data"]
+            )
 
 
     # ===== Interface for CryptoAuthLayer =====
@@ -66,7 +72,38 @@ class PacketProcessor:
 
         ir_packet's packet_id field can be left empty, if empty, will auto populate.
         """
-        pass
+
+        packet_id = ir_packet.packet_id or uuid.uuid4()
+        ir_packet.packet_id = packet_id
+        ir_packet.to_stn = True
+        ir_packet.station_id = await self.get_user_last_station_uuid(username)
+
+        if ir_packet.station_id is None:
+            # If the user is not associated with any station, we cannot send the packet?
+            raise ValueError("User not associated with any station.")
+        
+        return await self.send_packet_to_station(ir_packet)
+
+
+    async def send_packet_to_station(self, ir_packet: IrPacket) -> uuid.UUID:
+        hv = self.packet_hash(ir_packet)
+        
+        db_packet = IrPacketObject(packet_id=ir_packet.packet_id, data=Binary(ir_packet.data), hash=Binary(hv))
+
+        # add the packet to the database
+        result = await self.packets.update_one(
+            {"station_id": ir_packet.station_id},
+            {"$push": {"tx": db_packet.model_dump()}}
+        )
+
+        # add packet ObjectId to station tx list
+        await self.stations.update_one(
+            {"station_id": ir_packet.station_id},
+            {"$push": {"tx": result.upserted_id}}
+        )
+
+        return ir_packet.packet_id
+
 
     # ===== Internal methods =====
     def packet_hash(self, ir_packet: IrPacketRequestSchema) -> bytes:
