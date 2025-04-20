@@ -14,9 +14,9 @@ stations = db["stations"]
 
 app = FastAPI()
 game_logic_instance = GameLogic(config=config)
-crypto_auth_layer_instance = CryptoAuthLayer(config=config)
+crypto_auth_instance = CryptoAuth(config=config)
 packet_processor_instance = PacketProcessor(
-    config=config, crypto_auth=crypto_auth_layer_instance, db=db
+    config=config, crypto_auth=crypto_auth_instance, db=db
 )
 
 router = APIRouter(prefix="/v1")

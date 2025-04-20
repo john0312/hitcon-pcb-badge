@@ -1,14 +1,14 @@
 from typing import Optional, AsyncIterator
 from bson import Binary
 from pymongo.asynchronous.database import AsyncDatabase
-from crypto_auth_layer import CryptoAuthLayer
+from crypto_auth import CryptoAuth
 from schemas import IrPacket, IrPacketRequestSchema, IrPacketObject, Station, PacketType, PACKET_HASH_LEN, IR_USERNAME_LEN
 from config import Config
 import uuid
 import time
 
 class PacketProcessor:
-    def __init__(self, config: Config, crypto_auth: CryptoAuthLayer, db: AsyncDatabase):
+    def __init__(self, config: Config, crypto_auth: CryptoAuth, db: AsyncDatabase):
         self.crypto_auth = crypto_auth
         self.config = config
         self.db = db
@@ -64,7 +64,7 @@ class PacketProcessor:
             )
 
 
-    # ===== Interface for CryptoAuthLayer =====
+    # ===== Interface for GameLogic =====
     async def send_packet_to_user(self, ir_packet: IrPacket, username: int) -> uuid.UUID:
         """
         Send a packet to a particular user. PacketProcessor will queue it for sending, and when activity from the given user is observed on a base station, packet will be directed to it.
