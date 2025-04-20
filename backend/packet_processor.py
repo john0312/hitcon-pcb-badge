@@ -5,7 +5,7 @@ from crypto_auth_layer import CryptoAuthLayer
 from schemas import IrPacket, IrPacketRequestSchema, IrPacketObject, Station, PacketType, PACKET_HASH_LEN, IR_USERNAME_LEN
 from config import Config
 import uuid
-
+import time
 
 class PacketProcessor:
     def __init__(self, config: Config, crypto_auth: CryptoAuthLayer, db: AsyncDatabase):
@@ -19,7 +19,7 @@ class PacketProcessor:
 
     # ===== Interface to HTTP =====
     async def on_receive_packet(self, ir_packet: IrPacketRequestSchema, station: Station) -> None:
-        if await self.handle_acknowledgment(ir_packet):
+        if await self.handle_acknowledgment(ir_packet, station):
             # If the packet is an acknowledgment, we don't need to do anything else.
             return
 
@@ -55,12 +55,12 @@ class PacketProcessor:
 
 
     async def has_packet_for_tx(self, station: Station) -> AsyncIterator[IrPacketRequestSchema]:
-        packets = self.packets.find({"packet_id": {"$in": station.tx}})
+        packets = self.packets.find({"_id": {"$in": station.tx}})
         async for packet in packets:
             # Convert the packet to IrPacketRequestSchema and yield it.
             yield IrPacketRequestSchema(
                 packet_id=packet["packet_id"],
-                data=packet["data"]
+                data=list(packet["data"])
             )
 
 
@@ -88,18 +88,17 @@ class PacketProcessor:
     async def send_packet_to_station(self, ir_packet: IrPacket) -> uuid.UUID:
         hv = self.packet_hash(ir_packet)
         
-        db_packet = IrPacketObject(packet_id=ir_packet.packet_id, data=Binary(ir_packet.data), hash=Binary(hv))
+        db_packet = IrPacketObject(packet_id=ir_packet.packet_id, data=Binary(ir_packet.data), hash=Binary(hv), timestamp=int(time.time()))
 
         # add the packet to the database
-        result = await self.packets.update_one(
-            {"station_id": ir_packet.station_id},
-            {"$push": {"tx": db_packet.model_dump()}}
+        result = await self.packets.insert_one(
+            db_packet.model_dump(exclude={"id"})
         )
 
         # add packet ObjectId to station tx list
         await self.stations.update_one(
             {"station_id": ir_packet.station_id},
-            {"$push": {"tx": result.upserted_id}}
+            {"$push": {"tx": result.inserted_id}}
         )
 
         return ir_packet.packet_id
@@ -110,7 +109,7 @@ class PacketProcessor:
         """
         Get the packet hash. TODO: This is a placeholder implementation and should be replaced with actual hashing logic.
         """
-        return ir_packet.data[-(PACKET_HASH_LEN):]
+        return bytes(ir_packet.data[-(PACKET_HASH_LEN):])
 
 
     async def handle_acknowledgment(self, ir_packet: IrPacketRequestSchema, station: Station) -> bool:
@@ -121,18 +120,14 @@ class PacketProcessor:
             hv = self.packet_hash(ir_packet)
 
             # Acknowledge the packet and remove it from the tx list.
-            packets = await self.packets.find({"station_id": station.station_id, "hash": hv})
-
-            await self.stations.update_one(
+            packets = await self.packets.find({"hash": hv}).to_list()
+            result = await self.stations.update_one(
                 {"station_id": station.station_id},
-                {"$pullAll": {"tx": packets}}
+                {"$pull": {"tx": { "$in": list(map(lambda x: x["_id"], packets)) }}}
             )
 
             # Remove the packet from the database.
-            await self.packets.update_many(
-                {"station_id": station.station_id},
-                {"$pull": {"tx": {"hash": hv}}}
-            )
+            await self.packets.delete_many({"hash": hv})
             
             return True
 

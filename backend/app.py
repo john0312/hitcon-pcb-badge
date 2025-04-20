@@ -46,11 +46,15 @@ async def get_fake_scores():
     ]
 
 @router.get("/tx")
-async def tx(station: Station = Depends(get_station)) -> list[IrPacketRequestSchema]:
+async def tx(background_tasks: BackgroundTasks, station: Station = Depends(get_station)) -> list[IrPacketRequestSchema]:
     # Backend asks the base station to send a packet.
-    packets = await packet_processor_instance.has_packet_for_tx(station)
+    packets = packet_processor_instance.has_packet_for_tx(station)
 
-    return list(packets)
+    ret = []
+    async for packet in packets:
+        ret.append(packet)
+
+    return ret
 
 
 @router.post("/rx")
