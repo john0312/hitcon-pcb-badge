@@ -3,6 +3,7 @@
 #include <Service/Sched/Scheduler.h>
 
 using namespace hitcon::service::sched;
+using namespace hitcon::ecc::internal;
 using namespace hitcon::ecc;
 
 namespace hitcon {
@@ -11,12 +12,15 @@ EcLogic g_ec_logic;
 
 namespace ecc {
 
+namespace internal {
+
 #define UINT64_MSB (1ULL << 63)
 
-static const EllipticCurve g_curve(0x8a0e7f5440493e74, 0xb141f82791169843);
-static const EcPoint g_generator({0x634292ecef8422b7, 0xc574fde5ac5aad25},
-                                 {0x9b9aaf6b43cc9330, 0xc574fde5ac5aad25});
-static const uint64_t g_curveOrder = 0xc574fde54141edc9;
+// Hardcoded curve parameters
+static const EllipticCurve g_curve(0x5e924cd447a56b, 0x892f0a953f589b);
+static const EcPoint g_generator({0x9a77dc33b36acc, 0xbcffb098340493},
+                                 {0x279be90a95dbdd, 0xbcffb098340493});
+static const uint64_t g_curveOrder = 0xbcffb09c43733d;
 // TODO: use GetPerBoardSecret to set the private key
 static const uint64_t g_privateKey = 87;
 
@@ -173,7 +177,7 @@ EcPoint EcPoint::intersect(const EcPoint &other, const ModNum &l) const {
   return EcPoint(newx, newy);
 }
 
-}  // namespace ecc
+}  // namespace internal
 
 uint64_t computeHash(uint8_t const *message, uint32_t len) {
   // TODO: call the sha3 api
@@ -185,7 +189,6 @@ uint64_t getRandValue() {
   return 0xdeadbeefcafebabe;
 }
 
-// TODO: determine the lifetime of the message and len
 bool EcLogic::StartSign(uint8_t const *message, uint32_t len,
                         callback_t callback, void *callbackArg1) {
   if (busy) return false;
@@ -249,5 +252,7 @@ EcLogic::EcLogic()
 void EcLogic::Init() {
   // TODO: initialize the private key here maybe?
 }
+
+}  // namespace ecc
 
 }  // namespace hitcon

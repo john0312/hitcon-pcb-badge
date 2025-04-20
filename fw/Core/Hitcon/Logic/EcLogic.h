@@ -8,7 +8,7 @@ namespace hitcon {
 
 namespace ecc {
 
-// hardcoded: server public key, curve params (a, b, n, G, p)
+namespace internal {
 
 class ModNum {
   friend ModNum operator+(const uint64_t a, const ModNum &b);
@@ -66,12 +66,12 @@ class EcPoint {
   EcPoint intersect(const EcPoint &other, const ModNum &l) const;
 };
 
+}  // namespace internal
+
 struct Signature {
-  EcPoint pub;
+  internal::EcPoint pub;
   uint64_t r, s;
 };
-
-}  // namespace ecc
 
 class EcLogic {
  public:
@@ -81,7 +81,8 @@ class EcLogic {
 
   /**
    * Start the signing process and mark this API as busy.
-   * @param message: the message to sign
+   * @param message: the message to sign. The contents should be intact until
+   *                 sign finishes.
    * @param len: length of message, has to be a multiple of 8
    * @param callback: callback function to call when the sign is complete.
    *                  the second argument to callback is a pointer to
@@ -96,7 +97,8 @@ class EcLogic {
 
   /**
    * Start the verification process and mark this API as busy.
-   * @param message: the message to sign
+   * @param message: the message to sign. The contents should be intact until
+   *                 verify finishes.
    * @param len: length of message, has to be a multiple of 8
    * @param signature: Signature object
    * @param callback: callback function to call when verification is complete.
@@ -108,7 +110,7 @@ class EcLogic {
    * @return whether the job is successfully queued.
    */
   bool StartVerify(uint8_t const *message, uint32_t len,
-                   const ecc::Signature &signature, callback_t callback,
+                   const Signature &signature, callback_t callback,
                    void *callbackArg1);
 
  private:
@@ -155,6 +157,8 @@ class EcLogic {
 };
 
 extern EcLogic g_ec_logic;
+
+}  // namespace ecc
 
 }  // namespace hitcon
 

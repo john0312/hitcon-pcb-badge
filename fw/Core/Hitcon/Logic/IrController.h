@@ -35,7 +35,7 @@ struct ShowPacket {
 
 constexpr size_t PACKET_HASH_LEN = 6;
 constexpr size_t IR_USERNAME_LEN = 4;
-constexpr size_t ECC_SIGNATURE_SIZE = 16;
+constexpr size_t ECC_SIGNATURE_SIZE = 14;
 constexpr size_t ECC_PUBKEY_SIZE = 8;
 
 // This packet acknowledges a particular packet has been received.
