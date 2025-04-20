@@ -46,31 +46,31 @@ class PacketType(Enum):
 
 
 class IrPacket(BaseModel):
-    packet_id: Optional[uuid.UUID]
+    packet_id: Optional[uuid.UUID] = Field(None)
     # The packet_id to avoid duplication at base station.
     data: bytes
-    station_id: Optional[uuid.UUID]
+    station_id: Optional[uuid.UUID] = Field(None)
     to_stn: bool
     # to_stn is True for backend -> base station packet, False otherwise.
 
 
 # For http requests
 class IrPacketRequestSchema(BaseModel):
-    packet_id: Optional[uuid.UUID]
+    packet_id: Optional[uuid.UUID] = Field(None)
     data: List[int]
 
 
 # For Mongo
 class IrPacketObject(BaseModel):
     # id: Optional[PyObjectId] = Field(alias="_id", default=None)
-    packet_id: Optional[uuid.UUID]
+    packet_id: Optional[uuid.UUID] = Field(None)
     data: PyBinary
     hash: PyBinary
     timestamp: int
 
 
 class ActivityEvent(BaseModel):
-    event_id: Optional[uuid.UUID]
+    event_id: Optional[uuid.UUID] = Field(None)
     packet_ids: List[uuid.UUID]
     players: List[int]
     signatures: List[int]
@@ -78,7 +78,7 @@ class ActivityEvent(BaseModel):
 
 
 class ProximityEvent(BaseModel):
-    event_id: Optional[uuid.UUID]
+    event_id: Optional[uuid.UUID] = Field(None)
     user: int
     signature: int
 
@@ -110,7 +110,7 @@ class User(BaseModel):
     username: int
     pubkey: int
     # Tracking the last station the user was seen
-    station_id: Optional[uuid.UUID]
+    station_id: Optional[uuid.UUID] = Field(None)
 
 
 # Elliptic Curve Crytography related.
