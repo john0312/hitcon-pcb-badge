@@ -30,6 +30,7 @@
 #include <Service/XBoardService.h>
 
 using namespace hitcon;
+using namespace hitcon::ecc;
 using namespace hitcon::service::sched;
 using namespace hitcon::service::xboard;
 

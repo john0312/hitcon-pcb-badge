@@ -8,9 +8,9 @@ using namespace hitcon::ecc;
 
 namespace hitcon {
 
-EcLogic g_ec_logic;
-
 namespace ecc {
+
+EcLogic g_ec_logic;
 
 namespace internal {
 
