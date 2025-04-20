@@ -8,7 +8,7 @@ from config import Config
 from schemas import Station, IrPacketRequestSchema, Display
 
 config = Config("config.yaml")
-mongo = AsyncMongoClient(f"mongodb://{config['mongo']['username']}:{config['mongo']['password']}@{config['mongo']['host']}:{config['mongo']['port']}")
+mongo = AsyncMongoClient(f"mongodb://{config['mongo']['username']}:{config['mongo']['password']}@{config['mongo']['host']}:{config['mongo']['port']}?uuidRepresentation=standard")
 db = mongo[config["mongo"]["db"]]
 stations = db["stations"]
 
