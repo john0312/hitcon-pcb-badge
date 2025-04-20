@@ -62,3 +62,12 @@ class EccSignature(BaseModel):
 
 class EccPrivateKey(BaseModel):
     dA: int
+
+# leaderboard
+class ScoreEntry(BaseModel):
+    name: str
+    uid: int
+    score: int
+
+class ScoreBoard(BaseModel):
+    scores: List[ScoreEntry]

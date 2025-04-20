@@ -31,6 +31,14 @@ async def get_station(credentials: HTTPAuthorizationCredentials = Security(secur
 async def read_root():
     return {"message": "Hello World"}
 
+#fake scores
+@app.get("/api/score", response_model=List[ScoreEntry])
+async def get_fake_scores():
+    return [
+        {"name": "tony", "uid": 101, "score": 9527},
+        {"name": "chen", "uid": 102, "score": 5566},
+        {"name": "sherry", "uid": 103, "score": 857}
+    ]
 
 @router.get("/tx")
 async def tx(station: Station = Depends(get_station)) -> list[IrPacketRequestSchema]:
