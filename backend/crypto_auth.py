@@ -3,10 +3,13 @@ from schemas import IrPacket
 from config import Config
 from ecc_utils import ecc_sign, ecc_verify
 
+
 class UnsignedPacketError(Exception):
     pass
 
-class CryptoAuthLayer:
+
+# This module is responsible for verifying & signing the packets
+class CryptoAuth:
     def __init__(self, config: Config):
         self.config = config
 
@@ -17,7 +20,7 @@ class CryptoAuthLayer:
 
 
     # ===== APIs for PacketProcessor =====
-    async def on_packet_received(ir_packet: IrPacket):
+    async def verify_packet(ir_packet: IrPacket):
         """
         Verify the packet. Throws an exception if the packet is invalid.
         """

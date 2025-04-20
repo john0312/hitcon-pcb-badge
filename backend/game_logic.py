@@ -6,7 +6,7 @@ class GameLogic:
     def __init__(self, config: Config):
         self.config = config
 
-    # ===== APIs for CryptoAuthLayer =====
+    # ===== APIs for PacketProcessor =====
     async def on_activity_event(evt: ActivityEvent):
         pass
 
