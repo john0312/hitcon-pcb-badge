@@ -2,10 +2,10 @@ from fastapi import FastAPI, APIRouter, Depends, Security, HTTPException
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from pymongo import AsyncMongoClient
 from packet_processor import PacketProcessor
-from crypto_auth_layer import CryptoAuthLayer
+from crypto_auth import CryptoAuth
 from game_logic import GameLogic
 from config import Config
-from schemas import Station, IrPacketRequestSchema, Display
+from schemas import Station, IrPacketRequestSchema, Display, ScoreEntry
 
 config = Config("config.yaml")
 mongo = AsyncMongoClient(f"mongodb://{config['mongo']['username']}:{config['mongo']['password']}@{config['mongo']['host']}:{config['mongo']['port']}?uuidRepresentation=standard")
@@ -37,7 +37,7 @@ async def read_root():
     return {"message": "Hello World"}
 
 #fake scores
-@app.get("/api/score", response_model=List[ScoreEntry])
+@app.get("/api/score", response_model=list[ScoreEntry])
 async def get_fake_scores():
     return [
         {"name": "tony", "uid": 101, "score": 9527},
@@ -45,8 +45,9 @@ async def get_fake_scores():
         {"name": "sherry", "uid": 103, "score": 857}
     ]
 
+
 @router.get("/tx")
-async def tx(background_tasks: BackgroundTasks, station: Station = Depends(get_station)) -> list[IrPacketRequestSchema]:
+async def tx(station: Station = Depends(get_station)) -> list[IrPacketRequestSchema]:
     # Backend asks the base station to send a packet.
     packets = packet_processor_instance.has_packet_for_tx(station)
 
