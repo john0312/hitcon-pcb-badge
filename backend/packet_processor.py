@@ -25,14 +25,14 @@ class PacketProcessor:
 
         packet = IrPacket(
             packet_id=ir_packet.packet_id,
-            data=ir_packet.data,
+            data=bytes(ir_packet.data),
             station_id=station.station_id,
             to_stn=False
         )
 
         # verify the packet
         # it would throw an exception if the packet is invalid
-        await self.crypto_auth.on_packet_received(packet)
+        await self.crypto_auth.verify_packet(packet)
 
         if await self.handle_proximity(ir_packet):
             # If the packet is a proximity event, we don't need to do anything else.
@@ -42,7 +42,7 @@ class PacketProcessor:
         db_packet = IrPacketObject(packet_id=ir_packet.packet_id, data=Binary(ir_packet.data), hash=Binary(hv))
 
         # add the packet to the database
-        result = await self.packets.update_one(
+        result = await self.packets.insert_one(
             {"station_id": station.station_id},
             {"$push": {"rx": db_packet.model_dump()}}
         )
@@ -50,7 +50,7 @@ class PacketProcessor:
         # add packet ObjectId to station rx list
         await self.stations.update_one(
             {"station_id": station.station_id},
-            {"$push": {"rx": result.upserted_id}}
+            {"$push": {"rx": result.inserted_id}}
         )
 
 
