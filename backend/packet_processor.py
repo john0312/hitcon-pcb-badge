@@ -1,4 +1,4 @@
-from typing import Optional, AsyncIterator
+from typing import Optional, AsyncIterator, Callable, Awaitable, Dict, ClassVar
 from bson import Binary
 from pymongo.asynchronous.database import AsyncDatabase
 from crypto_auth import CryptoAuth
@@ -8,6 +8,8 @@ import uuid
 import time
 
 class PacketProcessor:
+    packet_handlers: ClassVar[Dict[PacketType, Callable[[IrPacket, Station], Awaitable[None]]]] = dict()
+
     def __init__(self, config: Config, crypto_auth: CryptoAuth, db: AsyncDatabase):
         self.crypto_auth = crypto_auth
         self.config = config
@@ -15,6 +17,14 @@ class PacketProcessor:
         self.stations = db["stations"]
         self.packets = db["packets"]
         self.users = db["users"]
+
+
+    @staticmethod
+    def register_handler(type: PacketType, func: Callable[[IrPacket, Station], Awaitable[None]]) -> None:
+        """
+        Register a handler for a specific packet type.
+        """
+        PacketProcessor.packet_handlers[type] = func
 
 
     # ===== Interface to HTTP =====
