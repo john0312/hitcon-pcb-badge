@@ -4,6 +4,7 @@ from pymongo.asynchronous.database import AsyncDatabase
 from crypto_auth import CryptoAuth
 from schemas import IrPacket, IrPacketRequestSchema, IrPacketObject, Station, PacketType, PACKET_HASH_LEN, IR_USERNAME_LEN
 from config import Config
+import struct
 import uuid
 import time
 
@@ -63,6 +64,8 @@ class PacketProcessor:
             {"$push": {"rx": result.inserted_id}}
         )
 
+        # TODO: retransmit packets in the user queue (move these packets to station tx)
+
 
     async def has_packet_for_tx(self, station: Station) -> AsyncIterator[IrPacketRequestSchema]:
         packets = self.packets.find({"_id": {"$in": station.tx}})
@@ -89,7 +92,7 @@ class PacketProcessor:
         ir_packet.station_id = await self.get_user_last_station_uuid(username)
 
         if ir_packet.station_id is None:
-            # If the user is not associated with any station, we cannot send the packet?
+            # If the user is not associated with any station, TODO: put to user queue
             raise ValueError("User not associated with any station.")
         
         return await self.send_packet_to_station(ir_packet)
@@ -177,6 +180,9 @@ class PacketProcessor:
 
     async def get_user_last_station_uuid(self, username: int) -> Optional[uuid.UUID]:
         # Get the station associated with a user.
+        # Should deal with roaming or multiple stations.
+        # If IR received from multiple stations in a short time, we should use consider the previous station.
+        # If such time is passed between two packets, we should consider them as two different packets.
         user = await self.users.find_one({"username": username})
 
         if user:
