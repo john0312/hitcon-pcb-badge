@@ -20,8 +20,10 @@ class CryptoAuth:
 
 
     # ===== APIs for PacketProcessor =====
-    async def verify_packet(ir_packet: IrPacket):
+    async def verify_packet(ir_packet: IrPacket) -> Optional[int]:
         """
         Verify the packet. Throws an exception if the packet is invalid.
+        Returns username if the packet is valid.
         """
+        # TODO: handle case for ActivityPacket, in which the signature must be validate against two usernames   
         pass
