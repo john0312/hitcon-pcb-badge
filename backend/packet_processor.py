@@ -141,7 +141,7 @@ class PacketProcessor:
         if packet_type == PacketType.kProximity:
             # Process proximity event
             offset = 1
-            username = ir_packet.data[offset:offset+IR_USERNAME_LEN]
+            username = int.from_bytes(ir_packet.data[offset:offset+IR_USERNAME_LEN], 'little', signed=False)
 
             # update users' last station
             await self.users.update_one(
