@@ -48,7 +48,7 @@ struct AcknowledgePacket {
 
 // This packet is from the badge, saying I'm here to the base station.
 struct ProximityPacket {
-  uint8_t username[IR_USERNAME_LEN];
+  uint8_t user[IR_USERNAME_LEN];
   // How much power or how active is the user according to accelerometer?
   uint8_t power;
   uint8_t nonce[2];
