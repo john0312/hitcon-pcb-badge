@@ -93,6 +93,7 @@ struct SingleBadgeActivityPacket {
   // 0x03 - Dino
   // 0x10 - Shake
   uint8_t event_data[3];
+  uint8_t sig[ECC_SIGNATURE_SIZE];
 };
 
 // This packet is from the badge to the base station.
