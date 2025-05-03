@@ -16,8 +16,10 @@ enum class packet_type : uint8_t {
   kAcknowledge = 3,
   kProximity = 4,
   kPubAnnounce = 5,
-  kActivity = 6,
-  kScoreAnnonce = 7
+  kTwoBadgeActivity = 6,
+  kScoreAnnonce = 7,
+  kSingleBadgeActivity = 8,
+  kSponsorActivity = 9
 };
 
 namespace hitcon {
@@ -61,7 +63,7 @@ struct PubAnnouncePacket {
 };
 
 // This packet is sent from two parties that participated in an activity.
-struct ActivityPacket {
+struct TwoBadgeActivityPacket {
   uint8_t user1[IR_USERNAME_LEN];
   uint8_t user2[IR_USERNAME_LEN];
   uint8_t game_data[5];
@@ -82,6 +84,24 @@ struct ScoreAnnouncePacket {
   uint32_t score;
 };
 
+// This packet is from the badge to the base station.
+struct SingleBadgeActivityPacket {
+  uint8_t user[IR_USERNAME_LEN];
+  uint8_t event_type;
+  // 0x01 - Snake
+  // 0x02 - Tetris
+  // 0x03 - Dino
+  // 0x10 - Shake
+  uint8_t event_data[3];
+};
+
+// This packet is from the badge to the base station.
+struct SponsorActivityPacket {
+  uint8_t user[IR_USERNAME_LEN];
+  uint8_t sponsor_id;
+  uint8_t sponsor_data[9];
+};
+
 /*Definition of IR content.*/
 struct IrData {
   uint8_t ttl;
@@ -91,8 +111,10 @@ struct IrData {
     struct ShowPacket show;
     struct ProximityPacket proximity;
     struct PubAnnouncePacket pub_announce;
-    struct ActivityPacket activity;
+    struct TwoBadgeActivityPacket two_activity;
     struct ScoreAnnouncePacket score_announce;
+    struct SingleBadgeActivityPacket single_activity;
+    struct SponsorActivityPacket sponsor_activity;
   };
 };
 
