@@ -255,6 +255,8 @@ bool IrLogic::SendPacket(uint8_t *data, size_t len) {
   return ret;
 }
 
+bool IrLogic::AvailableToSend() { return irService.CanSendBufferNow(); }
+
 int IrLogic::GetLoadFactor() {
   int ret = lowpass_loadfactor;
   ret = ret * 100 * LF_MAX_SCALE;

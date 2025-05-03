@@ -18,6 +18,8 @@ class HashService {
   // callback will be called once the hashing is done. The argument to the
   // callback will be a uint8_t pointer to the hash result, it'll only be valid
   // during the callback.
+  // It is guaranteed that the callback will only be called after StartHash()
+  // returns.
   bool StartHash(uint8_t const *message, size_t len, callback_t callback,
                  void *callback_arg1);
 };

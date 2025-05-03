@@ -40,7 +40,10 @@ class IrLogic {
   // is received the callback will be called.
   void SetOnPacketReceived(callback_t callback, void *callback_arg1);
 
+  // Send packet with data and size len.
   bool SendPacket(uint8_t *data, size_t len);
+  // Return true if it's possible for us to send directly.
+  bool AvailableToSend();
 
   void EncodePacket(uint8_t *data, size_t len, IrPacket &packet);
   // Enqueue the task and reset the counter

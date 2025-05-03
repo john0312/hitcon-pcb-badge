@@ -110,6 +110,7 @@ struct IrData {
   union {
     struct GamePacket game;
     struct ShowPacket show;
+    struct AcknowledgePacket acknowledge;
     struct ProximityPacket proximity;
     struct PubAnnouncePacket pub_announce;
     struct TwoBadgeActivityPacket two_activity;
@@ -117,6 +118,32 @@ struct IrData {
     struct SingleBadgeActivityPacket single_activity;
     struct SponsorActivityPacket sponsor_activity;
   };
+};
+
+constexpr size_t RETX_QUEUE_SIZE = 4;
+
+constexpr uint8_t kRetransmitLimitMask = 0x07;
+constexpr uint8_t kRetransmitStatusMask = 0xe0;
+constexpr uint8_t kRetransmitStatusSlotUnused = 0x00;
+constexpr uint8_t kRetransmitStatusWaitHashAvail = 0x20;
+constexpr uint8_t kRetransmitStatusWaitHashDone = 0x40;
+constexpr uint8_t kRetransmitStatusWaitTxSlot = 0x80;
+constexpr uint8_t kRetransmitStatusWaitAck = 0xA0;
+
+struct RetransmittableIrPacket {
+  uint8_t status;
+  // 0x07 - retransmit limit left.
+  // 0xe0 - Status
+  //   - 0x00 Slot is unused.
+  //   - 0x20 Waiting for hashing processor to be available.
+  //   - 0x40 Waiting for hashing processor to finish.
+  //   - 0x80 Waiting for IrController's tx slot to open up.
+  //   - 0xA0 Waiting for Ack.
+  uint16_t time_to_retry;
+  // In units of IR Retry task calls.
+  uint8_t size;
+  uint8_t data[MAX_PACKET_PAYLOAD_BYTES + 4];
+  uint8_t hash[PACKET_HASH_LEN];
 };
 
 class IrController {
@@ -128,6 +155,13 @@ class IrController {
   void InitBroadcastService(uint8_t game_types);
 
   void SetDisableBroadcast() { disable_broadcast = true; }
+
+  // Send a packet with data and size len.
+  // An acknowledgement is expected (from base station) and will retry if no
+  // acknowledgement is received.
+  // Return true if the packet is accepted by IrController.
+  // Return false if IrController is busy and cannot accept the packet.
+  bool SendPacketWithRetransmit(uint8_t* data, size_t len, uint8_t retries);
 
  private:
   bool send_lock;
@@ -146,6 +180,10 @@ class IrController {
   IrData priority_data_;
   size_t priority_data_len_;
 
+  RetransmittableIrPacket queued_packets_[RETX_QUEUE_SIZE];
+  int current_hashing_slot;
+  int current_tx_slot;
+
   // Called every 1s.
   void RoutineTask(void* unused);
 
@@ -158,6 +196,14 @@ class IrController {
   void SendShowPacket(char* msg);
 
   bool TrySendPriority();
+
+  // Periodic check on queued_packets_
+  void MaintainQueued();
+
+  // Called when we received an acknowledgement packet.
+  void OnAcknowledgePacket(AcknowledgePacket* pckt);
+  // Called by HashProcessor when hashing finished.
+  void OnPacketHashResult(void* hash_result);
 };
 
 extern IrController irController;
