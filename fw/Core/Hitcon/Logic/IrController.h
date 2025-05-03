@@ -65,6 +65,14 @@ struct ActivityPacket {
   uint8_t user1[IR_USERNAME_LEN];
   uint8_t user2[IR_USERNAME_LEN];
   uint8_t game_data[5];
+  // game_data structure:
+  // Bit [0:4] - Game Type
+  //          0x00 - None/Reserved
+  //          0x01 - Snake
+  //          0x02 - Tetris
+  // Bit [4:14] - Player 1 Score
+  // Bit [14:24] - Player 2 Score
+  // Bit [24:40] - Nonce
   uint8_t sig[ECC_SIGNATURE_SIZE];
 };
 
