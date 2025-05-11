@@ -5,6 +5,7 @@ from bson import ObjectId
 from typing import Annotated
 from enum import Enum
 import uuid
+from typing import Dict
 
 class _ObjectIdPydanticAnnotation:
     # Based on https://docs.pydantic.dev/latest/usage/types/custom/#handling-third-party-types.
@@ -72,7 +73,8 @@ class Display(BaseModel):
 class ScoreEntry(BaseModel):
     name: str
     uid: int
-    score: int
+    scores: Dict[str, int]  
+    total_score: int
 
 
 class ScoreBoard(BaseModel):
@@ -179,11 +181,3 @@ class EccSignature(BaseModel):
 class EccPrivateKey(BaseModel):
     dA: int
 
-# leaderboard
-class ScoreEntry(BaseModel):
-    name: str
-    uid: int
-    score: int
-
-class ScoreBoard(BaseModel):
-    scores: List[ScoreEntry]
