@@ -82,6 +82,7 @@ struct TwoBadgeActivityPacket {
 struct ScoreAnnouncePacket {
   uint8_t user[IR_USERNAME_LEN];
   uint32_t score;
+  uint8_t sig[ECC_SIGNATURE_SIZE];
 };
 
 // This packet is from the badge to the base station.
