@@ -1,4 +1,4 @@
-from typing import Optional, AsyncIterator, Callable, Awaitable, Dict, ClassVar
+from typing import Optional, AsyncIterator, Callable, Awaitable, Dict, ClassVar, Union
 from bson import Binary
 from pymongo.asynchronous.database import AsyncDatabase
 from crypto_auth import CryptoAuth
@@ -21,6 +21,7 @@ class PacketProcessor:
         self.stations = db["stations"]
         self.packets = db["packets"]
         self.users = db["users"]
+        self.user_queue = db["user_queue"]
 
 
     @staticmethod
@@ -110,10 +111,10 @@ class PacketProcessor:
         ir_packet.station_id = await self.get_user_last_station_uuid(user)
 
         if ir_packet.station_id is None:
-            # If the user is not associated with any station, TODO: put to user queue
-            raise ValueError("User not associated with any station.")
-        
-        return await self.send_packet_to_station(ir_packet)
+            # If the user is not associated with any station, put to user queue and wait until the user is associated with a station.
+            return await self.queue_user_packet(ir_packet, user)
+        else:
+            return await self.send_packet_to_station(ir_packet)
 
 
     async def send_packet_to_station(self, ir_packet: IrPacket) -> uuid.UUID:
@@ -133,6 +134,44 @@ class PacketProcessor:
         )
 
         return ir_packet.packet_id
+
+
+    async def queue_user_packet(self, ir_packet: IrPacket, user: int) -> uuid.UUID:
+        hv = self.packet_hash(ir_packet)
+        
+        db_packet = IrPacketObject(packet_id=ir_packet.packet_id, data=Binary(ir_packet.data), hash=Binary(hv), timestamp=int(time.time()))
+
+        # add the packet to the database
+        await self.packets.insert_one(
+            db_packet.model_dump(exclude={"id"})
+        )
+
+        # associate the packet with the user
+        await self.user_queue.insert_one(
+            {"user": user, "packet_id": ir_packet.packet_id}
+        )
+
+        return ir_packet.packet_id
+
+
+    async def deque_user_packets(self, user: int, station: Station) -> Optional[list[uuid.UUID]]:
+        # Dequeue all packets for the user.
+        # This is where we would update the database or perform any other necessary actions.
+        packet_ids_query = await self.user_queue.find({"user": user}).to_list()
+        packet_ids = [packet["packet_id"] for packet in packet_ids_query]
+        if not packet_ids:
+            return None
+        
+        # Add the packets to the station tx list.
+        packet_objects_query = await self.packets.find({"packet_id": {"$in": packet_ids}}).to_list()
+        await self.stations.update_one(
+            {"station_id": station.station_id},
+            {"$push": {"tx": {"$each": [packet["_id"] for packet in packet_objects_query]}}}
+        )
+
+        await self.user_queue.delete_many({"packet_id": {"$in": packet_ids}})
+
+        return packet_ids
 
 
     # ===== Internal methods =====
@@ -236,7 +275,7 @@ class PacketProcessor:
         return False
 
 
-    def get_packet_type(self, ir_packet: IrPacketRequestSchema) -> Optional[PacketType]:
+    def get_packet_type(self, ir_packet: Union[IrPacket, IrPacketRequestSchema]) -> Optional[PacketType]:
         # Determine the type of packet based on its contents.
         # This is a placeholder implementation and should be replaced with actual logic.
         raw_type = ir_packet.data[0]
