@@ -1,2 +1,6 @@
-
-mongo_conn: "mongodb://localhost:27017/badge"
+mongo:
+  host: localhost
+  port: 27017
+  username: root
+  password: password
+  db: badge

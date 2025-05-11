@@ -13,6 +13,7 @@
 #include <Logic/BadgeController.h>
 #include <Logic/ButtonLogic.h>
 #include <Logic/DisplayLogic.h>
+#include <Logic/EcLogic.h>
 #include <Logic/EntropyHub.h>
 #include <Logic/GameScore.h>
 #include <Logic/IrController.h>
@@ -23,12 +24,14 @@
 #include <Service/ButtonService.h>
 #include <Service/DisplayService.h>
 #include <Service/FlashService.h>
+#include <Service/HashService.h>
 #include <Service/IrService.h>
 #include <Service/NoiseSource.h>
 #include <Service/Sched/Scheduler.h>
 #include <Service/XBoardService.h>
 
 using namespace hitcon;
+using namespace hitcon::ecc;
 using namespace hitcon::service::sched;
 using namespace hitcon::service::xboard;
 
@@ -53,8 +56,10 @@ void hitcon_run() {
   display_init();
   g_noise_source.Init();
   g_entropy_hub.Init();
+  g_hash_service.Init();
   g_fast_random_pool.Init();
   g_secure_random_pool.Init();
+  g_ec_logic.Init();
   g_game_score.Init();
   g_flash_service.Init();
   g_nv_storage.Init();

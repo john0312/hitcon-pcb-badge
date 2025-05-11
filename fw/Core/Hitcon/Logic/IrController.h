@@ -12,6 +12,14 @@ enum class packet_type : uint8_t {
   kGame = 0,  // disabled
   kShow = 1,
   kTest = 2,
+  // Packet types for 2025
+  kAcknowledge = 3,
+  kProximity = 4,
+  kPubAnnounce = 5,
+  kTwoBadgeActivity = 6,
+  kScoreAnnonce = 7,
+  kSingleBadgeActivity = 8,
+  kSponsorActivity = 9
 };
 
 namespace hitcon {
@@ -27,6 +35,73 @@ struct ShowPacket {
   char message[16];
 };
 
+constexpr size_t PACKET_HASH_LEN = 6;
+constexpr size_t IR_USERNAME_LEN = 4;
+constexpr size_t ECC_SIGNATURE_SIZE = 14;
+constexpr size_t ECC_PUBKEY_SIZE = 8;
+
+// This packet acknowledges a particular packet has been received.
+struct AcknowledgePacket {
+  // Hash of the packet being acknowledge.
+  uint8_t packet_hash[PACKET_HASH_LEN];
+};
+
+// This packet is from the badge, saying I'm here to the base station.
+struct ProximityPacket {
+  uint8_t user[IR_USERNAME_LEN];
+  // How much power or how active is the user according to accelerometer?
+  uint8_t power;
+  uint8_t nonce[2];
+  uint8_t sig[ECC_SIGNATURE_SIZE];
+};
+
+// This packet is from the badge, announcing its public key.
+struct PubAnnouncePacket {
+  uint8_t pubkey[ECC_PUBKEY_SIZE];
+  // Signature from the Certificate Authority.
+  uint8_t sig[ECC_SIGNATURE_SIZE];
+};
+
+// This packet is sent from two parties that participated in an activity.
+struct TwoBadgeActivityPacket {
+  uint8_t user1[IR_USERNAME_LEN];
+  uint8_t user2[IR_USERNAME_LEN];
+  uint8_t game_data[5];
+  // game_data structure:
+  // Bit [0:4] - Game Type
+  //          0x00 - None/Reserved
+  //          0x01 - Snake
+  //          0x02 - Tetris
+  // Bit [4:14] - Player 1 Score
+  // Bit [14:24] - Player 2 Score
+  // Bit [24:40] - Nonce
+  uint8_t sig[ECC_SIGNATURE_SIZE];
+};
+
+// This packet is from the base station, telling user their score.
+struct ScoreAnnouncePacket {
+  uint8_t user[IR_USERNAME_LEN];
+  uint32_t score;
+};
+
+// This packet is from the badge to the base station.
+struct SingleBadgeActivityPacket {
+  uint8_t user[IR_USERNAME_LEN];
+  uint8_t event_type;
+  // 0x01 - Snake
+  // 0x02 - Tetris
+  // 0x03 - Dino
+  // 0x10 - Shake
+  uint8_t event_data[3];
+};
+
+// This packet is from the badge to the base station.
+struct SponsorActivityPacket {
+  uint8_t user[IR_USERNAME_LEN];
+  uint8_t sponsor_id;
+  uint8_t sponsor_data[9];
+};
+
 /*Definition of IR content.*/
 struct IrData {
   uint8_t ttl;
@@ -34,6 +109,12 @@ struct IrData {
   union {
     struct GamePacket game;
     struct ShowPacket show;
+    struct ProximityPacket proximity;
+    struct PubAnnouncePacket pub_announce;
+    struct TwoBadgeActivityPacket two_activity;
+    struct ScoreAnnouncePacket score_announce;
+    struct SingleBadgeActivityPacket single_activity;
+    struct SponsorActivityPacket sponsor_activity;
   };
 };
 

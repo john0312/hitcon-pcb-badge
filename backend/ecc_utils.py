@@ -1,5 +1,8 @@
 import schemas
 
+ECC_SIGNATURE_SIZE = 14
+ECC_PUBKEY_SIZE = 7
+
 def ecc_sign(msg: bytes, priv: schemas.EccPrivateKey) -> schemas.EccSignature:
     # Sign the given bytes with the private key.
     # TODO

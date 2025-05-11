@@ -4991,7 +4991,6 @@
 	)
 	(label "Y14D"
 		(at 109.22 147.32 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5002,7 +5001,6 @@
 	)
 	(label "MAT_RN"
 		(at 128.27 111.76 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5013,7 +5011,6 @@
 	)
 	(label "MAT_CF"
 		(at 219.71 36.83 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5024,7 +5021,6 @@
 	)
 	(label "Y8D"
 		(at 57.15 55.88 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5035,7 +5031,6 @@
 	)
 	(label "Y13D"
 		(at 109.22 132.08 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5046,7 +5041,6 @@
 	)
 	(label "Y11D"
 		(at 57.15 63.5 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5057,7 +5051,6 @@
 	)
 	(label "Y12D"
 		(at 109.22 116.84 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5068,7 +5061,6 @@
 	)
 	(label "MAT_RM"
 		(at 128.27 96.52 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5079,7 +5071,6 @@
 	)
 	(label "Y10D"
 		(at 57.15 60.96 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5090,7 +5081,6 @@
 	)
 	(label "Y12D"
 		(at 57.15 66.04 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5101,7 +5091,6 @@
 	)
 	(label "Y13D"
 		(at 57.15 68.58 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5112,7 +5101,6 @@
 	)
 	(label "Y11D"
 		(at 109.3057 101.6 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5123,7 +5111,6 @@
 	)
 	(label "Y9D"
 		(at 57.15 58.42 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5134,7 +5121,6 @@
 	)
 	(label "MAT_RK"
 		(at 128.27 66.04 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5145,7 +5131,6 @@
 	)
 	(label "Y10D"
 		(at 109.22 86.36 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5156,7 +5141,6 @@
 	)
 	(label "Y9D"
 		(at 109.22 71.12 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5167,7 +5151,6 @@
 	)
 	(label "MAT_CD"
 		(at 191.77 36.83 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5178,7 +5161,6 @@
 	)
 	(label "Y14D"
 		(at 57.15 71.12 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5189,7 +5171,6 @@
 	)
 	(label "MAT_CE"
 		(at 205.74 36.83 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5200,7 +5181,6 @@
 	)
 	(label "Y8D"
 		(at 109.22 55.88 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5211,7 +5191,6 @@
 	)
 	(label "MAT_RJ"
 		(at 128.27 50.8 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5222,7 +5201,6 @@
 	)
 	(label "MAT_CA"
 		(at 151.13 36.83 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5233,7 +5211,6 @@
 	)
 	(label "MAT_RQ"
 		(at 128.27 142.24 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5244,7 +5221,6 @@
 	)
 	(label "Y15D"
 		(at 109.22 162.56 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5255,7 +5231,6 @@
 	)
 	(label "Y15D"
 		(at 57.15 73.66 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5266,7 +5241,6 @@
 	)
 	(label "MAT_RR"
 		(at 128.27 157.48 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5277,7 +5251,6 @@
 	)
 	(label "MAT_CH"
 		(at 246.38 36.83 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5288,7 +5261,6 @@
 	)
 	(label "MAT_RP"
 		(at 128.27 127 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5299,7 +5271,6 @@
 	)
 	(label "MAT_CC"
 		(at 177.8 36.83 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5310,7 +5281,6 @@
 	)
 	(label "MAT_RL"
 		(at 128.27 81.28 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5321,7 +5291,6 @@
 	)
 	(label "MAT_CG"
 		(at 232.41 36.83 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5332,7 +5301,6 @@
 	)
 	(label "MAT_CB"
 		(at 165.1 36.83 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5344,7 +5312,6 @@
 	(hierarchical_label "A1"
 		(shape input)
 		(at 21.59 58.42 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5356,7 +5323,6 @@
 	(hierarchical_label "C_{H}"
 		(shape input)
 		(at 245.11 24.13 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5368,7 +5334,6 @@
 	(hierarchical_label "A0"
 		(shape input)
 		(at 21.59 55.88 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5380,7 +5345,6 @@
 	(hierarchical_label "C_{C}"
 		(shape input)
 		(at 176.53 24.13 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5392,7 +5356,6 @@
 	(hierarchical_label "C_{E}"
 		(shape input)
 		(at 204.47 24.13 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5404,7 +5367,6 @@
 	(hierarchical_label "A2"
 		(shape input)
 		(at 21.59 60.96 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5416,7 +5378,6 @@
 	(hierarchical_label "C_{B}"
 		(shape input)
 		(at 163.83 24.13 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5428,7 +5389,6 @@
 	(hierarchical_label "C_{A}"
 		(shape input)
 		(at 149.86 24.13 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5440,7 +5400,6 @@
 	(hierarchical_label "DEC_EN"
 		(shape input)
 		(at 21.59 71.12 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5452,7 +5411,6 @@
 	(hierarchical_label "C_{G}"
 		(shape input)
 		(at 231.14 24.13 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5464,7 +5422,6 @@
 	(hierarchical_label "C_{D}"
 		(shape input)
 		(at 190.5 24.13 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5476,7 +5433,6 @@
 	(hierarchical_label "C_{F}"
 		(shape input)
 		(at 218.44 24.13 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5488,7 +5444,6 @@
 	(hierarchical_label "A3"
 		(shape input)
 		(at 21.59 73.66 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
