@@ -104,6 +104,8 @@ void Error_Handler(void);
 #define LedA0_GPIO_Port GPIOB
 #define LedA1_Pin GPIO_PIN_4
 #define LedA1_GPIO_Port GPIOB
+#define DEC_EN_Pin GPIO_PIN_5
+#define DEC_EN_GPIO_Port GPIOB
 #define LedA2_Pin GPIO_PIN_8
 #define LedA2_GPIO_Port GPIOB
 #define LedA3_Pin GPIO_PIN_9

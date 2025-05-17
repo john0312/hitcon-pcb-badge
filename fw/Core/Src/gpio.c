@@ -53,7 +53,8 @@ void MX_GPIO_Init(void)
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOB, LedCh_Pin|LedCg_Pin|LedCf_Pin|LedCe_Pin
                           |LedCd_Pin|LedCc_Pin|LedCb_Pin|LedCa_Pin
-                          |LedA0_Pin|LedA1_Pin|LedA2_Pin|LedA3_Pin, GPIO_PIN_RESET);
+                          |LedA0_Pin|LedA1_Pin|DEC_EN_Pin|LedA2_Pin
+                          |LedA3_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin : IMU_INT1_Pin */
   GPIO_InitStruct.Pin = IMU_INT1_Pin;
@@ -77,10 +78,12 @@ void MX_GPIO_Init(void)
 
   /*Configure GPIO pins : LedCh_Pin LedCg_Pin LedCf_Pin LedCe_Pin
                            LedCd_Pin LedCc_Pin LedCb_Pin LedCa_Pin
-                           LedA0_Pin LedA1_Pin LedA2_Pin LedA3_Pin */
+                           LedA0_Pin LedA1_Pin DEC_EN_Pin LedA2_Pin
+                           LedA3_Pin */
   GPIO_InitStruct.Pin = LedCh_Pin|LedCg_Pin|LedCf_Pin|LedCe_Pin
                           |LedCd_Pin|LedCc_Pin|LedCb_Pin|LedCa_Pin
-                          |LedA0_Pin|LedA1_Pin|LedA2_Pin|LedA3_Pin;
+                          |LedA0_Pin|LedA1_Pin|DEC_EN_Pin|LedA2_Pin
+                          |LedA3_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
