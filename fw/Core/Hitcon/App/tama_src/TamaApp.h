@@ -4,7 +4,10 @@
 #include <Logic/Display/display.h>
 #include <Service/Sched/PeriodicTask.h>
 
-#include "app.h"
+#include "../app.h"
+#include "screens.h"
+
+using namespace hitcon::service::sched;
 
 namespace hitcon {
 namespace app {
@@ -31,6 +34,10 @@ class TamaApp : public App {
   static constexpr unsigned INTERVAL = 150;
   hitcon::service::sched::PeriodicTask _routine_task;
   tama_storage_t _tama_data;
+  uint32_t _current_state;
+  uint32_t _next_state;
+  uint32_t _start_tick;
+  uint8_t _count;
 
  public:
   TamaApp();

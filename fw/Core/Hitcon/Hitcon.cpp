@@ -9,7 +9,7 @@
 #include <App/HardwareTestApp.h>
 #include <App/ShowNameApp.h>
 #include <App/SnakeApp.h>
-#include <App/TamaApp.h>
+#include <App/tama_src/TamaApp.h>
 #include <Hitcon.h>
 #include <Logic/BadgeController.h>
 #include <Logic/ButtonLogic.h>
@@ -38,6 +38,7 @@ using namespace hitcon::ecc;
 using namespace hitcon::hash;
 using namespace hitcon::service::sched;
 using namespace hitcon::service::xboard;
+using namespace hitcon::app::tama;
 
 void TestTaskFunc(void* unused1, void* unused2) {}
 void TestTask2Func(void* unused1, void* unused2) {}
@@ -95,6 +96,9 @@ void hitcon_run() {
     hardware_test_app.Init();
     badge_controller.change_app(&hardware_test_app);
   }
+
+  tama_app.Init();
+  badge_controller.change_app(&tama_app);
 
   scheduler.Queue(&InitTask, nullptr);
 
