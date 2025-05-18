@@ -9,6 +9,7 @@
 #include <App/HardwareTestApp.h>
 #include <App/ShowNameApp.h>
 #include <App/SnakeApp.h>
+#include <App/TamaApp.h>
 #include <Hitcon.h>
 #include <Logic/BadgeController.h>
 #include <Logic/ButtonLogic.h>
@@ -83,6 +84,7 @@ void hitcon_run() {
   hitcon::ir::irController.Init();
   hitcon::app::snake::snake_app.Init();
   hitcon::app::dino::dino_app.Init();
+  hitcon::app::tama::tama_app.Init();
   hitcon::usb::g_usb_logic.Init();
 
   // run hardware test mode if MODE/SETTINGS Button is pressed during

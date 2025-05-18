@@ -2,6 +2,7 @@
 #define SERVICE_NV_STORAGE_H_
 
 #include <App/ShowNameApp.h>
+#include <App/TamaApp.h>
 #include <Logic/GameParam.h>
 #include <Logic/GameScore.h>
 #include <Service/FlashService.h>
@@ -24,6 +25,9 @@ typedef struct nv_storage_content_t {
 
   uint32_t
       max_scores[static_cast<size_t>(hitcon::GameScoreType::GAME_UNUSED_MAX)];
+
+  // Tama Game data
+  hitcon::app::tama::tama_storage_t tama_storage;
 } nv_storage_content;
 
 static_assert(sizeof(nv_storage_content) <= MY_FLASH_PAGE_SIZE,
