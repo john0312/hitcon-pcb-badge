@@ -11,6 +11,8 @@ from database import db
 import inspect
 import uuid
 import time
+from io import BytesIO
+
 
 class PacketProcessor:
     packet_handlers: ClassVar[Dict[type[Event], Callable[[Event], Awaitable[None]]]] = dict()
@@ -36,7 +38,7 @@ class PacketProcessor:
 
         if not issubclass(event_type, Event):
             raise ValueError("Function must accept an Event type as the first parameter.")
-        
+
         # Register the function as a handler for the event type.
         PacketProcessor.packet_handlers[event_type] = func
 
@@ -119,7 +121,7 @@ class PacketProcessor:
 
     async def send_packet_to_station(self, ir_packet: IrPacket) -> uuid.UUID:
         hv = self.packet_hash(ir_packet)
-        
+
         db_packet = IrPacketObject(packet_id=ir_packet.packet_id, data=Binary(ir_packet.data), hash=Binary(hv), timestamp=int(time.time()))
 
         # add the packet to the database
@@ -138,7 +140,7 @@ class PacketProcessor:
 
     async def queue_user_packet(self, ir_packet: IrPacket, user: int) -> uuid.UUID:
         hv = self.packet_hash(ir_packet)
-        
+
         db_packet = IrPacketObject(packet_id=ir_packet.packet_id, data=Binary(ir_packet.data), hash=Binary(hv), timestamp=int(time.time()))
 
         # add the packet to the database
@@ -161,7 +163,7 @@ class PacketProcessor:
         packet_ids = [packet["packet_id"] for packet in packet_ids_query]
         if not packet_ids:
             return None
-        
+
         # Add the packets to the station tx list.
         packet_objects_query = await self.packets.find({"packet_id": {"$in": packet_ids}}).to_list()
         await self.stations.update_one(
@@ -176,56 +178,60 @@ class PacketProcessor:
 
     # ===== Internal methods =====
     def parse_packet(self, ir_packet: IrPacket) -> Optional[Event]:
-        # parse against ir_packet.data using struct
         packet_type = self.get_packet_type(ir_packet)
-        parsed_data = dict()
-        parsed_data["packet_id"] = ir_packet.packet_id
-        parsed_data["station_id"] = ir_packet.station_id
-        event = None
-        # ttl?
-        offset = 1
+        packet_id = ir_packet.packet_id
+        station_id = ir_packet.station_id
 
-        if packet_type == PacketType.kProximity:
-            # Proximity packet
-            parsed_data["user"] = int.from_bytes(ir_packet.data[offset:offset+IR_USERNAME_LEN], 'little', signed=False)
-            parsed_data["power"] = int.from_bytes(ir_packet.data[offset+IR_USERNAME_LEN:offset+IR_USERNAME_LEN+1], 'little', signed=False)
-            parsed_data["nonce"] = int.from_bytes(ir_packet.data[offset+IR_USERNAME_LEN+1:offset+IR_USERNAME_LEN+1+2], 'little', signed=False)
-            parsed_data["signature"] = int.from_bytes(ir_packet.data[offset+IR_USERNAME_LEN+1+2:offset+IR_USERNAME_LEN+1+2+ECC_SIGNATURE_SIZE], 'little', signed=False) 
-            event = ProximityEvent(**parsed_data)
-        elif packet_type == PacketType.kPubAnnounce:
-            # Public announce packet
-            parsed_data["pubkey"] = int.from_bytes(ir_packet.data[offset:offset+ECC_PUBKEY_SIZE], 'little', signed=False)
-            parsed_data["signature"] = int.from_bytes(ir_packet.data[offset+ECC_PUBKEY_SIZE:offset+ECC_PUBKEY_SIZE+ECC_SIGNATURE_SIZE], 'little', signed=False)
-            event = PubAnnounceEvent(**parsed_data)
-        elif packet_type == PacketType.kTwoBadgeActivity:
-            # Two badge Activity packet
-            parsed_data["user1"] = int.from_bytes(ir_packet.data[offset:offset+IR_USERNAME_LEN], 'little', signed=False)
-            parsed_data["user2"] = int.from_bytes(ir_packet.data[offset+IR_USERNAME_LEN:offset+IR_USERNAME_LEN*2], 'little', signed=False)
-            parsed_data["game_data"] = ir_packet.data[offset+IR_USERNAME_LEN*2:offset+IR_USERNAME_LEN*2+5]
-            parsed_data["signature"] = int.from_bytes(ir_packet.data[offset+IR_USERNAME_LEN*2+5:offset+IR_USERNAME_LEN*2+5+ECC_SIGNATURE_SIZE], 'little', signed=False)
-            return TwoBadgeActivityEvent(**parsed_data)
-        elif packet_type == PacketType.kScoreAnnounce:
-            # Score announce packet
-            parsed_data["user"] = int.from_bytes(ir_packet.data[offset:offset+IR_USERNAME_LEN], 'little', signed=False)
-            parsed_data["score"] = int.from_bytes(ir_packet.data[offset+IR_USERNAME_LEN:offset+IR_USERNAME_LEN+4], 'little', signed=False)
-            return ScoreAnnounceEvent(**parsed_data)
-        elif packet_type == PacketType.kSingleBadgeActivity:
-            # Single badge activity packet
-            parsed_data["user"] = int.from_bytes(ir_packet.data[offset:offset+IR_USERNAME_LEN], 'little', signed=False)
-            parsed_data["event_type"] = int.from_bytes(ir_packet.data[offset+IR_USERNAME_LEN:offset+IR_USERNAME_LEN+1], 'little', signed=False)
-            parsed_data["event_data"] = ir_packet.data[offset+IR_USERNAME_LEN+1:offset+IR_USERNAME_LEN+1+3]
-            return SingleBadgeActivityEvent(**parsed_data)
-        elif packet_type == PacketType.kSponsorActivity:
-            # Sponsor activity packet
-            parsed_data["user"] = int.from_bytes(ir_packet.data[offset:offset+IR_USERNAME_LEN], 'little', signed=False)
-            parsed_data["sponsor_id"] = int.from_bytes(ir_packet.data[offset+IR_USERNAME_LEN:offset+IR_USERNAME_LEN+1], 'little', signed=False)
-            parsed_data["sponsor_data"] = ir_packet.data[offset+IR_USERNAME_LEN+1:offset+IR_USERNAME_LEN+1+9]
-            return SponsorActivityEvent(**parsed_data)
-        else:
-            # Unknown packet type
-            return None
+        buf = BytesIO(ir_packet.data)
+        buf.read(1)  # Skip the first byte (packet type)
+        b2i = lambda x: int.from_bytes(x, 'little', signed=False)
 
-        return event
+        match packet_type:
+            case PacketType.kProximity:
+                # Proximity packet
+                user = b2i(buf.read(IR_USERNAME_LEN))
+                power = b2i(buf.read(1))
+                nonce = b2i(buf.read(2))
+                signature = b2i(buf.read(ECC_SIGNATURE_SIZE))
+                return ProximityEvent(packet_id=packet_id, station_id=station_id, user=user, power=power, nonce=nonce, signature=signature)
+
+            case PacketType.kPubAnnounce:
+                # Public announce packet
+                pubkey = b2i(buf.read(ECC_PUBKEY_SIZE))
+                signature = b2i(buf.read(ECC_SIGNATURE_SIZE))
+                return PubAnnounceEvent(packet_id=packet_id, station_id=station_id, pubkey=pubkey, signature=signature)
+
+            case PacketType.kTwoBadgeActivity:
+                # Two badge Activity packet
+                user1 = b2i(buf.read(IR_USERNAME_LEN))
+                user2 = b2i(buf.read(IR_USERNAME_LEN))
+                game_data = buf.read(5)
+                signature = b2i(buf.read(ECC_SIGNATURE_SIZE))
+                return TwoBadgeActivityEvent(packet_id=packet_id, station_id=station_id, user1=user1, user2=user2, game_data=game_data, signature=signature)
+
+            case PacketType.kScoreAnnounce:
+                # Score announce packet
+                user = b2i(buf.read(IR_USERNAME_LEN))
+                score = b2i(buf.read(4))
+                return ScoreAnnounceEvent(packet_id=packet_id, station_id=station_id, user=user, score=score)
+
+            case PacketType.kSingleBadgeActivity:
+                # Single badge activity packet
+                user = b2i(buf.read(IR_USERNAME_LEN))
+                event_type = b2i(buf.read(1))
+                event_data = buf.read(3)
+                return SingleBadgeActivityEvent(packet_id=packet_id, station_id=station_id, user=user, event_type=event_type, event_data=event_data)
+
+            case PacketType.kSponsorActivity:
+                # Sponsor activity packet
+                user = b2i(buf.read(IR_USERNAME_LEN))
+                sponsor_id = b2i(buf.read(1))
+                sponsor_data = buf.read(9)
+                return SponsorActivityEvent(packet_id=packet_id, station_id=station_id, user=user, sponsor_id=sponsor_id, sponsor_data=sponsor_data)
+
+            case _:
+                # Unknown packet type
+                return None
 
 
     def packet_hash(self, ir_packet: Union[IrPacket, IrPacketRequestSchema]) -> bytes:
@@ -252,7 +258,7 @@ class PacketProcessor:
 
             # Remove the packet from the database.
             await self.packets.delete_many({"hash": hv})
-            
+
             return True
 
         return False
@@ -295,7 +301,7 @@ class PacketProcessor:
         # If IR received from multiple stations in a short time, we should use consider the previous station.
         # If such time is passed between two packets, we should consider them as two different packets.
         user_object = await self.users.find_one({"user": user})
-    
+
         if user_object:
             return user_object.get("station_id")
         else:
