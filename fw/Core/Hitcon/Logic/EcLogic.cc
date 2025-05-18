@@ -178,6 +178,39 @@ bool EcPoint::onCurve(const EllipticCurve &curve) const {
          x * x * x + curve.A * x + ModNum(curve.B, x.mod) == y * y;
 }
 
+bool EcPoint::getCompactForm(uint8_t *buffer, size_t len) const {
+  // Check if the point is the identity element (point at infinity)
+  if (isInf) {
+    return false;
+  }
+
+  // The compact form includes least significant 7 byte of the x-coordinate
+  // and a sign byte.
+  // We assume the x-coordinate is lesser than 2^56, so we need 64-bit.
+  if (len < sizeof(uint64_t)) {
+    return false;  // Buffer is too small
+  }
+
+  // Copy the x-coordinate value (uint64_t) into the buffer.
+  // Note: We assume the environment is little-endian.
+  memcpy(buffer, &(x.val), sizeof(uint64_t));
+
+  uint8_t sign_bit = y.val & 1;
+
+  // The sign bit is stored in the MSB of the last byte
+  // of the output buffer. Since we copied sizeof(uint64_t) bytes, the last
+  // byte containing x-coordinate data is at index sizeof(uint64_t) - 1.
+  size_t last_byte_idx = sizeof(uint64_t) - 1;
+
+  // Clear the MSB of this byte
+  my_assert(buffer[last_byte_idx] == 0);
+
+  if (sign_bit) {
+    buffer[last_byte_idx] = 0x01;
+  }
+  return true;
+}
+
 EcPoint EcPoint::twice() const {
   ModNum l = (3 * x * x + ModNum(g_curve.A, x.mod)) / (2 * y);
   return intersect(*this, l);
@@ -271,7 +304,20 @@ void EcLogic::doVerify(void *unused) {
 }
 
 void EcLogic::doDerivePublic(void *unused) {
-  // TODO
+  my_assert(
+      privateKey !=
+      0);  // Private key must be set and non-zero for a standard public key
+  EcPoint pubPoint = g_generator * privateKey;
+
+  // Ensure the derived point is not the point at infinity
+  // A private key of 0 or a multiple of the curve order would result in
+  // infinity
+  if (!pubPoint.identity()) {
+    bool ret = pubPoint.getCompactForm(publicKey, ECC_PUBKEY_SIZE);
+    if (ret) publicKeyReady = true;
+  } else {
+    publicKeyReady = false;
+  }
 }
 
 bool EcLogic::GetPublicKey(uint8_t *buffer) {
@@ -295,6 +341,7 @@ void EcLogic::Init() {
 void EcLogic::SetPrivateKey(uint64_t privkey) {
   privateKey = privkey;
   privateKey = privateKey % g_curveOrder;
+  scheduler.Queue(&derivePublicTask, nullptr);
 }
 
 }  // namespace ecc

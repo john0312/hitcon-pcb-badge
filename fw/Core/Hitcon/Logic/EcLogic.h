@@ -63,6 +63,14 @@ class EcPoint {
    */
   bool onCurve(const EllipticCurve &curve) const;
 
+  /**
+   * Convert to compact form (x and the last byte storing 0 or 1 deciding
+   * if it's positive or negative).
+   * Output in little endian, and this can only run on little endian.
+   * len is the size of buffer. Return false if it doesn't fit.
+   */
+  bool getCompactForm(uint8_t *buffer, size_t len) const;
+
  private:
   ModNum x, y;
   bool isInf;
