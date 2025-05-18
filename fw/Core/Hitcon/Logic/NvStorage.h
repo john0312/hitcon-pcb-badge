@@ -2,7 +2,7 @@
 #define SERVICE_NV_STORAGE_H_
 
 #include <App/ShowNameApp.h>
-#include <App/tama_src/TamaApp.h>
+#include <App/TamaApp.h>
 #include <Logic/GameParam.h>
 #include <Logic/GameScore.h>
 #include <Service/FlashService.h>

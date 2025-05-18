@@ -9,7 +9,7 @@
 #include <App/HardwareTestApp.h>
 #include <App/ShowNameApp.h>
 #include <App/SnakeApp.h>
-#include <App/tama_src/TamaApp.h>
+#include <App/TamaApp.h>
 #include <Hitcon.h>
 #include <Logic/BadgeController.h>
 #include <Logic/ButtonLogic.h>
