@@ -31,7 +31,7 @@ typedef struct {
 
 class TamaApp : public App {
  private:
-  static constexpr unsigned INTERVAL = 150;
+  static constexpr unsigned INTERVAL = 1000;
   hitcon::service::sched::PeriodicTask _routine_task;
   tama_storage_t _tama_data;
   uint32_t _current_state;
