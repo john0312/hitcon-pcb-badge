@@ -175,8 +175,29 @@ class PT(enum.Enum):
             raise ValueError(f"Invalid packet type: {packet_type}")
 
         return request_response_map.get(packet_type)
-
     
+    @staticmethod
+    def get_type_name(packet_type: bytes) -> str:
+        type_name_map = {
+            PT.QTQ: "QueueTxBufferRequest",
+            PT.QTR: "QueueTxBufferResponse",
+            PT.RRQ: "RetrieveRxBufferRequest",
+            PT.RRR: "RetrieveRxBufferResponse",
+            PT.GSQ: "GetStatusRequest",
+            PT.GSR: "GetStatusResponse",
+            PT.PTQ: "PushTxBufferRequest",
+            PT.PTR: "PushTxBufferResponse",
+            PT.PRQ: "PopRxBufferRequest",
+            PT.PRR: "PopRxBufferResponse",
+            PT.SSQ: "SendStatusRequest",
+            PT.SSR: "SendStatusResponse"
+        }
+
+        if packet_type not in type_name_map:
+            raise ValueError(f"Invalid packet type: {packet_type}")
+
+        return type_name_map.get(packet_type)
+
 
 # Packet field.
 # Value is the name of the field in the packet.
@@ -199,12 +220,12 @@ class PC(enum.Enum):
 # Packet field format without preamble
 @dataclass
 class Packet:
-    packet_type: bytes = None
-    seq: bytes = None
-    packet_size_raw: bytes = None # Needs to be set to the size of the all optional fields.
-    is_success: Optional[bytes] = None
-    status: Optional[bytes] = None
-    payload: Optional[bytes] = None
+    packet_type: bytes = b''
+    seq: bytes = b''
+    packet_size_raw: bytes = b'' # Needs to be set to the size of the all optional fields.
+    is_success: Optional[bytes] = b''
+    status: Optional[bytes] = b''
+    payload: Optional[bytes] = b''
 
     fields_in_order = [PF.TYPE, PF.SEQ, PF.SIZE, PF.IS_SUCCESS, PF.STATUS, PF.PAYLOAD]
 
@@ -231,7 +252,7 @@ class Packet:
     }
 
     def get(self, field: PF) -> bytes:
-        return getattr(self, field.value, None)
+        return getattr(self, field.value, b'')
     
     def set(self, field: PF, value: bytes) -> None:
         setattr(self, field.value, value)
@@ -239,7 +260,7 @@ class Packet:
     def __bytes__(self):
         data = b''
         for b in map(lambda x: self.get(x), Packet.fields_in_order):
-            if b == None:
+            if not b:
                 continue
             if type(b) == int:
                 data += bytes([b])
@@ -249,7 +270,7 @@ class Packet:
 
     def is_valid(self) -> bool:
         for f in Packet.necessary_fields:
-            if self.get(f) == None:
+            if not self.get(f):
                 return False
         
         if self._get_optional_packet_size_from_fields() != int.from_bytes(self.packet_size_raw):
@@ -258,7 +279,7 @@ class Packet:
         return True
             
     def complete_packet_size(self) -> None:
-        self.packet_size_raw = self._get_optional_packet_size_from_fields().to_bytes()
+        self.packet_size_raw = self._get_optional_packet_size_from_fields().to_bytes(1, byteorder='big')
 
     @staticmethod
     def parse_bytes_to_packet(data: bytes, fields: list, field_size: int, packet = None):
@@ -345,12 +366,12 @@ class IrInterface:
     def __init__(self, config: Config):
         self.port = config.get(key="usb_port")
         self.baudrate = config.get(key="usb_baudrate")
-        self.usb_timeout = config.get(key="usb_timeout")
-        self.wait_timeout = config.get(key="wait_timeout")
-        self.failure_try = config.get(key="usb_failure_try")
-        self.failure_wait = config.get(key="usb_failure_wait")
-        self.packet_que_max = config.get(key="packet_que_max")
-        self.duplex = config.get(key="duplex")
+        self.usb_timeout = config.get(key="usb_timeout", default=1)
+        self.wait_timeout = config.get(key="wait_timeout", default=3)
+        self.failure_try = config.get(key="usb_failure_try", default=3)
+        self.failure_wait = config.get(key="usb_failure_wait", default=0.1)
+        self.packet_que_max = config.get(key="packet_que_max", default=1000)
+        self.duplex = config.get(key="duplex", default=True)
         self.seq_set = set()
         self.current_seq = 0
         self.waiting_que_table = {} # (PT, seq) -> asyncio.Queue
@@ -360,17 +381,7 @@ class IrInterface:
         self.badge_status: Packet = None
         self.badge = Badge()
         self.read_packet_que = asyncio.Queue(maxsize=self.packet_que_max)
-
-        try:
-            self.serial = serial.Serial(
-                port=self.port,
-                baudrate=self.baudrate,
-                timeout=self.usb_timeout,
-                write_timeout=self.usb_timeout
-            )
-        except serial.SerialException as e:
-            print(f"Failed to initialize serial port: {e}")
-            raise
+        self.serial: serial.Serial = None
 
     async def trigger_send_packet(self, data: bytes, packet_type = PT.QTQ, wait_response = True) -> bool | bytes:
         # Triggers the ir interface to send a packet.
@@ -381,17 +392,17 @@ class IrInterface:
 
         for _ in range(self.failure_try):          
             try:
-                
+
                 result: bool | Packet = await self._write_packet(data, packet_type, wait_response=wait_response)
 
                 if type(result) == Packet:
                     if result.packet_size_raw == PC.EMPTY.value:
                         return False
                     
-                    if len(result.payload) > 0:
+                    if result.payload and type(result.payload) == bytes:
                         return result.payload
                     
-                    if result.is_success == PC.SUCCESS.value and len(result.status) > 0:
+                    if result.is_success == PC.SUCCESS.value and result.status and type(result.status) == bytes:
                         return result.status
                     
                     return result.is_success == PC.SUCCESS.value
@@ -399,6 +410,10 @@ class IrInterface:
                 elif result == True:
                     return True
                 
+                # else re-send
+
+            except serial.serialutil.SerialException: # raise serial connection broken error
+                raise
             except Exception as e:
                 print(f"Error sending packet: {type(e)}, {e}")
             
@@ -413,6 +428,9 @@ class IrInterface:
             try:     
                 await self._read_until_response(self.read_packet_que)
                 return self.read_packet_que.get_nowait().payload
+            
+            except serial.serialutil.SerialException: # raise serial connection broken error
+                raise
             except Exception as e:
                 print(f"Error getting packet: {type(e)}, {e}")
 
@@ -430,7 +448,7 @@ class IrInterface:
             packet = Packet(packet_type=packet_type.value, seq=self._get_seq() if wait_response else b'\x00', payload=data)
             packet.complete_packet_size() 
 
-            logger.debug(f"Sending packet: type={packet_type}, payload={data}, packet={packet.__bytes__()}")
+            logger.debug(f"Sending packet: \ntype = {PT.get_type_name(packet_type)} \npayload = {data} \npacket = {packet.__bytes__()}")
 
             if wait_response:
                 return await self._write_packet_and_wait_for_response(packet)
@@ -451,7 +469,7 @@ class IrInterface:
         await self._write(packet.__bytes__(), lock=True)
 
         try:
-            logger.debug(f"Waiting for response: packet_type = {waiting_que_key[0]}, seq = {waiting_que_key[1]}")
+            logger.debug(f"Waiting for response: packet_type = {PT.get_type_name(waiting_que_key[0])}, seq = {waiting_que_key[1]}")
             await self._read_until_response(self.waiting_que_table[waiting_que_key])
             return self.waiting_que_table[waiting_que_key].get_nowait()
         finally:
@@ -485,19 +503,17 @@ class IrInterface:
 
     async def _read_packet(self) -> Packet:
         async with self._get_lock(read=True):
-            logger.debug("Reading")
             await self._read_until_preamble()
-            logger.debug("Reading after preamble")
             data = await self._read(Packet.get_necessary_packet_size())
             packet = Packet.parse_bytes_to_packet(data, Packet.necessary_fields, Packet.get_necessary_packet_size())
-            logger.debug(f"Received necessary packet fields: type = {PT(packet.packet_type)}, seq = {packet.seq}, size = {packet.packet_size_raw}")
+            logger.debug(f"Received necessary packet fields: \ntype = {PT.get_type_name(PT(packet.packet_type))} \nseq = {packet.seq} \nsize = {packet.packet_size_raw}")
             data = await self._read(int.from_bytes(packet.packet_size_raw))
             packet = Packet.parse_bytes_to_packet(data, Packet.optional_fields[PT(packet.packet_type)], int.from_bytes(packet.packet_size_raw), packet=packet)
             
         if not packet.is_valid():
             raise ValueError("Received invalid packet")
-        
-        logger.debug(f"Received packet: type = {PT(packet.packet_type)}, payload = {packet.payload}, packet = {packet.__bytes__()}")
+
+        logger.debug(f"Received packet: \ntype = {PT.get_type_name(PT(packet.packet_type))} \npayload = {packet.payload} \npacket = {packet.__bytes__()}")
         return packet
 
     def _response(self, packet: Packet) -> None:
@@ -534,13 +550,13 @@ class IrInterface:
         seq_limit = 2 ** (8 * Packet.field_size[PF.SEQ])
         for _ in range(seq_limit):
             self.current_seq = (self.current_seq + 1) % seq_limit
-            if self.current_seq.to_bytes() not in self.seq_set:
+            if self.current_seq.to_bytes(1, byteorder='big') not in self.seq_set:
                 break
         else:
             raise RuntimeError("No available sequence numbers")
 
-        self.seq_set.add(self.current_seq.to_bytes())
-        return self.current_seq.to_bytes()
+        self.seq_set.add(self.current_seq.to_bytes(1, byteorder='big'))
+        return self.current_seq.to_bytes(1, byteorder='big')
 
 
     def _remove_seq(self, seq: bytes):
@@ -559,7 +575,6 @@ class IrInterface:
             byte = b''
             while True:
                 byte += await self._read(plen - len(byte))
-                logger.debug(f"Read preamble: data={byte}, preamble={PC.PREAMBLE.value}, is_preamble={byte == PC.PREAMBLE.value}")
                 if byte == PC.PREAMBLE.value:
                     logger.debug("Successfully read preamble")
                     return True
@@ -591,12 +606,11 @@ class IrInterface:
 
         written_len = 0
 
-        with self.serial as s:
-            if lock:
-                async with self._get_lock(read=False):
-                    written_len = await asyncio.wait_for(asyncio.to_thread(self.serial.write, PC.PREAMBLE.value + data), timeout=None)
-            else:
+        if lock:
+            async with self._get_lock(read=False):
                 written_len = await asyncio.wait_for(asyncio.to_thread(self.serial.write, PC.PREAMBLE.value + data), timeout=None)
+        else:
+            written_len = await asyncio.wait_for(asyncio.to_thread(self.serial.write, PC.PREAMBLE.value + data), timeout=None)
 
         if written_len != len(PC.PREAMBLE.value + data):
             raise WriteDataIncompleteError(len(PC.PREAMBLE.value + data), written_len)
@@ -607,15 +621,13 @@ class IrInterface:
     async def _read(self, size: int, lock = False) -> bytes:
         if size <= 0:
             return b''
-        logger.debug(f"Read: size={size}")
         data = b''
         
-        with self.serial as s:
-            if lock:
-                async with self._get_lock(read=True):
-                    data = await asyncio.wait_for(asyncio.to_thread(self.serial.read, size), timeout=None)
-            else:
+        if lock:
+            async with self._get_lock(read=True):
                 data = await asyncio.wait_for(asyncio.to_thread(self.serial.read, size), timeout=None)
+        else:
+            data = await asyncio.wait_for(asyncio.to_thread(self.serial.read, size), timeout=None)
 
         if len(data) == 0:
             logger.debug(f"No data Received")
@@ -623,17 +635,50 @@ class IrInterface:
             logger.debug(f"Successfully read data {data}")
 
         return data
-                
-        
-    def __del__(self):
-        if hasattr(self, 'serial') and self.serial and self.serial.is_open:
-            self.serial.close()
+
+    async def __aenter__(self):
+        try:
+            self.serial = await asyncio.wait_for(asyncio.to_thread(serial.Serial,
+                port=self.port,
+                baudrate=self.baudrate,
+                timeout=self.usb_timeout,
+                write_timeout=self.usb_timeout
+            ), timeout=self.usb_timeout)
+            return self
+        except serial.SerialException as e:
+            raise RuntimeError(f"Failed to initialize serial port: {e}")
+        except asyncio.TimeoutError as e:
+            raise RuntimeError("Timeout while initializing serial port: {e}")
+            
+
+    async def __aexit__(self, exc_type, exc_val, exc_tb):
+        if self.serial is not None:
+            try:
+                await asyncio.to_thread(self.serial.close)
+                await asyncio.sleep(0)
+            except Exception as e:
+                logger.error(f"Error closing serial port: {e}")
+            finally:
+                self.serial = None
+
+
+async def test():
+    async with IrInterface(config=config) as ir:
+        print("Test QTQ response:", await ir.trigger_send_packet(b'123', wait_response=True))
+        print("Listening:")
+        while 1:
+            result = await ir.get_next_packet()
+            if result:
+                print(result)
+            await asyncio.sleep(1)
+
 
 
 if __name__ == '__main__':
     config = Config("config.yaml")
-    ir = IrInterface(config=config)
-    asyncio.run(ir.trigger_send_packet(b'123', wait_response=True))
+    asyncio.run(test())
+    
+        
     
 
 
