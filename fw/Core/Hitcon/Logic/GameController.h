@@ -2,6 +2,7 @@
 #define HITCON_LOGIC_GAME_CONTROLLER_H_
 
 #include <Service/PerBoardData.h>
+#include <Service/Sched/Scheduler.h>
 #include <stdint.h>
 
 namespace hitcon {
@@ -29,6 +30,9 @@ class GameController {
   uint8_t
       privkey_src_[PerBoardData::kSecretLen + sizeof(PRIVATE_KEY_SRC_PREFIX)];
 
+  hitcon::service::sched::PeriodicTask routine_task;
+
+  bool TrySendPubAnnounce();
   void OnPrivKeyHashFinish(void* arg2);
   void RoutineFunc();
 };
