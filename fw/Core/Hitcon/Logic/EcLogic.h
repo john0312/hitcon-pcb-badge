@@ -1,14 +1,12 @@
 #ifndef SERVICE_EC_LOGIC_H_
 #define SERVICE_EC_LOGIC_H_
+#include <Service/EcParams.h>
 #include <Service/Sched/Task.h>
 #include <Util/callback.h>
 #include <stdint.h>
 #include <stdlib.h>
 
 namespace hitcon {
-
-constexpr size_t ECC_SIGNATURE_SIZE = 14;
-constexpr size_t ECC_PUBKEY_SIZE = 8;
 
 namespace ecc {
 

@@ -3,6 +3,7 @@
 
 #include <Logic/EcLogic.h>
 #include <Logic/IrLogic.h>
+#include <Service/EcParams.h>
 #include <Service/IrService.h>
 #include <Service/Sched/PeriodicTask.h>
 #include <Service/Sched/Scheduler.h>
