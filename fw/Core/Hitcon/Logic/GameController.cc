@@ -30,7 +30,7 @@ void GameController::RoutineFunc() {
            sizeof(PRIVATE_KEY_SRC_PREFIX));
     memcpy(&privkey_src_[sizeof(PRIVATE_KEY_SRC_PREFIX)],
            g_per_board_data.GetPerBoardSecret(), PerBoardData::kSecretLen);
-    bool ret = g_hash_service.StartHash(
+    bool ret = hitcon::hash::g_hash_service.StartHash(
         privkey_src_, sizeof(PRIVATE_KEY_SRC_PREFIX) + PerBoardData::kSecretLen,
         (service::sched::task_callback_t)&GameController::OnPrivKeyHashFinish,
         this);

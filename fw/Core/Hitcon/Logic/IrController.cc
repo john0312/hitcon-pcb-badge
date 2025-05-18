@@ -149,7 +149,7 @@ void IrController::MaintainQueued() {
       // Waiting for hash processor to be available.
       if (current_hashing_slot == -1) {
         // Start hashing the payload.
-        bool ret = hitcon::g_hash_service.StartHash(
+        bool ret = hitcon::hash::g_hash_service.StartHash(
             pckt_data, pckt_size, (callback_t)&IrController::OnPacketHashResult,
             this);
         if (ret) {
