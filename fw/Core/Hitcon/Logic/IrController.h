@@ -80,7 +80,8 @@ struct TwoBadgeActivityPacket {
 // This packet is from the base station, telling user their score.
 struct ScoreAnnouncePacket {
   uint8_t user[IR_USERNAME_LEN];
-  uint32_t score;
+  uint8_t score[4];  // Little Endian 32-bit int. We use uint8_t here to avoid
+                     // alignment issues.
   uint8_t sig[ECC_SIGNATURE_SIZE];
 };
 
@@ -104,9 +105,12 @@ struct SponsorActivityPacket {
 };
 
 /*Definition of IR content.*/
+constexpr size_t IR_DATA_HEADER_SIZE = 2;
 struct IrData {
   uint8_t ttl;
   packet_type type;
+  // WARNING: Be extra careful about alignment of all struct below, they MUST be
+  // made of uint8_t to avoid padding introduced by compiler.
   union {
     struct GamePacket game;
     struct ShowPacket show;

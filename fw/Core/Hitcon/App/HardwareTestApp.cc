@@ -118,9 +118,8 @@ void HardwareTestApp::OnButton(button_t button) {
 
         _ir_data.ttl = 0;
         _ir_data.type = packet_type::kTest;
-        _ir_data_len = IR_TEST_LEN;
-        irLogic.SendPacket(reinterpret_cast<uint8_t*>(&_ir_data),
-                           sizeof(_ir_data) / sizeof(uint8_t));
+        _ir_data_len = IR_DATA_HEADER_SIZE + IR_TEST_LEN;
+        irLogic.SendPacket(reinterpret_cast<uint8_t*>(&_ir_data), _ir_data_len);
       }
       break;
   }
