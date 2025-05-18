@@ -60,7 +60,6 @@ void CdcLogic::OnDataReceived(uint8_t* data, size_t len) {
   if (next_prod_head == cons_head) {
     return;
   }
-  for (int _ = 0; _ < HEADER_SZ; ++_);
   if (next_prod_head < prod_head) {
     size_t sz1 = BUF_CAPACITY - prod_head;
     memcpy(buf + prod_head, data, sz1);
