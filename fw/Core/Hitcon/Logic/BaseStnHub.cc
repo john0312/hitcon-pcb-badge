@@ -75,17 +75,31 @@ void BaseStationHub::Routine(void*) {
     auto& buffer = tx_buffer;
     auto& status = reinterpret_cast<BufferMeta&>(buffer[i * kBufferSize]);
     if (!status.locked) continue;
-    IrData irdata = {
-        .ttl = 0,
-    };
-    memcpy(&irdata.type, &buffer[i * kBufferSize], status.length);
-    bool success =
-        irLogic.SendPacket(reinterpret_cast<uint8_t*>(&irdata), status.length);
+    auto irdata = &buffer[i * kBufferSize + 1];
+    bool success = irLogic.SendPacket(irdata, status.length);
     // release if sent successfully
     if (success) {
       status.locked = 0;
     }
     // sent at most one buffer each routine
+    break;
+  }
+
+  // try to read rx buffer
+  for (uint8_t i = 0; i < kBufferCount; i++) {
+    auto& buffer = rx_buffer;
+    auto& status = reinterpret_cast<BufferMeta&>(buffer[i * kBufferSize]);
+    if (!status.locked) continue;
+    uint8_t cdc_pkt[HEADER_SZ + kBufferSize] = {0};
+    auto cdc_hdr = reinterpret_cast<PktHdr*>(cdc_pkt);
+    cdc_hdr->type = 5;
+    cdc_hdr->len = status.length;
+    memcpy(cdc_pkt + HEADER_SZ, &buffer[i * kBufferSize + 1], status.length);
+    bool sent = g_cdc_logic.SendPacket(cdc_pkt);
+    // release after reading
+    if (sent) {
+      status.locked = 0;
+    }
     break;
   }
 }

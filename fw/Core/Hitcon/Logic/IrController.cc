@@ -67,13 +67,11 @@ void IrController::OnPacketReceived(void* arg) {
     case packet_type::kShow:
       scheduler.Queue(&showtext_task, &data->show);
       break;
-    // I am not sure what type to send to the base station.
-    // size and data are not sure neither. Maybe fixme later.
-    case packet_type::kAcknowledge:
-      hitcon::basestn::g_basestn_hub.OnIrPacketRecv(
-          reinterpret_cast<uint8_t*>(data), packet->size_);
-      break;
   }
+
+  // forward all packets to the base station hub
+  hitcon::basestn::g_basestn_hub.OnIrPacketRecv(
+      reinterpret_cast<uint8_t*>(data), packet->size_);
 }
 
 int IrController::prob_f(int lf) { return v[0] * lf * lf + v[1] * lf + v[2]; }
