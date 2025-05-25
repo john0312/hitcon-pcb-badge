@@ -4,6 +4,7 @@ usb_port: /dev/ttyACM0
 usb_baudrate: 115200
 usb_timeout: 1
 wait_timeout: 3
+packet_stay_timeout: 0.3
 usb_failure_try: 3
 usb_failure_wait: 0.1
 packet_que_max: 1000

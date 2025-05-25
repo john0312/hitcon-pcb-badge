@@ -2,56 +2,6 @@
 
 """
 USB Serial Commands:
-PacketSize - 1 byte. If 0, hardware side should respond with another 0, this is for sync-ing.
-PacketSequence - 1 byte. A random byte to denote which response maps to which request.
-    The response should have the same packet sequence as the request.
-PacketType - 1 byte
-    * 0x01 for QueueTxBufferRequest
-    * 0x81 for QueueTxBufferResponse
-    * 0x02 for RetrieveRxBufferRequest
-    * 0x82 for RetrieveRxBufferResponse
-    * 0x03 for GetStatusRequest
-    * 0x83 for GetStatusResponse
-    * 0x04 for SendStatusRequest
-    * 0x84 for SendStatusResponse
-
-PacketData - x bytes
-
-QueueTxBufferRequest: (Computer to Badge)
-x bytes - The entire buffer data to queue for transmit.
-
-QueueTxBufferResponse: (Badge to Computer)
-1 byte - 0x01 for buffer full, 0x02 for success.
-
-RetrieveRxBufferRequest: (Computer to Badge)
-None
-
-RetrieveRxBufferResponse: (Badge to Computer)
-1 byte - 0x01 for buffer empty, 0x02 for success.
-x bytes for the entire buffer received.
-
-GetStatusRequest: (Computer to Badge)
-None
-
-GetStatusResponse: (Badge to Computer)
-1 byte - 0x00 for failure, 0x01 for success.
-1 byte - Status:
-            * 0x01: Set for ready to transmit, a transmit buffer is empty and available.
-            * 0x02: Set for ready to receive, a received buffer has been populated with received packet.
-
-SendStatusRequest: (Badge to Computer)
-1 byte - The status, same as above.
-
-SendStatusResponse: (Computer to Badge)
-None
-
-"""
-
-class IrInterface:
-    def __init__(self):
-        pass
-
-USB Serial Commands:
 
 Necessary Fields:
 Preamble - 8 bytes. 0xD5 0x55 0x55 0x55 0x55 0x55 0x55 0x55
@@ -361,6 +311,39 @@ class WriteDataIncompleteError(Exception):
         
     def __str__(self):
         return f"Writing data incomplete: expect writing data size={self.expect_len}, but result data size={self.result_len}"
+    
+class PacketQue:
+    def __init__(self, maxsize: int = 1000, stay_timeout = 0.3):
+        self.que = list()
+        self.maxsize = maxsize
+        self.stay_timeout = stay_timeout
+        self.lock = asyncio.Lock()
+
+    async def put(self, packet: bytes):
+        async with self.lock:
+            current_time = time.time()
+
+            while len(self.que) != 0:
+                if self.que[0][0] == packet:
+                    self.que.pop(0)
+                    return False
+                elif (current_time - self.que[0][1]) < self.stay_timeout:
+                    break
+
+                self.que.pop(0)  # Remove the oldest packet
+
+            for i in range(1, len(self.que)):
+                if self.que[i][0] == packet:
+                    self.que.pop(i)
+                    return False
+                
+            if len(self.que) >= self.maxsize:
+                logger.debug(f"Packet queue is full, dropping oldest packet: {self.que[0][0]}")
+                self.que.pop(0)
+                
+            self.que.append((packet, current_time))
+            return True
+        
 
 class IrInterface:
     def __init__(self, config: Config):
@@ -382,6 +365,8 @@ class IrInterface:
         self.badge = Badge()
         self.read_packet_que = asyncio.Queue(maxsize=self.packet_que_max)
         self.serial: serial.Serial = None
+        self.send_payload_buffer = dict() # payload -> send time
+        self.recv_packet_que = PacketQue(maxsize=self.packet_que_max, stay_timeout=config.get(key="packet_stay_timeout", default=0.3))
 
     async def trigger_send_packet(self, data: bytes, packet_type = PT.QTQ, wait_response = True) -> bool | bytes:
         # Triggers the ir interface to send a packet.
@@ -395,19 +380,24 @@ class IrInterface:
 
                 result: bool | Packet = await self._write_packet(data, packet_type, wait_response=wait_response)
 
-                if type(result) == Packet:
-                    if result.packet_size_raw == PC.EMPTY.value:
+                if packet_type == PT.QTQ and (result == True or (type(result) == Packet and result.is_success == PC.SUCCESS.value)):
+                    # If QueueTxBufferRequest is sent successfully, update the send_payload_buffer
+                    self.send_payload_buffer[data] = time.time()
+
+                if type(result) == Packet: # wait response case
+
+                    if result.packet_size_raw == PC.EMPTY.value: # RetrieveRxBufferRequest case
                         return False
                     
-                    if result.payload and type(result.payload) == bytes:
+                    if result.payload and type(result.payload) == bytes: # RetrieveRxBufferRequest case
                         return result.payload
                     
-                    if result.is_success == PC.SUCCESS.value and result.status and type(result.status) == bytes:
+                    if result.is_success == PC.SUCCESS.value and result.status and type(result.status) == bytes: # GetStatusRequest case
                         return result.status
                     
-                    return result.is_success == PC.SUCCESS.value
+                    return result.is_success == PC.SUCCESS.value # QueueTxBufferRequest case
                 
-                elif result == True:
+                elif result == True: # no wait response case
                     return True
                 
                 # else re-send
@@ -426,9 +416,12 @@ class IrInterface:
         # Wait until the next packet arrives, then return its raw data.    
         for _ in range(self.failure_try):
             try:     
-                await self._read_until_response(self.read_packet_que)
-                return self.read_packet_que.get_nowait().payload
-            
+                while True:
+                    await self._read_until_response(self.read_packet_que)
+                    data = self.read_packet_que.get_nowait().payload
+                    if await self.recv_packet_que.put(data):
+                        return data
+
             except serial.serialutil.SerialException: # raise serial connection broken error
                 raise
             except Exception as e:
@@ -664,12 +657,15 @@ class IrInterface:
 
 async def test():
     async with IrInterface(config=config) as ir:
-        print("Test QTQ response:", await ir.trigger_send_packet(b'123', wait_response=True))
+        print("Test QTQ response:", await ir.trigger_send_packet(b'123'))
         print("Listening:")
         while 1:
             result = await ir.get_next_packet()
             if result:
                 print(result)
+
+            if result == b'\x00\x05H\x02\x8b\x0f\x7f]\x8f\x00\\\xfc\xca$\xbb\xe98\xae\x02\x128\xa2\xf5H':
+                await ir.trigger_send_packet(b'\x00\x03\xac`7Nc\xfe')
             await asyncio.sleep(1)
 
 
