@@ -71,7 +71,7 @@ void IrController::OnPacketReceived(void* arg) {
 
   // forward all packets to the base station hub
   hitcon::basestn::g_basestn_hub.OnIrPacketRecv(
-      reinterpret_cast<uint8_t*>(data), packet->size_);
+      reinterpret_cast<uint8_t*>(data), packet->size_ - 1);
 }
 
 int IrController::prob_f(int lf) { return v[0] * lf * lf + v[1] * lf + v[2]; }
