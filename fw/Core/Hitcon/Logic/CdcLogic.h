@@ -45,8 +45,11 @@ class CdcLogic {
   // Returns:
   // - true if the packet is sent successfully
   bool SendPacket(uint8_t *data);
+  // set an auto increment sequence number for the packet
+  void SetSeq(PktHdr *pkt_hdr);
 
  private:
+  uint8_t auto_seq = 0;
   uint16_t prod_head = 0;
   uint16_t cons_head = 0;
   uint8_t buf[BUF_CAPACITY] = {0};

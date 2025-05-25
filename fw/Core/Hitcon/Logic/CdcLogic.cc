@@ -31,6 +31,11 @@ bool CdcLogic::SendPacket(uint8_t* data) {
   return g_cdc_service.Send(data, HEADER_SZ + header->len);
 }
 
+void CdcLogic::SetSeq(PktHdr* pkt_hdr) {
+  // set auto increment sequence number
+  pkt_hdr->id = auto_seq++;
+}
+
 void CdcLogic::SetOnPacketArrive(callback_t callback, void* self,
                                  FnId handler_id) {
   packet_arrive_cbs[handler_id] = {callback, self};

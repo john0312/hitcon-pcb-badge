@@ -123,6 +123,7 @@ void BaseStationHub::SendToBaseStation() {
   cdc_hdr->type = 5;  // PopRxBufferRequest
   cdc_hdr->len = status.length;
   memcpy(cdc_pkt + HEADER_SZ, &buffer[idx * kBufferSize + 1], status.length);
+  g_cdc_logic.SetSeq(cdc_hdr);
   bool sent = g_cdc_logic.SendPacket(cdc_pkt);
   // release if sent successfully
   if (sent) {
