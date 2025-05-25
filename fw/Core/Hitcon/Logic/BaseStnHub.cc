@@ -27,12 +27,20 @@ bool BaseStationHub::WriteBuffer(BufferType buffer_type, uint8_t* data,
     return false;
   }
   auto& buffer = buffer_type == BufferType::RX ? rx_buffer : tx_buffer;
+  auto& queue = buffer_type == BufferType::RX ? rxq : txq;
+  // remove the oldest buffer if the queue is full
+  if (queue.IsFull()) {
+    auto idx = queue.Front();
+    buffer[idx * kBufferSize] = 0;
+    queue.PopFront();
+  }
   for (uint8_t i = 0; i < kBufferCount; i++) {
     auto& status = reinterpret_cast<BufferMeta&>(buffer[i * kBufferSize]);
     if (status.locked) continue;
     status.locked = 1;
     status.length = cnt;
     memcpy(&buffer[i * kBufferSize + 1], data, cnt);
+    queue.PushBack(i);
     return true;
   }
   return false;
@@ -41,16 +49,24 @@ bool BaseStationHub::WriteBuffer(BufferType buffer_type, uint8_t* data,
 bool BaseStationHub::ReadBuffer(BufferType buffer_type, uint8_t* data,
                                 size_t& cnt) {
   auto& buffer = buffer_type == BufferType::RX ? rx_buffer : tx_buffer;
-  for (uint8_t i = 0; i < kBufferCount; i++) {
-    auto& status = reinterpret_cast<BufferMeta&>(buffer[i * kBufferSize]);
-    if (!status.locked) continue;
-    if (status.length > cnt) continue;
-    status.locked = 0;
-    memcpy(data, &buffer[i * kBufferSize + 1], status.length);
-    cnt = status.length;
-    return true;
+  auto& queue = buffer_type == BufferType::RX ? rxq : txq;
+  if (queue.IsEmpty()) {
+    cnt = 0;
+    return false;
   }
-  return false;
+  auto idx = queue.Front();
+  auto& status = reinterpret_cast<BufferMeta&>(buffer[idx * kBufferSize]);
+  if (!status.locked || status.length > cnt) {
+    cnt = 0;
+    status.locked = 0;
+    queue.PopFront();
+    return false;
+  }
+  memcpy(data, &buffer[idx * kBufferSize + 1], status.length);
+  cnt = status.length;
+  status.locked = 0;
+  queue.PopFront();
+  return true;
 }
 
 void BaseStationHub::OnIrPacketRecv(uint8_t* data, size_t cnt) {
@@ -69,39 +85,55 @@ void BaseStationHub::QueueTxHandler(PacketCallbackArg* arg) {
   g_cdc_logic.SendPacket(buffer);
 }
 
-void BaseStationHub::Routine(void*) {
+void BaseStationHub::SendToIr() {
   // try to send ir
-  for (uint8_t i = 0; i < kBufferCount; i++) {
-    auto& buffer = tx_buffer;
-    auto& status = reinterpret_cast<BufferMeta&>(buffer[i * kBufferSize]);
-    if (!status.locked) continue;
-    auto irdata = &buffer[i * kBufferSize + 1];
-    bool success = irLogic.SendPacket(irdata, status.length);
-    // release if sent successfully
-    if (success) {
-      status.locked = 0;
-    }
-    // sent at most one buffer each routine
-    break;
+  auto& buffer = tx_buffer;
+  auto& queue = txq;
+  if (queue.IsEmpty()) return;
+  auto idx = queue.Front();
+  auto& status = reinterpret_cast<BufferMeta&>(buffer[idx * kBufferSize]);
+  if (!status.locked) {
+    // already released
+    queue.PopFront();
+    return;
   }
+  auto irdata = &buffer[idx * kBufferSize + 1];
+  bool success = irLogic.SendPacket(irdata, status.length);
+  // release if sent successfully
+  if (success) {
+    queue.PopFront();
+    status.locked = 0;
+  }
+}
 
-  // try to read rx buffer
-  for (uint8_t i = 0; i < kBufferCount; i++) {
-    auto& buffer = rx_buffer;
-    auto& status = reinterpret_cast<BufferMeta&>(buffer[i * kBufferSize]);
-    if (!status.locked) continue;
-    uint8_t cdc_pkt[HEADER_SZ + kBufferSize] = {0};
-    auto cdc_hdr = reinterpret_cast<PktHdr*>(cdc_pkt);
-    cdc_hdr->type = 5;
-    cdc_hdr->len = status.length;
-    memcpy(cdc_pkt + HEADER_SZ, &buffer[i * kBufferSize + 1], status.length);
-    bool sent = g_cdc_logic.SendPacket(cdc_pkt);
-    // release after reading
-    if (sent) {
-      status.locked = 0;
-    }
-    break;
+void BaseStationHub::SendToBaseStation() {
+  // try to send to base station
+  auto& buffer = rx_buffer;
+  auto& queue = rxq;
+  if (queue.IsEmpty()) return;
+  auto idx = queue.Front();
+  auto& status = reinterpret_cast<BufferMeta&>(buffer[idx * kBufferSize]);
+  if (!status.locked) {
+    // already released
+    queue.PopFront();
+    return;
   }
+  uint8_t cdc_pkt[HEADER_SZ + kBufferSize] = {0};
+  auto cdc_hdr = reinterpret_cast<PktHdr*>(cdc_pkt);
+  cdc_hdr->type = 5;  // PopRxBufferRequest
+  cdc_hdr->len = status.length;
+  memcpy(cdc_pkt + HEADER_SZ, &buffer[idx * kBufferSize + 1], status.length);
+  bool sent = g_cdc_logic.SendPacket(cdc_pkt);
+  // release if sent successfully
+  if (sent) {
+    status.locked = 0;
+    queue.PopFront();
+  }
+}
+
+void BaseStationHub::Routine(void*) {
+  SendToIr();
+  SendToBaseStation();
 }
 
 }  // namespace basestn

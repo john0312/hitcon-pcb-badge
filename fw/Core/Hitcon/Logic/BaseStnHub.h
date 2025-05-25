@@ -4,8 +4,9 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#include "Service/Sched/Scheduler.h"
 #include "CdcLogic.h"
+#include "Service/Sched/Scheduler.h"
+#include "Util/CircularQueue.h"
 
 namespace hitcon {
 namespace basestn {
@@ -63,12 +64,15 @@ class BaseStationHub {
   // Each buffer is 33 bytes, 1 byte for status and 32 byte for data.
   uint8_t rx_buffer[kTotalBufferSize] = {0};
   uint8_t tx_buffer[kTotalBufferSize] = {0};
+  CircularQueue<uint8_t, kBufferCount> rxq;
+  CircularQueue<uint8_t, kBufferCount> txq;
 
   hitcon::service::sched::PeriodicTask _routine_task;
   void QueueTxHandler(hitcon::logic::cdc::PacketCallbackArg* arg);
 
-  // try to send ir from buffer
-  void Routine(void *);
+  void Routine(void*);
+  void SendToIr();
+  void SendToBaseStation();
 };
 
 extern BaseStationHub g_basestn_hub;
