@@ -1,4 +1,6 @@
 #include <Logic/EcLogic.h>
+#include <Logic/RandomPool.h>
+#include <Service/HashService.h>
 #include <Service/PerBoardData.h>
 #include <Service/Sched/Scheduler.h>
 
@@ -7,6 +9,7 @@
 using namespace hitcon::service::sched;
 using namespace hitcon::ecc::internal;
 using namespace hitcon::ecc;
+using namespace hitcon::hash;
 
 namespace hitcon {
 
@@ -224,20 +227,13 @@ EcPoint EcPoint::intersect(const EcPoint &other, const ModNum &l) const {
 
 }  // namespace internal
 
-uint64_t computeHash(uint8_t const *message, uint32_t len) {
-  // TODO: call the sha3 api
-  return 0xcafebabedeadbeef;
-}
-
-uint64_t getRandValue() {
-  // TODO: call the random api
-  return 0xdeadbeefcafebabe;
-}
-
 bool EcLogic::StartSign(uint8_t const *message, uint32_t len,
                         callback_t callback, void *callbackArg1) {
   if (busy) return false;
-  if (!scheduler.Queue(&signTask, nullptr)) return false;
+  if (!g_secure_random_pool.GetRandom(&tmpRandValue)) return false;
+  if (!g_hash_service.StartHash(message, len, (callback_t)&EcLogic::doSign,
+                                this))
+    return false;
   busy = true;
   this->callback = callback;
   this->callback_arg1 = callbackArg1;
@@ -250,7 +246,9 @@ bool EcLogic::StartVerify(uint8_t const *message, uint32_t len,
                           const Signature &signature, callback_t callback,
                           void *callbackArg1) {
   if (busy) return false;
-  if (!scheduler.Queue(&verifyTask, nullptr)) return false;
+  if (!g_hash_service.StartHash(message, len, (callback_t)&EcLogic::doVerify,
+                                this))
+    return false;
   busy = true;
   this->callback = callback;
   this->callback_arg1 = callbackArg1;
@@ -260,14 +258,13 @@ bool EcLogic::StartVerify(uint8_t const *message, uint32_t len,
   return true;
 }
 
-void EcLogic::doSign(void *unused) {
-  my_assert(privateKey != 0);  // Need to configure key first.
-  uint64_t z = computeHash(savedMessage, savedMessageLen);
+void EcLogic::doSign(HashResult *hashResult) {
+  uint64_t z = *(uint64_t *)hashResult->digest;
   ModNum r(0, g_curveOrder), s(0, g_curveOrder);
   while (s == 0) {
     ModNum k(0, g_curveOrder);
     while (r == 0) {
-      k = getRandValue();
+      k = tmpRandValue;
       EcPoint P = g_generator * k.val;
       r = P.xval();
     }
@@ -276,11 +273,15 @@ void EcLogic::doSign(void *unused) {
   tmpSignature.pub = g_generator * privateKey;
   tmpSignature.r = r.val;
   tmpSignature.s = s.val;
-  callback(callback_arg1, &tmpSignature);
+  scheduler.Queue(&finalizeTask, &tmpSignature);
+}
+
+void EcLogic::finalizeSignVerif(void *result) {
+  callback(callback_arg1, result);
   busy = false;
 }
 
-void EcLogic::doVerify(void *unused) {
+void EcLogic::doVerify(HashResult *hashResult) {
   bool isValid = true;
 
   if (!tmpSignature.pub.onCurve(g_curve)) isValid = false;
@@ -291,7 +292,7 @@ void EcLogic::doVerify(void *unused) {
     isValid = false;
 
   if (isValid) {
-    ModNum z(computeHash(savedMessage, savedMessageLen), g_curveOrder);
+    ModNum z(*(uint64_t *)hashResult->digest, g_curveOrder);
     ModNum u1 = z / ModNum(tmpSignature.s, g_curveOrder);
     ModNum u2 = ModNum(tmpSignature.r, g_curveOrder) /
                 ModNum(tmpSignature.s, g_curveOrder);
@@ -299,8 +300,7 @@ void EcLogic::doVerify(void *unused) {
     isValid = P.xval() == tmpSignature.r;
   }
 
-  callback(callback_arg1, (void *)isValid);
-  busy = false;
+  scheduler.Queue(&finalizeTask, (void *)isValid);
 }
 
 void EcLogic::doDerivePublic(void *unused) {
@@ -331,6 +331,8 @@ EcLogic::EcLogic()
     : privateKey(0), publicKeyReady(0),
       signTask(800, (task_callback_t)&EcLogic::doSign, (void *)this),
       verifyTask(800, (task_callback_t)&EcLogic::doVerify, (void *)this),
+      finalizeTask(800, (task_callback_t)&EcLogic::finalizeSignVerif,
+                   (void *)this),
       derivePublicTask(900, (task_callback_t)&EcLogic::doDerivePublic,
                        (void *)this) {}
 

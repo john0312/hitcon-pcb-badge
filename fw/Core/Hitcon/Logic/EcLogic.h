@@ -1,6 +1,7 @@
 #ifndef SERVICE_EC_LOGIC_H_
 #define SERVICE_EC_LOGIC_H_
 #include <Service/EcParams.h>
+#include <Service/HashService.h>
 #include <Service/Sched/Task.h>
 #include <Util/callback.h>
 #include <stdint.h>
@@ -139,8 +140,8 @@ class EcLogic {
    * @param len: length of message, has to be a multiple of 8
    * @param signature: Signature object
    * @param callback: callback function to call when verification is complete.
-   *                  the second argument to callback is whether the message is
-   *                  valid.
+   *                  the second argument to callback is a boolean value
+   *                  indicating whether the message is valid.
    * @param callbackArg1: the first argument to the callback. Normally a pointer
    * to "this" if the callback is a method, and nullptr if the callback is a
    * function.
@@ -158,6 +159,10 @@ class EcLogic {
    * be set to false.
    */
   bool busy;
+  /**
+   * Temporary storage of the random value used for sig generation.
+   */
+  uint64_t tmpRandValue;
   /**
    * Temporary storage of signature.
    * For the signing process, the data only lives since the signature completes
@@ -187,15 +192,19 @@ class EcLogic {
 
   /**
    * Actual function to perform the sign.
+   */
+  void doSign(hitcon::hash::HashResult *hashResult);
+
+  /**
+   * Finalize the sign / verify process, call the user-defined callback.
    * Marks this API as not busy once the function returns.
    */
-  void doSign(void *unused);
+  void finalizeSignVerif(void *result);
 
   /**
    * Actual function to perform the verification.
-   * Marks this API as not busy once the function returns.
    */
-  void doVerify(void *unused);
+  void doVerify(hitcon::hash::HashResult *hashResult);
 
   /**
    * Compute the public key from private key.
@@ -207,6 +216,7 @@ class EcLogic {
 
   service::sched::Task signTask;
   service::sched::Task verifyTask;
+  service::sched::Task finalizeTask;
   service::sched::Task derivePublicTask;
 };
 
