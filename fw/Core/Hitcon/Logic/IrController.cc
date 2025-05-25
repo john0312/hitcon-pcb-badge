@@ -91,11 +91,14 @@ void IrController::RoutineTask(void* unused) {
   MaintainQueued();
 }
 
-void IrController::OnPacketHashResult(void* hash_result) {
+void IrController::OnPacketHashResult(void* arg_ptr) {
   my_assert(current_hashing_slot != -1);
   my_assert(current_hashing_slot < RETX_QUEUE_SIZE);
-  memcpy(&(queued_packets_[current_hashing_slot].hash[0]), hash_result,
+  hitcon::hash::HashResult* hash_result =
+      reinterpret_cast<hitcon::hash::HashResult*>(arg_ptr);
+  memcpy(&(queued_packets_[current_hashing_slot].hash[0]), hash_result->digest,
          PACKET_HASH_LEN);
+  my_assert(PACKET_HASH_LEN <= hash_result->size);
   uint8_t status = queued_packets_[current_hashing_slot].status;
   // Update status to Waiting for IrController's tx slot
   status = (status & (~kRetransmitStatusMask)) | kRetransmitStatusWaitTxSlot;
