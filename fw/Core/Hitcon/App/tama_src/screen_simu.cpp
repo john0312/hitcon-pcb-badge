@@ -21,12 +21,12 @@ typedef struct COMPONENT_INFO {
   int y_len;
 } component_info;
 
-using hitcon::app::tama::screens::m_cat_idle1;
-using hitcon::app::tama::screens::m_cat_idle2;
-using hitcon::app::tama::screens::m_dog_idle1;
-using hitcon::app::tama::screens::m_dog_idle2;
-using hitcon::app::tama::screens::m_select_cursor;
-using hitcon::app::tama::screens::m_select_print_all_character;
+using hitcon::app::tama::components::m_cat_idle1;
+using hitcon::app::tama::components::m_cat_idle2;
+using hitcon::app::tama::components::m_dog_idle1;
+using hitcon::app::tama::components::m_dog_idle2;
+using hitcon::app::tama::components::m_select_cursor;
+using hitcon::app::tama::components::m_select_print_all_character;
 
 /**
  * @brief The function of stack const component onto a base layer
