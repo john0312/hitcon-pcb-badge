@@ -15,7 +15,7 @@ from io import BytesIO
 from game_logic_controller import GameLogicController
 
 class PacketProcessor:
-    packet_handlers: ClassVar[Dict[type[Event], Callable[[Event], Awaitable[None]]]] = dict()
+    packet_handlers: ClassVar[Dict[type[Event], Callable[[Event], Awaitable[Union[None, int]]]]] = dict()
 
     def __init__(self, config: Config):
         self.config = config
@@ -86,11 +86,30 @@ class PacketProcessor:
             {"$push": {"rx": result.inserted_id}}
         )
 
-        # TODO: retransmit packets in the user queue (move these packets to station tx)
+        # handle the event
+        user = await PacketProcessor.packet_handlers[event.__class__](event)
 
+        # retransmit packets in the user queue (move these packets to station tx)
+        if user is not None:
+            # Associate the user with the station.
+            await self.users.update_one(
+                {"user": user},
+                {"$set": {"station_id": station.station_id}}
+            )
+            # Dequeue packets for the user and add them to the station tx list.
+            packet_ids = await self.deque_user_packets(user, station)
+            if packet_ids:
+                await self.stations.update_one(
+                    {"station_id": station.station_id},
+                    {"$push": {"tx": {"$each": packet_ids}}}
+                )
 
-        # TODO: handle the event
-        await PacketProcessor.packet_handlers[event.__class__](event)
+        # remove processed packets from the database
+        await self.stations.update_one(
+            {"station_id": station.station_id},
+            {"$pull": {"rx": result.inserted_id}}
+        )
+        await self.packets.delete_one({"_id": result.inserted_id})
 
 
     async def has_packet_for_tx(self, station: Station) -> AsyncIterator[IrPacketRequestSchema]:
