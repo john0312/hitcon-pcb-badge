@@ -30,7 +30,7 @@ class TamaApp : public App {
  private:
   static constexpr unsigned INTERVAL = 150;
   hitcon::service::sched::PeriodicTask _routine_task;
-  tama_storage_t &_tama_data;
+  tama_storage_t& _tama_data;
 
  public:
   TamaApp();
@@ -49,5 +49,27 @@ extern TamaApp tama_app;
 }  // namespace tama
 }  // namespace app
 }  // namespace hitcon
+
+constexpr display_buf_t tama_dog_bitmap[8] = {
+    0b11100111,
+    0b00111100,
+    0b01000010,
+    0b10000001,
+    0b10100101,
+    0b10000001,
+    0b01000010,
+    0b00111100,
+};
+
+constexpr display_buf_t tama_cat_bitmap[8] = {
+    0b01000010,
+    0b10100101,
+    0b10011001,
+    0b10000001,
+    0b10100101,
+    0b10000001,
+    0b01000010,
+    0b00111100,
+};
 
 #endif  // TAMA_APP_H

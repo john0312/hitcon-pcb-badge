@@ -4,6 +4,7 @@
 #include <App/ScoreHistApp.h>
 #include <App/ShowNameApp.h>
 #include <App/SnakeApp.h>
+#include <App/TamaApp.h>
 #include <App/TetrisApp.h>
 #include <Logic/BadgeController.h>
 
@@ -14,6 +15,7 @@ namespace hitcon {
 using hitcon::app::bouncing_dvd::bouncing_dvd_app;
 using hitcon::app::dino::dino_app;
 using hitcon::app::snake::snake_app;
+using hitcon::app::tama::tama_app;
 using hitcon::app::tetris::tetris_app;
 
 constexpr menu_entry_t main_menu_entries[] = {
@@ -24,7 +26,7 @@ constexpr menu_entry_t main_menu_entries[] = {
     {"Tetris", &tetris_app, &hitcon::app::tetris::SetSingleplayer},
     {"Show Scores", &score_hist::g_score_hist, nullptr},
     {"Bouncing DVD", &bouncing_dvd_app, nullptr},
-};
+    {"Tama", &tama_app, nullptr}};
 
 constexpr int main_menu_entries_len =
     sizeof(main_menu_entries) / sizeof(menu_entry_t);
