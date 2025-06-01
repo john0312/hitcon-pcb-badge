@@ -138,6 +138,11 @@ constexpr uint8_t kRetransmitStatusWaitHashDone = 0x40;
 constexpr uint8_t kRetransmitStatusWaitTxSlot = 0x80;
 constexpr uint8_t kRetransmitStatusWaitAck = 0xA0;
 
+enum class AckTag : uint8_t {
+  ACK_TAG_NONE = 0,
+  ACK_TAG_PUBKEY_RECOG = 1,
+};
+
 struct RetransmittableIrPacket {
   uint8_t status;
   // 0x07 - retransmit limit left.
@@ -147,6 +152,8 @@ struct RetransmittableIrPacket {
   //   - 0x40 Waiting for hashing processor to finish.
   //   - 0x80 Waiting for IrController's tx slot to open up.
   //   - 0xA0 Waiting for Ack.
+  AckTag ack_tag;
+  // Ack tag is used internally to denote special events.
   uint16_t time_to_retry;
   // In units of IR Retry task calls.
   uint8_t size;
@@ -169,7 +176,8 @@ class IrController {
   // acknowledgement is received.
   // Return true if the packet is accepted by IrController.
   // Return false if IrController is busy and cannot accept the packet.
-  bool SendPacketWithRetransmit(uint8_t* data, size_t len, uint8_t retries);
+  bool SendPacketWithRetransmit(uint8_t* data, size_t len, uint8_t retries,
+                                AckTag ack_tag);
 
  private:
   bool send_lock;
@@ -212,6 +220,9 @@ class IrController {
   void OnAcknowledgePacket(AcknowledgePacket* pckt);
   // Called by HashProcessor when hashing finished.
   void OnPacketHashResult(void* hash_result);
+
+  // Called whenever we've some acknowledged packet.
+  void OnAcknowledgeTag(AckTag tag);
 };
 
 extern IrController irController;

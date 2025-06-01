@@ -4,6 +4,7 @@
 #include <App/ShowNameApp.h>
 #include <Logic/BadgeController.h>
 #include <Logic/Display/display.h>
+#include <Logic/GameController.h>
 #include <Logic/IrController.h>
 #include <Logic/RandomPool.h>
 #include <Service/HashService.h>
@@ -76,11 +77,24 @@ void IrController::OnAcknowledgePacket(AcknowledgePacket* pckt) {
         (status & kRetransmitStatusMask) == kRetransmitStatusWaitAck) {
       if (memcmp(queued_packets_[i].hash, pckt->packet_hash, PACKET_HASH_LEN) ==
           0) {
+        AckTag ack = queued_packets_[i].ack_tag;
+        OnAcknowledgeTag(ack);
         // Received, no longer need to retransmit.
         queued_packets_[i].status =
             (queued_packets_[i].status & (~kRetransmitStatusMask));
       }
     }
+  }
+}
+
+void IrController::OnAcknowledgeTag(AckTag tag) {
+  // Hardcoded receivers.
+  switch (tag) {
+    case AckTag::ACK_TAG_NONE:
+      return;
+    case AckTag::ACK_TAG_PUBKEY_RECOG:
+      g_game_controller.NotifyPubkeyAck();
+      return;
   }
 }
 
@@ -108,7 +122,7 @@ void IrController::OnPacketHashResult(void* arg_ptr) {
 }
 
 bool IrController::SendPacketWithRetransmit(uint8_t* data, size_t len,
-                                            uint8_t retries) {
+                                            uint8_t retries, AckTag ack_tag) {
   my_assert(len <= MAX_PACKET_PAYLOAD_BYTES);
   my_assert(retries < 8);  // Max retries fits in 3 bits
   for (int i = 0; i < RETX_QUEUE_SIZE; i++) {
@@ -121,6 +135,7 @@ bool IrController::SendPacketWithRetransmit(uint8_t* data, size_t len,
       // Set status to Waiting for hashing processor and store retry limit
       queued_packets_[i].status =
           kRetransmitStatusWaitHashAvail | (retries & kRetransmitLimitMask);
+      queued_packets_[i].ack_tag = ack_tag;
       return true;
     }
   }

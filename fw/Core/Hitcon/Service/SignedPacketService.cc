@@ -119,7 +119,8 @@ void SignedPacketService::RoutineFunc() {
            packet.sig, sizeof(packet.sig));
     bool ret = hitcon::ir::irController.SendPacketWithRetransmit(
         reinterpret_cast<uint8_t *>(&irdata),
-        packet.dataSize + ECC_SIGNATURE_SIZE, 3);
+        packet.dataSize + ECC_SIGNATURE_SIZE, 3,
+        ::hitcon::ir::AckTag::ACK_TAG_NONE);
     packet.status = PacketStatus::kFree;
   }
 }

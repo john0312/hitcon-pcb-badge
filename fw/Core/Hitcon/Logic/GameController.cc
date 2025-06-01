@@ -2,6 +2,7 @@
 #include <Logic/GameController.h>
 #include <Logic/GameParam.h>
 #include <Logic/IrController.h>
+#include <Logic/NvStorage.h>
 #include <Service/HashService.h>
 #include <Service/PerBoardData.h>
 #include <Service/SignedPacketService.h>
@@ -65,6 +66,14 @@ bool GameController::SendSingleBadgeActivity(const SingleBadgeActivity &data) {
       sizeof(packet) - ECC_SIGNATURE_SIZE);
 }
 
+void GameController::NotifyPubkeyAck() {
+  if (state_ == 4) {
+    g_nv_storage.GetCurrentStorage().game_storage.user_id_acknowledged = 1;
+    g_nv_storage.MarkDirty();
+    state_ = 5;
+  }
+}
+
 void GameController::OnPrivKeyHashFinish(void *arg2) {
   uint8_t *ptr = reinterpret_cast<uint8_t *>(arg2);
   uint64_t privkey;
@@ -111,7 +120,8 @@ bool GameController::TrySendPubAnnounce() {
       hitcon::ir::IR_DATA_HEADER_SIZE + sizeof(hitcon::ir::PubAnnouncePacket);
 
   return hitcon::ir::irController.SendPacketWithRetransmit(
-      reinterpret_cast<uint8_t *>(&irdata), irdata_len, 3);
+      reinterpret_cast<uint8_t *>(&irdata), irdata_len, 3,
+      ::hitcon::ir::AckTag::ACK_TAG_PUBKEY_RECOG);
 }
 
 void GameController::RoutineFunc() {

@@ -48,6 +48,8 @@ class GameController {
   bool SendProximity(const Proximity &data);
   bool SendSingleBadgeActivity(const SingleBadgeActivity &data);
 
+  void NotifyPubkeyAck();
+
  private:
   /*
   Internal state of the game controller.
@@ -55,6 +57,8 @@ class GameController {
   1 - Initialized. After Init().
   2 - Waiting for hash processor to compute private key.
   3 - Got private key. Announce the pubkey.
+  4 - Sent public key announce packet.
+  5 - Got public key acknowledgement.
   */
   int state_;
 
