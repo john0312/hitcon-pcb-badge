@@ -12,7 +12,7 @@ import uuid
 import time
 from io import BytesIO
 
-from game_logic_controller import GameLogic
+from game_logic_controller import GameLogicController
 
 class PacketProcessor:
     packet_handlers: ClassVar[Dict[type[Event], Callable[[Event], Awaitable[None]]]] = dict()
@@ -24,7 +24,7 @@ class PacketProcessor:
         self.users = db["users"]
         self.user_queue = db["user_queue"]
 
-        for k, v in GameLogic.__dict__.items():
+        for k, v in GameLogicController.__dict__.items():
             if k.startswith("on_") and isinstance(v, staticmethod):
                 # Register the static method as an event handler
                 PacketProcessor.event_handler(v.__func__)

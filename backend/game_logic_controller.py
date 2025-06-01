@@ -1,6 +1,9 @@
 from schemas import ProximityEvent, PubAnnounceEvent, TwoBadgeActivityEvent, GameActivityEvent, SingleBadgeActivityEvent, SponsorActivityEvent
+from game_logic import _GameLogic as GameLogic, GameType
 
-class GameLogic:
+game = GameLogic()
+
+class GameLogicController:
     # ===== APIs for PacketProcessor =====
     @staticmethod
     async def on_single_badge_activity_event(evt: SingleBadgeActivityEvent):
