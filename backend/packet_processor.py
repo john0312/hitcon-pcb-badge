@@ -188,6 +188,7 @@ class PacketProcessor:
         station_id = ir_packet.station_id
 
         buf = BytesIO(ir_packet.data)
+        buf.read(1)  # Skip TTL
         buf.read(1)  # Skip the first byte (packet type)
         b2i = lambda x: int.from_bytes(x, 'little', signed=False)
 
@@ -292,7 +293,7 @@ class PacketProcessor:
     def get_packet_type(self, ir_packet: Union[IrPacket, IrPacketRequestSchema]) -> Optional[PacketType]:
         # Determine the type of packet based on its contents.
         # This is a placeholder implementation and should be replaced with actual logic.
-        raw_type = ir_packet.data[0]
+        raw_type = ir_packet.data[1]
         packet_type = PacketType(raw_type)
         if packet_type in PacketType:
             return packet_type
