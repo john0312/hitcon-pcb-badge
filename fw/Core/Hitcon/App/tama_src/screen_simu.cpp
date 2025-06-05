@@ -5,9 +5,14 @@
 #define CAT_IDLE_FRAME_COUNT 2
 #define DOG_IDLE_FRAME_COUNT 2
 #define SELECT_CHARACTER_FRAME_COUNT 2
+#define HATCH_WARNING_REPEAT_SHINE_COUNT 3
+#define HATCH_STATUS_FRAME_COUNT 4
 #define NEW_SCREEN NULL
 #define NUM_AREA_WIDTH 8
 #define NUM_AREA_HEIGHT 5
+#define EGG_AREA_WIDTH 8
+#define EGG_AREA_HEIGHT 8
+#define HATCH_START_COUNT 400
 typedef unsigned char uint8_t;
 
 #include <unistd.h>
@@ -34,8 +39,14 @@ using hitcon::app::tama::components::m_dog_idle1;
 using hitcon::app::tama::components::m_dog_idle2;
 using hitcon::app::tama::components::m_select_cursor;
 using hitcon::app::tama::components::m_select_print_all_character;
+using hitcon::app::tama::egg_icon::m_egg_0_percent_up;
+using hitcon::app::tama::egg_icon::m_egg_25_percent_up;
+using hitcon::app::tama::egg_icon::m_egg_50_percent_up;
+using hitcon::app::tama::egg_icon::m_egg_75_percent_up;
+using hitcon::app::tama::egg_icon::m_egg_hatch_shinning1;
+using hitcon::app::tama::egg_icon::m_egg_hatch_shinning2;
+using hitcon::app::tama::menu_icon::icon_important;
 using hitcon::app::tama::menu_icon::num_icon;
-
 /**
  * @brief The function of stack const component onto a base layer
  *
@@ -125,6 +136,7 @@ void show_anime_with_delay(const uint8_t** frame_collection, int frame_count,
   }
 }
 
+/** component part */
 const uint8_t* get_number_component(int target_num) {
   // check boundary of input
   if (target_num > 999) {
@@ -199,6 +211,168 @@ const uint8_t* get_number_component(int target_num) {
     base = stack_target_offset(num_icon[digit_100x], base,
                                digit_100x_component_info, my_base_info);
     digit_count--;
+  }
+
+  return base;
+}
+
+const uint8_t* get_warning_component() {
+  // similar to get_number_component, but only return a warning icon
+  base_info my_base_info = {
+      .width = 8,
+      .height = 5,
+  };
+  component_info warning_component_info_1 = {
+      .x_len = 2,
+      .y_len = 5,
+      .x_offset = 0,
+      .y_offset = 0,
+  };
+  component_info warning_component_info_2 = {
+      .x_len = 2,
+      .y_len = 5,
+      .x_offset = 3,
+      .y_offset = 0,
+  };
+  component_info warning_component_info_3 = {
+      .x_len = 2,
+      .y_len = 5,
+      .x_offset = 6,
+      .y_offset = 0,
+  };
+  // stack warning icon
+  uint8_t* base = stack_target_offset(icon_important, NULL,
+                                      warning_component_info_1, my_base_info);
+  base = stack_target_offset(icon_important, base, warning_component_info_2,
+                             my_base_info);
+  base = stack_target_offset(icon_important, base, warning_component_info_3,
+                             my_base_info);
+  // return the base with warning icon
+  return base;
+}
+
+/* combine hatch component with num component */
+const uint8_t* get_egg_component(int percentage) {
+  // check boundary of input
+  if (percentage > 100) {
+    percentage = 100;
+  }
+  if (percentage < 0) {
+    percentage = 0;
+  }
+
+  base_info my_base_info = {
+      .width = EGG_AREA_WIDTH,
+      .height = EGG_AREA_HEIGHT,
+  };
+
+  component_info egg_component_info = {
+      .x_len = EGG_AREA_WIDTH,
+      .y_len = EGG_AREA_HEIGHT,
+      .x_offset = 0,
+      .y_offset = 0,
+  };
+
+  uint8_t* base;
+  if (percentage <= 25) {
+    base = stack_target_offset(m_egg_0_percent_up, NULL, egg_component_info,
+                               my_base_info);
+  } else if (percentage <= 50) {
+    base = stack_target_offset(m_egg_25_percent_up, NULL, egg_component_info,
+                               my_base_info);
+  } else if (percentage <= 75) {
+    base = stack_target_offset(m_egg_50_percent_up, NULL, egg_component_info,
+                               my_base_info);
+  } else if (percentage <= 100) {
+    base = stack_target_offset(m_egg_75_percent_up, NULL, egg_component_info,
+                               my_base_info);
+  }
+
+  return base;
+}
+
+/** frame part */
+const uint8_t* get_hatch_status_frame(int remaining_count) {
+  // check boundary of input
+  if (remaining_count > 999) {
+    remaining_count = 999;
+  }
+
+  base_info my_base_info = {
+      .width = DISPLAY_WIDTH,
+      .height = DISPLAY_HEIGHT,
+  };
+
+  component_info egg_component_info = {
+      .x_len = EGG_AREA_WIDTH,
+      .y_len = EGG_AREA_HEIGHT,
+      .x_offset = 0,
+      .y_offset = 0,
+  };
+
+  component_info num_component_info = {
+      .x_len = NUM_AREA_WIDTH,
+      .y_len = NUM_AREA_HEIGHT,
+      .x_offset = 8,
+      .y_offset = 3,
+  };
+
+  // percentage of egg hatching
+  int percentage = remaining_count * 100 / HATCH_START_COUNT;
+  if (percentage < 0) {
+    percentage = 0;
+  }
+  if (percentage > 100) {
+    percentage = 100;
+  }
+
+  uint8_t* base;
+  // stack egg icon
+  base = stack_target_offset(get_egg_component(percentage), NULL,
+                             egg_component_info, my_base_info);
+  // stack number icon
+  base = stack_target_offset(get_number_component(remaining_count), base,
+                             num_component_info, my_base_info);
+
+  return base;
+}
+
+// stack warning frame and icon_important
+const uint8_t* get_hatch_born_warning_frame(int frame) {
+  // check boundary of input
+  if (frame < 0 || frame > 1) {
+    frame = 0;
+  }
+
+  base_info my_base_info = {
+      .width = DISPLAY_WIDTH,
+      .height = DISPLAY_HEIGHT,
+  };
+
+  component_info egg_component_info = {
+      .x_len = EGG_AREA_WIDTH,
+      .y_len = EGG_AREA_HEIGHT,
+      .x_offset = 0,
+      .y_offset = 0,
+  };
+  component_info warning_component_info = {
+      .x_len = NUM_AREA_WIDTH,
+      .y_len = NUM_AREA_HEIGHT,
+      .x_offset = 8,
+      .y_offset = 3,
+  };
+
+  uint8_t* base;
+  if (frame == 0) {
+    base = stack_target_offset(m_egg_hatch_shinning1, NULL, egg_component_info,
+                               my_base_info);
+    base = stack_target_offset(get_warning_component(), base,
+                               warning_component_info, my_base_info);
+  } else {
+    base = stack_target_offset(m_egg_hatch_shinning2, NULL, egg_component_info,
+                               my_base_info);
+    base = stack_target_offset(get_warning_component(), base,
+                               warning_component_info, my_base_info);
   }
 
   return base;
@@ -329,6 +503,53 @@ void select_character(int repeat_count) {
   }
 }
 
+void egg_hatch(int repeat_count) {
+  component_info component_info = {
+      .x_len = 16,
+      .y_len = 8,
+      .x_offset = 0,
+      .y_offset = 0,
+  };
+  base_info screen_info = {
+      .width = 16,
+      .height = 8,
+  };
+
+  // demo case:
+  // (remaining_count)
+  // 390 > 290 > 190 > 90 > (shine1, shine2)x repeat_shine_count
+
+  // add to frame_collection
+  const uint8_t* frame_collection[HATCH_STATUS_FRAME_COUNT +
+                                  2 * HATCH_WARNING_REPEAT_SHINE_COUNT];
+  int remaining_count = 390;
+  for (int j = 0; j < HATCH_STATUS_FRAME_COUNT; ++j) {
+    frame_collection[j] = get_hatch_status_frame(remaining_count);
+    remaining_count -= 100;
+  }
+  for (int j = 0; j < HATCH_WARNING_REPEAT_SHINE_COUNT; ++j) {
+    frame_collection[HATCH_STATUS_FRAME_COUNT + j * 2] =
+        get_hatch_born_warning_frame(0);
+    frame_collection[HATCH_STATUS_FRAME_COUNT + j * 2 + 1] =
+        get_hatch_born_warning_frame(1);
+  }
+
+  // show animation
+  for (int i = 0; i < repeat_count; ++i) {
+    show_anime_with_delay(
+        frame_collection,
+        HATCH_STATUS_FRAME_COUNT + 2 * HATCH_WARNING_REPEAT_SHINE_COUNT,
+        SLEEP_US);
+  }
+
+  // loop to release all allocated memory
+  for (int i = 0;
+       i < HATCH_STATUS_FRAME_COUNT + 2 * HATCH_WARNING_REPEAT_SHINE_COUNT;
+       ++i) {
+    delete[] frame_collection[i];
+  }
+}
+
 void num_test(int repeat_count) {
   const int frame_count = 5;
   component_info num_area_component_info = {
@@ -373,19 +594,25 @@ int main() {
   int repeat_count = 3;
   int repeat_once = 1;
 
-  while (1) {
-    // cat idle demo
-    cat_idle(repeat_count);
+  // cat idle demo
+  std::cout << "Cat Idle Demo:\n";
+  cat_idle(repeat_count);
 
-    // dog idle demo
-    dog_idle(repeat_count);
+  // dog idle demo
+  std::cout << "Dog Idle Demo:\n";
+  dog_idle(repeat_count);
 
-    // selection demo
-    select_character(repeat_count);
+  // selection demo
+  std::cout << "Select Character Demo:\n";
+  select_character(repeat_count);
 
-    // number icon demo
-    num_test(repeat_once);
-  }
+  // number icon demo
+  std::cout << "Number Icon Demo:\n";
+  num_test(repeat_once);
+
+  // egg hatch demo
+  std::cout << "Egg Hatch Demo:\n";
+  egg_hatch(repeat_once);
 
   return 0;
 }
