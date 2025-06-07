@@ -1,12 +1,13 @@
+import uuid
 import asyncio
 from dataclasses import dataclass, fields
 from datetime import datetime, timedelta
 import pymongo
+from enum import Enum
 
 try:
     from enum import StrEnum
 except ImportError:
-    from enum import Enum
     class StrEnum(str, Enum):
         def __str__(self):
             return str(self.value)
@@ -22,6 +23,12 @@ class GameType(StrEnum):
     TETRIS = "tetris"
     CONNECT_SPONSOR = "connect_sponsor"
     RECTF = "rectf"
+
+
+class GameNumOfPlayerType(Enum):
+    ALL = "all"
+    SINGLE = "single"
+    TWO = "two"
 
 
 @dataclass
@@ -134,7 +141,7 @@ class _GameLogic:
         proceed(before)
         return total_score
 
-    async def receive_game_score(self, player_id: int, station_id: int, score: int, game_type: GameType, timestamp: datetime):
+    async def receive_game_score_single_player(self, player_id: int, station_id: int, score: int, game_type: GameType, timestamp: datetime):
         match game_type:
             case GameType.SHAKE_BADGE:
                 # TODO: validate the score and timestamp
@@ -168,9 +175,45 @@ class _GameLogic:
             "timestamp": timestamp,
         })
 
-    async def get_game_history(self, *, player_id: int = None, station_id: int = None, game_type: GameType = None, before: datetime = None):
+    async def receive_game_score_two_player(self, two_player_event_id: uuid.UUID, player1_id: int, player2_id: int, station_id: int, score1: int, score2: int, game_type: GameType, timestamp: datetime):
+        match game_type:
+            case GameType.DINO:
+                # TODO: validate the score and timestamp
+                pass
+
+            case GameType.SNAKE:
+                # TODO: validate the score and timestamp
+                pass
+
+            case GameType.TETRIS:
+                # TODO: validate the score and timestamp
+                pass
+
+        await self.score_history.insert_many([
+            {
+                "player_id": player1_id,
+                "station_id": station_id,
+                "score": score1,
+                "game_type": game_type,
+                "timestamp": timestamp,
+                "two_player_event_id": two_player_event_id,
+            },
+            {
+                "player_id": player2_id,
+                "station_id": station_id,
+                "score": score2,
+                "game_type": game_type,
+                "timestamp": timestamp,
+                "two_player_event_id": two_player_event_id,
+            },
+        ])
+
+    async def get_game_history(self, *, player_id: int = None, station_id: int = None, game_type: GameType = None, num_of_player: GameNumOfPlayerType = None, before: datetime = None):
         if before is None:
             before = datetime.now()
+
+        if num_of_player is None:
+            num_of_player = GameNumOfPlayerType.ALL
 
         query = {"timestamp": {"$lt": before}}
 
@@ -182,16 +225,24 @@ class _GameLogic:
 
         if game_type is not None:
             query["game_type"] = game_type
+
+        if num_of_player == GameNumOfPlayerType.SINGLE:
+            query["two_player_event_id"] = {"$exists": False}
+        elif num_of_player == GameNumOfPlayerType.TWO:
+            query["two_player_event_id"] = {"$exists": True}
 
         cursor = self.score_history.find(query).sort("timestamp", pymongo.ASCENDING)
 
         async for record in cursor:
             yield record
 
-    async def get_game_score(self, *, player_id: int = None, station_id: int = None, game_type: GameType = None, before: datetime = None) -> int:
+    async def get_game_score(self, *, player_id: int = None, station_id: int = None, game_type: GameType = None, num_of_player: GameNumOfPlayerType = None, before: datetime = None) -> int:
         # TODO: cache the results
         if before is None:
             before = datetime.now()
+
+        if num_of_player is None:
+            num_of_player = GameNumOfPlayerType.ALL
 
         query = {"timestamp": {"$lt": before}}
 
@@ -203,6 +254,11 @@ class _GameLogic:
 
         if game_type is not None:
             query["game_type"] = game_type
+
+        if num_of_player == GameNumOfPlayerType.SINGLE:
+            query["two_player_event_id"] = {"$exists": False}
+        elif num_of_player == GameNumOfPlayerType.TWO:
+            query["two_player_event_id"] = {"$exists": True}
 
         cursor = await self.score_history.aggregate([
             {"$match": query},
@@ -222,7 +278,7 @@ async def test_attack_station_score_history():
     eps = 0.1
 
     time_base = datetime.now()
-    gl = _GameLogic(pymongo.AsyncMongoClient("mongodb://localhost:27017"), time_base)
+    gl = _GameLogic(pymongo.AsyncMongoClient("mongodb://localhost:27017?uuidRepresentation=standard"), time_base)
     await gl.clear_database()
 
     # Simulate
@@ -258,13 +314,13 @@ async def test_attack_station_score_history():
         assert total_score == await gl.get_station_score(station_id=station_id, before=time_base + timedelta(seconds=i + eps))
 
 
-async def test_game_score_history():
+async def test_game_score_history_single_player():
     const.reset()
     const.STATION_SCORE_DECAY_INTERVAL = 1
     eps = 0.1
 
     time_base = datetime.now()
-    gl = _GameLogic(pymongo.AsyncMongoClient("mongodb://localhost:27017"), time_base)
+    gl = _GameLogic(pymongo.AsyncMongoClient("mongodb://localhost:27017?uuidRepresentation=standard"), time_base)
     await gl.clear_database()
 
     table = {
@@ -280,8 +336,8 @@ async def test_game_score_history():
 
     # Simulate
     for game_type, scores in table.items():
-        await gl.receive_game_score(player_id, station_id, scores[0], game_type, time_base + timedelta(seconds=0.5))
-        await gl.receive_game_score(player_id, station_id, scores[1], game_type, time_base + timedelta(seconds=1.5))
+        await gl.receive_game_score_single_player(player_id, station_id, scores[0], game_type, time_base + timedelta(seconds=0.5))
+        await gl.receive_game_score_single_player(player_id, station_id, scores[1], game_type, time_base + timedelta(seconds=1.5))
 
     # Test
     for game_type, scores in table.items():
@@ -289,6 +345,11 @@ async def test_game_score_history():
         assert scores[0] == await gl.get_game_score(player_id=player_id, station_id=station_id, game_type=game_type, before=time_base + timedelta(seconds=1 + eps))
         assert scores[0] + scores[1] == await gl.get_game_score(player_id=player_id, station_id=station_id, game_type=game_type, before=time_base + timedelta(seconds=2 + eps))
         assert scores[0] + scores[1] == await gl.get_game_score(player_id=player_id, station_id=station_id, game_type=game_type, before=time_base + timedelta(seconds=3 + eps))
+
+        assert 0 == await gl.get_game_score(player_id=player_id, station_id=station_id, game_type=game_type, num_of_player=GameNumOfPlayerType.SINGLE, before=time_base + timedelta(seconds=0 + eps))
+        assert scores[0] == await gl.get_game_score(player_id=player_id, station_id=station_id, game_type=game_type, num_of_player=GameNumOfPlayerType.SINGLE, before=time_base + timedelta(seconds=1 + eps))
+        assert scores[0] + scores[1] == await gl.get_game_score(player_id=player_id, station_id=station_id, game_type=game_type, num_of_player=GameNumOfPlayerType.SINGLE, before=time_base + timedelta(seconds=2 + eps))
+        assert scores[0] + scores[1] == await gl.get_game_score(player_id=player_id, station_id=station_id, game_type=game_type, num_of_player=GameNumOfPlayerType.SINGLE, before=time_base + timedelta(seconds=3 + eps))
 
     assert await gl.get_game_score(player_id=player_id, before=time_base + timedelta(seconds=0 + eps)) == 0
     assert await gl.get_game_score(player_id=player_id, before=time_base + timedelta(seconds=1 + eps)) == sum([
@@ -302,6 +363,45 @@ async def test_game_score_history():
     ])
 
 
+async def test_game_score_history_two_player():
+    const.reset()
+    const.STATION_SCORE_DECAY_INTERVAL = 1
+    eps = 0.1
+
+    time_base = datetime.now()
+    gl = _GameLogic(pymongo.AsyncMongoClient("mongodb://localhost:27017?uuidRepresentation=standard"), time_base)
+    await gl.clear_database()
+
+    table = {
+        GameType.DINO: [[10, -10], [-15, 15]],
+        GameType.SNAKE: [[-20, 20], [25, -25]],
+        GameType.TETRIS: [[30, -30], [35, -35]],
+    }
+    player1_id = 1
+    player2_id = 2
+    station_id = 1
+
+    # Simulate
+    for game_type, scores in table.items():
+        two_player_event_id = uuid.uuid4()
+        await gl.receive_game_score_two_player(two_player_event_id, player1_id, player2_id, station_id, scores[0][0], scores[0][1], game_type, time_base + timedelta(seconds=0.5))
+        await gl.receive_game_score_two_player(two_player_event_id, player1_id, player2_id, station_id, scores[1][0], scores[1][1], game_type, time_base + timedelta(seconds=1.5))
+
+    # Test
+    for game_type, scores in table.items():
+        assert 0 == await gl.get_game_score(player_id=player1_id, station_id=station_id, game_type=game_type, num_of_player=GameNumOfPlayerType.TWO, before=time_base + timedelta(seconds=0 + eps))
+        assert scores[0][0] == await gl.get_game_score(player_id=player1_id, station_id=station_id, game_type=game_type, num_of_player=GameNumOfPlayerType.TWO, before=time_base + timedelta(seconds=1 + eps))
+        assert scores[0][0] + scores[1][0] == await gl.get_game_score(player_id=player1_id, station_id=station_id, game_type=game_type, num_of_player=GameNumOfPlayerType.TWO, before=time_base + timedelta(seconds=2 + eps))
+        assert scores[0][0] + scores[1][0] == await gl.get_game_score(player_id=player1_id, station_id=station_id, game_type=game_type, num_of_player=GameNumOfPlayerType.TWO, before=time_base + timedelta(seconds=3 + eps))
+
+        assert 0 == await gl.get_game_score(player_id=player2_id, station_id=station_id, game_type=game_type, num_of_player=GameNumOfPlayerType.TWO, before=time_base + timedelta(seconds=0 + eps))
+        assert scores[0][1] == await gl.get_game_score(player_id=player2_id, station_id=station_id, game_type=game_type, num_of_player=GameNumOfPlayerType.TWO, before=time_base + timedelta(seconds=1 + eps))
+        assert scores[0][1] + scores[1][1] == await gl.get_game_score(player_id=player2_id, station_id=station_id, game_type=game_type, num_of_player=GameNumOfPlayerType.TWO, before=time_base + timedelta(seconds=2 + eps))
+        assert scores[0][1] + scores[1][1] == await gl.get_game_score(player_id=player2_id, station_id=station_id, game_type=game_type, num_of_player=GameNumOfPlayerType.TWO, before=time_base + timedelta(seconds=3 + eps))
+
+
 if __name__ == "__main__":
     asyncio.run(test_attack_station_score_history())
-    asyncio.run(test_game_score_history())
+    asyncio.run(test_game_score_history_single_player())
+    asyncio.run(test_game_score_history_two_player())
+    print("All tests passed!")
