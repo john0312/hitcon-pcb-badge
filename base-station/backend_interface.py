@@ -6,12 +6,21 @@ from typing import Tuple, Optional
 
 
 class BackendInterface:
+    REQUEST_TIMEOUT = 5  # seconds
     def __init__(self, config: Config):
         self.station_id = config.get("station_id")
         self.backend_url = config.get("backend_url")
         self.station_key = config.get("station_key")
-        self.session = aiohttp.ClientSession()
+        self.session = None
         self.retry_delay = 2
+
+    async def __aenter__(self):
+        self.session = aiohttp.ClientSession()
+        return self
+
+    async def __aexit__(self, exc_type, exc, tb):
+        if self.session:
+            await self.session.close()
 
     async def send_received_packet(self, data: bytes, packet_id: uuid.UUID) -> bool:
         payload = {
@@ -22,7 +31,9 @@ class BackendInterface:
         url = f"{self.backend_url}/rx"
         headers = {"Authorization": f"Bearer {self.station_key}"}
         try:
-            async with self.session.post(url, json=payload, headers=headers) as resp:
+            assert self.session is not None, "Session not initialized"
+            timeout = aiohttp.ClientTimeout(total=self.REQUEST_TIMEOUT)
+            async with self.session.post(url, json=payload, headers=headers, timeout=timeout) as resp:
                 print(f"[RX] POST /rx status: {resp.status}")
                 return resp.status == 200
         except Exception as e:
@@ -33,31 +44,23 @@ class BackendInterface:
         url = f"{self.backend_url}/tx"
         headers = {"Authorization": f"Bearer {self.station_key}"}
         try:
-            async with self.session.get(url, headers=headers) as resp:
+            assert self.session is not None, "Session not initialized"
+            timeout = aiohttp.ClientTimeout(total=self.REQUEST_TIMEOUT)
+            async with self.session.get(url, headers=headers, timeout=timeout) as resp:
                 if resp.status == 200:
                     result = await resp.json()
-                    packet_id = uuid.UUID(result["packet_id"])
-                    packet_data = bytes(result["packet_data"])
-                    return packet_data, packet_id
+                    assert type(result) == list, "Expected a list of packets"
+                    ret = []
+                    for packet in result:
+                        packet_id = uuid.UUID(packet["packet_id"])
+                        packet_data = bytes(packet["data"])
+                        ret.append((packet_data, packet_id))
+                    return ret
                 else:
-                    print("[TX] No new packets")
-                    return None
+                    print(f"[TX] Error fetching packet: {url} {resp.status} - {resp.reason}")
+                    raise Exception(f"Failed to fetch packet: {resp.status} - {resp.reason}")
         except Exception as e:
             print(f"[TX] Polling failed: {e}")
-            return None
+            raise
 
-    async def _tx_poll_task(self):
-        while True:
-            try:
-                result = await self.get_next_tx_packet()
-                if result:
-                    packet_data, packet_id = result
-                    print(f"[TX] Received packet {packet_id}: {packet_data}")
-                    # TODO: Call IR transmitter
-                await asyncio.sleep(3)
-            except Exception as e:
-                print(f"[TX] Polling error, will retry in {self.retry_delay}s: {e}")
-                await asyncio.sleep(self.retry_delay)
 
-    async def close(self):
-        await self.session.close()

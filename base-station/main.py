@@ -7,10 +7,22 @@ import asyncio
 
 async def main():
     config = Config("config.yaml")
-    backend = BackendInterface(config=config)
-    ir = IrInterface(config=config)
-    processor = PacketProcessor(backend=backend, ir=ir)
-
+    try:
+        async with PacketProcessor() as processor:
+            async with BackendInterface(config=config) as backend:
+                async with IrInterface(config=config) as ir:
+                    processor.backend = backend
+                    processor.ir = ir
+                    processor.start()
+                    shutdown_event = asyncio.Event()
+                    try:
+                        # Run forever.
+                        await shutdown_event.wait()
+                    except asyncio.CancelledError:
+                        print("\nShutting down gracefully...")
+    except KeyboardInterrupt:
+        print("\nReceived shutdown signal")
+        
 
 if __name__ == "__main__":
     asyncio.run(main())
