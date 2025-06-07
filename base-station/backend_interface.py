@@ -26,7 +26,7 @@ class BackendInterface:
                 print(f"[RX] POST /rx status: {resp.status}")
                 return resp.status == 200
         except Exception as e:
-            print(f"[RX] 發送失敗: {e}")
+            print(f"[RX] Send failed: {e}")
             return False
 
     async def get_next_tx_packet(self) -> Optional[Tuple[bytes, uuid.UUID]]:
@@ -40,10 +40,10 @@ class BackendInterface:
                     packet_data = bytes(result["packet_data"])
                     return packet_data, packet_id
                 else:
-                    print("[TX] 無新封包")
+                    print("[TX] No new packets")
                     return None
         except Exception as e:
-            print(f"[TX] 輪詢失敗: {e}")
+            print(f"[TX] Polling failed: {e}")
             return None
 
     async def _tx_poll_task(self):
@@ -52,11 +52,11 @@ class BackendInterface:
                 result = await self.get_next_tx_packet()
                 if result:
                     packet_data, packet_id = result
-                    print(f"[TX] 收到封包 {packet_id}: {packet_data}")
-                    # TODO: 呼叫 IR 發射器
+                    print(f"[TX] Received packet {packet_id}: {packet_data}")
+                    # TODO: Call IR transmitter
                 await asyncio.sleep(3)
             except Exception as e:
-                print(f"[TX] 輪詢錯誤，將在 {self.retry_delay}s 後重試：{e}")
+                print(f"[TX] Polling error, will retry in {self.retry_delay}s: {e}")
                 await asyncio.sleep(self.retry_delay)
 
     async def close(self):
