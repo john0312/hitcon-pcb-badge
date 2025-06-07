@@ -25,6 +25,7 @@
 #include <Service/DisplayService.h>
 #include <Service/FlashService.h>
 #include <Service/HashService.h>
+#include <Service/ImuService.h>
 #include <Service/IrService.h>
 #include <Service/NoiseSource.h>
 #include <Service/Sched/Scheduler.h>
@@ -69,6 +70,7 @@ void hitcon_run() {
   g_button_service.Init();
   g_xboard_service.Init();
   g_xboard_logic.Init();
+  g_imu_service.Init();
   show_name_app.Init();
 
   // this call shownameapp onentry
@@ -82,7 +84,7 @@ void hitcon_run() {
 
   // run hardware test mode if MODE/SETTINGS Button is pressed during
   // initializing
-  if (HAL_GPIO_ReadPin(BtnA_GPIO_Port, BtnA_Pin) == GPIO_PIN_RESET) {
+  if (HAL_GPIO_ReadPin(BtnA_GPIO_Port, BtnA_Pin) != GPIO_PIN_RESET) {
     // Test app needs to be the last to be initialized because otherwise
     // irController may override its callbacks.
     hardware_test_app.Init();

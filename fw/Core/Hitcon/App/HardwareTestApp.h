@@ -23,6 +23,8 @@ enum TEST_APP_STATE {  // TODO: add xboard connect/disconnect test
   TS_BTN_DOWN,
   TS_XBOARD,
   TS_IR,
+  TS_GYRO,
+  TS_ACC,
   TS_PASS,
   TS_FAIL = 99,
 };

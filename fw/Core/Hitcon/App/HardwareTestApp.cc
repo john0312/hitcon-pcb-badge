@@ -5,6 +5,7 @@
 #include <Logic/RandomPool.h>
 #include <Logic/XBoardLogic.h>
 #include <Service/DisplayService.h>
+#include <Service/ImuService.h>
 #include <Service/Sched/Scheduler.h>
 
 #include <cstring>
@@ -47,11 +48,11 @@ void HardwareTestApp::CheckIr(void* arg1) {
   for (i = 0; i < _ir_data_len; i++) {
     if (packet->message[i] != _ir_data.show.message[i]) break;
   }
-  if (i == _ir_data_len) next_state = TS_PASS;
+  if (i == _ir_data_len) next_state = TS_GYRO;
 }
 
 void HardwareTestApp::OnEntry() {
-  next_state = TS_DISPLAY_SET_ALL;
+  next_state = TS_GYRO;
   start_tick = HAL_GetTick();
   _count = 0;
   scheduler.EnablePeriodic(&task);
@@ -64,7 +65,7 @@ void HardwareTestApp::OnButton(button_t button) {
   switch (current_state) {
     case TS_BTN_BRIGHTNESS:
       if (button == BUTTON_BRIGHTNESS) {
-        next_state = TS_BTN_BACK;
+        next_state = TS_GYRO;
       }
       break;
     case TS_BTN_BACK:
@@ -123,6 +124,15 @@ void HardwareTestApp::OnButton(button_t button) {
                            sizeof(_ir_data) / sizeof(uint8_t));
       }
       break;
+    case TS_GYRO:
+      HAL_Delay(500);
+      if (button == BUTTON_OK) {
+        if (g_imu_service.GyroSelfTest())
+          next_state = TS_ACC;
+        else
+          next_state = TS_FAIL;
+      }
+      break;
   }
 }
 // clang-format off
@@ -171,44 +181,47 @@ void HardwareTestApp::Routine(void* unused) {
   }
 
   // TEST DISPLAY
-  if (current_state < TS_BTN_BRIGHTNESS) {
-    switch (current_state) {
-      case TS_DISPLAY_SET_ALL:
-        display_set_mode_fixed(buf_fixed);
-        if (HAL_GetTick() - start_tick > PERIOD) {
-          next_state = TS_DISPLAY_RESET_ALL;
-          start_tick = HAL_GetTick();
-        }
-        break;
-      case TS_DISPLAY_RESET_ALL:
-        display_set_mode_blank();
-        if (HAL_GetTick() - start_tick > PERIOD) {
-          next_state = TS_DISPLAY_CHECKER;
-          start_tick = HAL_GetTick();
-        }
-        break;
-      case TS_DISPLAY_CHECKER:
-        display_set_mode_fixed(_count ? buf_fixed2 : buf_fixed3);
-        if (HAL_GetTick() - start_tick > PERIOD) {
-          if (_count == 0) {
-            _count++;
-          } else {
-            next_state = TS_DISPLAY_BRIGHTNESS;
-          }
-          start_tick = HAL_GetTick();
-        }
-        break;
-      case TS_DISPLAY_BRIGHTNESS:
-        if (_count > 10) next_state = TS_BTN_BRIGHTNESS;
-        if (HAL_GetTick() - start_tick > PERIOD / 10) {
-          g_display_service.SetBrightness(_count);
+  switch (current_state) {
+    case TS_DISPLAY_SET_ALL:
+      display_set_mode_fixed(buf_fixed);
+      if (HAL_GetTick() - start_tick > PERIOD) {
+        next_state = TS_DISPLAY_RESET_ALL;
+        start_tick = HAL_GetTick();
+      }
+      break;
+    case TS_DISPLAY_RESET_ALL:
+      display_set_mode_blank();
+      if (HAL_GetTick() - start_tick > PERIOD) {
+        next_state = TS_DISPLAY_CHECKER;
+        start_tick = HAL_GetTick();
+      }
+      break;
+    case TS_DISPLAY_CHECKER:
+      display_set_mode_fixed(_count ? buf_fixed2 : buf_fixed3);
+      if (HAL_GetTick() - start_tick > PERIOD) {
+        if (_count == 0) {
           _count++;
-          start_tick = HAL_GetTick();
+        } else {
+          next_state = TS_DISPLAY_BRIGHTNESS;
         }
-        break;
-      default:
-        break;
-    }
+        start_tick = HAL_GetTick();
+      }
+      break;
+    case TS_DISPLAY_BRIGHTNESS:
+      if (_count > 10) next_state = TS_BTN_BRIGHTNESS;
+      if (HAL_GetTick() - start_tick > PERIOD / 10) {
+        g_display_service.SetBrightness(_count);
+        _count++;
+        start_tick = HAL_GetTick();
+      }
+      break;
+    case TS_ACC:
+      if (g_imu_service.AccSelfTest())
+        next_state = TS_PASS;
+      else
+        next_state = TS_FAIL;
+    default:
+      break;
   }
 }
 
