@@ -45,7 +45,7 @@ void HardwareTestApp::CheckIr(void* arg1) {
 
   size_t i;
   for (i = 0; i < _ir_data_len; i++) {
-    if (packet->message[i] != _ir_data.show.message[i]) break;
+    if (packet->message[i] != _ir_data.opaq.show.message[i]) break;
   }
   if (i == _ir_data_len) next_state = TS_PASS;
 }
@@ -113,7 +113,7 @@ void HardwareTestApp::OnButton(button_t button) {
       if (button == BUTTON_OK) {
         _count = 0;
         for (uint8_t i = 0; i < IR_TEST_LEN; i++) {
-          _ir_data.show.message[i] = g_fast_random_pool.GetRandom() % 256;
+          _ir_data.opaq.show.message[i] = g_fast_random_pool.GetRandom() % 256;
         }
 
         _ir_data.ttl = 0;

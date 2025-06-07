@@ -38,6 +38,9 @@ struct ShowPacket {
 };
 
 constexpr size_t PACKET_HASH_LEN = 6;
+// Currently we set the username to be the lower 32 bit (first 4 bytes in
+// little-endian) of public key. Might switch to the hash of pubkey if there's
+// concerns of collisions.
 constexpr size_t IR_USERNAME_LEN = 4;
 
 // This packet acknowledges a particular packet has been received.
@@ -122,7 +125,7 @@ struct IrData {
     struct ScoreAnnouncePacket score_announce;
     struct SingleBadgeActivityPacket single_activity;
     struct SponsorActivityPacket sponsor_activity;
-  };
+  } opaq;
 };
 
 constexpr size_t RETX_QUEUE_SIZE = 4;

@@ -91,6 +91,13 @@ class EcPoint {
 struct Signature {
   internal::EcPoint pub;
   uint64_t r, s;
+
+  /**
+   * Dump the signature to a buffer. Buffer should be at least
+   * ECC_SIGNATURE_SIZE. This function does not perform any size checks! Caller
+   * is responsible for it.
+   */
+  void toBuffer(uint8_t *buffer) const;
 };
 
 class EcLogic {

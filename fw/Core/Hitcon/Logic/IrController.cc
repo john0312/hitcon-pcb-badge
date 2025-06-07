@@ -61,11 +61,11 @@ void IrController::OnPacketReceived(void* arg) {
   if (data->type == packet_type::kGame) {
     // removed
   } else if (data->type == packet_type::kTest) {
-    hardware_test_app.CheckIr(&data->show);
+    hardware_test_app.CheckIr(&data->opaq.show);
   } else if (data->type == packet_type::kShow) {
-    scheduler.Queue(&showtext_task, &data->show);
+    scheduler.Queue(&showtext_task, &data->opaq.show);
   } else if (data->type == packet_type::kAcknowledge) {
-    OnAcknowledgePacket(&data->acknowledge);
+    OnAcknowledgePacket(&data->opaq.acknowledge);
   }
 }
 
@@ -235,7 +235,7 @@ void IrController::SendShowPacket(char* msg) {
       .type = packet_type::kShow,
   };
   size_t length = strlen(msg);
-  memcpy(irdata.show.message, msg, length);
+  memcpy(irdata.opaq.show.message, msg, length);
   memcpy(&priority_data_, &irdata, sizeof(irdata));
   priority_data_len_ = sizeof(priority_data_) / sizeof(uint8_t);
   ;

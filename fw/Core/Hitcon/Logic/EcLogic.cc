@@ -227,6 +227,11 @@ EcPoint EcPoint::intersect(const EcPoint &other, const ModNum &l) const {
 
 }  // namespace internal
 
+void Signature::toBuffer(uint8_t *buffer) const {
+  memcpy(buffer, &r, ECC_SIGNATURE_SIZE / 2);
+  memcpy(buffer + ECC_SIGNATURE_SIZE / 2, &s, ECC_SIGNATURE_SIZE / 2);
+}
+
 bool EcLogic::StartSign(uint8_t const *message, uint32_t len,
                         callback_t callback, void *callbackArg1) {
   if (busy) return false;
