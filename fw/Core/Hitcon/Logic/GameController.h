@@ -38,7 +38,7 @@ class GameController {
 
   void Init();
   /**
-   * TODO: figure out the function signature.
+   * Signs the data produced from games and send it out.
    */
   bool SignAndSendData(packet_type packetType, const uint8_t *data,
                        size_t size);
@@ -50,6 +50,7 @@ class GameController {
   1 - Initialized. After Init().
   2 - Waiting for hash processor to compute private key.
   3 - Got private key. Announce the pubkey.
+  4 - Scan through the packet queue and sign / send them out whenever possible.
   */
   int state_;
 

@@ -173,7 +173,6 @@ void GameController::RoutineFunc() {
     // Scan the packet queue and transmit them if possible
     for (size_t packetId = 0; packetId < PACKET_QUEUE_SIZE; ++packetId) {
       if (packet_queue_[packetId].status != kWaitTransmit) continue;
-      // TODO: try to transmit the packet
       SignedPacket &packet = packet_queue_[packetId];
       hitcon::ir::IrData irdata = {.ttl = 0, .type = packet.type};
       memcpy(&irdata.opaq, packet.data, packet.dataSize);
