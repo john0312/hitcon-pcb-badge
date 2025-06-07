@@ -29,6 +29,7 @@
 #include <Service/IrService.h>
 #include <Service/NoiseSource.h>
 #include <Service/Sched/Scheduler.h>
+#include <Service/SignedPacketService.h>
 #include <Service/XBoardService.h>
 
 using namespace hitcon;
@@ -62,6 +63,7 @@ void hitcon_run() {
   g_fast_random_pool.Init();
   g_secure_random_pool.Init();
   g_ec_logic.Init();
+  g_signed_packet_service.Init();
   g_game_controller.Init();
   g_game_score.Init();
   g_flash_service.Init();

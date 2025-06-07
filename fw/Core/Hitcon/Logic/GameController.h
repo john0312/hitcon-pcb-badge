@@ -12,36 +12,11 @@ namespace game {
 constexpr uint8_t PRIVATE_KEY_SRC_PREFIX[] = {'2', '0', '2', '5',
                                               'P', 'R', 'I', 'V'};
 
-constexpr size_t PACKET_QUEUE_SIZE = 4;
-
-enum PacketStatus : uint8_t {
-  kFree,
-  kWaitSignStart,
-  kWaitSignDone,
-  kWaitTransmit
-};
-
-constexpr size_t MAX_PACKET_DATA_SIZE = 13;
-
-struct SignedPacket {
-  PacketStatus status;
-  packet_type type;
-  size_t signatureOffset;
-  uint8_t data[MAX_PACKET_DATA_SIZE];
-  size_t dataSize;
-  uint8_t sig[ECC_SIGNATURE_SIZE];
-};
-
 class GameController {
  public:
   GameController();
 
   void Init();
-  /**
-   * Signs the data produced from games and send it out.
-   */
-  bool SignAndSendData(packet_type packetType, const uint8_t *data,
-                       size_t size);
 
  private:
   /*
@@ -50,7 +25,6 @@ class GameController {
   1 - Initialized. After Init().
   2 - Waiting for hash processor to compute private key.
   3 - Got private key. Announce the pubkey.
-  4 - Scan through the packet queue and sign / send them out whenever possible.
   */
   int state_;
 
@@ -62,10 +36,6 @@ class GameController {
   bool TrySendPubAnnounce();
   void OnPrivKeyHashFinish(void *arg2);
   void RoutineFunc();
-
-  size_t signingPacketId;
-  SignedPacket packet_queue_[PACKET_QUEUE_SIZE];
-  void OnPacketSignFinish(hitcon::ecc::Signature *signature);
 };
 enum GameType : uint8_t { kNone, kSnake, kTetris };
 
