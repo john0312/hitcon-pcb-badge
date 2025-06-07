@@ -16,3 +16,4 @@ pcb/kicad/pcb_badge/fp-info-cache
 /dist
 /pcb-util/.venv
 .DS_Store
+.aider*
