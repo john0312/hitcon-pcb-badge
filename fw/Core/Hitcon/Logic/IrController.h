@@ -205,7 +205,7 @@ class IrController {
   // Periodic check on queued_packets_
   void MaintainQueued();
 
-  // Called when we received an acknowledgement packet.
+  // Called when we received an acknowledgment packet.
   void OnAcknowledgePacket(AcknowledgePacket* pckt);
   // Called by HashProcessor when hashing finished.
   void OnPacketHashResult(void* hash_result);
