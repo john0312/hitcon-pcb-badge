@@ -17,3 +17,4 @@ pcb/kicad/pcb_badge/fp-info-cache
 /pcb-util/.venv
 .DS_Store
 .aider*
+*.egg-info
