@@ -5,8 +5,10 @@ from bson import ObjectId
 from typing import Annotated
 from enum import Enum
 import uuid
-import time
+import datetime
 from typing import Dict
+
+utcnow = lambda: datetime.datetime.now(datetime.timezone.utc)
 
 class _ObjectIdPydanticAnnotation:
     # Based on https://docs.pydantic.dev/latest/usage/types/custom/#handling-third-party-types.
@@ -88,7 +90,7 @@ class IrPacketObject(BaseModel):
     packet_id: Optional[uuid.UUID] = Field(None)
     data: PyBinary
     hash: PyBinary
-    timestamp: Optional[float] = Field(default_factory=time.time)
+    timestamp: Optional[datetime.datetime] = Field(default_factory=utcnow)
 
 
 # === Events from Parsed packets ===
@@ -96,6 +98,7 @@ class Event(BaseModel):
     event_id: Optional[uuid.UUID] = Field(default_factory=uuid.uuid4)
     packet_id: Optional[uuid.UUID] = Field(None)
     station_id: Optional[uuid.UUID] = Field(None)
+    timestamp: Optional[datetime.datetime] = Field(default_factory=utcnow)
 
 
 class ProximityEvent(Event):
