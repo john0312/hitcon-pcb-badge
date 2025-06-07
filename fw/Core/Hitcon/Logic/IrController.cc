@@ -7,6 +7,7 @@
 #include <Logic/GameController.h>
 #include <Logic/IrController.h>
 #include <Logic/RandomPool.h>
+#include <Logic/XboardLogic.h>
 #include <Service/HashService.h>
 #include <Service/IrService.h>
 #include <Service/Sched/Scheduler.h>
@@ -15,6 +16,8 @@
 #include <cstring>
 
 using namespace hitcon::service::sched;
+using hitcon::service::xboard::g_xboard_logic;
+using hitcon::service::xboard::UsartConnectState;
 
 namespace hitcon {
 namespace ir {
@@ -193,8 +196,14 @@ void IrController::MaintainQueued() {
     } else if (current_status == kRetransmitStatusWaitTxSlot) {
       // Waiting for IrController's tx slot to open up. (Hash is ready)
       if (current_tx_slot == -1) {
-        bool ret = irLogic.SendPacket(&(queued_packets_[i].data[0]),
-                                      queued_packets_[i].size);
+        bool ret;
+        if (g_xboard_logic.GetConnectState() == UsartConnectState::Connect) {
+          ret = g_xboard_logic.SendIRPacket(&(queued_packets_[i].data[0]),
+                                            queued_packets_[i].size);
+        } else {
+          ret = irLogic.SendPacket(&(queued_packets_[i].data[0]),
+                                   queued_packets_[i].size);
+        }
         if (ret) {
           // Packet successfully queued for transmission by irLogic.
           current_tx_slot =

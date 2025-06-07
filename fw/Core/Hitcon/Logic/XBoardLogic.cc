@@ -21,6 +21,7 @@ inline uint16_t inc_head(size_t head, size_t offset) {
 constexpr uint8_t PADDING_MAP[] = {0, 3, 2, 1};
 }  // namespace
 
+constexpr uint64_t PREAMBLE = 0xD555555555555555ULL;
 struct Frame {
   uint64_t preamble;  // 0xD555555555555555
   uint16_t id;
@@ -50,8 +51,8 @@ void XBoardLogic::QueueDataForTx(uint8_t *packet, uint8_t packet_len,
                                  RecvFnId handler_id) {
   my_assert(packet_len < PKT_PAYLOAD_LEN_MAX);
   uint8_t pkt[HEADER_SZ + PKT_PAYLOAD_LEN_MAX] = {0};
-  *(Frame *)pkt = Frame{0xD555555555555555, 0, packet_len,
-                        static_cast<uint8_t>(handler_id), 0};
+  *(Frame *)pkt =
+      Frame{PREAMBLE, 0, packet_len, static_cast<uint8_t>(handler_id), 0};
   for (uint8_t i = 0; i < packet_len; ++i) {
     pkt[i + HEADER_SZ] = packet[i];
   }
@@ -107,10 +108,16 @@ bool XBoardLogic::TryReadBytes(uint8_t *dst, size_t size,
   return true;
 }
 
+bool XBoardLogic::SendIRPacket(uint8_t *data, size_t len) {
+  g_xboard_logic.QueueDataForTx(data, len, IR_RECV_ID);
+  // TODO: Checking ACK
+  // assuming always ACKed now
+  return true;
+}
+
 void XBoardLogic::SendPing() {
   uint8_t pkt[HEADER_SZ] = {0};
-  *reinterpret_cast<Frame *>(pkt) =
-      Frame{0xD555555555555555, 0, 0, PING_TYPE, 0};
+  *reinterpret_cast<Frame *>(pkt) = Frame{PREAMBLE, 0, 0, PING_TYPE, 0};
   reinterpret_cast<Frame *>(pkt)->checksum = fast_crc32(pkt, HEADER_SZ);
   // for (int i = 0; i < sizeof(Frame); i++) {
   //   pkt[i] = (0x11+i)&0x0FF;
@@ -121,8 +128,7 @@ void XBoardLogic::SendPing() {
 
 void XBoardLogic::SendPong() {
   uint8_t pkt[HEADER_SZ] = {0};
-  *reinterpret_cast<Frame *>(pkt) =
-      Frame{0xD555555555555555, 0, 0, PONG_TYPE, 0};
+  *reinterpret_cast<Frame *>(pkt) = Frame{PREAMBLE, 0, 0, PONG_TYPE, 0};
   reinterpret_cast<Frame *>(pkt)->checksum = fast_crc32(pkt, HEADER_SZ);
   // for (int i = 0; i < sizeof(Frame); i++) {
   //   pkt[i] = (0x11+i)&0x0FF;
@@ -161,7 +167,7 @@ void XBoardLogic::ParsePacket() {
     Frame *header = reinterpret_cast<Frame *>(pkt);
     uint8_t *payload = pkt + HEADER_SZ;
     TryReadBytes(reinterpret_cast<uint8_t *>(header), HEADER_SZ);
-    if (header->preamble != 0xD555555555555555) {
+    if (header->preamble != PREAMBLE) {
       cons_head = inc_head(cons_head, 1);
       ++bytes_processed;
       continue;

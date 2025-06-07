@@ -58,6 +58,8 @@ class XBoardLogic {
 
   enum UsartConnectState GetConnectState();
 
+  bool SendIRPacket(uint8_t *data, size_t len);
+
  private:
   // buffer variables
 
