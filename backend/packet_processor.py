@@ -145,7 +145,7 @@ class PacketProcessor:
     async def send_packet_to_station(self, ir_packet: IrPacket) -> uuid.UUID:
         hv = self.packet_hash(ir_packet)
 
-        db_packet = IrPacketObject(packet_id=ir_packet.packet_id, data=Binary(ir_packet.data), hash=Binary(hv), timestamp=int(time.time()))
+        db_packet = IrPacketObject(packet_id=ir_packet.packet_id, data=Binary(ir_packet.data), hash=Binary(hv))
 
         # add the packet to the database
         result = await self.packets.insert_one(
@@ -164,7 +164,7 @@ class PacketProcessor:
     async def queue_user_packet(self, ir_packet: IrPacket, user: int) -> uuid.UUID:
         hv = self.packet_hash(ir_packet)
 
-        db_packet = IrPacketObject(packet_id=ir_packet.packet_id, data=Binary(ir_packet.data), hash=Binary(hv), timestamp=int(time.time()))
+        db_packet = IrPacketObject(packet_id=ir_packet.packet_id, data=Binary(ir_packet.data), hash=Binary(hv))
 
         # add the packet to the database
         await self.packets.insert_one(
