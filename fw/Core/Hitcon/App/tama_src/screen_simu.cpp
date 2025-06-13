@@ -2,17 +2,6 @@
 #define DISPLAY_WIDTH 16
 #define DISPLAY_HEIGHT 8
 #define SLEEP_US 500000
-#define CAT_IDLE_FRAME_COUNT 2
-#define DOG_IDLE_FRAME_COUNT 2
-#define SELECT_CHARACTER_FRAME_COUNT 2
-#define HATCH_WARNING_REPEAT_SHINE_COUNT 3
-#define HATCH_STATUS_FRAME_COUNT 4
-#define NEW_SCREEN NULL
-#define NUM_AREA_WIDTH 8
-#define NUM_AREA_HEIGHT 5
-#define EGG_AREA_WIDTH 8
-#define EGG_AREA_HEIGHT 8
-#define HATCH_START_COUNT 400
 typedef unsigned char uint8_t;
 
 #include <unistd.h>
@@ -20,18 +9,6 @@ typedef unsigned char uint8_t;
 #include <iostream>
 
 #include "screens.h"
-
-typedef struct COMPONENT_INFO {
-  int x_offset;
-  int y_offset;
-  int x_len;
-  int y_len;
-} component_info;
-
-typedef struct BASE_INFO {
-  int width;
-  int height;
-} base_info;
 
 using hitcon::app::tama::components::m_cat_idle1;
 using hitcon::app::tama::components::m_cat_idle2;
@@ -47,55 +24,11 @@ using hitcon::app::tama::egg_icon::m_egg_hatch_shinning1;
 using hitcon::app::tama::egg_icon::m_egg_hatch_shinning2;
 using hitcon::app::tama::menu_icon::icon_important;
 using hitcon::app::tama::menu_icon::num_icon;
+
+/*--- simulation relative start---*/
 /**
- * @brief The function of stack const component onto a base layer
- *
- * @param component the component to be stacked on the top. Only accept const,
- * because components are const in screens.h
- * @param base the base to be stacked on. Can pass the base you want to modify,
- * or pass NULL create from a new one
- * @param comp_info The info of the input component.
- * @return uint8_t* : The address of the base. For multi-layer stack.
- */
-uint8_t* stack_target_offset(const uint8_t* component, uint8_t* base,
-                             component_info comp_info, base_info bs_info) {
-  // use a new base if input is empty
-  if (base == NULL) {
-    if (bs_info.width <= 0 || bs_info.height <= 0) {
-      std::cerr << "Error: Invalid base dimensions." << std::endl;
-      return nullptr;
-    }
-    // create a new memory at heap and fill with 0
-    base = new uint8_t[bs_info.width * bs_info.height]();
-    if (base == nullptr) {
-      std::cerr << "Error: Memory allocation failed." << std::endl;
-      return nullptr;
-    }
-  }
-
-  // edge check
-  if (comp_info.x_offset + comp_info.x_len > bs_info.width ||
-      comp_info.y_offset + comp_info.y_len > bs_info.height) {
-    std::cerr << "Error: Component exceeds base dimensions." << std::endl;
-    return base;
-  }
-
-  // stack new component onto base
-  for (int y = 0; y < comp_info.y_len; ++y) {
-    for (int x = 0; x < comp_info.x_len; ++x) {
-      int base_index =
-          (comp_info.y_offset + y) * bs_info.width + (comp_info.x_offset + x);
-      int component_index = y * comp_info.x_len + x;
-      int bit_status = component[component_index] | base[base_index];
-      base[base_index] = bit_status;
-    }
-  }
-
-  return base;
-}
-
-/**
- * @brief The function to show the full screen in terminal
+ * @brief The function to show the full screen in terminal. Will only use in
+ * simulation.
  *
  * @param buf the frame to be displayed
  */
@@ -135,8 +68,93 @@ void show_anime_with_delay(const uint8_t** frame_collection, int frame_count,
     usleep(delay_us);
   }
 }
+/*--- simulation relative end--- */
 
-/** component part */
+/** --- basic definition part start ---*/
+#define CAT_IDLE_FRAME_COUNT 2
+#define DOG_IDLE_FRAME_COUNT 2
+#define SELECT_CHARACTER_FRAME_COUNT 2
+#define HATCH_WARNING_REPEAT_SHINE_COUNT 3
+#define HATCH_STATUS_FRAME_COUNT 4
+#define NEW_SCREEN NULL
+#define NUM_AREA_WIDTH 8
+#define NUM_AREA_HEIGHT 5
+#define EGG_AREA_WIDTH 8
+#define EGG_AREA_HEIGHT 8
+#define HATCH_START_COUNT 400
+
+typedef struct COMPONENT_INFO {
+  int x_offset;
+  int y_offset;
+  int x_len;
+  int y_len;
+} component_info;
+
+typedef struct BASE_INFO {
+  int width;
+  int height;
+} base_info;
+
+/**
+ * @brief The function of stack const component onto a base layer
+ *
+ * @param component the component to be stacked on the top. Only accept const,
+ * because components are const in screens.h
+ * @param base the base to be stacked on. Can pass the base you want to modify,
+ * or pass NULL create from a new one
+ * @param comp_info The info of the input component.
+ * @param bs_info The info of the base. Must be valid, but only used when
+ * base is NULL.
+ * @return uint8_t* : The address of the base. For multi-layer stack.
+ */
+uint8_t* stack_target_offset(const uint8_t* component, uint8_t* base,
+                             component_info comp_info, base_info bs_info) {
+  // use a new base if input is empty
+  if (base == NULL) {
+    if (bs_info.width <= 0 || bs_info.height <= 0) {
+      std::cerr << "Error: Invalid base dimensions." << std::endl;
+      return nullptr;
+    }
+    // create a new memory at heap and fill with 0
+    base = new uint8_t[bs_info.width * bs_info.height]();
+    if (base == nullptr) {
+      std::cerr << "Error: Memory allocation failed." << std::endl;
+      return nullptr;
+    }
+  }
+
+  // edge check
+  if (comp_info.x_offset + comp_info.x_len > bs_info.width ||
+      comp_info.y_offset + comp_info.y_len > bs_info.height) {
+    std::cerr << "Error: Component exceeds base dimensions." << std::endl;
+    return base;
+  }
+
+  // stack new component onto base
+  for (int y = 0; y < comp_info.y_len; ++y) {
+    for (int x = 0; x < comp_info.x_len; ++x) {
+      int base_index =
+          (comp_info.y_offset + y) * bs_info.width + (comp_info.x_offset + x);
+      int component_index = y * comp_info.x_len + x;
+      int bit_status = component[component_index] | base[base_index];
+      base[base_index] = bit_status;
+    }
+  }
+
+  return base;
+}
+/** --- basic definition part end ---*/
+
+/** --- component part start ---*/
+/**
+ * @brief Get the number component based on the target number.
+ *
+ * The number component will be a stack of three digits, each digit is 2x5
+ * pixels. The maximum number is 999, and the minimum is 0.
+ *
+ * @param target_num The target number to be displayed, from 0 to 999.
+ * @return const uint8_t* The address of the number component.
+ */
 const uint8_t* get_number_component(int target_num) {
   // check boundary of input
   if (target_num > 999) {
@@ -216,6 +234,14 @@ const uint8_t* get_number_component(int target_num) {
   return base;
 }
 
+/**
+ * @brief Get the warning component, which is a stack of three warning icons.
+ *
+ * The warning component is used to indicate that the pet is born and needs
+ * attention.
+ *
+ * @return const uint8_t* The address of the warning component.
+ */
 const uint8_t* get_warning_component() {
   // similar to get_number_component, but only return a warning icon
   base_info my_base_info = {
@@ -251,7 +277,16 @@ const uint8_t* get_warning_component() {
   return base;
 }
 
-/* combine hatch component with num component */
+/**
+ * @brief Get the egg component based on the hatching percentage.
+ *
+ * The egg component will be one of the four stages:
+ * 0% (egg), 25% (egg with cracks), 50% (egg with more cracks),
+ * 75% (egg with even more cracks).
+ *
+ * @param percentage The percentage of hatching, from 0 to 100.
+ * @return const uint8_t* The address of the egg component.
+ */
 const uint8_t* get_egg_component(int percentage) {
   // check boundary of input
   if (percentage > 100) {
@@ -291,7 +326,13 @@ const uint8_t* get_egg_component(int percentage) {
   return base;
 }
 
-/** frame part */
+/** --- component part end---*/
+
+/** --- frame part start ---*/
+/**
+ * @brief Get a frame of hatch status, including egg component (reflect hatching
+ * status) and number component (reflect remaining count).
+ */
 const uint8_t* get_hatch_status_frame(int remaining_count) {
   // check boundary of input
   if (remaining_count > 999) {
@@ -327,6 +368,7 @@ const uint8_t* get_hatch_status_frame(int remaining_count) {
   }
 
   uint8_t* base;
+  /* combine hatch component with num component */
   // stack egg icon
   base = stack_target_offset(get_egg_component(percentage), NULL,
                              egg_component_info, my_base_info);
@@ -337,7 +379,14 @@ const uint8_t* get_hatch_status_frame(int remaining_count) {
   return base;
 }
 
-// stack warning frame and icon_important
+/**
+ * @brief Get the pet born warning frame
+ *
+ * The warning frame has stack icon_important component and shining icon.
+ *
+ * @param frame 0 or 1, to get different frame
+ * @return const uint8_t* The address of the frame
+ */
 const uint8_t* get_hatch_born_warning_frame(int frame) {
   // check boundary of input
   if (frame < 0 || frame > 1) {
@@ -378,7 +427,10 @@ const uint8_t* get_hatch_born_warning_frame(int frame) {
   return base;
 }
 
+/** --- frame part end ---*/
+
 /* ------ example part ----- */
+// Just examples of how to use
 
 /**
  * @brief The example of cat_idle
@@ -503,6 +555,14 @@ void select_character(int repeat_count) {
   }
 }
 
+/**
+ * @brief The example of egg hatch
+ *
+ * The example counts down from 390 to 0, and shows the different hatching
+ * scene.
+ *
+ * @param repeat_count How many times should frame_collection repeat
+ */
 void egg_hatch(int repeat_count) {
   component_info component_info = {
       .x_len = 16,
@@ -550,6 +610,17 @@ void egg_hatch(int repeat_count) {
   }
 }
 
+/**
+ * @brief The example of number test
+ *
+ * This function will show diffent digits examples of number icon, like
+ * 1, 23, 456, 789, 100.
+ *
+ * Note: 23 can't fill like 023, or it will be recognized as octal format
+ * number.
+ *
+ * @param repeat_count How many times should frame_collection repeat
+ */
 void num_test(int repeat_count) {
   const int frame_count = 5;
   component_info num_area_component_info = {
