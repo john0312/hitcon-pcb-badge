@@ -4263,16 +4263,6 @@
 	)
 	(wire
 		(pts
-			(xy 116.84 105.41) (xy 121.92 105.41)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "07572d39-fb5d-466c-9e84-f3686758f9e5")
-	)
-	(wire
-		(pts
 			(xy 111.76 200.66) (xy 111.76 204.47)
 		)
 		(stroke
@@ -5833,16 +5823,6 @@
 	)
 	(wire
 		(pts
-			(xy 116.84 102.87) (xy 121.92 102.87)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "a4dd67ad-8a89-4864-8bd7-a92600f6d9f6")
-	)
-	(wire
-		(pts
 			(xy 134.62 212.09) (xy 134.62 214.63)
 		)
 		(stroke
@@ -5970,6 +5950,16 @@
 			(type default)
 		)
 		(uuid "b06d591d-41e9-473b-937a-4e664b400e85")
+	)
+	(wire
+		(pts
+			(xy 116.84 102.87) (xy 121.92 102.87)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "b105c2f5-41a6-418e-9922-ba4f9143f451")
 	)
 	(wire
 		(pts
@@ -6500,6 +6490,16 @@
 			(type default)
 		)
 		(uuid "d5d9760e-716c-4748-b686-2d48b0b2c91b")
+	)
+	(wire
+		(pts
+			(xy 116.84 105.41) (xy 121.92 105.41)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "d73e8a80-a943-4567-b924-365857d202d3")
 	)
 	(wire
 		(pts
@@ -7654,7 +7654,7 @@
 	)
 	(hierarchical_label "DEC_EN"
 		(shape output)
-		(at 116.84 105.41 180)
+		(at 116.84 102.87 180)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7709,7 +7709,7 @@
 	)
 	(hierarchical_label "A1"
 		(shape output)
-		(at 116.84 102.87 180)
+		(at 116.84 105.41 180)
 		(effects
 			(font
 				(size 1.27 1.27)
