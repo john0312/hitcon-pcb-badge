@@ -1,6 +1,8 @@
 #include "IrLogic.h"
 
 #include <Logic/IrLogic.h>
+#include <Logic/XboardLogic.h>
+#include <Logic/XboardRecvFn.h>
 #include <Logic/crc32.h>
 #include <Service/IrService.h>
 #include <Service/Suspender.h>
@@ -9,6 +11,8 @@
 #include <cstring>
 
 using hitcon::service::sched::my_assert;
+using hitcon::service::xboard::g_xboard_logic;
+using hitcon::service::xboard::IR_RECV_ID;
 
 namespace hitcon {
 namespace ir {
@@ -24,6 +28,12 @@ void IrLogic::Init() {
   // Set callback
   irService.SetOnBufferReceived(
       (callback_t)&IrLogic::OnBufferReceivedEnqueueTask, this);
+  // This is logically correct because this is triggered only when Xboard is
+  // connected
+  // Possible Vuln: the IR decode can cause CPU out of service if there are
+  // too many xboard packets.
+  g_xboard_logic.SetOnPacketArrive((callback_t)&IrLogic::OnBufferReceived, this,
+                                   IR_RECV_ID);
 }
 
 size_t packet_buf{0};
