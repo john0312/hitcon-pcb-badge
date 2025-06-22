@@ -1,5 +1,5 @@
 from typing import Optional
-from schemas import IrPacket, Event, TwoBadgeActivityEvent, SponsorActivityEvent
+from schemas import IrPacket, Event, TwoBadgeActivityEvent, SponsorActivityEvent, PubAnnounceEvent
 from database import db
 from ecc_utils import ecc_sign, ecc_verify
 
@@ -14,6 +14,12 @@ class CryptoAuth:
     @staticmethod
     async def get_pubkey_by_username(user: int) -> Optional[int]:
         return db["users"].find_one({"user": user})["pubkey"]
+
+
+    @staticmethod
+    async def derive_user_by_pubkey(pubkey: bytes) -> Optional[int]:
+        # TODO: mock fetch user
+        return int.from_bytes(pubkey[:4], "little")
 
 
     # ===== APIs for PacketProcessor =====
@@ -45,6 +51,9 @@ class CryptoAuth:
         elif event.__class__ == SponsorActivityEvent:
             # SponsorActivityEvent does not require signature verification
             pass
+        elif event.__class__ == PubAnnounceEvent:
+            user = await CryptoAuth.derive_user_by_pubkey(event.pubkey.to_bytes(8, 'little'))
+            return user
         else:
             sig = event.signature.to_bytes(14, 'little')
             pub = (await CryptoAuth.get_pubkey_by_username(event.user)).to_bytes(8, 'little')
