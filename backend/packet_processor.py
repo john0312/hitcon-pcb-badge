@@ -51,6 +51,9 @@ class PacketProcessor:
 
     # ===== Interface to HTTP =====
     async def on_receive_packet(self, ir_packet_schema: IrPacketRequestSchema, station: Station) -> None:
+        if not ir_packet_schema.data:
+            return
+
         if await self.handle_acknowledgment(ir_packet_schema, station):
             # If the packet is an acknowledgment, we don't need to do anything else.
             return
