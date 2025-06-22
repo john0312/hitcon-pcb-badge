@@ -264,6 +264,29 @@ bool EcLogic::StartVerify(uint8_t const *message, uint32_t len,
 }
 
 void EcLogic::doSign(HashResult *hashResult) {
+#ifdef MOCK_ECC
+  static_assert(sizeof(privateKey) >= 8);
+  memcpy(&tmpCompactSignature[0], &privateKey, 8);
+  memcpy(&tmpCompactSignature[8], &privateKey, 6);
+  // Mock:
+  // SIG[0:14] = (PRIVKEY[0:8] ^ HASH[0:8] ^ {0x5, 0x3f, 0x85, 0x5c, 0xba, 0x24,
+  // 0x64, 0x44}) + (PRIVKEY[0:6] ^ HASH[2:8] ^ {0x18, 0x3b, 0xf6, 0x78, 0x37,
+  // 0x60})
+  tmpCompactSignature[0] ^= (0x05 ^ hashResult->digest[0]);
+  tmpCompactSignature[1] ^= (0x3f ^ hashResult->digest[1]);
+  tmpCompactSignature[2] ^= (0x85 ^ hashResult->digest[2]);
+  tmpCompactSignature[3] ^= (0x5c ^ hashResult->digest[3]);
+  tmpCompactSignature[4] ^= (0xba ^ hashResult->digest[4]);
+  tmpCompactSignature[5] ^= (0x24 ^ hashResult->digest[5]);
+  tmpCompactSignature[6] ^= (0x64 ^ hashResult->digest[6]);
+  tmpCompactSignature[7] ^= (0x44 ^ hashResult->digest[7]);
+  tmpCompactSignature[8] ^= (0x18 ^ hashResult->digest[2]);
+  tmpCompactSignature[9] ^= (0x3b ^ hashResult->digest[3]);
+  tmpCompactSignature[10] ^= (0xf6 ^ hashResult->digest[4]);
+  tmpCompactSignature[11] ^= (0x78 ^ hashResult->digest[5]);
+  tmpCompactSignature[12] ^= (0x37 ^ hashResult->digest[6]);
+  tmpCompactSignature[13] ^= (0x60 ^ hashResult->digest[7]);
+#else
   uint64_t z = *(uint64_t *)hashResult->digest;
   ModNum r(0, g_curveOrder), s(0, g_curveOrder);
   while (s == 0) {
@@ -278,7 +301,9 @@ void EcLogic::doSign(HashResult *hashResult) {
   tmpSignature.pub = g_generator * privateKey;
   tmpSignature.r = r.val;
   tmpSignature.s = s.val;
-  scheduler.Queue(&finalizeTask, &tmpSignature);
+  tmpSignature.toBuffer(&tmpCompactSignature);
+#endif
+  scheduler.Queue(&finalizeTask, &tmpCompactSignature);
 }
 
 void EcLogic::finalizeSignVerif(void *result) {
@@ -312,6 +337,19 @@ void EcLogic::doDerivePublic(void *unused) {
   my_assert(
       privateKey !=
       0);  // Private key must be set and non-zero for a standard public key
+#ifdef MOCK_ECC
+  static_assert(sizeof(privateKey) >= ECC_PUBKEY_SIZE);
+  memcpy(publicKey, &privateKey, ECC_PUBKEY_SIZE);
+  publicKey[1] ^= 0x35;
+  publicKey[2] ^= 0x57;
+  publicKey[3] ^= 0x7a;
+  publicKey[4] ^= 0xbd;
+  publicKey[5] ^= 0xf9;
+  publicKey[6] ^= 0xbf;
+  // Leave the last byte untouched, it's the signess.
+
+  publicKeyReady = true;
+#else
   EcPoint pubPoint = g_generator * privateKey;
 
   // Ensure the derived point is not the point at infinity
@@ -323,6 +361,7 @@ void EcLogic::doDerivePublic(void *unused) {
   } else {
     publicKeyReady = false;
   }
+#endif
 }
 
 bool EcLogic::GetPublicKey(uint8_t *buffer) {

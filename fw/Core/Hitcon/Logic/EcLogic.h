@@ -7,6 +7,9 @@
 #include <stdint.h>
 #include <stdlib.h>
 
+// TODO: Turn this off.
+#define MOCK_ECC 1
+
 namespace hitcon {
 
 namespace ecc {
@@ -178,6 +181,7 @@ class EcLogic {
    * returns.
    */
   ecc::Signature tmpSignature;
+  uint8_t tmpCompactSignature[ECC_SIGNATURE_SIZE];
   /**
    * Temporary storage of the message.
    * Lives since the public method (StartSign, StartVerify) is called till the
