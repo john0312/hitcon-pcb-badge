@@ -17,6 +17,7 @@
 #include <Logic/EntropyHub.h>
 #include <Logic/GameController.h>
 #include <Logic/GameScore.h>
+#include <Logic/ImuLogic.h>
 #include <Logic/IrController.h>
 #include <Logic/IrLogic.h>
 #include <Logic/NvStorage.h>
@@ -26,6 +27,7 @@
 #include <Service/DisplayService.h>
 #include <Service/FlashService.h>
 #include <Service/HashService.h>
+#include <Service/ImuService.h>
 #include <Service/IrService.h>
 #include <Service/NoiseSource.h>
 #include <Service/Sched/Scheduler.h>
@@ -69,6 +71,8 @@ void hitcon_run() {
   g_flash_service.Init();
   g_nv_storage.Init();
   g_display_logic.Init();
+  g_imu_service.Init();
+  g_imu_logic.Init();
 
   g_button_logic.Init();
   g_button_service.Init();

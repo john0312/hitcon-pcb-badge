@@ -23,7 +23,9 @@ enum TEST_APP_STATE {  // TODO: add xboard connect/disconnect test
   TS_BTN_DOWN,
   TS_XBOARD,
   TS_IR,
-  TS_PASS,
+  TS_GYRO,
+  TS_ACC,
+  TS_PASS = 50,
   TS_FAIL = 99,
 };
 
@@ -52,6 +54,7 @@ class HardwareTestApp : public App {
   uint8_t _ir_data_len;
   void Routine(void* unused);
   void CheckXBoard(void* arg1);
+  void CheckImu(void* arg1);
 };
 
 extern HardwareTestApp hardware_test_app;
