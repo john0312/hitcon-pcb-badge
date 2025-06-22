@@ -14,6 +14,9 @@ enum RecvFnId {
   XBOARD_GAME_CONTROLLER,                   // DISABLED/DEPRECATED
   XBOARD_GAME_CONTROLLER_ACK,               // DISABLED/DEPRECATED
   XBOARD_GAME_CONTROLLER_SEND_ALL_TRIGGER,  // DISABLED/DEPRECATED
+  ANNOUNCE_BASE_STATION, // base -> attendee
+  TO_BASE_STATION, // attendee -> base
+  TO_ATTENDEE, // base -> attendee
   // MAX is to express the length of callback function array
   MAX
 };

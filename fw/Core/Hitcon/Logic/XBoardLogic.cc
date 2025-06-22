@@ -8,6 +8,15 @@
 using namespace hitcon::service::sched;
 using namespace hitcon::service::xboard;
 
+// register external calls for connect/disconnect events here
+namespace {
+inline void OnConnectHandler() {
+  g_xboard_logic.QueueDataForTx(nullptr, 0, ANNOUNCE_BASE_STATION);
+}
+
+inline void OnDisconnectHandler() {}
+}  // namespace
+
 namespace hitcon {
 namespace service {
 namespace xboard {
@@ -238,8 +247,10 @@ void XBoardLogic::CheckPong() {
   if (next_state != connect_state && connect_state != UsartConnectState::Init) {
     if (next_state == Disconnect && disconnect_handler != nullptr) {
       disconnect_handler(disconnect_handler_self, nullptr);
+      OnDisconnectHandler();
     } else if (next_state == Connect && connect_handler != nullptr) {
       connect_handler(connect_handler_self, nullptr);
+      OnConnectHandler();
     }
   }
   recv_pong = false;

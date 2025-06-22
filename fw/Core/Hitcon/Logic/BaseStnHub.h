@@ -4,6 +4,8 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#include <array>
+
 #include "CdcLogic.h"
 #include "Service/Sched/Scheduler.h"
 #include "Util/CircularQueue.h"
@@ -14,6 +16,8 @@ namespace basestn {
 enum BufferType : uint8_t {
   RX = 0,
   TX = 1,
+  XBRX = 2,  // XBoard RX
+  XBTX = 3,  // XBoard TX
 };
 
 struct BufferMeta {
@@ -58,21 +62,36 @@ class BaseStationHub {
   bool ReadBuffer(BufferType buffer_type, uint8_t* data, size_t& cnt);
 
   void OnIrPacketRecv(uint8_t* data, size_t cnt);
+  void OnXBoardPacketRecv(uint8_t* data, size_t cnt);
 
  private:
   // 4 rx buffers and 4 tx buffers.
   // Each buffer is 33 bytes, 1 byte for status and 32 byte for data.
-  uint8_t rx_buffer[kTotalBufferSize] = {0};
-  uint8_t tx_buffer[kTotalBufferSize] = {0};
+  std::array<uint8_t, kTotalBufferSize> rx_buffer{};
+  std::array<uint8_t, kTotalBufferSize> tx_buffer{};
   CircularQueue<uint8_t, kBufferCount> rxq;
   CircularQueue<uint8_t, kBufferCount> txq;
 
+  std::array<uint8_t, kTotalBufferSize> xbrx_buffer{};
+  std::array<uint8_t, kTotalBufferSize> xbtx_buffer{};
+  CircularQueue<uint8_t, kBufferCount> xbrxq;
+  CircularQueue<uint8_t, kBufferCount> xbtxq;
+
+  std::array<std::array<uint8_t, kTotalBufferSize>*, 4> buffer_map = {
+      &rx_buffer, &tx_buffer, &xbrx_buffer, &xbtx_buffer};
+  std::array<CircularQueue<uint8_t, kBufferCount>*, 4> queue_map = {
+      &rxq, &txq, &xbrxq, &xbtxq};
+
   hitcon::service::sched::PeriodicTask _routine_task;
   void QueueTxHandler(hitcon::logic::cdc::PacketCallbackArg* arg);
+  void QueueXbTxHandler(hitcon::logic::cdc::PacketCallbackArg* arg);
 
   void Routine(void*);
-  void SendToIr();
+  // to control plane
   void SendToBaseStation();
+  // to peripheral
+  void SendToIr();
+  void SendToXBoard();
 };
 
 extern BaseStationHub g_basestn_hub;

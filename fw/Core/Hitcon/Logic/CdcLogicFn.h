@@ -8,6 +8,7 @@ namespace cdc {
 enum FnId {
   PLACE_HOLDER,
   QueueStationTX,
+  QueueXBoardTX = 0x11,
   // MAX is to express the length of callback function array
   MAX
 };
