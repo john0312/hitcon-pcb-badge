@@ -92,7 +92,7 @@ class PacketProcessor:
             )
 
             # handle the event
-            await PacketProcessor.packet_handlers[event.__class__](event, self)
+            await PacketProcessor.packet_handlers[event.__class__](event)
 
             # retransmit packets in the user queue (move these packets to station tx)
             if user is not None:
