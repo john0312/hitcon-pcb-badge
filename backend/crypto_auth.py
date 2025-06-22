@@ -13,7 +13,7 @@ class CryptoAuth:
     # ===== Generic methods for any other layers =====
     @staticmethod
     async def get_pubkey_by_username(user: int) -> Optional[int]:
-        return db["users"].find_one({"user": user})["pubkey"]
+        return await db["users"].find_one({"user": user})["pubkey"]
 
 
     @staticmethod

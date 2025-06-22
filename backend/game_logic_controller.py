@@ -144,7 +144,7 @@ class GameLogicController:
         print(f"Pub announce event: {hex(evt.pubkey)}")
         print(f"Signature: {hex(evt.signature)}")
         # station <--> user has been recorded by the PacketProcessor
-        result = db["users"].find_one({"pubkey": evt.pubkey})  # Ensure user exists
+        result = await db["users"].find_one({"pubkey": evt.pubkey})  # Ensure user exists
 
 
     @staticmethod
