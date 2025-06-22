@@ -306,6 +306,7 @@ class PacketProcessor:
     async def ack(self, ir_packet: IrPacketRequestSchema, station: Station) -> None:
         # Send an acknowledgment packet to the base station.
         ack_packet = IrPacket(
+            packet_id=ir_packet.packet_id,
             data=b"\x00" + PacketType.kAcknowledge.value.to_bytes(1, 'big') + self.packet_hash(ir_packet),
             station_id=station.station_id,
             to_stn=False
