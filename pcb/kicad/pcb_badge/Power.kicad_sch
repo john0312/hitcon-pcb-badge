@@ -4592,6 +4592,17 @@
 		)
 		(uuid "10a2616c-ecfc-4958-a6ad-09dae4dad3dc")
 	)
+	(text "5V * 100 / (100+100) = 2.5V\n4.7V => 2.35V\n5.3V => 2.65V\nBoth are below 2.8V (no current injection)\nand 1.9V (Vih, recongnized as high)"
+		(exclude_from_sim no)
+		(at 230.632 83.058 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "cf8e4f59-3ea3-4a0d-91d6-e7107ad4414e")
+	)
 	(label "USB_DM_RAW"
 		(at 71.12 149.86 0)
 		(effects
@@ -5448,7 +5459,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "33k"
+		(property "Value" "100k"
 			(at 246.38 101.5999 0)
 			(effects
 				(font

@@ -4223,14 +4223,6 @@
 		(at 234.95 168.91)
 		(uuid "b434e125-d76c-42a2-8b17-89790b31f033")
 	)
-	(no_connect
-		(at 88.9 93.98)
-		(uuid "d0f8e26c-aa54-402f-9336-10ca3d4b7cca")
-	)
-	(no_connect
-		(at 121.92 85.09)
-		(uuid "dcac061a-a45b-4165-ac9b-e658d7e7d486")
-	)
 	(wire
 		(pts
 			(xy 100.33 200.66) (xy 100.33 207.01)
@@ -4270,6 +4262,16 @@
 			(type default)
 		)
 		(uuid "09996a51-6d0f-43d9-aeae-64bfac52f6a6")
+	)
+	(wire
+		(pts
+			(xy 95.25 85.09) (xy 95.25 93.98)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "0a906531-723d-4f0e-bdfa-ede048356361")
 	)
 	(wire
 		(pts
@@ -4433,7 +4435,7 @@
 	)
 	(wire
 		(pts
-			(xy 85.09 93.98) (xy 88.9 93.98)
+			(xy 85.09 93.98) (xy 95.25 93.98)
 		)
 		(stroke
 			(width 0)
@@ -6323,6 +6325,16 @@
 	)
 	(wire
 		(pts
+			(xy 121.92 85.09) (xy 95.25 85.09)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "cb346b8f-ce18-4450-8bf1-cd06843d0fbc")
+	)
+	(wire
+		(pts
 			(xy 195.58 123.19) (xy 205.74 123.19)
 		)
 		(stroke
@@ -7016,7 +7028,7 @@
 		)
 		(uuid "84e0453a-8d64-4a0b-add6-90eeaafb540b")
 	)
-	(text "USB_DET MUST only be\nconnected to 5V\ntolerant GPIO"
+	(text "USB_DET MUST only be\nconnected to GPIO that\nallows for +5mA injection\n"
 		(exclude_from_sim no)
 		(at 78.486 88.646 0)
 		(effects
