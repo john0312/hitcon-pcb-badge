@@ -271,12 +271,12 @@ class PacketProcessor:
                 return None
 
 
-    def packet_hash(self, ir_packet: Union[IrPacket, IrPacketRequestSchema]) -> bytes:
+    def packet_hash(self, ir_packet: Union[IrPacket, IrPacketRequestSchema], ack: bool = False) -> bytes:
         """
         Get the packet hash. The function will exclude the ECC signature from the hash.
         """
         packet_type = self.get_packet_type(ir_packet)
-        if packet_type in PACKET_TYPE_WITHOUT_SIG:
+        if packet_type in PACKET_TYPE_WITHOUT_SIG or ack:
             data = bytes(ir_packet.data)
         else:
             data = bytes(ir_packet.data[:-(ECC_SIGNATURE_SIZE)])
@@ -310,7 +310,7 @@ class PacketProcessor:
         # Send an acknowledgment packet to the base station.
         ack_packet = IrPacket(
             packet_id=ir_packet.packet_id,
-            data=b"\x00" + PacketType.kAcknowledge.value.to_bytes(1, 'big') + self.packet_hash(ir_packet),
+            data=b"\x00" + PacketType.kAcknowledge.value.to_bytes(1, 'big') + self.packet_hash(ir_packet, ack=True),
             station_id=station.station_id,
             to_stn=False
         )
