@@ -26,7 +26,7 @@ class BackendInterface:
         payload = {
             "station_id": self.station_id,
             "packet_id": str(packet_id),
-            "packet_data": list(data)
+            "data": list(data)
         }
         url = f"{self.backend_url}/rx"
         headers = {"Authorization": f"Bearer {self.station_key}"}

@@ -14,18 +14,20 @@ class PacketProcessor:
         # Get packets from backend, check if already sent, if not send via IR
         while True:
             packets = await self.backend.get_next_tx_packet()
+            duplicate_count = 0
             for result in packets:
                 packet_data, packet_id = result
 
                 if packet_id in self.seen_packet_ids:
                     print(f"[TX] Ignoring duplicate packet {packet_id}")
+                    duplicate_count += 1
                 else:
                     print(f"[TX] Sending packet {packet_id} -> {packet_data}")
                     assert type(packet_data) == bytes, "Packet data must be bytes"
                     await self.ir.trigger_send_packet(packet_data)
                     self.seen_packet_ids.add(packet_id)
-            if len(result) == 0:
-                asyncio.sleep(1.0)
+            if len(packets)-duplicate_count == 0:
+                await asyncio.sleep(2.0)
 
     async def _rx_stream_task(self):
         # Receive IR packets and upload to backend
