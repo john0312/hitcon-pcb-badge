@@ -7,21 +7,31 @@ Necessary Fields:
 Preamble - 8 bytes. 0xD5 0x55 0x55 0x55 0x55 0x55 0x55 0x55
 
 PacketType - 1 byte
-    base station to badge:
+    base station to badge (to ir):
         * 0x01 for QueueTxBufferRequest
         * 0x81 for QueueTxBufferResponse
         * 0x02 for RetrieveRxBufferRequest 
         * 0x82 for RetrieveRxBufferResponse
         * 0x03 for GetStatusRequest
         * 0x83 for GetStatusResponse
+    
+    base station to badge (to cross board, use trigger_send_packet(..., to_cross_board=True)):
+        * 0x11 for QueueTxBufferRequest
+        * 0x91 for QueueTxBufferResponse
+        ... (other cross board commands)
 
-    badge to base station:
+    badge to base station (from ir):
         * 0x04 for PushTxBufferRequest
         * 0x84 for PushTxBufferResponse
         * 0x05 for PopRxBufferRequest
         * 0x85 for PopRxBufferResponse
         * 0x06 for SendStatusRequest
         * 0x86 for SendStatusResponse
+
+    badge to base station (from cross board):
+        * 0x14 for PushTxBufferRequest
+        * 0x94 for PushTxBufferResponse
+        ... (other cross board commands)
 
 PacketSequence - 1 byte. A random byte to denote which response maps to which request.
     The response should have the same packet sequence as the request.
@@ -82,12 +92,69 @@ from config import Config
 import asyncio
 import time
 from dataclasses import dataclass
-from typing import Optional
+from typing import Optional, List
 import logging
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
-# PacketType enum
+# Information prefixes in PacketType.
+class PT_INFO(enum.Enum):
+    CROSS_BOARD = 16 # Cross board command prefix = 0x10
+    # Add more information prefixes if needed in the future.
+    
+    @staticmethod
+    def add_infos(packet_type: bytes, infos: list) -> bytes:
+        packet_type = int.from_bytes(packet_type, byteorder='big')
+
+        for info in infos:
+            packet_type = packet_type | info.value
+
+        return packet_type.to_bytes(1, byteorder='big')
+    
+
+    # return bools indicating whether the info is in the packet_type.
+    @staticmethod
+    def is_infos_in(packet_type: bytes, infos) -> bool | list[bool]:
+        packet_type = int.from_bytes(packet_type, byteorder='big')
+
+        if type(infos) == PT_INFO:
+            return (packet_type & infos.value) != 0
+        
+        return [((packet_type & info.value) != 0) for info in infos]
+
+    # return list of PT_INFO, each PT_INFO indicates whether the info is in the packet_type.
+    @staticmethod
+    def get_all_info(packet_type: bytes) -> list:
+        b_array = PT_INFO.is_infos_in(packet_type, list(PT_INFO))
+        return [info for info, present in zip(list(PT_INFO), b_array) if present]
+
+    @staticmethod
+    def remove_infos(packet_type: bytes, infos: list) -> bytes:
+        packet_type = int.from_bytes(packet_type, byteorder='big')
+
+        for info in infos:
+            packet_type = packet_type & ~(info.value)
+
+        return packet_type.to_bytes(1, byteorder='big')
+
+    
+    @staticmethod
+    def remove_all_info(packet_type: bytes) -> bytes:
+        return PT_INFO.remove_infos(packet_type, list(PT_INFO))
+    
+    # return int representing sum of all info value in the input bytes.
+    @staticmethod
+    def get_info_value(packet_type: bytes) -> int:
+        ori_pt = int.from_bytes(PT_INFO.remove_all_info(packet_type), byteorder='big')
+        return ori_pt ^ int.from_bytes(packet_type, byteorder='big')
+
+    @staticmethod
+    def info_transfer(from_pt: bytes, to_pt: bytes) -> bytes:
+        result = PT_INFO.get_info_value(from_pt) | int.from_bytes(to_pt, byteorder='big')
+        return result.to_bytes(1, byteorder='big')
+    
+
+# PacketType without prefix.
 class PT(enum.Enum):
     
     QTQ = b'\x01' # QueueTxBufferRequest
@@ -103,8 +170,7 @@ class PT(enum.Enum):
     SSQ = b'\x06' # SendStatusRequest
     SSR = b'\x86' # SendStatusResponse
 
-    @staticmethod
-    def get_response(packet_type):
+    def get_response(self):
         # Get the response packet type for the request packet type.
         request_response_map = {
             PT.QTQ: PT.QTR,
@@ -121,13 +187,9 @@ class PT(enum.Enum):
             PT.SSR: PT.SSR
         }
 
-        if packet_type not in request_response_map:
-            raise ValueError(f"Invalid packet type: {packet_type}")
+        return request_response_map.get(self)
 
-        return request_response_map.get(packet_type)
-    
-    @staticmethod
-    def get_type_name(packet_type: bytes) -> str:
+    def get_type_name(self) -> str:
         type_name_map = {
             PT.QTQ: "QueueTxBufferRequest",
             PT.QTR: "QueueTxBufferResponse",
@@ -143,10 +205,33 @@ class PT(enum.Enum):
             PT.SSR: "SendStatusResponse"
         }
 
-        if packet_type not in type_name_map:
-            raise ValueError(f"Invalid packet type: {packet_type}")
+        return type_name_map.get(self)
+    
+# PacketType with prefix.
+class PTP(bytes):
+    def get_PT(self) -> PT:
+        # Get the packet type without the prefix.
+        return PT(PT_INFO.remove_all_info(self))
+    
+    def get_all_info(self) -> list:
+        return PT_INFO.get_all_info(self)
+    
+    @staticmethod
+    def from_PT_and_infos(packet_type: PT, infos = []): 
+        return PTP(PT_INFO.add_infos(packet_type.value, infos))
+        
 
-        return type_name_map.get(packet_type)
+    def get_infos_from_other(self, packet_type: bytes):
+        return PTP(PT_INFO.info_transfer(packet_type, self))
+
+    def transfer_infos_to_other(self, packet_type: bytes):
+        return PTP(PT_INFO.info_transfer(self, packet_type))
+    
+    def get_type_name(self):
+        result = self.get_PT().get_type_name() + " ("
+        result += ", ".join([info.name for info in self.get_all_info()])
+        result += ")"
+        return result
 
 
 # Packet field.
@@ -170,7 +255,7 @@ class PC(enum.Enum):
 # Packet field format without preamble
 @dataclass
 class Packet:
-    packet_type: bytes = b''
+    packet_type: PTP = b''
     seq: bytes = b''
     packet_size_raw: bytes = b'' # Needs to be set to the size of the all optional fields.
     is_success: Optional[bytes] = b''
@@ -206,6 +291,8 @@ class Packet:
     
     def set(self, field: PF, value: bytes) -> None:
         setattr(self, field.value, value)
+        if field == PF.TYPE:
+            self.packet_type = PTP(value)
 
     def __bytes__(self):
         data = b''
@@ -261,7 +348,7 @@ class Packet:
             if not f in self.necessary_fields:
                 size += len(self.get(f)) if self.get(f) != None else 0
         return size
-    
+
 
 class Badge:
     # Badge status
@@ -298,7 +385,9 @@ class Badge:
         return True
     
     def update_status(self, packet: Packet) -> None:        
-        for condition, pop_status, push_status in self.status_transition_map.get(PT(packet.get(PF.TYPE)), []):
+        packet_type = packet.packet_type.get_PT()
+
+        for condition, pop_status, push_status in self.status_transition_map.get(packet_type, []):
             if all(packet.get(f) == v for f, v in condition):
                 self.status -= pop_status
                 self.status |= push_status
@@ -319,6 +408,12 @@ class PacketQue:
         self.stay_timeout = stay_timeout
         self.lock = asyncio.Lock()
 
+    def print_que(self):
+        print("\n")
+        logger.debug("Packet_Que:")
+        for i, element in enumerate(self.que):
+            logger.debug(f"{i}: timestamp = {element[1]} packet = {element[0].__bytes__()}\n")
+
     async def put(self, packet: bytes):
         async with self.lock:
             current_time = time.time()
@@ -326,6 +421,7 @@ class PacketQue:
             while len(self.que) != 0:
                 if self.que[0][0] == packet:
                     self.que.pop(0)
+                    self.print_que()
                     return False
                 elif (current_time - self.que[0][1]) < self.stay_timeout:
                     break
@@ -335,13 +431,15 @@ class PacketQue:
             for i in range(1, len(self.que)):
                 if self.que[i][0] == packet:
                     self.que.pop(i)
+                    self.print_que()
                     return False
                 
             if len(self.que) >= self.maxsize:
                 logger.debug(f"Packet queue is full, dropping oldest packet: {self.que[0][0]}")
                 self.que.pop(0)
-                
+
             self.que.append((packet, current_time))
+            self.print_que()
             return True
         
 
@@ -361,24 +459,28 @@ class IrInterface:
         self.write_lock = asyncio.Lock()
         self.read_lock = asyncio.Lock()
         self.half_duplex_lock = asyncio.Lock()
-        self.badge_status: Packet = None
         self.badge = Badge()
         self.read_packet_que = asyncio.Queue(maxsize=self.packet_que_max)
         self.serial: serial.Serial = None
         self.send_payload_buffer = dict() # payload -> send time
         self.recv_packet_que = PacketQue(maxsize=self.packet_que_max, stay_timeout=config.get(key="packet_stay_timeout", default=0.3))
 
-    async def trigger_send_packet(self, data: bytes, packet_type = PT.QTQ, wait_response = True) -> bool | bytes:
+    # response: ((bool is_success | bytes payload or status), list of PT_INFO)
+    async def trigger_send_packet(self, data: bytes, packet_type = PT.QTQ, wait_response = True, to_cross_board = False):
         # Triggers the ir interface to send a packet.
         # Returns True if sent successfully, False otherwise.
         valid_packet_types = [PT.QTQ, PT.RRQ, PT.GSQ]
         if packet_type not in valid_packet_types:
             raise ValueError(f"Invalid packet type: {packet_type}. Must be one of {valid_packet_types}")
+        
+        infos = []
+        if to_cross_board:
+            infos.append(PT_INFO.CROSS_BOARD)
 
         for _ in range(self.failure_try):          
             try:
 
-                result: bool | Packet = await self._write_packet(data, packet_type, wait_response=wait_response)
+                result = await self._write_packet(data, packet_type, wait_response=wait_response, infos=infos)
 
                 if packet_type == PT.QTQ and (result == True or (type(result) == Packet and result.is_success == PC.SUCCESS.value)):
                     # If QueueTxBufferRequest is sent successfully, update the send_payload_buffer
@@ -387,18 +489,18 @@ class IrInterface:
                 if type(result) == Packet: # wait response case
 
                     if result.packet_size_raw == PC.EMPTY.value: # RetrieveRxBufferRequest case
-                        return False
-                    
+                        return False, result.packet_type.get_all_info()
+
                     if result.payload and type(result.payload) == bytes: # RetrieveRxBufferRequest case
-                        return result.payload
-                    
+                        return result.payload, result.packet_type.get_all_info()
+
                     if result.is_success == PC.SUCCESS.value and result.status and type(result.status) == bytes: # GetStatusRequest case
-                        return result.status
-                    
-                    return result.is_success == PC.SUCCESS.value # QueueTxBufferRequest case
-                
+                        return result.status, result.packet_type.get_all_info()
+
+                    return (result.is_success == PC.SUCCESS.value), result.packet_type.get_all_info() # QueueTxBufferRequest case
+
                 elif result == True: # no wait response case
-                    return True
+                    return True, []
                 
                 # else re-send
 
@@ -409,18 +511,18 @@ class IrInterface:
             
             await asyncio.sleep(self.failure_wait)
 
-        return False
-    
+        return False, []
 
+    # response: (bytes payload, list of PT_INFO)
     async def get_next_packet(self) -> bytes:
         # Wait until the next packet arrives, then return its raw data.    
         for _ in range(self.failure_try):
             try:     
                 while True:
                     await self._read_until_response(self.read_packet_que)
-                    data = self.read_packet_que.get_nowait().payload
-                    if await self.recv_packet_que.put(data):
-                        return data
+                    packet = self.read_packet_que.get_nowait()
+
+                    return packet.payload, packet.packet_type.get_all_info()
 
             except serial.serialutil.SerialException: # raise serial connection broken error
                 raise
@@ -429,19 +531,22 @@ class IrInterface:
 
             await asyncio.sleep(self.failure_wait)
 
-        return b''
+        return b'', [] # No packet received after retries
     
 
-    async def _write_packet(self, data: bytes, packet_type = PT.QTQ, wait_response = True, lock = True) -> bool | Packet:
+    async def _write_packet(self, data: bytes, packet_type = PT.QTQ, wait_response = True, lock = True, infos = []) -> bool | Packet:
         # will return reponse if exists
         async def wait_func():
             if not self.badge.check_packet_type_accept(packet_type):
                 return False
 
-            packet = Packet(packet_type=packet_type.value, seq=self._get_seq() if wait_response else b'\x00', payload=data)
+            packet = Packet(packet_type=PTP.from_PT_and_infos(packet_type, infos)
+                            , seq=self._get_seq() if wait_response else b'\x00', payload=data)
             packet.complete_packet_size() 
 
-            logger.debug(f"Sending packet: \ntype = {PT.get_type_name(packet_type)} \npayload = {data} \npacket = {packet.__bytes__()}")
+            logger.debug(f"Sending packet: \ntype = {packet.packet_type.get_type_name()} \npayload = {data} \npacket = {packet.__bytes__()}")
+
+            await self.recv_packet_que.put(packet.__bytes__()) # Add to recv_packet_que to prevent duplicate packets
 
             if wait_response:
                 return await self._write_packet_and_wait_for_response(packet)
@@ -462,7 +567,7 @@ class IrInterface:
         await self._write(packet.__bytes__(), lock=True)
 
         try:
-            logger.debug(f"Waiting for response: packet_type = {PT.get_type_name(waiting_que_key[0])}, seq = {waiting_que_key[1]}")
+            logger.debug(f"Waiting for response: packet_type = {waiting_que_key[0].get_type_name()}, seq = {waiting_que_key[1]}")
             await self._read_until_response(self.waiting_que_table[waiting_que_key])
             return self.waiting_que_table[waiting_que_key].get_nowait()
         finally:
@@ -474,9 +579,14 @@ class IrInterface:
         async def wait_func():
             while waiting_que.empty():
                 packet = await self._read_packet()
+
+                if not await self.recv_packet_que.put(packet.__bytes__()):
+                    logger.debug(f"Packet {packet.__bytes__()} already exists in recv_packet_que, skipping")
+                    continue
+
                 self.badge.update_status(packet)
-                
-                match PT(packet.packet_type):
+                packet_type = packet.packet_type.get_PT()
+                match packet_type:
                     case PT.QTR | PT.RRR | PT.GSR: # QueueTxBufferResponse | RetrieveRxBufferResponse | GetStatusResponse
                         waiting_que_key = self._get_waiting_que_key(packet)
 
@@ -499,28 +609,23 @@ class IrInterface:
             await self._read_until_preamble()
             data = await self._read(Packet.get_necessary_packet_size())
             packet = Packet.parse_bytes_to_packet(data, Packet.necessary_fields, Packet.get_necessary_packet_size())
-            logger.debug(f"Received necessary packet fields: \ntype = {PT.get_type_name(PT(packet.packet_type))} \nseq = {packet.seq} \nsize = {packet.packet_size_raw}")
+            logger.debug(f"Received necessary packet fields: \ntype = {packet.packet_type.get_type_name()} \nseq = {packet.seq} \nsize = {packet.packet_size_raw}")
             data = await self._read(int.from_bytes(packet.packet_size_raw))
-            packet = Packet.parse_bytes_to_packet(data, Packet.optional_fields[PT(packet.packet_type)], int.from_bytes(packet.packet_size_raw), packet=packet)
+            packet_type = packet.packet_type.get_PT()
+            packet = Packet.parse_bytes_to_packet(data, Packet.optional_fields[packet_type], int.from_bytes(packet.packet_size_raw), packet=packet)
             
         if not packet.is_valid():
             raise ValueError("Received invalid packet")
 
-        logger.debug(f"Received packet: \ntype = {PT.get_type_name(PT(packet.packet_type))} \npayload = {packet.payload} \npacket = {packet.__bytes__()}")
+        logger.debug(f"Received packet: \ntype = {packet.packet_type.get_type_name()} \npayload = {packet.payload} \npacket = {packet.__bytes__()}")
         return packet
 
     def _response(self, packet: Packet) -> None:
-        # Only for PTQ, PRQ, SSQ
-        r_packet_type_map = {
-            PT.PTQ: PT.PTR,
-            PT.PRQ: PT.PRR,
-            PT.SSQ: PT.SSR
-        }
         r_packet = Packet()
-        r_packet.packet_type = r_packet_type_map[PT(packet.packet_type)].value
+        r_packet.packet_type = packet.packet_type.transfer_infos_to_other(packet.packet_type.get_PT().get_response().value)
         r_packet.seq = packet.seq
-        
-        match PT(packet.packet_type):
+
+        match PT(packet.packet_type.get_PT()):
             case PT.PRQ: # PopRxBufferRequest
                 r_packet.is_success = PC.SUCCESS.value
         
@@ -530,8 +635,8 @@ class IrInterface:
 
     def _get_waiting_que_key(self, packet: Packet) -> tuple:
         # Get the waiting queue key for the packet.
-        # Convert packet_type to response packet type for request.        
-        return (PT.get_response(PT(packet.packet_type)), packet.seq)
+        # Convert packet_type to response packet type for request.     
+        return (packet.packet_type.get_PT().get_response(), packet.seq)
 
     def _get_lock(self, read: bool) -> asyncio.Lock:
         if read:
@@ -657,12 +762,12 @@ class IrInterface:
 
 async def test():
     async with IrInterface(config=config) as ir:
-        print("Test QTQ response:", await ir.trigger_send_packet(b'123'))
+        print("\nTest QTQ response:", await ir.trigger_send_packet(b'123', to_cross_board=True))
         print("Listening:")
         while 1:
             result = await ir.get_next_packet()
             if result:
-                print(result)
+                print("\n", result, "\n")
 
             if result == b'\x00\x05H\x02\x8b\x0f\x7f]\x8f\x00\\\xfc\xca$\xbb\xe98\xae\x02\x128\xa2\xf5H':
                 await ir.trigger_send_packet(b'\x00\x03\xac`7Nc\xfe')
