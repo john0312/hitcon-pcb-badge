@@ -35,6 +35,29 @@ class ModNum {
   uint64_t mod;
 };
 
+struct ModDivContext {
+  uint64_t m;
+  uint64_t ppr, pr;
+  uint64_t ppx, px;
+  uint64_t a;
+};
+
+class ModDivService {
+ public:
+  void start(uint64_t a, uint64_t b, uint64_t m, callback_t callback, void *callbackArg1);
+  ModDivService();
+ private:
+  callback_t callback;
+  void *callbackArg1;
+  ModDivContext context;
+  service::sched::Task routineTask;
+  service::sched::Task finalizeTask;
+  void routineFunc();
+  void finalize();
+};
+
+extern ModDivService g_mod_div_service;
+
 struct EllipticCurve {
   EllipticCurve(const uint64_t A, const uint64_t B);
   const uint64_t A, B;
@@ -70,8 +93,8 @@ class EcPoint {
    */
   bool getCompactForm(uint8_t *buffer, size_t len) const;
 
- private:
   ModNum x, y;
+ private:
   bool isInf;
   /**
    * Double the point. Returns (x + x).
@@ -84,6 +107,58 @@ class EcPoint {
    * @param l     the slope between `this` and `other`
    */
   EcPoint intersect(const EcPoint &other, const ModNum &l) const;
+};
+
+struct PointAddContext {
+  EcPoint a;
+  EcPoint b;
+  EcPoint res;
+};
+
+class PointAddService {
+ public:
+  void start(const EcPoint &a, const EcPoint &b, callback_t callback, void *callbackArg1);
+  PointAddService();
+ private:
+  callback_t callback;
+  void *callbackArg1;
+  PointAddContext context;
+  service::sched::Task routineTask;
+  service::sched::Task finalizeTask;
+  void routineFunc();
+  void onDivDone(ModNum *l);
+  void finalize();
+};
+
+extern PointAddService g_point_add_service;
+
+struct PointMultContext {
+  EcPoint p;
+  uint64_t times;
+  uint8_t i;
+  EcPoint res;
+  PointMultContext();
+};
+
+class PointMultService {
+ public:
+  void start(const EcPoint &p, uint64_t times, callback_t callback, void *callbackArg1);
+  PointMultService();
+ private:
+  callback_t callback;
+  void *callbackArg1;
+  PointMultContext context;
+  service::sched::Task routineTask;
+  void routineFunc();
+  void onAddDone(EcPoint *res);
+};
+
+extern PointMultService g_point_mult_service;
+
+struct EcContext {
+  uint64_t z, k;
+  ModNum r, s;
+  EcContext();
 };
 
 }  // namespace internal
@@ -103,8 +178,6 @@ struct Signature {
 class EcLogic {
  public:
   EcLogic();
-
-  void Init();
 
   /**
    * Set the private key used by this class.
@@ -140,24 +213,6 @@ class EcLogic {
   bool StartSign(uint8_t const *message, uint32_t len, callback_t callback,
                  void *callbackArg1);
 
-  /**
-   * Start the verification process and mark this API as busy.
-   * @param message: the message to sign. The contents should be intact until
-   *                 verify finishes.
-   * @param len: length of message, has to be a multiple of 8
-   * @param signature: Signature object
-   * @param callback: callback function to call when verification is complete.
-   *                  the second argument to callback is a boolean value
-   *                  indicating whether the message is valid.
-   * @param callbackArg1: the first argument to the callback. Normally a pointer
-   * to "this" if the callback is a method, and nullptr if the callback is a
-   * function.
-   * @return whether the job is successfully queued.
-   */
-  bool StartVerify(uint8_t const *message, uint32_t len,
-                   const Signature &signature, callback_t callback,
-                   void *callbackArg1);
-
  private:
   /**
    * Indicates whether a sign / verify operation is running.
@@ -178,13 +233,6 @@ class EcLogic {
    * returns.
    */
   ecc::Signature tmpSignature;
-  /**
-   * Temporary storage of the message.
-   * Lives since the public method (StartSign, StartVerify) is called till the
-   * callback returns.
-   */
-  uint8_t const *savedMessage;
-  uint32_t savedMessageLen;
 
   /**
    * The private key.
@@ -197,34 +245,21 @@ class EcLogic {
   uint8_t publicKey[ECC_PUBKEY_SIZE];
   uint8_t publicKeyReady;
 
-  /**
-   * Actual function to perform the sign.
-   */
-  void doSign(hitcon::hash::HashResult *hashResult);
+  hitcon::ecc::internal::EcContext context;
 
-  /**
-   * Finalize the sign / verify process, call the user-defined callback.
-   * Marks this API as not busy once the function returns.
-   */
-  void finalizeSignVerif(void *result);
+  void genRand();
+  void onHashFinish(hitcon::hash::HashResult *hashResult);
+  void onRGenerated(internal::EcPoint *p);
+  void onSGenerated(internal::ModNum *s);
+  void finalize();
 
-  /**
-   * Actual function to perform the verification.
-   */
-  void doVerify(hitcon::hash::HashResult *hashResult);
-
-  /**
-   * Compute the public key from private key.
-   */
-  void doDerivePublic(void *unused);
+  void onPubkeyDone(internal::EcPoint *p);
 
   callback_t callback;
   void *callback_arg1;
 
-  service::sched::Task signTask;
-  service::sched::Task verifyTask;
+  service::sched::Task genRandTask;
   service::sched::Task finalizeTask;
-  service::sched::Task derivePublicTask;
 };
 
 extern EcLogic g_ec_logic;

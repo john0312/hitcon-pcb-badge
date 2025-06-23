@@ -130,6 +130,42 @@ bool ModNum::operator!=(const ModNum &other) const {
 
 bool ModNum::operator==(const uint64_t other) const { return val == other; }
 
+ModDivService g_mod_div_service;
+
+ModDivService::ModDivService() : routineTask(803, (callback_t)&ModDivService::routineFunc, this), finalizeTask(803, (callback_t)&ModDivService::finalize, this) {}
+
+void ModDivService::start(uint64_t a, uint64_t b, uint64_t m, callback_t callback, void *callbackArg1) {
+  this->callback = callback;
+  this->callbackArg1 = callbackArg1;
+  context.a = a;
+  context.m = m;
+  context.ppr = b;
+  context.pr = m;
+  context.ppx = 1;
+  context.px = 0;
+  scheduler.Queue(&routineTask, this);
+}
+
+void ModDivService::routineFunc() {
+  if (context.pr == 1) {
+    scheduler.Queue(&finalizeTask, this);
+    return;
+  }
+  uint64_t q = context.ppr / context.pr;
+  uint64_t r = context.ppr % context.pr;
+  uint64_t x = modsub(context.ppx, modmul(q, context.px, context.m), context.m);
+  context.ppr = context.pr;
+  context.pr = r;
+  context.ppx = context.px;
+  context.px = x;
+  scheduler.Queue(&routineTask, this);
+}
+
+void ModDivService::finalize() {
+  ModNum res(modmul(context.a, context.px, context.m), context.m);
+  callback(callbackArg1, &res);
+}
+
 EllipticCurve::EllipticCurve(const uint64_t A, const uint64_t B) : A(A), B(B) {}
 
 EcPoint::EcPoint() : x{0, 0}, y{0, 0}, isInf(true) {}
@@ -225,6 +261,96 @@ EcPoint EcPoint::intersect(const EcPoint &other, const ModNum &l) const {
   return EcPoint(newx, newy);
 }
 
+PointAddService g_point_add_service;
+
+PointAddService::PointAddService() : routineTask(802, (callback_t)&PointAddService::routineFunc, this), finalizeTask(802, (callback_t)&PointAddService::finalize, this) {}
+
+void PointAddService::start(const EcPoint &a, const EcPoint &b, callback_t callback, void *callbackArg1) {
+  context.a = a;
+  context.b = b;
+  this->callback = callback;
+  this->callbackArg1 = callbackArg1;
+  scheduler.Queue(&routineTask, this);
+}
+
+void PointAddService::routineFunc() {
+  if (context.a.identity()) {
+    context.res = context.b;
+    scheduler.Queue(&finalizeTask, this);
+  }
+  else if (context.b.identity()) {
+    context.res = context.a;
+    scheduler.Queue(&finalizeTask, this);
+  }
+  else if (context.a == -context.b) {
+    context.res = EcPoint();
+    scheduler.Queue(&finalizeTask, this);
+  }
+  else if (context.a == context.b) {
+    // double the point
+    ModNum l_top = 3 * context.a.x * context.a.x + ModNum(g_curve.A, context.a.x.mod);
+    ModNum l_bot = 2 * context.a.y;
+    g_mod_div_service.start(l_top.val, l_bot.val, l_top.mod, (callback_t)&PointAddService::onDivDone, this);
+  }
+  else {
+    // intersect directly
+    ModNum l_top = context.b.y - context.a.y;
+    ModNum l_bot = context.b.x - context.a.x;
+    g_mod_div_service.start(l_top.val, l_bot.val, l_top.mod, (callback_t)&PointAddService::onDivDone, this);
+  }
+}
+
+void PointAddService::onDivDone(ModNum *l) {
+  ModNum newx = *l * *l - context.a.x - context.b.x;
+  ModNum newy = *l * (context.a.x - newx) - context.a.y;
+  context.res = EcPoint(newx, newy);
+  scheduler.Queue(&finalizeTask, this);
+}
+
+void PointAddService::finalize() {
+  callback(callbackArg1, &context.res);
+}
+
+PointMultContext::PointMultContext() : p(g_generator), res(g_generator) {}
+
+PointMultService g_point_mult_service;
+
+PointMultService::PointMultService() : routineTask(801, (task_callback_t)&PointMultService::routineFunc, (void *)this) {}
+
+void PointMultService::routineFunc() {
+  if (context.i == 128) {
+    callback(callbackArg1, &context.res);
+  }
+  else {
+    if (context.i & 1) {
+      if (context.times & UINT64_MSB)
+        g_point_add_service.start(context.p, context.res, (callback_t)&PointMultService::onAddDone, this);
+      else
+    	  scheduler.Queue(&routineTask, this);
+      context.times <<= 1;
+    }
+    else {
+      g_point_add_service.start(context.res, context.res, (callback_t)&PointMultService::onAddDone, this);
+    }
+    ++context.i;
+  }
+}
+
+void PointMultService::onAddDone(EcPoint *res) {
+  context.res = *res;
+  scheduler.Queue(&routineTask, this);
+}
+
+void PointMultService::start(const EcPoint &p, uint64_t times, callback_t callback, void *callbackArg1) {
+  context.p = p;
+  context.times = times;
+  context.i = 0;
+  context.res = EcPoint();
+  this->callback = callback;
+  this->callbackArg1 = callbackArg1;
+  scheduler.Queue(&routineTask, this);
+}
+
 }  // namespace internal
 
 void Signature::toBuffer(uint8_t *buffer) const {
@@ -232,93 +358,66 @@ void Signature::toBuffer(uint8_t *buffer) const {
   memcpy(buffer + ECC_SIGNATURE_SIZE / 2, &s, ECC_SIGNATURE_SIZE / 2);
 }
 
+EcContext::EcContext() : r(0, g_curveOrder), s(0, g_curveOrder) {}
+
 bool EcLogic::StartSign(uint8_t const *message, uint32_t len,
                         callback_t callback, void *callbackArg1) {
-  if (busy) return false;
-  if (!g_secure_random_pool.GetRandom(&tmpRandValue)) return false;
-  if (!g_hash_service.StartHash(message, len, (callback_t)&EcLogic::doSign,
+  if (busy)
+    return false;
+    if (!publicKeyReady)
+      return false;
+  if (!g_hash_service.StartHash(message, len, (callback_t)&EcLogic::onHashFinish,
                                 this))
     return false;
   busy = true;
   this->callback = callback;
   this->callback_arg1 = callbackArg1;
-  this->savedMessage = message;
-  this->savedMessageLen = len;
   return true;
 }
 
-bool EcLogic::StartVerify(uint8_t const *message, uint32_t len,
-                          const Signature &signature, callback_t callback,
-                          void *callbackArg1) {
-  if (busy) return false;
-  if (!g_hash_service.StartHash(message, len, (callback_t)&EcLogic::doVerify,
-                                this))
-    return false;
-  busy = true;
-  this->callback = callback;
-  this->callback_arg1 = callbackArg1;
-  this->savedMessage = message;
-  this->savedMessageLen = len;
-  this->tmpSignature = signature;
-  return true;
+void EcLogic::onHashFinish(HashResult *hashResult) {
+  context.z = reinterpret_cast<uint64_t *>(hashResult->digest)[0];
+  scheduler.Queue(&genRandTask, this);
 }
 
-void EcLogic::doSign(HashResult *hashResult) {
-  uint64_t z = *(uint64_t *)hashResult->digest;
-  ModNum r(0, g_curveOrder), s(0, g_curveOrder);
-  while (s == 0) {
-    ModNum k(0, g_curveOrder);
-    while (r == 0) {
-      k = tmpRandValue;
-      EcPoint P = g_generator * k.val;
-      r = P.xval();
-    }
-    s = (z + privateKey * r) / k;
+void EcLogic::genRand() {
+  if (g_secure_random_pool.GetRandom(&context.k))
+    g_point_mult_service.start(g_generator, context.k, (callback_t)&EcLogic::onRGenerated, this);
+  else
+    scheduler.Queue(&genRandTask, this);
+}
+
+void EcLogic::onRGenerated(EcPoint *p) {
+  context.r = p->xval();
+  if (context.r == 0)
+    scheduler.Queue(&genRandTask, this);
+  else {
+    ModNum a = (context.z + privateKey * context.r);
+    g_mod_div_service.start(a.val, context.k, a.mod, (callback_t)&EcLogic::onSGenerated, this);
   }
-  tmpSignature.pub = g_generator * privateKey;
-  tmpSignature.r = r.val;
-  tmpSignature.s = s.val;
-  scheduler.Queue(&finalizeTask, &tmpSignature);
 }
 
-void EcLogic::finalizeSignVerif(void *result) {
-  callback(callback_arg1, result);
+void EcLogic::onSGenerated(ModNum *s) {
+  context.s = *s;
+  if (context.s == 0)
+    scheduler.Queue(&genRandTask, this);
+  else
+    scheduler.Queue(&finalizeTask, this);
+}
+
+void EcLogic::finalize() {
+  tmpSignature.r = context.r.val;
+  tmpSignature.s = context.s.val;
+  callback(callback_arg1, &tmpSignature);
   busy = false;
 }
 
-void EcLogic::doVerify(HashResult *hashResult) {
-  bool isValid = true;
-
-  if (!tmpSignature.pub.onCurve(g_curve)) isValid = false;
-
-  if (isValid && tmpSignature.pub.identity()) isValid = false;
-
-  if (isValid && (tmpSignature.pub * g_curveOrder).identity() == false)
-    isValid = false;
-
-  if (isValid) {
-    ModNum z(*(uint64_t *)hashResult->digest, g_curveOrder);
-    ModNum u1 = z / ModNum(tmpSignature.s, g_curveOrder);
-    ModNum u2 = ModNum(tmpSignature.r, g_curveOrder) /
-                ModNum(tmpSignature.s, g_curveOrder);
-    EcPoint P = g_generator * u1.val + tmpSignature.pub * u2.val;
-    isValid = P.xval() == tmpSignature.r;
-  }
-
-  scheduler.Queue(&finalizeTask, (void *)isValid);
-}
-
-void EcLogic::doDerivePublic(void *unused) {
-  my_assert(
-      privateKey !=
-      0);  // Private key must be set and non-zero for a standard public key
-  EcPoint pubPoint = g_generator * privateKey;
-
+void EcLogic::onPubkeyDone(EcPoint *p) {
   // Ensure the derived point is not the point at infinity
   // A private key of 0 or a multiple of the curve order would result in
   // infinity
-  if (!pubPoint.identity()) {
-    bool ret = pubPoint.getCompactForm(publicKey, ECC_PUBKEY_SIZE);
+  if (!p->identity()) {
+    bool ret = p->getCompactForm(publicKey, ECC_PUBKEY_SIZE);
     if (ret) publicKeyReady = true;
   } else {
     publicKeyReady = false;
@@ -332,23 +431,14 @@ bool EcLogic::GetPublicKey(uint8_t *buffer) {
   }
   return false;
 }
-EcLogic::EcLogic()
-    : privateKey(0), publicKeyReady(0),
-      signTask(800, (task_callback_t)&EcLogic::doSign, (void *)this),
-      verifyTask(800, (task_callback_t)&EcLogic::doVerify, (void *)this),
-      finalizeTask(800, (task_callback_t)&EcLogic::finalizeSignVerif,
-                   (void *)this),
-      derivePublicTask(900, (task_callback_t)&EcLogic::doDerivePublic,
-                       (void *)this) {}
-
-void EcLogic::Init() {
-  // TODO: initialize the private key here maybe?
-}
+EcLogic::EcLogic() : privateKey(0), publicKeyReady(0), busy(false),
+    genRandTask(800, (callback_t)&EcLogic::genRand, this),
+    finalizeTask(800, (callback_t)&EcLogic::finalize, this) {}
 
 void EcLogic::SetPrivateKey(uint64_t privkey) {
   privateKey = privkey;
   privateKey = privateKey % g_curveOrder;
-  scheduler.Queue(&derivePublicTask, nullptr);
+  g_point_mult_service.start(g_generator, privateKey, (callback_t)&EcLogic::onPubkeyDone, this);
 }
 
 }  // namespace ecc

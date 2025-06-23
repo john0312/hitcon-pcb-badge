@@ -41,6 +41,8 @@ using namespace hitcon::service::xboard;
 using namespace hitcon::app::tama;
 
 void TestTaskFunc(void* unused1, void* unused2) {}
+
+static bool signTriggered = false;
 void TestTask2Func(void* unused1, void* unused2) {}
 
 Task TestTask1(900, (task_callback_t)&TestTaskFunc, nullptr);
@@ -64,7 +66,6 @@ void hitcon_run() {
   g_hash_service.Init();
   g_fast_random_pool.Init();
   g_secure_random_pool.Init();
-  g_ec_logic.Init();
   g_signed_packet_service.Init();
   g_game_controller.Init();
   g_game_score.Init();
