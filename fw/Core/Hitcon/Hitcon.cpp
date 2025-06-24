@@ -41,7 +41,6 @@ using namespace hitcon::service::xboard;
 using namespace hitcon::app::tama;
 
 void TestTaskFunc(void* unused1, void* unused2) {}
-
 void TestTask2Func(void* unused1, void* unused2) {}
 
 Task TestTask1(900, (task_callback_t)&TestTaskFunc, nullptr);

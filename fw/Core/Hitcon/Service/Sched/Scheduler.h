@@ -47,7 +47,7 @@ struct TaskRecord {
 
 class Scheduler {
  private:
-  static constexpr size_t kAddQueueSize = 16;
+  static constexpr size_t kAddQueueSize = 8;
   static constexpr size_t kRecordSize = 20;
 
   Heap<Task, 32> tasks;
