@@ -40,6 +40,7 @@ struct ModDivContext {
   uint64_t ppr, pr;
   uint64_t ppx, px;
   uint64_t a;
+  uint64_t res;
 };
 
 class ModDivService {
@@ -113,6 +114,8 @@ struct PointAddContext {
   EcPoint a;
   EcPoint b;
   EcPoint res;
+  ModNum l;
+  PointAddContext();
 };
 
 class PointAddService {
@@ -125,7 +128,11 @@ class PointAddService {
   PointAddContext context;
   service::sched::Task routineTask;
   service::sched::Task finalizeTask;
+  service::sched::Task genXTask;
+  service::sched::Task genYTask;
   void routineFunc();
+  void genX();
+  void genY();
   void onDivDone(ModNum *l);
   void finalize();
 };

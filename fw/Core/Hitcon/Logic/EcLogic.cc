@@ -143,11 +143,13 @@ void ModDivService::start(uint64_t a, uint64_t b, uint64_t m, callback_t callbac
   context.pr = m;
   context.ppx = 1;
   context.px = 0;
+  context.res = 0;
   scheduler.Queue(&routineTask, this);
 }
 
 void ModDivService::routineFunc() {
   if (context.pr == 1) {
+    context.res = modmul(context.a, context.px, context.m);
     scheduler.Queue(&finalizeTask, this);
     return;
   }
@@ -162,7 +164,7 @@ void ModDivService::routineFunc() {
 }
 
 void ModDivService::finalize() {
-  ModNum res(modmul(context.a, context.px, context.m), context.m);
+  ModNum res(context.res, context.m);
   callback(callbackArg1, &res);
 }
 
@@ -261,9 +263,11 @@ EcPoint EcPoint::intersect(const EcPoint &other, const ModNum &l) const {
   return EcPoint(newx, newy);
 }
 
+PointAddContext::PointAddContext() : l(0, 1) {}
+
 PointAddService g_point_add_service;
 
-PointAddService::PointAddService() : routineTask(802, (callback_t)&PointAddService::routineFunc, this), finalizeTask(802, (callback_t)&PointAddService::finalize, this) {}
+PointAddService::PointAddService() : routineTask(802, (callback_t)&PointAddService::routineFunc, this), finalizeTask(802, (callback_t)&PointAddService::finalize, this), genXTask(802, (callback_t)&PointAddService::genX, this), genYTask(802, (callback_t)&PointAddService::genY, this) {}
 
 void PointAddService::start(const EcPoint &a, const EcPoint &b, callback_t callback, void *callbackArg1) {
   context.a = a;
@@ -288,8 +292,11 @@ void PointAddService::routineFunc() {
   }
   else if (context.a == context.b) {
     // double the point
-    ModNum l_top = 3 * context.a.x * context.a.x + ModNum(g_curve.A, context.a.x.mod);
-    ModNum l_bot = 2 * context.a.y;
+    // Original formula is 3 * x^2 + A, but we do the addition 3 times instead to avoid the expensive multiplication.
+    ModNum l_top = context.a.x * context.a.x;
+    l_top = l_top + l_top + l_top + ModNum(g_curve.A, l_top.mod);
+    // Same applies here, original formula is 2 * y
+    ModNum l_bot = context.a.y + context.a.y;
     g_mod_div_service.start(l_top.val, l_bot.val, l_top.mod, (callback_t)&PointAddService::onDivDone, this);
   }
   else {
@@ -301,9 +308,17 @@ void PointAddService::routineFunc() {
 }
 
 void PointAddService::onDivDone(ModNum *l) {
-  ModNum newx = *l * *l - context.a.x - context.b.x;
-  ModNum newy = *l * (context.a.x - newx) - context.a.y;
-  context.res = EcPoint(newx, newy);
+  context.l = *l;
+  scheduler.Queue(&genXTask, this);
+}
+
+void PointAddService::genX() {
+  context.res.x = context.l * context.l - context.a.x - context.b.x;
+  scheduler.Queue(&genYTask, this);
+}
+
+void PointAddService::genY() {
+  context.res.y = context.l * (context.a.x - context.res.x) - context.a.y;
   scheduler.Queue(&finalizeTask, this);
 }
 
