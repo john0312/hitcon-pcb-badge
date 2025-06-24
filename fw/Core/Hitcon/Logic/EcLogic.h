@@ -26,10 +26,8 @@ class ModNum {
   ModNum operator+(const ModNum &other) const;
   ModNum operator-(const ModNum &other) const;
   ModNum operator*(const ModNum &other) const;
-  ModNum operator/(const ModNum &other) const;
   bool operator==(const ModNum &other) const;
   bool operator==(const uint64_t other) const;
-  bool operator!=(const ModNum &other) const;
 
   uint64_t val;
   uint64_t mod;
@@ -67,13 +65,13 @@ struct EllipticCurve {
 };
 
 class EcPoint {
+  friend class PointAddService;
+
  public:
   EcPoint();
   EcPoint(const ModNum &x, const ModNum &y);
   EcPoint operator=(const EcPoint &other);
   EcPoint operator-() const;
-  EcPoint operator+(const EcPoint &other) const;
-  EcPoint operator*(uint64_t times) const;
   bool operator==(const EcPoint &other) const;
   /**
    * Getter for the x-coordinate.
@@ -83,10 +81,6 @@ class EcPoint {
    * Whether the point is the identity element.
    */
   bool identity() const;
-  /**
-   * Whether this point is on a given curve.
-   */
-  bool onCurve(const EllipticCurve &curve) const;
 
   /**
    * Convert to compact form (x and the last byte storing 0 or 1 deciding
@@ -96,21 +90,9 @@ class EcPoint {
    */
   bool getCompactForm(uint8_t *buffer, size_t len) const;
 
-  ModNum x, y;
-
  private:
   bool isInf;
-  /**
-   * Double the point. Returns (x + x).
-   */
-  EcPoint twice() const;
-  /**
-   * Find the intersection point given the slope.
-   *
-   * @param other the other point
-   * @param l     the slope between `this` and `other`
-   */
-  EcPoint intersect(const EcPoint &other, const ModNum &l) const;
+  ModNum x, y;
 };
 
 struct PointAddContext {

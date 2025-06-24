@@ -114,18 +114,8 @@ ModNum operator*(const uint64_t a, const ModNum &b) {
   return ModNum(a, b.mod) * b;
 }
 
-ModNum ModNum::operator/(const ModNum &other) const {
-  uint64_t m = mod;
-  uint64_t x = extgcd(other.val, m);
-  return ModNum(modmul(val, x, m), m);
-}
-
 bool ModNum::operator==(const ModNum &other) const {
   return val == other.val && mod == other.mod;
-}
-
-bool ModNum::operator!=(const ModNum &other) const {
-  return val != other.val || mod != other.mod;
 }
 
 bool ModNum::operator==(const uint64_t other) const { return val == other; }
@@ -189,25 +179,6 @@ EcPoint EcPoint::operator-() const {
   return EcPoint(x, -y);
 }
 
-EcPoint EcPoint::operator+(const EcPoint &other) const {
-  if (isInf) return EcPoint(other);
-  if (other.isInf) return EcPoint(*this);
-  if (*this == -other) return EcPoint();
-  if (*this == other) return twice();
-  ModNum l = (other.y - y) / (other.x - x);
-  return intersect(other, l);
-}
-
-EcPoint EcPoint::operator*(uint64_t times) const {
-  EcPoint res;
-  for (int i = 0; i < 64; ++i) {
-    res = res + res;
-    if (times & UINT64_MSB) res = res + *this;
-    times <<= 1;
-  }
-  return res;
-}
-
 bool EcPoint::operator==(const EcPoint &other) const {
   if (isInf) return other.isInf;
   return x == other.x && y == other.y;
@@ -216,11 +187,6 @@ bool EcPoint::operator==(const EcPoint &other) const {
 uint64_t EcPoint::xval() const { return x.val; }
 
 bool EcPoint::identity() const { return isInf; }
-
-bool EcPoint::onCurve(const EllipticCurve &curve) const {
-  return x.mod == y.mod &&
-         x * x * x + curve.A * x + ModNum(curve.B, x.mod) == y * y;
-}
 
 bool EcPoint::getCompactForm(uint8_t *buffer, size_t len) const {
   // Check if the point is the identity element (point at infinity)
@@ -253,17 +219,6 @@ bool EcPoint::getCompactForm(uint8_t *buffer, size_t len) const {
     buffer[last_byte_idx] = 0x01;
   }
   return true;
-}
-
-EcPoint EcPoint::twice() const {
-  ModNum l = (3 * x * x + ModNum(g_curve.A, x.mod)) / (2 * y);
-  return intersect(*this, l);
-}
-
-EcPoint EcPoint::intersect(const EcPoint &other, const ModNum &l) const {
-  ModNum newx = l * l - x - other.x;
-  ModNum newy = l * (x - newx) - y;
-  return EcPoint(newx, newy);
 }
 
 PointAddContext::PointAddContext() : l(0, 1) {}
