@@ -132,9 +132,12 @@ bool ModNum::operator==(const uint64_t other) const { return val == other; }
 
 ModDivService g_mod_div_service;
 
-ModDivService::ModDivService() : routineTask(803, (callback_t)&ModDivService::routineFunc, this), finalizeTask(803, (callback_t)&ModDivService::finalize, this) {}
+ModDivService::ModDivService()
+    : routineTask(803, (callback_t)&ModDivService::routineFunc, this),
+      finalizeTask(803, (callback_t)&ModDivService::finalize, this) {}
 
-void ModDivService::start(uint64_t a, uint64_t b, uint64_t m, callback_t callback, void *callbackArg1) {
+void ModDivService::start(uint64_t a, uint64_t b, uint64_t m,
+                          callback_t callback, void *callbackArg1) {
   this->callback = callback;
   this->callbackArg1 = callbackArg1;
   context.a = a;
@@ -267,9 +270,14 @@ PointAddContext::PointAddContext() : l(0, 1) {}
 
 PointAddService g_point_add_service;
 
-PointAddService::PointAddService() : routineTask(802, (callback_t)&PointAddService::routineFunc, this), finalizeTask(802, (callback_t)&PointAddService::finalize, this), genXTask(802, (callback_t)&PointAddService::genX, this), genYTask(802, (callback_t)&PointAddService::genY, this) {}
+PointAddService::PointAddService()
+    : routineTask(802, (callback_t)&PointAddService::routineFunc, this),
+      finalizeTask(802, (callback_t)&PointAddService::finalize, this),
+      genXTask(802, (callback_t)&PointAddService::genX, this),
+      genYTask(802, (callback_t)&PointAddService::genY, this) {}
 
-void PointAddService::start(const EcPoint &a, const EcPoint &b, callback_t callback, void *callbackArg1) {
+void PointAddService::start(const EcPoint &a, const EcPoint &b,
+                            callback_t callback, void *callbackArg1) {
   context.a = a;
   context.b = b;
   this->callback = callback;
@@ -281,29 +289,28 @@ void PointAddService::routineFunc() {
   if (context.a.identity()) {
     context.res = context.b;
     scheduler.Queue(&finalizeTask, this);
-  }
-  else if (context.b.identity()) {
+  } else if (context.b.identity()) {
     context.res = context.a;
     scheduler.Queue(&finalizeTask, this);
-  }
-  else if (context.a == -context.b) {
+  } else if (context.a == -context.b) {
     context.res = EcPoint();
     scheduler.Queue(&finalizeTask, this);
-  }
-  else if (context.a == context.b) {
+  } else if (context.a == context.b) {
     // double the point
-    // Original formula is 3 * x^2 + A, but we do the addition 3 times instead to avoid the expensive multiplication.
+    // Original formula is 3 * x^2 + A, but we do the addition 3 times instead
+    // to avoid the expensive multiplication.
     ModNum l_top = context.a.x * context.a.x;
     l_top = l_top + l_top + l_top + ModNum(g_curve.A, l_top.mod);
     // Same applies here, original formula is 2 * y
     ModNum l_bot = context.a.y + context.a.y;
-    g_mod_div_service.start(l_top.val, l_bot.val, l_top.mod, (callback_t)&PointAddService::onDivDone, this);
-  }
-  else {
+    g_mod_div_service.start(l_top.val, l_bot.val, l_top.mod,
+                            (callback_t)&PointAddService::onDivDone, this);
+  } else {
     // intersect directly
     ModNum l_top = context.b.y - context.a.y;
     ModNum l_bot = context.b.x - context.a.x;
-    g_mod_div_service.start(l_top.val, l_bot.val, l_top.mod, (callback_t)&PointAddService::onDivDone, this);
+    g_mod_div_service.start(l_top.val, l_bot.val, l_top.mod,
+                            (callback_t)&PointAddService::onDivDone, this);
   }
 }
 
@@ -322,30 +329,31 @@ void PointAddService::genY() {
   scheduler.Queue(&finalizeTask, this);
 }
 
-void PointAddService::finalize() {
-  callback(callbackArg1, &context.res);
-}
+void PointAddService::finalize() { callback(callbackArg1, &context.res); }
 
 PointMultContext::PointMultContext() : p(g_generator), res(g_generator) {}
 
 PointMultService g_point_mult_service;
 
-PointMultService::PointMultService() : routineTask(801, (task_callback_t)&PointMultService::routineFunc, (void *)this) {}
+PointMultService::PointMultService()
+    : routineTask(801, (task_callback_t)&PointMultService::routineFunc,
+                  (void *)this) {}
 
 void PointMultService::routineFunc() {
   if (context.i == 128) {
     callback(callbackArg1, &context.res);
-  }
-  else {
+  } else {
     if (context.i & 1) {
       if (context.times & UINT64_MSB)
-        g_point_add_service.start(context.p, context.res, (callback_t)&PointMultService::onAddDone, this);
+        g_point_add_service.start(context.p, context.res,
+                                  (callback_t)&PointMultService::onAddDone,
+                                  this);
       else
-    	  scheduler.Queue(&routineTask, this);
+        scheduler.Queue(&routineTask, this);
       context.times <<= 1;
-    }
-    else {
-      g_point_add_service.start(context.res, context.res, (callback_t)&PointMultService::onAddDone, this);
+    } else {
+      g_point_add_service.start(context.res, context.res,
+                                (callback_t)&PointMultService::onAddDone, this);
     }
     ++context.i;
   }
@@ -356,7 +364,8 @@ void PointMultService::onAddDone(EcPoint *res) {
   scheduler.Queue(&routineTask, this);
 }
 
-void PointMultService::start(const EcPoint &p, uint64_t times, callback_t callback, void *callbackArg1) {
+void PointMultService::start(const EcPoint &p, uint64_t times,
+                             callback_t callback, void *callbackArg1) {
   context.p = p;
   context.times = times;
   context.i = 0;
@@ -377,12 +386,10 @@ EcContext::EcContext() : r(0, g_curveOrder), s(0, g_curveOrder) {}
 
 bool EcLogic::StartSign(uint8_t const *message, uint32_t len,
                         callback_t callback, void *callbackArg1) {
-  if (busy)
-    return false;
-    if (!publicKeyReady)
-      return false;
-  if (!g_hash_service.StartHash(message, len, (callback_t)&EcLogic::onHashFinish,
-                                this))
+  if (busy) return false;
+  if (!publicKeyReady) return false;
+  if (!g_hash_service.StartHash(message, len,
+                                (callback_t)&EcLogic::onHashFinish, this))
     return false;
   busy = true;
   this->callback = callback;
@@ -397,7 +404,8 @@ void EcLogic::onHashFinish(HashResult *hashResult) {
 
 void EcLogic::genRand() {
   if (g_secure_random_pool.GetRandom(&context.k))
-    g_point_mult_service.start(g_generator, context.k, (callback_t)&EcLogic::onRGenerated, this);
+    g_point_mult_service.start(g_generator, context.k,
+                               (callback_t)&EcLogic::onRGenerated, this);
   else
     scheduler.Queue(&genRandTask, this);
 }
@@ -408,7 +416,8 @@ void EcLogic::onRGenerated(EcPoint *p) {
     scheduler.Queue(&genRandTask, this);
   else {
     ModNum a = (context.z + privateKey * context.r);
-    g_mod_div_service.start(a.val, context.k, a.mod, (callback_t)&EcLogic::onSGenerated, this);
+    g_mod_div_service.start(a.val, context.k, a.mod,
+                            (callback_t)&EcLogic::onSGenerated, this);
   }
 }
 
@@ -446,14 +455,16 @@ bool EcLogic::GetPublicKey(uint8_t *buffer) {
   }
   return false;
 }
-EcLogic::EcLogic() : privateKey(0), publicKeyReady(0), busy(false),
-    genRandTask(800, (callback_t)&EcLogic::genRand, this),
-    finalizeTask(800, (callback_t)&EcLogic::finalize, this) {}
+EcLogic::EcLogic()
+    : privateKey(0), publicKeyReady(0), busy(false),
+      genRandTask(800, (callback_t)&EcLogic::genRand, this),
+      finalizeTask(800, (callback_t)&EcLogic::finalize, this) {}
 
 void EcLogic::SetPrivateKey(uint64_t privkey) {
   privateKey = privkey;
   privateKey = privateKey % g_curveOrder;
-  g_point_mult_service.start(g_generator, privateKey, (callback_t)&EcLogic::onPubkeyDone, this);
+  g_point_mult_service.start(g_generator, privateKey,
+                             (callback_t)&EcLogic::onPubkeyDone, this);
 }
 
 }  // namespace ecc

@@ -45,8 +45,10 @@ struct ModDivContext {
 
 class ModDivService {
  public:
-  void start(uint64_t a, uint64_t b, uint64_t m, callback_t callback, void *callbackArg1);
+  void start(uint64_t a, uint64_t b, uint64_t m, callback_t callback,
+             void *callbackArg1);
   ModDivService();
+
  private:
   callback_t callback;
   void *callbackArg1;
@@ -95,6 +97,7 @@ class EcPoint {
   bool getCompactForm(uint8_t *buffer, size_t len) const;
 
   ModNum x, y;
+
  private:
   bool isInf;
   /**
@@ -120,8 +123,10 @@ struct PointAddContext {
 
 class PointAddService {
  public:
-  void start(const EcPoint &a, const EcPoint &b, callback_t callback, void *callbackArg1);
+  void start(const EcPoint &a, const EcPoint &b, callback_t callback,
+             void *callbackArg1);
   PointAddService();
+
  private:
   callback_t callback;
   void *callbackArg1;
@@ -149,8 +154,10 @@ struct PointMultContext {
 
 class PointMultService {
  public:
-  void start(const EcPoint &p, uint64_t times, callback_t callback, void *callbackArg1);
+  void start(const EcPoint &p, uint64_t times, callback_t callback,
+             void *callbackArg1);
   PointMultService();
+
  private:
   callback_t callback;
   void *callbackArg1;
