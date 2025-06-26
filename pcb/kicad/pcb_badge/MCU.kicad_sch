@@ -7049,6 +7049,16 @@
 		)
 		(uuid "93bf58fd-7464-473b-9144-b997cd58924d")
 	)
+	(text "R11=R4, 8 to 10M Ohm"
+		(exclude_from_sim no)
+		(at 326.136 52.832 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+		)
+		(uuid "97ca6701-87a8-435d-8a3c-358f7695df42")
+	)
 	(text "For:Pin36\n"
 		(exclude_from_sim no)
 		(at 143.636 43.67 0)
@@ -8156,7 +8166,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "8.2M"
+		(property "Value" "10M"
 			(at 306.07 48.2599 0)
 			(effects
 				(font
@@ -8501,7 +8511,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "8.2M"
+		(property "Value" "10M"
 			(at 306.07 60.9599 0)
 			(effects
 				(font
