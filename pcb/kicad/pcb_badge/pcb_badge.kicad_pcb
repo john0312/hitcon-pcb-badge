@@ -41694,7 +41694,7 @@
 				)
 			)
 		)
-		(property "Value" "8.2M"
+		(property "Value" "10M"
 			(at 0 -1.17 -90)
 			(layer "B.Fab")
 			(uuid "ad8fa931-4131-4e1a-9ae7-607296e87eea")
@@ -47552,7 +47552,7 @@
 				)
 			)
 		)
-		(property "Value" "8.2M"
+		(property "Value" "10M"
 			(at 0 -1.17 0)
 			(layer "B.Fab")
 			(uuid "82709204-806a-4f59-8e25-ee640b405d79")
