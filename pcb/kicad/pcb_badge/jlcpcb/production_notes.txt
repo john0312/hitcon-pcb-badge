@@ -1,0 +1,13 @@
+Adjusted fields:
+- Qty: Adjust as appropriate
+- PCB Color: Black
+- Surface Finish: LeadFree HASL
+- Mark on PCB: Remove Mark
+- PCB Assembly: On
+- PCBA Type: Standard
+- Assembly Side: Both Sides
+- Confir Parts Placement: Yes for Production Run
+
+Known missing parts:
+The following message will be shown: "The below parts won't be assembled due to data missing.
+C34,J2,J3,D1,J7,R30,D3,D167,D166,R22,D165,R36,D164,R35,D163,D162,R29,D160 designators don't exist in the CPL file."
