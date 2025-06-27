@@ -2,11 +2,12 @@ Adjusted fields:
 - Qty: Adjust as appropriate
 - PCB Color: Black
 - Surface Finish: LeadFree HASL
+- Confirm Production File: Yes for Production Run
 - Mark on PCB: Remove Mark
 - PCB Assembly: On
 - PCBA Type: Standard
 - Assembly Side: Both Sides
-- Confir Parts Placement: Yes for Production Run
+- Confirm Parts Placement: Yes for Production Run
 
 Known missing parts:
 The following message will be shown: "The below parts won't be assembled due to data missing.
