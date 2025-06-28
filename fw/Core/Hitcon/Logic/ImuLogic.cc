@@ -13,7 +13,8 @@ namespace hitcon {
 ImuLogic g_imu_logic;
 
 ImuLogic::ImuLogic()
-    : _routine_task(419, (task_callback_t)&ImuLogic::Routine, (void*)this, 50),
+    : _routine_task(419, (task_callback_t)&ImuLogic::Routine, (void*)this,
+                    ROUTINE_INTERVAL),
       _state(RoutineState::INIT), _init_state(InitState::CHECK_ID) {}
 
 void ImuLogic::Init() {
@@ -58,6 +59,16 @@ void ImuLogic::Routine(void* arg1) {
         _init_state = InitState::WAIT_SW_RESET;
         break;
       }
+      case InitState::RESET_COUNT: {
+        _last_step = 0;
+        lsm6ds3tr_c_ctrl10_c_t ctrl10_c = {0};
+        ctrl10_c.pedo_rst_step = PROPERTY_ENABLE;
+        g_imu_service.QueueWriteReg(LSM6DS3TR_C_CTRL10_C, ctrl10_c);
+        uint8_t temp = 0xAA;  // reset timestamp
+        g_imu_service.QueueWriteReg(LSM6DS3TR_C_TIMESTAMP2_REG, temp);
+        _init_state = InitState::WAIT_RESET_COUNT;
+        break;
+      }
       case InitState::CONFIGURE: {
         // TODO: config INT1 pin
         lsm6ds3tr_c_ctrl1_xl_t ctrl1_xl = {0};
@@ -71,8 +82,6 @@ void ImuLogic::Routine(void* arg1) {
         _init_state = InitState::WAIT_CONFIGURE;
         break;
       }
-      default:
-        break;
     }
   } else if (_state == RoutineState::ST_GYRO) {
     switch (_self_test_state) {
@@ -230,7 +239,11 @@ void ImuLogic::Routine(void* arg1) {
       }
     }
   } else if (_state == RoutineState::GET_STEP) {
-    // TODO: get step counter
+    g_imu_service.QueueReadReg(LSM6DS3TR_C_STEP_COUNTER_L, &_buf[0]);
+    g_imu_service.QueueReadReg(LSM6DS3TR_C_STEP_COUNTER_H, &_buf[1]);
+    g_imu_service.QueueReadReg(LSM6DS3TR_C_STEP_TIMESTAMP_L, &_buf[2]);
+    g_imu_service.QueueReadReg(LSM6DS3TR_C_STEP_TIMESTAMP_H, &_buf[3]);
+    _state = RoutineState::WAIT_STEP;
   }
 }
 
@@ -245,7 +258,7 @@ void ImuLogic::OnRxDone(void* arg1) {
       if (ctrl3_c->sw_reset)  // check if sw reset is done
         g_imu_service.QueueReadReg(LSM6DS3TR_C_CTRL3_C, _buf);
       else
-        _init_state = InitState::CONFIGURE;
+        _init_state = InitState::RESET_COUNT;
       break;
     }
     case InitState::WAIT_CONFIGURE:
@@ -293,11 +306,20 @@ void ImuLogic::OnRxDone(void* arg1) {
       break;
     }
   }
+
+  if (_state == RoutineState::WAIT_STEP) {
+    uint16_t step_count = _buf[0] | (_buf[1] << 8);
+    _is_shaking = step_count - _last_step > SHAKING_THRESHOLD;
+    _last_step = step_count;
+    _state = RoutineState::GET_STEP;
+  }
 }
 
 void ImuLogic::OnTxDone(void* arg1) {
-  if (_init_state == InitState::WAIT_CONFIGURE) {
-    _state = RoutineState::IDLE;
+  if (_init_state == InitState::WAIT_RESET_COUNT) {
+    _init_state = InitState::CONFIGURE;
+  } else if (_init_state == InitState::WAIT_CONFIGURE) {
+    _state = RoutineState::GET_STEP;
     _init_state = InitState::DONE;
   } else if (_self_test_state == SelfTestState::WAIT_CONFIGURE) {
     _self_test_state = SelfTestState::WAIT_A;

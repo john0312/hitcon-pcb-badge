@@ -15,10 +15,11 @@ namespace {
 enum class RoutineState {
   WAIT_15,  // wait for 15 ms for stable
   INIT,
-  IDLE,
-  GET_STEP,
   ST_GYRO,
   ST_ACC,
+  IDLE,
+  GET_STEP,
+  WAIT_STEP,
 };
 
 enum class InitState {
@@ -26,15 +27,22 @@ enum class InitState {
   WAIT_ID,
   SW_RESET,
   WAIT_SW_RESET,
+  RESET_COUNT,
+  WAIT_RESET_COUNT,
   CONFIGURE,
   WAIT_CONFIGURE,
   DONE
 };
 
-#define WAIT_TIME_GYRO_A 150
-#define WAIT_TIME_GYRO_B 50
-#define WAIT_TIME_ACC_A 100
-#define WAIT_TIME_ACC_B 50
+constexpr uint32_t WAIT_TIME_GYRO_A = 150;
+constexpr uint32_t WAIT_TIME_GYRO_B = 50;
+constexpr uint32_t WAIT_TIME_ACC_A = 100;
+constexpr uint32_t WAIT_TIME_ACC_B = 50;
+
+constexpr float_t MIN_ST_LIMIT_mg = 90.0f;
+constexpr float_t MAX_ST_LIMIT_mg = 1700.0f;
+constexpr float_t MIN_ST_LIMIT_mdps = 150000.0f;
+constexpr float_t MAX_ST_LIMIT_mdps = 700000.0f;
 
 enum class SelfTestState {
   SW_RESET,
@@ -54,10 +62,8 @@ enum class SelfTestState {
   DONE
 };
 
-constexpr float_t MIN_ST_LIMIT_mg = 90.0f;
-constexpr float_t MAX_ST_LIMIT_mg = 1700.0f;
-constexpr float_t MIN_ST_LIMIT_mdps = 150000.0f;
-constexpr float_t MAX_ST_LIMIT_mdps = 700000.0f;
+constexpr uint32_t ROUTINE_INTERVAL = 500;  // milisecond
+constexpr uint32_t SHAKING_THRESHOLD = 5;
 }  // namespace
 
 class ImuLogic {
@@ -66,6 +72,14 @@ class ImuLogic {
   void Init();
   void GyroSelfTest(callback_t cb, void *cb_arg1);
   void AccSelfTest(callback_t cb, void *cb_arg1);
+
+  // return the step count since last init
+  // update every ROUTINE_INTERVAL
+  uint16_t GetStep() { return _last_step; }
+  // within ROUTINE_INTERVAL detected step count if larger than
+  // SHAKING_THRESHOLD then is considered shaking
+  // update every ROUTINE_INTERVAL
+  bool IsShaking() { return _is_shaking; }
 
  private:
   PeriodicTask _routine_task;
@@ -77,6 +91,8 @@ class ImuLogic {
   callback_t _gyro_st_cb, _acc_st_cb;
   void *_gyro_st_cb_arg1, *_acc_st_cb_arg1;
   uint32_t _start_time;
+  uint16_t _last_step;
+  bool _is_shaking;
 
   void OnRxDone(void *arg1);
   void OnTxDone(void *arg1);
