@@ -1,3 +1,7 @@
+//#define SIMU  // open if needed
+
+
+#ifdef SIMU
 #define constexpr const
 #define DISPLAY_WIDTH 16
 #define DISPLAY_HEIGHT 8
@@ -687,3 +691,5 @@ int main() {
 
   return 0;
 }
+
+#endif
