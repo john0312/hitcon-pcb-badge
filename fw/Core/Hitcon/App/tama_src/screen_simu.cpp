@@ -2,31 +2,9 @@
 
 #ifdef SIMU
 #define constexpr const
-#define DISPLAY_WIDTH 16
-#define DISPLAY_HEIGHT 8
 #define SLEEP_US 500000
-typedef unsigned char uint8_t;
 
-#include <unistd.h>
-
-#include <iostream>
-
-#include "screens.h"
-
-using hitcon::app::tama::components::m_cat_idle1;
-using hitcon::app::tama::components::m_cat_idle2;
-using hitcon::app::tama::components::m_dog_idle1;
-using hitcon::app::tama::components::m_dog_idle2;
-using hitcon::app::tama::components::m_select_cursor;
-using hitcon::app::tama::components::m_select_print_all_character;
-using hitcon::app::tama::egg_icon::m_egg_0_percent_up;
-using hitcon::app::tama::egg_icon::m_egg_25_percent_up;
-using hitcon::app::tama::egg_icon::m_egg_50_percent_up;
-using hitcon::app::tama::egg_icon::m_egg_75_percent_up;
-using hitcon::app::tama::egg_icon::m_egg_hatch_shinning1;
-using hitcon::app::tama::egg_icon::m_egg_hatch_shinning2;
-using hitcon::app::tama::menu_icon::icon_important;
-using hitcon::app::tama::menu_icon::num_icon;
+#include "TamaAppFrame.h"
 
 /*--- simulation relative start---*/
 /**
@@ -73,365 +51,6 @@ void show_anime_with_delay(const uint8_t** frame_collection, int frame_count,
 }
 /*--- simulation relative end--- */
 
-/** --- basic definition part start ---*/
-#define CAT_IDLE_FRAME_COUNT 2
-#define DOG_IDLE_FRAME_COUNT 2
-#define SELECT_CHARACTER_FRAME_COUNT 2
-#define HATCH_WARNING_REPEAT_SHINE_COUNT 3
-#define HATCH_STATUS_FRAME_COUNT 4
-#define NEW_SCREEN NULL
-#define NUM_AREA_WIDTH 8
-#define NUM_AREA_HEIGHT 5
-#define EGG_AREA_WIDTH 8
-#define EGG_AREA_HEIGHT 8
-#define HATCH_START_COUNT 400
-
-typedef struct COMPONENT_INFO {
-  int x_offset;
-  int y_offset;
-  int x_len;
-  int y_len;
-} component_info;
-
-typedef struct BASE_INFO {
-  int width;
-  int height;
-} base_info;
-
-/**
- * @brief The function of stack const component onto a base layer
- *
- * @param component the component to be stacked on the top. Only accept const,
- * because components are const in screens.h
- * @param base the base to be stacked on. Can pass the base you want to modify,
- * or pass NULL create from a new one
- * @param comp_info The info of the input component.
- * @param bs_info The info of the base. Must be valid, but only used when
- * base is NULL.
- * @return uint8_t* : The address of the base. For multi-layer stack.
- */
-uint8_t* stack_target_offset(const uint8_t* component, uint8_t* base,
-                             component_info comp_info, base_info bs_info) {
-  // use a new base if input is empty
-  if (base == NULL) {
-    if (bs_info.width <= 0 || bs_info.height <= 0) {
-      std::cerr << "Error: Invalid base dimensions." << std::endl;
-      return nullptr;
-    }
-    // create a new memory at heap and fill with 0
-    base = new uint8_t[bs_info.width * bs_info.height]();
-    if (base == nullptr) {
-      std::cerr << "Error: Memory allocation failed." << std::endl;
-      return nullptr;
-    }
-  }
-
-  // edge check
-  if (comp_info.x_offset + comp_info.x_len > bs_info.width ||
-      comp_info.y_offset + comp_info.y_len > bs_info.height) {
-    std::cerr << "Error: Component exceeds base dimensions." << std::endl;
-    return base;
-  }
-
-  // stack new component onto base
-  for (int y = 0; y < comp_info.y_len; ++y) {
-    for (int x = 0; x < comp_info.x_len; ++x) {
-      int base_index =
-          (comp_info.y_offset + y) * bs_info.width + (comp_info.x_offset + x);
-      int component_index = y * comp_info.x_len + x;
-      int bit_status = component[component_index] | base[base_index];
-      base[base_index] = bit_status;
-    }
-  }
-
-  return base;
-}
-/** --- basic definition part end ---*/
-
-/** --- component part start ---*/
-/**
- * @brief Get the number component based on the target number.
- *
- * The number component will be a stack of three digits, each digit is 2x5
- * pixels. The maximum number is 999, and the minimum is 0.
- *
- * @param target_num The target number to be displayed, from 0 to 999.
- * @return const uint8_t* The address of the number component.
- */
-const uint8_t* get_number_component(int target_num) {
-  // check boundary of input
-  if (target_num > 999) {
-    target_num = 999;
-  }
-  if (target_num < 0) {
-    target_num = 0;
-  }
-
-  // how many digits need to be displayed
-  int digit_count = 1;
-  if (target_num >= 10) {
-    digit_count++;
-  }
-  if (target_num >= 100) {
-    digit_count++;
-  }
-
-  // parse digits
-  int digit_100x = target_num / 100;
-  target_num = target_num % 100;
-  int digit_10x = target_num / 10;
-  int digit_1x = target_num % 10;
-
-  base_info my_base_info = {
-      .width = 8,
-      .height = 5,
-  };
-
-  component_info digit_100x_component_info = {
-      .x_len = 2,
-      .y_len = 5,
-      .x_offset = 0,
-      .y_offset = 0,
-  };
-  component_info digit_10x_component_info = {
-      .x_len = 2,
-      .y_len = 5,
-      .x_offset = 3,
-      .y_offset = 0,
-  };
-  component_info digit_1x_component_info = {
-      .x_len = 2,
-      .y_len = 5,
-      .x_offset = 6,
-      .y_offset = 0,
-  };
-
-  /**
-   * v     v     v     offset
-   * 0 1 2 3 4 5 6 7
-   *     x     x       empty space
-   */
-
-  uint8_t* base;
-  // stack number icon at 1x digit
-  if (digit_count) {
-    base = stack_target_offset(num_icon[digit_1x], NULL,
-                               digit_1x_component_info, my_base_info);
-    digit_count--;
-  }
-
-  // stack number icon at 10x digit
-  if (digit_count) {
-    base = stack_target_offset(num_icon[digit_10x], base,
-                               digit_10x_component_info, my_base_info);
-    digit_count--;
-  }
-
-  // stack number icon at 100x digit
-  if (digit_count) {
-    base = stack_target_offset(num_icon[digit_100x], base,
-                               digit_100x_component_info, my_base_info);
-    digit_count--;
-  }
-
-  return base;
-}
-
-/**
- * @brief Get the warning component, which is a stack of three warning icons.
- *
- * The warning component is used to indicate that the pet is born and needs
- * attention.
- *
- * @return const uint8_t* The address of the warning component.
- */
-const uint8_t* get_warning_component() {
-  // similar to get_number_component, but only return a warning icon
-  base_info my_base_info = {
-      .width = 8,
-      .height = 5,
-  };
-  component_info warning_component_info_1 = {
-      .x_len = 2,
-      .y_len = 5,
-      .x_offset = 0,
-      .y_offset = 0,
-  };
-  component_info warning_component_info_2 = {
-      .x_len = 2,
-      .y_len = 5,
-      .x_offset = 3,
-      .y_offset = 0,
-  };
-  component_info warning_component_info_3 = {
-      .x_len = 2,
-      .y_len = 5,
-      .x_offset = 6,
-      .y_offset = 0,
-  };
-  // stack warning icon
-  uint8_t* base = stack_target_offset(icon_important, NULL,
-                                      warning_component_info_1, my_base_info);
-  base = stack_target_offset(icon_important, base, warning_component_info_2,
-                             my_base_info);
-  base = stack_target_offset(icon_important, base, warning_component_info_3,
-                             my_base_info);
-  // return the base with warning icon
-  return base;
-}
-
-/**
- * @brief Get the egg component based on the hatching percentage.
- *
- * The egg component will be one of the four stages:
- * 0% (egg), 25% (egg with cracks), 50% (egg with more cracks),
- * 75% (egg with even more cracks).
- *
- * @param percentage The percentage of hatching, from 0 to 100.
- * @return const uint8_t* The address of the egg component.
- */
-const uint8_t* get_egg_component(int percentage) {
-  // check boundary of input
-  if (percentage > 100) {
-    percentage = 100;
-  }
-  if (percentage < 0) {
-    percentage = 0;
-  }
-
-  base_info my_base_info = {
-      .width = EGG_AREA_WIDTH,
-      .height = EGG_AREA_HEIGHT,
-  };
-
-  component_info egg_component_info = {
-      .x_len = EGG_AREA_WIDTH,
-      .y_len = EGG_AREA_HEIGHT,
-      .x_offset = 0,
-      .y_offset = 0,
-  };
-
-  uint8_t* base;
-  if (percentage <= 25) {
-    base = stack_target_offset(m_egg_0_percent_up, NULL, egg_component_info,
-                               my_base_info);
-  } else if (percentage <= 50) {
-    base = stack_target_offset(m_egg_25_percent_up, NULL, egg_component_info,
-                               my_base_info);
-  } else if (percentage <= 75) {
-    base = stack_target_offset(m_egg_50_percent_up, NULL, egg_component_info,
-                               my_base_info);
-  } else if (percentage <= 100) {
-    base = stack_target_offset(m_egg_75_percent_up, NULL, egg_component_info,
-                               my_base_info);
-  }
-
-  return base;
-}
-
-/** --- component part end---*/
-
-/** --- frame part start ---*/
-/**
- * @brief Get a frame of hatch status, including egg component (reflect hatching
- * status) and number component (reflect remaining count).
- */
-const uint8_t* get_hatch_status_frame(int remaining_count) {
-  // check boundary of input
-  if (remaining_count > 999) {
-    remaining_count = 999;
-  }
-
-  base_info my_base_info = {
-      .width = DISPLAY_WIDTH,
-      .height = DISPLAY_HEIGHT,
-  };
-
-  component_info egg_component_info = {
-      .x_len = EGG_AREA_WIDTH,
-      .y_len = EGG_AREA_HEIGHT,
-      .x_offset = 0,
-      .y_offset = 0,
-  };
-
-  component_info num_component_info = {
-      .x_len = NUM_AREA_WIDTH,
-      .y_len = NUM_AREA_HEIGHT,
-      .x_offset = 8,
-      .y_offset = 3,
-  };
-
-  // percentage of egg hatching
-  int percentage = remaining_count * 100 / HATCH_START_COUNT;
-  if (percentage < 0) {
-    percentage = 0;
-  }
-  if (percentage > 100) {
-    percentage = 100;
-  }
-
-  uint8_t* base;
-  /* combine hatch component with num component */
-  // stack egg icon
-  base = stack_target_offset(get_egg_component(percentage), NULL,
-                             egg_component_info, my_base_info);
-  // stack number icon
-  base = stack_target_offset(get_number_component(remaining_count), base,
-                             num_component_info, my_base_info);
-
-  return base;
-}
-
-/**
- * @brief Get the pet born warning frame
- *
- * The warning frame has stack icon_important component and shining icon.
- *
- * @param frame 0 or 1, to get different frame
- * @return const uint8_t* The address of the frame
- */
-const uint8_t* get_hatch_born_warning_frame(int frame) {
-  // check boundary of input
-  if (frame < 0 || frame > 1) {
-    frame = 0;
-  }
-
-  base_info my_base_info = {
-      .width = DISPLAY_WIDTH,
-      .height = DISPLAY_HEIGHT,
-  };
-
-  component_info egg_component_info = {
-      .x_len = EGG_AREA_WIDTH,
-      .y_len = EGG_AREA_HEIGHT,
-      .x_offset = 0,
-      .y_offset = 0,
-  };
-  component_info warning_component_info = {
-      .x_len = NUM_AREA_WIDTH,
-      .y_len = NUM_AREA_HEIGHT,
-      .x_offset = 8,
-      .y_offset = 3,
-  };
-
-  uint8_t* base;
-  if (frame == 0) {
-    base = stack_target_offset(m_egg_hatch_shinning1, NULL, egg_component_info,
-                               my_base_info);
-    base = stack_target_offset(get_warning_component(), base,
-                               warning_component_info, my_base_info);
-  } else {
-    base = stack_target_offset(m_egg_hatch_shinning2, NULL, egg_component_info,
-                               my_base_info);
-    base = stack_target_offset(get_warning_component(), base,
-                               warning_component_info, my_base_info);
-  }
-
-  return base;
-}
-
-/** --- frame part end ---*/
-
 /* ------ example part ----- */
 // Just examples of how to use
 
@@ -453,9 +72,9 @@ void cat_idle(int repeat_count) {
   };
 
   uint8_t* cat_idle1 = stack_target_offset(
-      m_cat_idle1, NEW_SCREEN, cat_idle_component_info, screen_info);
+      m_cat_idle1, NEW_SCREEN, cat_idle_component_info, screen_info, false);
   uint8_t* cat_idle2 = stack_target_offset(
-      m_cat_idle2, NEW_SCREEN, cat_idle_component_info, screen_info);
+      m_cat_idle2, NEW_SCREEN, cat_idle_component_info, screen_info, false);
   const uint8_t* cat_idle_frame_all[CAT_IDLE_FRAME_COUNT] = {cat_idle1,
                                                              cat_idle2};
   for (int i = 0; i < repeat_count; ++i) {
@@ -485,9 +104,9 @@ void dog_idle(int repeat_count) {
       .height = 8,
   };
   uint8_t* dog_idle1 = stack_target_offset(
-      m_dog_idle1, NEW_SCREEN, dog_idle_component_info, screen_info);
+      m_dog_idle1, NEW_SCREEN, dog_idle_component_info, screen_info, false);
   uint8_t* dog_idle2 = stack_target_offset(
-      m_dog_idle2, NEW_SCREEN, dog_idle_component_info, screen_info);
+      m_dog_idle2, NEW_SCREEN, dog_idle_component_info, screen_info, false);
   const uint8_t* dog_idle_frame_all[DOG_IDLE_FRAME_COUNT] = {dog_idle1,
                                                              dog_idle2};
   for (int i = 0; i < repeat_count; ++i) {
@@ -532,17 +151,17 @@ void select_character(int repeat_count) {
 
   uint8_t* select_print_all_character1 = stack_target_offset(
       m_select_print_all_character, NEW_SCREEN,
-      select_print_all_character_component_info, screen_info);
+      select_print_all_character_component_info, screen_info, false);
   uint8_t* select_left =
       stack_target_offset(m_select_cursor, select_print_all_character1,
-                          select_left_component_info, screen_info);
+                          select_left_component_info, screen_info, false);
 
   uint8_t* select_print_all_character2 = stack_target_offset(
       m_select_print_all_character, NEW_SCREEN,
-      select_print_all_character_component_info, screen_info);
+      select_print_all_character_component_info, screen_info, false);
   uint8_t* select_right =
       stack_target_offset(m_select_cursor, select_print_all_character2,
-                          select_right_component_info, screen_info);
+                          select_right_component_info, screen_info, false);
   const uint8_t* select_character_frame_all[SELECT_CHARACTER_FRAME_COUNT] = {
       select_left, select_right};
 
@@ -646,8 +265,9 @@ void num_test(int repeat_count) {
   // create screens
   const uint8_t* frame_all[frame_count];
   for (int i = 0; i < frame_count; ++i) {
-    frame_all[i] = stack_target_offset(num_component_all[i], NEW_SCREEN,
-                                       num_area_component_info, screen_info);
+    frame_all[i] =
+        stack_target_offset(num_component_all[i], NEW_SCREEN,
+                            num_area_component_info, screen_info, true);
   }
 
   // show animation
@@ -659,35 +279,141 @@ void num_test(int repeat_count) {
   for (int i = 0; i < frame_count; ++i) {
     delete[] frame_all[i];
   }
-  for (int i = 0; i < frame_count; ++i) {
-    delete[] num_component_all[i];
+}
+
+/**
+ * @brief The example of cat_idle
+ *
+ * @param repeat_count How many times should frame_collection repeat
+ */
+void cat_idle_with_status(int repeat_count) {
+  const uint8_t* cat_idle1 = get_cat_idle_frame_with_status_overview(
+      IDLE_1, 3, 4);  // dog idle frame with status overview
+  const uint8_t* cat_idle2 = get_cat_idle_frame_with_status_overview(
+      IDLE_2, 3, 4);  // dog idle frame with status overview
+
+  const uint8_t* cat_idle_frame_all[CAT_IDLE_FRAME_COUNT] = {cat_idle1,
+                                                             cat_idle2};
+
+  for (int i = 0; i < repeat_count; ++i) {
+    show_anime_with_delay(cat_idle_frame_all, CAT_IDLE_FRAME_COUNT, SLEEP_US);
+  }
+
+  // loop to release all allocated memory
+  for (int i = 0; i < CAT_IDLE_FRAME_COUNT; ++i) {
+    delete[] cat_idle_frame_all[i];
   }
 }
 
-int main() {
+/**
+ * @brief The example of dog_idle
+ *
+ * @param repeat_count How many times should frame_collection repeat
+ */
+void dog_idle_with_status(int repeat_count) {
+  const uint8_t* dog_idle1 = get_dog_idle_frame_with_status_overview(
+      IDLE_1, 3, 4);  // dog idle frame with status overview
+  const uint8_t* dog_idle2 = get_dog_idle_frame_with_status_overview(
+      IDLE_2, 3, 4);  // dog idle frame with status overview
+
+  const uint8_t* dog_idle_frame_all[DOG_IDLE_FRAME_COUNT] = {dog_idle1,
+                                                             dog_idle2};
+
+  for (int i = 0; i < repeat_count; ++i) {
+    show_anime_with_delay(dog_idle_frame_all, DOG_IDLE_FRAME_COUNT, SLEEP_US);
+  }
+
+  // loop to release all allocated memory
+  for (int i = 0; i < DOG_IDLE_FRAME_COUNT; ++i) {
+    delete[] dog_idle_frame_all[i];
+  }
+}
+
+void dog_status_change(int repeat_count) {
+  const uint8_t* dog_status1 = get_dog_idle_frame_with_status_overview(
+      IDLE_1, 3, 4);  // dog idle frame with status overview
+  const uint8_t* dog_status2 = get_dog_idle_frame_with_status_overview(
+      IDLE_2, 2, 2);  // dog idle frame with status overview
+  const uint8_t* dog_status3 = get_dog_idle_frame_with_status_overview(
+      IDLE_1, 1, 0);  // dog idle frame with status overview
+
+  const uint8_t* dog_idle_frame_all[3] = {dog_status1, dog_status2,
+                                          dog_status3};
+
+  for (int i = 0; i < repeat_count; ++i) {
+    show_anime_with_delay(dog_idle_frame_all, 3, SLEEP_US);
+  }
+
+  // loop to release all allocated memory
+  for (int i = 0; i < 3; ++i) {
+    delete[] dog_idle_frame_all[i];
+  }
+}
+
+void test_frames() {
   int repeat_count = 3;
   int repeat_once = 1;
 
   // cat idle demo
-  std::cout << "Cat Idle Demo:\n";
-  cat_idle(repeat_count);
+  // std::cout << "Cat Idle Demo:\n";
+  // cat_idle(repeat_count);
 
   // dog idle demo
-  std::cout << "Dog Idle Demo:\n";
-  dog_idle(repeat_count);
+  // std::cout << "Dog Idle Demo:\n";
+  // dog_idle(repeat_count);
 
   // selection demo
   std::cout << "Select Character Demo:\n";
   select_character(repeat_count);
 
   // number icon demo
-  std::cout << "Number Icon Demo:\n";
-  num_test(repeat_once);
+  // std::cout << "Number Icon Demo:\n";
+  // num_test(repeat_once);
 
   // egg hatch demo
   std::cout << "Egg Hatch Demo:\n";
   egg_hatch(repeat_once);
 
+  // cat idle demo with status
+  std::cout << "Cat Idle Demo with status:\n";
+  cat_idle_with_status(repeat_count);
+
+  // dog idle demo with status
+  std::cout << "Dog Idle Demo with status:\n";
+  dog_idle_with_status(repeat_count);
+
+  // dog idle demo with status
+  std::cout << "Dog status change Demo:\n";
+  dog_status_change(repeat_count);
+
+  // // cat idle demo with status
+  // std::cout << "Cat Idle Demo with status:\n";
+  // cat_weak_idle_with_status(repeat_count);
+
+  // // dog idle demo with status
+  // std::cout << "Dog Idle Demo with status:\n";
+  // dog_weak_idle_with_status(repeat_count);
+}
+
+void test_compress_decompress() {
+  //---- compress part, can use for converting image to compressed data ---
+  // compress_data_and_print_info(hitcon::app::tama::components::m_dog_idle1,
+  //                              IDLE_PET_WIDTH, IDLE_PET_HEIGHT);
+
+  //---- decompress part, can use for verifying compressed data ----
+  constexpr uint8_t hardcoded_compressed_data[] = {0x38, 0xE0, 0x70, 0xF8,
+                                                   0x7C, 0xF8, 0x7C, 0x10};
+
+  CompressedImage hardcoded_compressed_image = {
+      .width = 8, .height = 8, .data = hardcoded_compressed_data};
+
+  decompress_and_print_component(&hardcoded_compressed_image);
+}
+
+int main() {
+  // test_frames();
+
+  test_compress_decompress();  // open it if needed
   return 0;
 }
 
