@@ -1,8 +1,8 @@
 #include "IrLogic.h"
 
 #include <Logic/IrLogic.h>
-#include <Logic/XboardLogic.h>
-#include <Logic/XboardRecvFn.h>
+#include <Logic/XBoardLogic.h>
+#include <Logic/XBoardRecvFn.h>
 #include <Logic/crc32.h>
 #include <Service/IrService.h>
 #include <Service/Suspender.h>

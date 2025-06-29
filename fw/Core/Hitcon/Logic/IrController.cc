@@ -7,7 +7,7 @@
 #include <Logic/GameController.h>
 #include <Logic/IrController.h>
 #include <Logic/RandomPool.h>
-#include <Logic/XboardLogic.h>
+#include <Logic/XBoardLogic.h>
 #include <Service/HashService.h>
 #include <Service/IrService.h>
 #include <Service/Sched/Scheduler.h>
