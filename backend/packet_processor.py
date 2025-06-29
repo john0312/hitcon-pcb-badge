@@ -72,7 +72,7 @@ class PacketProcessor:
             # verify the packet
             # it would throw an exception if the packet is invalid
             # Maybe a new field in IrPacket?
-            user = await CryptoAuth.verify_packet(event, ir_packet, hv)
+            user = await CryptoAuth.verify_packet(event, ir_packet)
 
             if event is None:
                 # If the packet is not a valid event, we don't need to do anything else.
