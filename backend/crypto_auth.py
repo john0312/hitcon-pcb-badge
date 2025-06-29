@@ -51,12 +51,12 @@ class CryptoAuth:
             sig_user2 = EccSignature(**(sig.model_dump() | {"pub": pub2}))
 
             if ecc_verify(
-                msg=ir_packet.data[:ECC_SIGNATURE_SIZE],
+                msg=ir_packet.data[2:ECC_SIGNATURE_SIZE],
                 sig=sig_user1
             ):
                 return event.user1
             elif ecc_verify(
-                msg=ir_packet.data[:ECC_SIGNATURE_SIZE],
+                msg=ir_packet.data[2:ECC_SIGNATURE_SIZE],
                 sig=sig_user2
             ):
                 return event.user2
@@ -77,7 +77,7 @@ class CryptoAuth:
             sig = EccSignature(**(sig.model_dump() | {"pub": pub}))
 
             if not ecc_verify(
-                msg=ir_packet.data[:ECC_SIGNATURE_SIZE],
+                msg=ir_packet.data[2:ECC_SIGNATURE_SIZE],
                 sig=sig
             ):
                 raise UnsignedPacketError("Invalid signature for the packet")
