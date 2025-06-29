@@ -60,11 +60,15 @@ void ShowNameApp::OnExit() {
 }
 
 void ShowNameApp::OnButton(button_t button) {
+  const UsartConnectState conn_state = g_xboard_logic.GetConnectState();
   switch (button) {
     case BUTTON_LONG_MODE:
-      if (g_xboard_logic.GetConnectState() ==
-          UsartConnectState::ConnectPeer2025) {
+      if (conn_state == UsartConnectState::ConnectPeer2025) {
         badge_controller.change_app(&connect_menu);
+      } else if (conn_state == UsartConnectState::ConnectLegacy) {
+        badge_controller.change_app(&connect_legacy_menu);
+      } else if (conn_state == UsartConnectState::ConnectBaseStn2025) {
+        badge_controller.change_app(&connect_basestn_menu);
       } else {
         badge_controller.change_app(&name_setting_menu);
       }

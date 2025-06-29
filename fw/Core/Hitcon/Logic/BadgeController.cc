@@ -33,6 +33,16 @@ void BadgeController::Init() {
       (callback_t)&BadgeController::OnXBoardConnect, this);
   hitcon::service::xboard::g_xboard_logic.SetOnDisconnectPeer2025(
       (callback_t)&BadgeController::OnXBoardDisconnect, this);
+
+  hitcon::service::xboard::g_xboard_logic.SetOnConnectLegacy(
+      (callback_t)&BadgeController::OnXBoardLegacyConnect, this);
+  hitcon::service::xboard::g_xboard_logic.SetOnDisconnectLegacy(
+      (callback_t)&BadgeController::OnXBoardDisconnect, this);
+
+  hitcon::service::xboard::g_xboard_logic.SetOnConnectBaseStn2025(
+      (callback_t)&BadgeController::OnXBoardBasestnConnect, this);
+  hitcon::service::xboard::g_xboard_logic.SetOnDisconnectBaseStn2025(
+      (callback_t)&BadgeController::OnXBoardDisconnect, this);
 }
 
 void BadgeController::SetCallback(callback_t callback, void *callback_arg1,
@@ -51,8 +61,13 @@ void BadgeController::change_app(App *new_app) {
 void BadgeController::BackToMenu(App *ending_app) {
   my_assert(current_app == ending_app);
 
-  if (g_xboard_logic.GetConnectState() == UsartConnectState::ConnectPeer2025) {
+  UsartConnectState conn_state = g_xboard_logic.GetConnectState();
+  if (conn_state == UsartConnectState::ConnectPeer2025) {
     change_app(&connect_menu);
+  } else if (conn_state == UsartConnectState::ConnectLegacy) {
+    change_app(&connect_legacy_menu);
+  } else if (conn_state == UsartConnectState::ConnectBaseStn2025) {
+    change_app(&connect_basestn_menu);
   } else {
     change_app(&main_menu);
   }
@@ -105,6 +120,16 @@ void BadgeController::OnButton(void *arg1) {
 void BadgeController::OnXBoardConnect(void *unused) {
   if (current_app != &hardware_test_app)
     badge_controller.change_app(&connect_menu);
+}
+
+void BadgeController::OnXBoardLegacyConnect(void *unused) {
+  if (current_app != &hardware_test_app)
+    badge_controller.change_app(&connect_legacy_menu);
+}
+
+void BadgeController::OnXBoardBasestnConnect(void *unused) {
+  if (current_app != &hardware_test_app)
+    badge_controller.change_app(&connect_basestn_menu);
 }
 
 void BadgeController::OnXBoardDisconnect(void *unused) {

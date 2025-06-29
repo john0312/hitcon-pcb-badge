@@ -34,6 +34,12 @@ class BadgeController {
   // TODO: This is called whenever a separate board disconnects.
   void OnXBoardDisconnect(void *unused);
 
+  // This is called whenever a legacy peer board connects.
+  void OnXBoardLegacyConnect(void *unused);
+
+  // This is called whenever a base station board connects.
+  void OnXBoardBasestnConnect(void *unused);
+
   // TODO: This is called by UsbService whenever we're plugged into a computer.
   // void OnUsbPlugIn();
 
