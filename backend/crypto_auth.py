@@ -47,12 +47,8 @@ class CryptoAuth:
             pub1 = await CryptoAuth.get_pubkey_by_username(event.user1)
             pub2 = await CryptoAuth.get_pubkey_by_username(event.user2)
 
-            sig_user1 = EccSignature(
-                sig.model_dump() | {"pub": pub1}
-            )
-            sig_user2 = EccSignature(
-                sig.model_dump() | {"pub": pub2}
-            )
+            sig_user1 = EccSignature(**(sig.model_dump() | {"pub": pub1}))
+            sig_user2 = EccSignature(**(sig.model_dump() | {"pub": pub2}))
 
             if ecc_verify(
                 msg=ir_packet.data[:ECC_SIGNATURE_SIZE],
@@ -75,12 +71,10 @@ class CryptoAuth:
             user = await CryptoAuth.derive_user_by_pubkey(pub)
             return user
         else:
-            sig = CryptoAuth.parse_raw_signature(ir_packet.data[:ECC_SIGNATURE_SIZE])
+            sig = CryptoAuth.parse_raw_signature(event.signature.to_bytes(14, 'little'))
             pub = await CryptoAuth.get_pubkey_by_username(event.user)
 
-            sig = EccSignature(
-                sig.model_dump() | {"pub": pub}
-            )
+            sig = EccSignature(**(sig.model_dump() | {"pub": pub}))
 
             if not ecc_verify(
                 msg=ir_packet.data[:ECC_SIGNATURE_SIZE],
