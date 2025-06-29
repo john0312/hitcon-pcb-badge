@@ -209,7 +209,7 @@ class ECC:
         return self.d * self.G
 
     def sign(self, message: bytes):
-        z = int.from_bytes(hashlib.sha3_256(message).digest()[:SHA3_PREFIX_LEN])
+        z = int.from_bytes(hashlib.sha3_256(message).digest()[:SHA3_PREFIX_LEN], 'little')
         n = self.order
         r, s = ModNum(0, n), ModNum(0, n)
         while s == 0:
@@ -224,7 +224,7 @@ class ECC:
         n = self.order
         if not 1 <= r <= n-1 or not 1 <= s <= n-1:
             return False
-        z = int.from_bytes(hashlib.sha3_256(message).digest()[:SHA3_PREFIX_LEN])
+        z = ModNum(int.from_bytes(hashlib.sha3_256(message).digest()[:SHA3_PREFIX_LEN], 'little'), r.mod)
         u1: ModNum = z // s
         u2: ModNum = r // s
         P: EPoint = u1.val * self.G + u2.val * pub
