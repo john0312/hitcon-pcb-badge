@@ -10,9 +10,7 @@ using namespace hitcon::service::xboard;
 
 // register external calls for connect/disconnect events here
 namespace {
-inline void OnConnectHandler() {
-  g_xboard_logic.QueueDataForTx(nullptr, 0, ANNOUNCE_BASE_STATION);
-}
+inline void OnConnectHandler() {}
 
 inline void OnDisconnectHandler() {}
 }  // namespace
@@ -131,7 +129,7 @@ void XBoardLogic::SendPing() {
 void XBoardLogic::SendPong() {
   uint8_t pkt[HEADER_SZ] = {0};
   *reinterpret_cast<Frame *>(pkt) =
-      Frame{0xD555555555555555, 0, 0, PONG_TYPE, 0};
+      Frame{0xD555555555555555, 0, 0, SELF_PONG_TYPE, 0};
   reinterpret_cast<Frame *>(pkt)->checksum = fast_crc32(pkt, HEADER_SZ);
   // for (int i = 0; i < sizeof(Frame); i++) {
   //   pkt[i] = (0x11+i)&0x0FF;
@@ -201,8 +199,9 @@ void XBoardLogic::ParsePacket() {
       recv_ping = true;
       continue;
     }
-    if (header->type == PONG_TYPE) {
-      recv_pong = true;
+    if (header->type == PONG_TYPE || header->type == PONG_PEER2025_TYPE ||
+        header->type == PONG_BASESTN2025_TYPE) {
+      last_pong = header->type;
       continue;
     }
 
@@ -227,13 +226,29 @@ void XBoardLogic::CheckPing() {
 }
 
 void XBoardLogic::CheckPong() {
-  if (!recv_pong) {
-    if (connect_state == UsartConnectState::Init) no_pong_count = 3;
+  if (connect_state == UsartConnectState::Init) no_pong_count = 3;
+  if (last_pong == 0) {
     if (no_pong_count < 3) {
       ++no_pong_count;
     }
   } else {
-    no_pong_count = 0;
+    // last pong == current peer
+    if (last_pong == peer) {
+      no_pong_count = 0;
+    } else {
+      // not equal to current peer
+      if (no_pong_count < 3) {
+        ++no_pong_count;
+      }
+    }
+  }
+  if (no_pong_count >= 3) {
+    if (last_pong != 0) {
+      peer = static_cast<PeerType>(last_pong);
+      no_pong_count = 0;
+    } else {
+      peer = PeerType::None;
+    }
   }
   UsartConnectState next_state = no_pong_count >= 3 ? Disconnect : Connect;
   if (next_state != connect_state) {
@@ -253,7 +268,7 @@ void XBoardLogic::CheckPong() {
       OnConnectHandler();
     }
   }
-  recv_pong = false;
+  last_pong = 0;
   connect_state = next_state;
 }
 

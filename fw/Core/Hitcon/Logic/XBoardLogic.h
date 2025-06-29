@@ -27,6 +27,18 @@ constexpr size_t RX_BUF_SZ = 128;
 constexpr size_t PKT_PAYLOAD_LEN_MAX = 32;
 constexpr uint8_t PING_TYPE = 208;
 constexpr uint8_t PONG_TYPE = 209;
+constexpr uint8_t PONG_PEER2025_TYPE = 210;
+constexpr uint8_t PONG_BASESTN2025_TYPE = 211;
+
+// pong type for this badge
+constexpr uint8_t SELF_PONG_TYPE = PONG_BASESTN2025_TYPE;
+
+enum PeerType : uint8_t {
+  None,
+  Peer24 = PONG_TYPE,
+  Peer25 = PONG_PEER2025_TYPE,
+  BaseStn25 = PONG_BASESTN2025_TYPE,
+};
 
 class XBoardLogic {
  public:
@@ -57,6 +69,7 @@ class XBoardLogic {
   void SetOnPacketArrive(callback_t callback, void *self, RecvFnId handler_id);
 
   enum UsartConnectState GetConnectState();
+  enum PeerType GetPeerType() { return peer; }
 
  private:
   // buffer variables
@@ -65,8 +78,10 @@ class XBoardLogic {
   uint16_t prod_head = 0;
   uint16_t cons_head = 0;
   bool recv_ping = false;
-  bool recv_pong = false;
+  // 0: no pong, other: PONG_TYPE
+  uint8_t last_pong = 0;
   uint8_t no_pong_count = 0;
+  PeerType peer = PeerType::None;
 
   hitcon::service::sched::PeriodicTask _parse_routine;
   hitcon::service::sched::PeriodicTask _ping_routine;
