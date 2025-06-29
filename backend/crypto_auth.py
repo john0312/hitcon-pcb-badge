@@ -67,7 +67,18 @@ class CryptoAuth:
             pass
         elif event.__class__ == PubAnnounceEvent:
             p = ecc_get_point_by_x(event.pubkey)
+            # TODO: verify last byte of x, which should only be 0 or 1
             pub = EccPublicKey(point=EccPoint(x=p.x, y=p.y))
+
+            sig = CryptoAuth.parse_raw_signature(event.signature.to_bytes(14, 'little'))
+            sig = EccSignature(**(sig.model_dump() | {"pub": pub}))
+            
+            if not ecc_verify(
+                msg=ir_packet.data[2:ECC_SIGNATURE_SIZE],
+                sig=sig
+            ):
+                raise UnsignedPacketError("Invalid signature for the public key")
+
             user = await CryptoAuth.derive_user_by_pubkey(pub)
             return user
         else:
