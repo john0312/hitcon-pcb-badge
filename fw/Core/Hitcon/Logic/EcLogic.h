@@ -33,6 +33,11 @@ class ModNum {
   uint64_t mod;
 };
 
+/**
+ * Context for performing res = (a / b) mod m.
+ * Algorithm is taken from here:
+ * https://zerobone.net/blog/math/extended-euklidean-algorithm/
+ */
 struct ModDivContext {
   uint64_t m;
   uint64_t ppr, pr;
@@ -95,10 +100,16 @@ class EcPoint {
   ModNum x, y;
 };
 
+/**
+ * Context for res = a + b.
+ * This is done by calculating the slope l between a and b, then intersecting it
+ * with the curve.
+ */
 struct PointAddContext {
   EcPoint a;
   EcPoint b;
   EcPoint res;
+  // Storage for the slope.
   ModNum l;
   PointAddContext();
 };
@@ -126,11 +137,17 @@ class PointAddService {
 
 extern PointAddService g_point_add_service;
 
+/**
+ * Context for res = p * times.
+ * We do this similarly to modular exponentiation, where we iterate through 64
+ * bits and do a point addition according to each bit.
+ */
 struct PointMultContext {
   EcPoint p;
   uint64_t times;
-  uint8_t i;
   EcPoint res;
+  // The iterator.
+  uint8_t i;
   PointMultContext();
 };
 
@@ -152,7 +169,11 @@ class PointMultService {
 extern PointMultService g_point_mult_service;
 
 struct EcContext {
-  uint64_t z, k;
+  // hash of the message
+  uint64_t z;
+  // a random value
+  uint64_t k;
+  // result of the sign
   ModNum r, s;
   EcContext();
 };
