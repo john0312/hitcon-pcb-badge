@@ -1,5 +1,4 @@
-//#define SIMU  // open if needed
-
+// #define SIMU  // open if needed
 
 #ifdef SIMU
 #define constexpr const
