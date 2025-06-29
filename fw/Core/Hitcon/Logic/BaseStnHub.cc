@@ -167,7 +167,33 @@ void BaseStationHub::SendToBaseStation() {
   }
   uint8_t cdc_pkt[HEADER_SZ + kBufferSize] = {0};
   auto cdc_hdr = reinterpret_cast<PktHdr*>(cdc_pkt);
-  cdc_hdr->type = 5;  // PopRxBufferRequest
+  cdc_hdr->type = PopBaseRxBuffer;  // PopRxBufferRequest
+  cdc_hdr->len = status.length;
+  memcpy(cdc_pkt + HEADER_SZ, &buffer[idx * kBufferSize + 1], status.length);
+  g_cdc_logic.SetSeq(cdc_hdr);
+  bool sent = g_cdc_logic.SendPacket(cdc_pkt);
+  // release if sent successfully
+  if (sent) {
+    status.locked = 0;
+    queue.PopFront();
+  }
+}
+
+void BaseStationHub::SendXbToBaseStation() {
+  // try to send to base station
+  auto& buffer = xbrx_buffer;
+  auto& queue = xbrxq;
+  if (queue.IsEmpty()) return;
+  auto idx = queue.Front();
+  auto& status = reinterpret_cast<BufferMeta&>(buffer[idx * kBufferSize]);
+  if (!status.locked) {
+    // already released
+    queue.PopFront();
+    return;
+  }
+  uint8_t cdc_pkt[HEADER_SZ + kBufferSize] = {0};
+  auto cdc_hdr = reinterpret_cast<PktHdr*>(cdc_pkt);
+  cdc_hdr->type = PopBaseXbRxBuffer;  // PopRxBufferRequest
   cdc_hdr->len = status.length;
   memcpy(cdc_pkt + HEADER_SZ, &buffer[idx * kBufferSize + 1], status.length);
   g_cdc_logic.SetSeq(cdc_hdr);

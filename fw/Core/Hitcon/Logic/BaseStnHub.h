@@ -89,6 +89,7 @@ class BaseStationHub {
   void Routine(void*);
   // to control plane
   void SendToBaseStation();
+  void SendXbToBaseStation();
   // to peripheral
   void SendToIr();
   void SendToXBoard();
