@@ -29,9 +29,9 @@ void BadgeController::Init() {
                                  this);
   current_app = &show_name_app;
   current_app->OnEntry();
-  hitcon::service::xboard::g_xboard_logic.SetOnConnect(
+  hitcon::service::xboard::g_xboard_logic.SetOnConnectPeer2025(
       (callback_t)&BadgeController::OnXBoardConnect, this);
-  hitcon::service::xboard::g_xboard_logic.SetOnDisconnect(
+  hitcon::service::xboard::g_xboard_logic.SetOnDisconnectPeer2025(
       (callback_t)&BadgeController::OnXBoardDisconnect, this);
 }
 
@@ -51,7 +51,7 @@ void BadgeController::change_app(App *new_app) {
 void BadgeController::BackToMenu(App *ending_app) {
   my_assert(current_app == ending_app);
 
-  if (g_xboard_logic.GetConnectState() == UsartConnectState::Connect) {
+  if (g_xboard_logic.GetConnectState() == UsartConnectState::ConnectPeer2025) {
     change_app(&connect_menu);
   } else {
     change_app(&main_menu);

@@ -197,7 +197,8 @@ void IrController::MaintainQueued() {
       // Waiting for IrController's tx slot to open up. (Hash is ready)
       if (current_tx_slot == -1) {
         bool ret;
-        if (g_xboard_logic.GetConnectState() == UsartConnectState::Connect) {
+        if (g_xboard_logic.GetConnectState() ==
+            UsartConnectState::ConnectBaseStn2025) {
           ret = g_xboard_logic.SendIRPacket(&(queued_packets_[i].data[0]),
                                             queued_packets_[i].size);
         } else {
