@@ -53,16 +53,17 @@ class PacketType(Enum):
 PACKET_TYPE_WITHOUT_SIG = { PacketType.kShow, PacketType.kTest, PacketType.kAcknowledge, PacketType.kSponsorActivity }
 
 class IrPacket(BaseModel):
-    packet_id: Optional[uuid.UUID] = Field(None)
+    packet_id: Optional[uuid.UUID] = Field(default_factory=uuid.uuid4)
     # The packet_id to avoid duplication at base station.
     data: bytes
-    station_id: Optional[uuid.UUID] = Field(None)
+    station_id: Optional[uuid.UUID] = Field(0)
     to_stn: bool
     # to_stn is True for backend -> base station packet, False otherwise.
 
 
 # For http requests
 class IrPacketRequestSchema(BaseModel):
+    station_id: Optional[int] = Field(0)
     packet_id: Optional[uuid.UUID] = Field(default_factory=uuid.uuid4)
     data: List[int]
 
@@ -88,7 +89,7 @@ class ScoreBoard(BaseModel):
 # For Mongo
 class IrPacketObject(BaseModel):
     # id: Optional[PyObjectId] = Field(alias="_id", default=None)
-    packet_id: Optional[uuid.UUID] = Field(None)
+    packet_id: Optional[uuid.UUID] = Field(default_factory=uuid.uuid4)
     data: PyBinary
     hash: PyBinary
     timestamp: Optional[datetime.datetime] = Field(default_factory=utcnow)
