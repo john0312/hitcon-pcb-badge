@@ -220,7 +220,6 @@ class PacketProcessor:
         buf.read(1)  # Skip TTL
         buf.read(1)  # Skip the first byte (packet type)
         b2i = lambda x: int.from_bytes(x, 'little', signed=False)
-        b2s = lambda x: int.from_bytes(x, 'little', signed=True)
 
         match packet_type:
             case PacketType.kProximity:
@@ -233,7 +232,7 @@ class PacketProcessor:
 
             case PacketType.kPubAnnounce:
                 # Public announce packet
-                pubkey = b2s(buf.read(ECC_PUBKEY_SIZE))
+                pubkey = b2i(buf.read(ECC_PUBKEY_SIZE))
                 signature = b2i(buf.read(ECC_SIGNATURE_SIZE))
                 return PubAnnounceEvent(packet_id=packet_id, station_id=station_id, pubkey=pubkey, signature=signature)
 
