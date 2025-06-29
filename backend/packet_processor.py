@@ -130,6 +130,11 @@ class PacketProcessor:
                 packet_id=packet["packet_id"],
                 data=list(packet["data"])
             )
+            await self.stations.update_one(
+                {"station_id": station.station_id},
+                {"$pull": {"tx": packet["_id"]}}
+            )
+            await self.packets.delete_one({"_id": packet["_id"]})
 
 
     # ===== Interface for GameLogic =====
