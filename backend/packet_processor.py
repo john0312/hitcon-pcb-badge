@@ -10,6 +10,10 @@ from database import db
 import inspect
 import uuid
 from io import BytesIO
+import typing
+
+if typing.TYPE_CHECKING:
+    import redis.asyncio as redis
 
 from game_logic_controller import GameLogicController
 
@@ -22,6 +26,7 @@ class PacketProcessor:
         self.packets = db["packets"]
         self.users = db["users"]
         self.user_queue = db["user_queue"]
+        self.redis: "redis.Redis | None" = None  # TODO: assign redis connection
 
         for k, v in GameLogicController.__dict__.items():
             if k.startswith("on_") and isinstance(v, staticmethod):
@@ -97,10 +102,7 @@ class PacketProcessor:
             # retransmit packets in the user queue (move these packets to station tx)
             if user is not None:
                 # Associate the user with the station.
-                await self.users.update_one(
-                    {"user": user},
-                    {"$set": {"station_id": station.station_id}}
-                )
+                await self.set_user_last_station_uuid(user, station.station_id)
                 # Dequeue packets for the user and add them to the station tx list.
                 packet_ids = await self.deque_user_packets(user, station)
                 if packet_ids:
@@ -332,14 +334,23 @@ class PacketProcessor:
             return None
 
 
+    async def set_user_last_station_uuid(self, user: int, station_id: uuid.UUID) -> None:
+        # Set the station associated with a user.
+        # This is used to determine where to send packets for the user.
+        # Use redis to store the association and automatically expire it after a certain time.
+        assert self.redis is not None, "Redis connection is not initialized."
+        await self.redis.set(f"user_station_pair:{user}", str(station_id), ex=self.config["redis"]["user_station_pair_expire"])
+
+
     async def get_user_last_station_uuid(self, user: int) -> Optional[uuid.UUID]:
         # Get the station associated with a user.
         # Should deal with roaming or multiple stations.
         # If IR received from multiple stations in a short time, we should use consider the previous station.
         # If such time is passed between two packets, we should consider them as two different packets.
-        user_object = await self.users.find_one({"user": user})
+        assert self.redis is not None, "Redis connection is not initialized."
 
-        if user_object:
-            return user_object.get("station_id")
-        else:
+        user_station_id = await self.redis.get(f"user_station_pair:{user}")
+        if user_station_id is None:
             return None
+
+        return uuid.UUID(user_station_id)

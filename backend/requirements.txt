@@ -1,5 +1,6 @@
 annotated-types==0.7.0
 anyio==4.8.0
+async-timeout==5.0.1
 certifi==2025.1.31
 click==8.1.8
 dnspython==2.7.0
@@ -8,6 +9,7 @@ exceptiongroup==1.2.2
 fastapi==0.115.11
 fastapi-cli==0.0.7
 h11==0.14.0
+hiredis==3.2.1
 httpcore==1.0.7
 httptools==0.6.4
 httpx==0.28.1
@@ -23,6 +25,7 @@ pymongo==4.11.2
 python-dotenv==1.0.1
 python-multipart==0.0.20
 PyYAML==6.0.2
+redis==6.2.0
 rich==13.9.4
 rich-toolkit==0.13.2
 shellingham==1.5.4
