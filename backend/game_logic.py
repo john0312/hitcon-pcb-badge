@@ -4,6 +4,8 @@ from dataclasses import dataclass, fields
 from datetime import datetime, timedelta
 import pymongo
 from enum import Enum
+from redis.asyncio import Redis
+import random
 
 try:
     from enum import StrEnum
@@ -45,6 +47,8 @@ class Constants:
     STATION_SCORE_DECAY_INTERVAL: int = 30 # seconds
     STATION_SCORE_DECAY_AMOUNT: int = 10
 
+    STATION_SCORE_CACHE_MIN_INTERVAL: int = 10 # seconds
+
     def reset(self):
         for field in fields(self):
             setattr(self, field.name, field.default)
@@ -73,11 +77,12 @@ def sign(value: int) -> int:
 
 
 class _GameLogic:
-    def __init__(self, mongo_client: pymongo.AsyncMongoClient, start_time: datetime = None):
+    def __init__(self, mongo_client: pymongo.AsyncMongoClient, start_time: datetime = None, redis_client: Redis = None):
         # TODO: maybe use config to update constants
         self.db = mongo_client[const.DATABASE_NAME]
         self.attack_history = self.db[const.ATTACK_HISTORY_COLLECTION]
         self.score_history = self.db[const.SCORE_HISTORY_COLLECTION]
+        self.redis_client: "Redis | None" = redis_client
 
         if start_time is None:
             start_time = datetime.now()
@@ -101,11 +106,13 @@ class _GameLogic:
             "timestamp": timestamp,
         })
 
-    async def get_station_score_history(self, *, player_id: int = None, station_id: int = None, before: datetime = None):
+    async def get_station_score_history(self, *, player_id: int = None, station_id: int = None, start: datetime = None, before: datetime = None):
+        if start is None:
+            start = self.start_time
         if before is None:
             before = datetime.now()
 
-        query = {"timestamp": {"$lt": before}}
+        query = {"timestamp": {"$gte": start, "$lt": before}}
 
         if player_id is not None:
             query["player_id"] = player_id
@@ -119,26 +126,53 @@ class _GameLogic:
             yield record
 
     async def get_station_score(self, *, player_id: int = None, station_id: int = None, before: datetime = None) -> int:
-        # TODO: cache the results
         if before is None:
             before = datetime.now()
 
-        total_score = 0
+        cached_score = None
+        if self.redis_client is not None:
+            # Check the last cached score (before the given time)
+            last_cached_time = self.start_time
+            async for key in self.redis_client.scan_iter(match=f"station_score:{player_id}:{station_id}:*"):
+                # Extract the timestamp from the key
+                cached_time = datetime.fromisoformat(key.decode().split(":", maxsplit=3)[-1])
+                if cached_time < before and cached_time > last_cached_time:
+                    last_cached_time = cached_time
+
+            tmp = await self.redis_client.get(f"station_score:{player_id}:{station_id}:{last_cached_time.isoformat()}")
+            if tmp is not None:
+                cached_score = int(tmp)
+
+        if cached_score is not None:
+            total_score = cached_score
+            start_time = last_cached_time
+        else:
+            total_score = 0
+            start_time = self.start_time
         time_pointer = self.start_time
 
         def proceed(until: datetime):
             nonlocal time_pointer
             nonlocal total_score
+            if time_pointer >= until:
+                return
             # Decay the score based on the time passed
             while time_pointer <= until:
+                if time_pointer > start_time:
+                    total_score += -1 * sign(total_score) * min(const.STATION_SCORE_DECAY_AMOUNT, abs(total_score))
                 time_pointer += timedelta(seconds=const.STATION_SCORE_DECAY_INTERVAL)
-                total_score += -1 * sign(total_score) * min(const.STATION_SCORE_DECAY_AMOUNT, abs(total_score))
 
-        async for record in self.get_station_score_history(player_id=player_id, station_id=station_id, before=before):
+        async for record in self.get_station_score_history(player_id=player_id, station_id=station_id, start=start_time, before=before):
             proceed(record["timestamp"])
             total_score = clamp(total_score + record["amount"], const.STATION_SCORE_LB, const.STATION_SCORE_UB)
 
         proceed(before)
+
+        if self.redis_client is not None:
+            # Cache the total score, if it has been a while since the last cache
+            if (before - last_cached_time).total_seconds() >= const.STATION_SCORE_CACHE_MIN_INTERVAL:
+                await self.redis_client.set(f"station_score:{player_id}:{station_id}:{before.isoformat()}", total_score)
+
         return total_score
 
     async def receive_game_score_single_player(self, player_id: int, station_id: int, score: int, game_type: GameType, timestamp: datetime):
@@ -272,13 +306,20 @@ class _GameLogic:
         return result[0]["total_score"] if result else 0
 
 
-async def test_attack_station_score_history():
+async def test_attack_station_score_history(with_redis = False, cache_min_interval = None):
     const.reset()
     const.STATION_SCORE_DECAY_INTERVAL = 1
+    const.STATION_SCORE_CACHE_MIN_INTERVAL = 1 if cache_min_interval is None else cache_min_interval
     eps = 0.1
 
+    if with_redis:
+        redis_client = Redis(host='localhost', port=6379)
+        await redis_client.flushall()  # Clear all keys in Redis for testing
+    else:
+        redis_client = None
+
     time_base = datetime.now()
-    gl = _GameLogic(pymongo.AsyncMongoClient("mongodb://localhost:27017?uuidRepresentation=standard"), time_base)
+    gl = _GameLogic(pymongo.AsyncMongoClient("mongodb://localhost:27017?uuidRepresentation=standard"), time_base, redis_client=redis_client)
     await gl.clear_database()
 
     # Simulate
@@ -312,6 +353,34 @@ async def test_attack_station_score_history():
             total_score = min(0, total_score + const.STATION_SCORE_DECAY_AMOUNT)
 
         assert total_score == await gl.get_station_score(station_id=station_id, before=time_base + timedelta(seconds=i + eps))
+
+    # test, random order query
+    ground_truth = [
+        (
+            time_base + timedelta(seconds=i + eps),
+            await gl.get_station_score(station_id=station_id, before=time_base + timedelta(seconds=i + eps)),
+        )
+        for i in range(len(scores))
+    ] + [
+        (
+            time_base + timedelta(seconds=i + 0.5 + eps),
+            await gl.get_station_score(station_id=station_id, before=time_base + timedelta(seconds=i + 0.5 + eps)),
+        )
+        for i in range(len(scores))
+    ] + [
+        (
+            time_base + timedelta(seconds=i + eps),
+            await gl.get_station_score(station_id=station_id, before=time_base + timedelta(seconds=i + eps)),
+        )
+        for i in range(len(scores), len(scores) + 10)
+    ]
+    random.seed(42)  # For reproducibility
+    random.shuffle(ground_truth)
+    if with_redis:
+        # test if the cache works in random order
+        await redis_client.flushall()
+    for timestamp, expected_score in ground_truth:
+        assert expected_score == await gl.get_station_score(station_id=station_id, before=timestamp)
 
 
 async def test_game_score_history_single_player():
@@ -404,4 +473,8 @@ if __name__ == "__main__":
     asyncio.run(test_attack_station_score_history())
     asyncio.run(test_game_score_history_single_player())
     asyncio.run(test_game_score_history_two_player())
+    asyncio.run(test_attack_station_score_history(with_redis=True, cache_min_interval=0.1))
+    asyncio.run(test_attack_station_score_history(with_redis=True, cache_min_interval=0.4))
+    asyncio.run(test_attack_station_score_history(with_redis=True, cache_min_interval=1.6))
+    asyncio.run(test_attack_station_score_history(with_redis=True, cache_min_interval=6.4))
     print("All tests passed!")
