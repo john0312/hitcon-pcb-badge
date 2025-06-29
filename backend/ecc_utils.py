@@ -17,16 +17,18 @@ def ecc_verify(msg: bytes, sig: EccSignature) -> bool:
     # Verify the given signature. sig.pub must be populated.
     assert sig.pub is not None, "Public key must be provided for signature verification"
 
+    mod = G.x.mod
+
     ECC_instance = ecc.ECC(curve, G, order, 0)
-    ECC_instance.verify(
+    return ECC_instance.verify(
         message=msg,
         pub=ecc.EPoint(
-            x=sig.pub.point.x,
-            y=sig.pub.point.y,
+            x=ecc.ModNum(sig.pub.point.x, mod),
+            y=ecc.ModNum(sig.pub.point.y, mod),
             curve=curve
         ),
-        r=sig.r,
-        s=sig.s
+        r=ecc.ModNum(sig.r, order),
+        s=ecc.ModNum(sig.s, order)
     )
 
 
