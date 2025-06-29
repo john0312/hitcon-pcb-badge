@@ -50,4 +50,4 @@ def ecc_get_point_by_x(x: int) -> EccPoint:
 
 def modulus_congruent_to_3_module_4(a: int, m: int)-> int:
     # https://www.rieselprime.de/ziki/Modular_square_root#Modulus_congruent_to_3_modulo_4
-    return (a ** ((m + 1) // 4)) % m
+    return pow(a, (m + 1) // 4, m)
