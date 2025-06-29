@@ -4,3 +4,9 @@ mongo:
   username: root
   password: password
   db: badge
+
+redis:
+  host: localhost
+  port: 6379
+
+  user_station_pair_expire: 180 # 3 minutes
