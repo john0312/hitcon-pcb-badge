@@ -35,7 +35,7 @@ def ecc_derive_pub(priv: EccPrivateKey) -> EccPublicKey:
     ECC_instance = ecc.ECC(curve, G, order, priv.dA)
     point = ECC_instance.pub()
 
-    return EccPublicKey(point=EccPoint(x=point.x, y=point.y))
+    return EccPublicKey(point=EccPoint(x=point.x.val, y=point.y.val))
 
 
 def ecc_get_point_by_x(x: int) -> EccPoint:
