@@ -72,9 +72,11 @@ void cat_idle(int repeat_count) {
   };
 
   uint8_t* cat_idle1 = stack_target_offset(
-      m_cat_idle1, NEW_SCREEN, cat_idle_component_info, screen_info, false);
+      decompress_component(&m_cat_idle1_compressed), NEW_SCREEN,
+      cat_idle_component_info, screen_info, false);
   uint8_t* cat_idle2 = stack_target_offset(
-      m_cat_idle2, NEW_SCREEN, cat_idle_component_info, screen_info, false);
+      decompress_component(&m_cat_idle2_compressed), NEW_SCREEN,
+      cat_idle_component_info, screen_info, false);
   const uint8_t* cat_idle_frame_all[CAT_IDLE_FRAME_COUNT] = {cat_idle1,
                                                              cat_idle2};
   for (int i = 0; i < repeat_count; ++i) {
@@ -104,9 +106,11 @@ void dog_idle(int repeat_count) {
       .height = 8,
   };
   uint8_t* dog_idle1 = stack_target_offset(
-      m_dog_idle1, NEW_SCREEN, dog_idle_component_info, screen_info, false);
+      decompress_component(&m_dog_idle1_compressed), NEW_SCREEN,
+      dog_idle_component_info, screen_info, false);
   uint8_t* dog_idle2 = stack_target_offset(
-      m_dog_idle2, NEW_SCREEN, dog_idle_component_info, screen_info, false);
+      decompress_component(&m_dog_idle2_compressed), NEW_SCREEN,
+      dog_idle_component_info, screen_info, false);
   const uint8_t* dog_idle_frame_all[DOG_IDLE_FRAME_COUNT] = {dog_idle1,
                                                              dog_idle2};
   for (int i = 0; i < repeat_count; ++i) {
@@ -150,17 +154,21 @@ void select_character(int repeat_count) {
   };
 
   uint8_t* select_print_all_character1 = stack_target_offset(
-      m_select_print_all_character, NEW_SCREEN,
-      select_print_all_character_component_info, screen_info, false);
+      decompress_component(&m_select_print_all_character_compressed),
+      NEW_SCREEN, select_print_all_character_component_info, screen_info,
+      false);
   uint8_t* select_left =
-      stack_target_offset(m_select_cursor, select_print_all_character1,
+      stack_target_offset(decompress_component(&m_select_cursor_compressed),
+                          select_print_all_character1,
                           select_left_component_info, screen_info, false);
 
   uint8_t* select_print_all_character2 = stack_target_offset(
-      m_select_print_all_character, NEW_SCREEN,
-      select_print_all_character_component_info, screen_info, false);
+      decompress_component(&m_select_print_all_character_compressed),
+      NEW_SCREEN, select_print_all_character_component_info, screen_info,
+      false);
   uint8_t* select_right =
-      stack_target_offset(m_select_cursor, select_print_all_character2,
+      stack_target_offset(decompress_component(&m_select_cursor_compressed),
+                          select_print_all_character2,
                           select_right_component_info, screen_info, false);
   const uint8_t* select_character_frame_all[SELECT_CHARACTER_FRAME_COUNT] = {
       select_left, select_right};
@@ -247,7 +255,7 @@ void num_test(int repeat_count) {
   const int frame_count = 5;
   component_info num_area_component_info = {
       .x_len = 8,
-      .y_len = 5,
+      .y_len = 8,
       .x_offset = 0,
       .y_offset = 0,
   };
@@ -397,17 +405,16 @@ void test_frames() {
 
 void test_compress_decompress() {
   //---- compress part, can use for converting image to compressed data ---
-  // compress_data_and_print_info(hitcon::app::tama::components::m_dog_idle1,
-  //                              IDLE_PET_WIDTH, IDLE_PET_HEIGHT);
+  compress_data_and_print_info(m_example_of_compress, 8, 8);
 
   //---- decompress part, can use for verifying compressed data ----
-  constexpr uint8_t hardcoded_compressed_data[] = {0x38, 0xE0, 0x70, 0xF8,
-                                                   0x7C, 0xF8, 0x7C, 0x10};
+  // constexpr uint8_t hardcoded_compressed_data[] = {0x38, 0xE0, 0x70, 0xF8,
+  //                                                  0x7C, 0xF8, 0x7C, 0x10};
 
-  CompressedImage hardcoded_compressed_image = {
-      .width = 8, .height = 8, .data = hardcoded_compressed_data};
+  // CompressedImage hardcoded_compressed_image = {
+  //     .width = 8, .height = 8, .data = hardcoded_compressed_data};
 
-  decompress_and_print_component(&hardcoded_compressed_image);
+  // decompress_and_print_component(&hardcoded_compressed_image);
 }
 
 int main() {

@@ -46,6 +46,47 @@ CompressedImage compress_component(const uint8_t* src, uint8_t width,
   uint8_t* compressed_data = (uint8_t*)malloc(compressed_size);
   memset(compressed_data, 0, compressed_size);
 
+  /**
+   * The compress method:
+   * Example：
+   *      original data (8x8):
+   *        1 0 1 0 0 1 0 1 row=0
+   *        0 1 0 1 1 0 1 0
+   *        1 1 1 0 0 1 0 0
+   *        0 0 0 1 1 1 1 1
+   *        1 0 1 0 1 0 1 0
+   *        0 1 0 1 0 1 0 1
+   *        1 1 0 0 1 1 0 0
+   *        0 0 1 1 0 0 1 1 row=7
+   *        col=0         col=7
+   *      compressed data:
+   *        col=0:  1 0 1 0 1 0 1 0  ->  0b10101010  ->  0xAA
+   *        col=1:  0 1 1 0 0 1 1 0  ->  0b01100110  ->  0x66
+   *        col=2:  1 0 1 0 1 0 0 1  ->  0b10101001  ->  0xA9
+   *        col=3:  0 1 0 1 0 1 0 1  ->  0b01010101  ->  0x55
+   *        col=4:  0 1 0 1 1 0 1 0  ->  0b01011010  ->  0x5A
+   *        col=5:  1 0 1 1 0 1 1 0  ->  0b10110110  ->  0xB6
+   *        col=6:  0 1 0 0 1 0 0 1  ->  0b01001001  ->  0x49
+   *        col=7:  1 0 0 1 1 1 1 1  ->  0b10011111  ->  0x9F
+   *      method:
+   *        1. read row 0 (x=0~7)
+   *        2. x=0 save 1 to compressed_data[0],
+   *           x=1 save 0 to compressed_data[1]
+   *           same as:
+   *           col=0: 1
+   *           col=1: 0
+   *           col=2: 1
+   *           ...
+   *           col=7: 1
+   *        3. y++ (next row), loop x from 0 to 7
+   *           same as:
+   *           col=0: 1 0 -> keep growing
+   *           col=1: 0 1 -> keep growing
+   *           col=2: 1 0 -> keep growing
+   *           ...
+   *           col=7: 1 0
+   *        4. repeat until all rows are processed
+   */
   // compress the image
   for (int y = 0; y < height; ++y) {
     for (int x = 0; x < width; ++x) {
@@ -74,11 +115,11 @@ void compress_data_and_print_info(const uint8_t* src, uint8_t width,
   CompressedImage compressed = compress_component(src, width, height);
   printf("Compressed data:\n");
   printf("Width: %d, Height: %d\n", compressed.width, compressed.height);
+  printf("Size after compressed: %d bytes\n", width);
   printf("Data: {");
-  uint16_t data_size = sizeof(*src);
-  for (int i = 0; i < data_size; ++i) {
+  for (int i = 0; i < width; ++i) {
     printf("0x%02X", compressed.data[i]);
-    if (i < data_size - 1) {
+    if (i < width - 1) {
       printf(", ");
     }
   }

@@ -1,22 +1,22 @@
 #include "TamaAppUtils.h"
 
 // -------
-using hitcon::app::tama::components::m_cat_idle1;
-using hitcon::app::tama::components::m_cat_idle2;
-using hitcon::app::tama::components::m_dog_idle1;
-using hitcon::app::tama::components::m_dog_idle2;
-using hitcon::app::tama::components::m_select_cursor;
-using hitcon::app::tama::components::m_select_print_all_character;
-using hitcon::app::tama::egg_icon::m_egg_0_percent_up;
-using hitcon::app::tama::egg_icon::m_egg_25_percent_up;
-using hitcon::app::tama::egg_icon::m_egg_50_percent_up;
-using hitcon::app::tama::egg_icon::m_egg_75_percent_up;
-using hitcon::app::tama::egg_icon::m_egg_hatch_shinning1;
-using hitcon::app::tama::egg_icon::m_egg_hatch_shinning2;
-using hitcon::app::tama::menu_icon::icon_important;
-using hitcon::app::tama::menu_icon::icon_status_overview_food;
-using hitcon::app::tama::menu_icon::icon_status_overview_heart;
-using hitcon::app::tama::menu_icon::num_icon;
+using hitcon::app::tama::components::m_cat_idle1_compressed;
+using hitcon::app::tama::components::m_cat_idle2_compressed;
+using hitcon::app::tama::components::m_dog_idle1_compressed;
+using hitcon::app::tama::components::m_dog_idle2_compressed;
+using hitcon::app::tama::components::m_select_cursor_compressed;
+using hitcon::app::tama::components::m_select_print_all_character_compressed;
+using hitcon::app::tama::egg_icon::m_egg_0_percent_up_compressed;
+using hitcon::app::tama::egg_icon::m_egg_25_percent_up_compressed;
+using hitcon::app::tama::egg_icon::m_egg_50_percent_up_compressed;
+using hitcon::app::tama::egg_icon::m_egg_75_percent_up_compressed;
+using hitcon::app::tama::egg_icon::m_egg_hatch_shinning1_compressed;
+using hitcon::app::tama::egg_icon::m_egg_hatch_shinning2_compressed;
+using hitcon::app::tama::menu_icon::m_icon_important_compressed;
+using hitcon::app::tama::menu_icon::m_icon_status_overview_food_compressed;
+using hitcon::app::tama::menu_icon::m_icon_status_overview_heart_compressed;
+using hitcon::app::tama::menu_icon::m_num_icon_compressed;
 // ------
 
 /** --- basic definition part start ---*/
@@ -223,22 +223,25 @@ uint8_t* get_number_component(int target_num) {
   uint8_t* base;
   // stack number icon at 1x digit
   if (digit_count) {
-    base = stack_target_offset(num_icon[digit_1x], NULL,
-                               digit_1x_component_info, my_base_info, false);
+    base = stack_target_offset(
+        decompress_component(&m_num_icon_compressed[digit_1x]), NULL,
+        digit_1x_component_info, my_base_info, false);
     digit_count--;
   }
 
   // stack number icon at 10x digit
   if (digit_count) {
-    base = stack_target_offset(num_icon[digit_10x], base,
-                               digit_10x_component_info, my_base_info, false);
+    base = stack_target_offset(
+        decompress_component(&m_num_icon_compressed[digit_10x]), base,
+        digit_10x_component_info, my_base_info, false);
     digit_count--;
   }
 
   // stack number icon at 100x digit
   if (digit_count) {
-    base = stack_target_offset(num_icon[digit_100x], base,
-                               digit_100x_component_info, my_base_info, false);
+    base = stack_target_offset(
+        decompress_component(&m_num_icon_compressed[digit_100x]), base,
+        digit_100x_component_info, my_base_info, false);
     digit_count--;
   }
 
@@ -280,12 +283,15 @@ uint8_t* get_warning_component() {
       .y_offset = 0,
   };
   // stack warning icon
-  uint8_t* base = stack_target_offset(
-      icon_important, NULL, warning_component_info_1, my_base_info, false);
-  base = stack_target_offset(icon_important, base, warning_component_info_2,
-                             my_base_info, false);
-  base = stack_target_offset(icon_important, base, warning_component_info_3,
-                             my_base_info, false);
+  uint8_t* base =
+      stack_target_offset(decompress_component(&m_icon_important_compressed),
+                          NULL, warning_component_info_1, my_base_info, false);
+  base =
+      stack_target_offset(decompress_component(&m_icon_important_compressed),
+                          base, warning_component_info_2, my_base_info, false);
+  base =
+      stack_target_offset(decompress_component(&m_icon_important_compressed),
+                          base, warning_component_info_3, my_base_info, false);
   // return the base with warning icon
   return base;
 }
@@ -325,17 +331,21 @@ uint8_t* get_egg_component(int percentage) {
 
   uint8_t* base;
   if (percentage <= 25) {
-    base = stack_target_offset(m_egg_0_percent_up, NULL, egg_component_info,
-                               my_base_info, false);
+    base = stack_target_offset(
+        decompress_component(&m_egg_0_percent_up_compressed), NULL,
+        egg_component_info, my_base_info, false);
   } else if (percentage <= 50) {
-    base = stack_target_offset(m_egg_25_percent_up, NULL, egg_component_info,
-                               my_base_info, false);
+    base = stack_target_offset(
+        decompress_component(&m_egg_25_percent_up_compressed), NULL,
+        egg_component_info, my_base_info, false);
   } else if (percentage <= 75) {
-    base = stack_target_offset(m_egg_50_percent_up, NULL, egg_component_info,
-                               my_base_info, false);
+    base = stack_target_offset(
+        decompress_component(&m_egg_50_percent_up_compressed), NULL,
+        egg_component_info, my_base_info, false);
   } else if (percentage <= 100) {
-    base = stack_target_offset(m_egg_75_percent_up, NULL, egg_component_info,
-                               my_base_info, false);
+    base = stack_target_offset(
+        decompress_component(&m_egg_75_percent_up_compressed), NULL,
+        egg_component_info, my_base_info, false);
   }
 
   return base;
@@ -370,8 +380,9 @@ uint8_t* get_heart_overview_component(int heart_count) {
   };
   uint8_t* base;
   // icon
-  base = stack_target_offset(icon_status_overview_heart, NULL,
-                             heart_component_info, my_base_info, false);
+  base = stack_target_offset(
+      decompress_component(&m_icon_status_overview_heart_compressed), NULL,
+      heart_component_info, my_base_info, false);
   if (heart_count < 1) {
     // no food, return the base with icon only
     return base;
@@ -449,8 +460,9 @@ uint8_t* get_food_overview_component(int food_count) {
 
   uint8_t* base;
   // icon
-  base = stack_target_offset(icon_status_overview_food, NULL,
-                             food_component_info, my_base_info, false);
+  base = stack_target_offset(
+      decompress_component(&m_icon_status_overview_food_compressed), NULL,
+      food_component_info, my_base_info, false);
   if (food_count < 1) {
     // no food, return the base with icon only
     return base;
@@ -568,7 +580,7 @@ const uint8_t* get_hatch_status_frame(int remaining_count) {
 /**
  * @brief Get the pet born warning frame
  *
- * The warning frame has stack icon_important component and shining icon.
+ * The warning frame has stack m_icon_important component and shining icon.
  *
  * @param frame 0 or 1, to get different frame
  * @return const uint8_t* The address of the frame
@@ -599,13 +611,15 @@ const uint8_t* get_hatch_born_warning_frame(int frame) {
 
   uint8_t* base;
   if (frame == 0) {
-    base = stack_target_offset(m_egg_hatch_shinning1, NULL, egg_component_info,
-                               my_base_info, false);
+    base = stack_target_offset(
+        decompress_component(&m_egg_hatch_shinning1_compressed), NULL,
+        egg_component_info, my_base_info, false);
     base = stack_component(get_warning_component(), base,
                            warning_component_info, my_base_info);
   } else {
-    base = stack_target_offset(m_egg_hatch_shinning2, NULL, egg_component_info,
-                               my_base_info, false);
+    base = stack_target_offset(
+        decompress_component(&m_egg_hatch_shinning2_compressed), NULL,
+        egg_component_info, my_base_info, false);
     base = stack_component(get_warning_component(), base,
                            warning_component_info, my_base_info);
   }
@@ -662,15 +676,16 @@ const uint8_t* get_dog_idle_frame_with_status_overview(int frame,
 
   uint8_t* base;
   if (frame == IDLE_1) {
-    base = stack_target_offset(m_dog_idle1, NEW_SCREEN, dog_idle_component_info,
-                               screen_info, false);
+    base = stack_component(decompress_component(&m_dog_idle1_compressed),
+                           NEW_SCREEN, dog_idle_component_info, screen_info);
     base = stack_component(get_heart_overview_component(heart_count), base,
                            heart_overview_component_info, screen_info);
     base = stack_component(get_food_overview_component(food_count), base,
                            food_overview_component_info, screen_info);
   } else if (frame == IDLE_2) {
-    base = stack_target_offset(m_dog_idle2, NEW_SCREEN, dog_idle_component_info,
-                               screen_info, false);
+    base = stack_target_offset(decompress_component(&m_dog_idle2_compressed),
+                               NEW_SCREEN, dog_idle_component_info, screen_info,
+                               false);
     base = stack_component(get_heart_overview_component(heart_count), base,
                            heart_overview_component_info, screen_info);
     base = stack_component(get_food_overview_component(food_count), base,
@@ -729,15 +744,17 @@ const uint8_t* get_cat_idle_frame_with_status_overview(int frame,
 
   uint8_t* base;
   if (frame == IDLE_1) {
-    base = stack_target_offset(m_cat_idle1, NEW_SCREEN, cat_idle_component_info,
-                               screen_info, false);
+    base = stack_target_offset(decompress_component(&m_cat_idle1_compressed),
+                               NEW_SCREEN, cat_idle_component_info, screen_info,
+                               false);
     base = stack_component(get_heart_overview_component(heart_count), base,
                            heart_overview_component_info, screen_info);
     base = stack_component(get_food_overview_component(food_count), base,
                            food_overview_component_info, screen_info);
   } else if (frame == IDLE_2) {
-    base = stack_target_offset(m_cat_idle2, NEW_SCREEN, cat_idle_component_info,
-                               screen_info, false);
+    base = stack_target_offset(decompress_component(&m_cat_idle2_compressed),
+                               NEW_SCREEN, cat_idle_component_info, screen_info,
+                               false);
     base = stack_component(get_heart_overview_component(heart_count), base,
                            heart_overview_component_info, screen_info);
     base = stack_component(get_food_overview_component(food_count), base,
