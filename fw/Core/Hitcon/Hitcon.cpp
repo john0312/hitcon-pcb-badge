@@ -72,8 +72,10 @@ void hitcon_run() {
   g_flash_service.Init();
   g_nv_storage.Init();
   g_display_logic.Init();
+#ifndef V1_1C
   g_imu_service.Init();
   g_imu_logic.Init();
+#endif
 
   g_button_logic.Init();
   g_button_service.Init();

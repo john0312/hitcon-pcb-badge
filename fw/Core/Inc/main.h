@@ -112,7 +112,32 @@ void Error_Handler(void);
 #define LedA3_GPIO_Port GPIOB
 
 /* USER CODE BEGIN Private defines */
+#ifndef DEC_EN_GPIO_Port
+#define DEC_EN_GPIO_Port GPIOB
+#endif
 
+#ifdef V1_1C
+#undef LedA0_Pin
+#undef LedA1_Pin
+#undef DEC_EN_Pin
+#define LedA0_Pin GPIO_PIN_6
+#define LedA1_Pin GPIO_PIN_7
+#define DEC_EN_Pin GPIO_PIN_5
+#elifdef V2_0A
+#undef LedA0_Pin
+#undef LedA1_Pin
+#undef DEC_EN_Pin
+#define LedA0_Pin GPIO_PIN_3
+#define LedA1_Pin GPIO_PIN_4
+#define DEC_EN_Pin GPIO_PIN_5
+#elifdef V2_1BB
+#undef LedA0_Pin
+#undef LedA1_Pin
+#undef DEC_EN_Pin
+#define LedA0_Pin GPIO_PIN_3
+#define LedA1_Pin GPIO_PIN_5
+#define DEC_EN_Pin GPIO_PIN_4
+#endif
 /* USER CODE END Private defines */
 
 #ifdef __cplusplus

@@ -1,12 +1,14 @@
 #define SERVICE_DISPLAY_SERVICE_CC_
 
+#include <Hitcon.h>
 #include <Logic/Display/display.h>
 #include <Service/DisplayService.h>
 #include <Service/Sched/Scheduler.h>
 #include <Service/Sched/Task.h>
 #include <Service/Suspender.h>
-#include <main.h>
-#include <tim.h>
+
+#include "main.h"
+#include "tim.h"
 
 using namespace hitcon::service::sched;
 using namespace hitcon;
@@ -88,7 +90,27 @@ void DisplayService::SetRequestFrameCallback(callback_t callback,
 void DisplayService::PopulateFrames(display_buf_t* buffer,
                                     size_t buffer_index) {
   constexpr uint16_t gpio_pin[8] = {15, 14, 13, 12, 11, 10, 2, 1};
-  // row_map[n] => set A3~A0 BSRR register
+// row_map[n] => set A3~A0 BSRR register
+#ifdef V1_1C
+  constexpr uint32_t row_map[16] = {
+      0B0000'0001'1100'0000 << 16 | 0B0000'0010'0000'0000,  // 1000
+      0B0000'0011'1100'0000 << 16 | 0B0000'0000'0000'0000,  // 0000
+      0B0000'0001'1000'0000 << 16 | 0B0000'0010'0100'0000,  // 1001
+      0B0000'0011'1000'0000 << 16 | 0B0000'0000'0100'0000,  // 0001
+      0B0000'0001'0100'0000 << 16 | 0B0000'0010'1000'0000,  // 1010
+      0B0000'0011'0100'0000 << 16 | 0B0000'0000'1000'0000,  // 0010
+      0B0000'0001'0000'0000 << 16 | 0B0000'0010'1100'0000,  // 1011
+      0B0000'0011'0000'0000 << 16 | 0B0000'0000'1100'0000,  // 0011
+      0B0000'0000'1100'0000 << 16 | 0B0000'0011'0000'0000,  // 1100
+      0B0000'0010'1100'0000 << 16 | 0B0000'0001'0000'0000,  // 0100
+      0B0000'0000'1000'0000 << 16 | 0B0000'0011'0100'0000,  // 1101
+      0B0000'0010'1000'0000 << 16 | 0B0000'0001'0100'0000,  // 0101
+      0B0000'0000'0100'0000 << 16 | 0B0000'0011'1000'0000,  // 1110
+      0B0000'0010'0100'0000 << 16 | 0B0000'0001'1000'0000,  // 0110
+      0B0000'0000'0000'0000 << 16 | 0B0000'0011'1100'0000,  // 1111
+      0B0000'0010'0000'0000 << 16 | 0B0000'0001'1100'0000,  // 0111
+  };
+#elifdef V2_0A
   constexpr uint32_t row_map[16] = {
       0B0000'0001'0001'1000 << 16 | 0B0000'0010'0000'0000,  // 1000
       0B0000'0011'0001'1000 << 16 | 0B0000'0000'0000'0000,  // 0000
@@ -107,6 +129,26 @@ void DisplayService::PopulateFrames(display_buf_t* buffer,
       0B0000'0000'0000'0000 << 16 | 0B0000'0011'0001'1000,  // 1111
       0B0000'0010'0000'0000 << 16 | 0B0000'0001'0001'1000,  // 0111
   };
+#elifdef V2_1BB
+  constexpr uint32_t row_map[16] = {
+      0B0000'0001'0010'1000 << 16 | 0B0000'0010'0000'0000,  // 1000
+      0B0000'0011'0010'1000 << 16 | 0B0000'0000'0000'0000,  // 0000
+      0B0000'0001'0010'0000 << 16 | 0B0000'0010'0000'1000,  // 1001
+      0B0000'0011'0010'0000 << 16 | 0B0000'0000'0000'1000,  // 0001
+      0B0000'0001'0000'1000 << 16 | 0B0000'0010'0010'0000,  // 1010
+      0B0000'0011'0000'1000 << 16 | 0B0000'0000'0010'0000,  // 0010
+      0B0000'0001'0000'0000 << 16 | 0B0000'0010'0010'1000,  // 1011
+      0B0000'0011'0000'0000 << 16 | 0B0000'0000'0010'1000,  // 0011
+      0B0000'0000'0010'1000 << 16 | 0B0000'0011'0000'0000,  // 1100
+      0B0000'0010'0010'1000 << 16 | 0B0000'0001'0000'0000,  // 0100
+      0B0000'0000'0010'0000 << 16 | 0B0000'0011'0000'1000,  // 1101
+      0B0000'0010'0010'0000 << 16 | 0B0000'0001'0000'1000,  // 0101
+      0B0000'0000'0000'1000 << 16 | 0B0000'0011'0010'0000,  // 1110
+      0B0000'0010'0000'1000 << 16 | 0B0000'0001'0010'0000,  // 0110
+      0B0000'0000'0000'0000 << 16 | 0B0000'0011'0010'1000,  // 1111
+      0B0000'0010'0000'0000 << 16 | 0B0000'0001'0010'1000,  // 0111
+  };
+#endif
 
   if (display_set_mode_orientation) {
     for (uint8_t i = 0; i < 8; i++) {
@@ -153,6 +195,10 @@ void DisplayService::RequestFrameWrapper(request_cb_param* arg) {
 void DisplayService::SetBrightness(uint8_t brightness) {
   uint8_t value =
       brightness * 1.0 / DISPLAY_MAX_BRIGHTNESS * (htim3.Init.Period);
+#ifdef V1_1C
   __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_2, value);
+#elifdef V2_1BB
+  __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_1, value);
+#endif
 }
 }  // namespace hitcon
