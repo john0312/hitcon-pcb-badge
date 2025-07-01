@@ -3,10 +3,14 @@
 // -------
 using hitcon::app::tama::components::m_cat_idle1_compressed;
 using hitcon::app::tama::components::m_cat_idle2_compressed;
+using hitcon::app::tama::components::m_cat_weak_compressed;
 using hitcon::app::tama::components::m_dog_idle1_compressed;
 using hitcon::app::tama::components::m_dog_idle2_compressed;
+using hitcon::app::tama::components::m_dog_weak_compressed;
 using hitcon::app::tama::components::m_select_cursor_compressed;
 using hitcon::app::tama::components::m_select_print_all_character_compressed;
+using hitcon::app::tama::components::m_weak_particle_1_compressed;
+using hitcon::app::tama::components::m_weak_particle_2_compressed;
 using hitcon::app::tama::egg_icon::m_egg_0_percent_up_compressed;
 using hitcon::app::tama::egg_icon::m_egg_25_percent_up_compressed;
 using hitcon::app::tama::egg_icon::m_egg_50_percent_up_compressed;
@@ -673,24 +677,37 @@ const uint8_t* get_dog_idle_frame_with_status_overview(int frame,
       .x_offset = 8,
       .y_offset = 4,
   };
+  component_info dog_weak_component_info = dog_idle_component_info;
+  component_info weak_particle_component_info = dog_idle_component_info;
 
   uint8_t* base;
-  if (frame == IDLE_1) {
-    base = stack_component(decompress_component(&m_dog_idle1_compressed),
-                           NEW_SCREEN, dog_idle_component_info, screen_info);
-    base = stack_component(get_heart_overview_component(heart_count), base,
-                           heart_overview_component_info, screen_info);
-    base = stack_component(get_food_overview_component(food_count), base,
-                           food_overview_component_info, screen_info);
-  } else if (frame == IDLE_2) {
-    base = stack_target_offset(decompress_component(&m_dog_idle2_compressed),
-                               NEW_SCREEN, dog_idle_component_info, screen_info,
-                               false);
-    base = stack_component(get_heart_overview_component(heart_count), base,
-                           heart_overview_component_info, screen_info);
-    base = stack_component(get_food_overview_component(food_count), base,
-                           food_overview_component_info, screen_info);
+  if (heart_count == 0 || food_count == 0) {
+    base = stack_component(decompress_component(&m_dog_weak_compressed),
+                           NEW_SCREEN, dog_weak_component_info, screen_info);
+    if (frame == IDLE_1) {
+      base =
+          stack_component(decompress_component(&m_weak_particle_1_compressed),
+                          base, weak_particle_component_info, screen_info);
+    } else if (frame == IDLE_2) {
+      base =
+          stack_component(decompress_component(&m_weak_particle_2_compressed),
+                          base, weak_particle_component_info, screen_info);
+    }
+  } else {
+    if (frame == IDLE_1) {
+      base = stack_component(decompress_component(&m_dog_idle1_compressed),
+                             NEW_SCREEN, dog_idle_component_info, screen_info);
+    } else if (frame == IDLE_2) {
+      base = stack_target_offset(decompress_component(&m_dog_idle2_compressed),
+                                 NEW_SCREEN, dog_idle_component_info,
+                                 screen_info, false);
+    }
   }
+
+  base = stack_component(get_heart_overview_component(heart_count), base,
+                         heart_overview_component_info, screen_info);
+  base = stack_component(get_food_overview_component(food_count), base,
+                         food_overview_component_info, screen_info);
 
   return base;
 }
@@ -742,24 +759,38 @@ const uint8_t* get_cat_idle_frame_with_status_overview(int frame,
       .y_offset = 4,
   };
 
+  component_info cat_weak_component_info = cat_idle_component_info;
+  component_info weak_particle_component_info = cat_idle_component_info;
+
   uint8_t* base;
-  if (frame == IDLE_1) {
-    base = stack_target_offset(decompress_component(&m_cat_idle1_compressed),
-                               NEW_SCREEN, cat_idle_component_info, screen_info,
-                               false);
-    base = stack_component(get_heart_overview_component(heart_count), base,
-                           heart_overview_component_info, screen_info);
-    base = stack_component(get_food_overview_component(food_count), base,
-                           food_overview_component_info, screen_info);
-  } else if (frame == IDLE_2) {
-    base = stack_target_offset(decompress_component(&m_cat_idle2_compressed),
-                               NEW_SCREEN, cat_idle_component_info, screen_info,
-                               false);
-    base = stack_component(get_heart_overview_component(heart_count), base,
-                           heart_overview_component_info, screen_info);
-    base = stack_component(get_food_overview_component(food_count), base,
-                           food_overview_component_info, screen_info);
+  if (heart_count == 0 || food_count == 0) {
+    base = stack_component(decompress_component(&m_cat_weak_compressed),
+                           NEW_SCREEN, cat_weak_component_info, screen_info);
+    if (frame == IDLE_1) {
+      base =
+          stack_component(decompress_component(&m_weak_particle_1_compressed),
+                          base, weak_particle_component_info, screen_info);
+    } else if (frame == IDLE_2) {
+      base =
+          stack_component(decompress_component(&m_weak_particle_2_compressed),
+                          base, weak_particle_component_info, screen_info);
+    }
+  } else {
+    if (frame == IDLE_1) {
+      base = stack_target_offset(decompress_component(&m_cat_idle1_compressed),
+                                 NEW_SCREEN, cat_idle_component_info,
+                                 screen_info, false);
+    } else if (frame == IDLE_2) {
+      base = stack_target_offset(decompress_component(&m_cat_idle2_compressed),
+                                 NEW_SCREEN, cat_idle_component_info,
+                                 screen_info, false);
+    }
   }
+
+  base = stack_component(get_heart_overview_component(heart_count), base,
+                         heart_overview_component_info, screen_info);
+  base = stack_component(get_food_overview_component(food_count), base,
+                         food_overview_component_info, screen_info);
 
   return base;
 }

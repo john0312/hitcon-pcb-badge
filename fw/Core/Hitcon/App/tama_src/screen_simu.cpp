@@ -337,6 +337,61 @@ void dog_idle_with_status(int repeat_count) {
   }
 }
 
+/**
+ * @brief The example of cat_idle with weak status
+ *
+ * Same as cat_idle_with_status, only passing value different.
+ * The case here is hungry trigger weak status.
+ *
+ * @param repeat_count How many times should frame_collection repeat
+ */
+void cat_weak_idle_with_status(int repeat_count) {
+  const uint8_t* cat_idle1 = get_cat_idle_frame_with_status_overview(
+      IDLE_1, 3, 0);  // dog idle frame with status overview
+  const uint8_t* cat_idle2 = get_cat_idle_frame_with_status_overview(
+      IDLE_2, 3, 0);  // dog idle frame with status overview
+
+  const uint8_t* cat_idle_frame_all[CAT_IDLE_FRAME_COUNT] = {cat_idle1,
+                                                             cat_idle2};
+
+  for (int i = 0; i < repeat_count; ++i) {
+    show_anime_with_delay(cat_idle_frame_all, CAT_IDLE_FRAME_COUNT, SLEEP_US);
+  }
+
+  // loop to release all allocated memory
+  for (int i = 0; i < CAT_IDLE_FRAME_COUNT; ++i) {
+    delete[] cat_idle_frame_all[i];
+  }
+}
+
+/**
+ * @brief The example of dog_idle with weak status
+ *
+ * Same as dog_idle_with_status, only passing value different.
+ * The case here is heart poor trigger weak status.
+ *
+ * @param repeat_count How many times should frame_collection repeat
+ */
+
+void dog_weak_idle_with_status(int repeat_count) {
+  const uint8_t* dog_idle1 = get_dog_idle_frame_with_status_overview(
+      IDLE_1, 0, 4);  // dog idle frame with status overview
+  const uint8_t* dog_idle2 = get_dog_idle_frame_with_status_overview(
+      IDLE_2, 0, 4);  // dog idle frame with status overview
+
+  const uint8_t* dog_idle_frame_all[DOG_IDLE_FRAME_COUNT] = {dog_idle1,
+                                                             dog_idle2};
+
+  for (int i = 0; i < repeat_count; ++i) {
+    show_anime_with_delay(dog_idle_frame_all, DOG_IDLE_FRAME_COUNT, SLEEP_US);
+  }
+
+  // loop to release all allocated memory
+  for (int i = 0; i < DOG_IDLE_FRAME_COUNT; ++i) {
+    delete[] dog_idle_frame_all[i];
+  }
+}
+
 void dog_status_change(int repeat_count) {
   const uint8_t* dog_status1 = get_dog_idle_frame_with_status_overview(
       IDLE_1, 3, 4);  // dog idle frame with status overview
@@ -394,13 +449,13 @@ void test_frames() {
   std::cout << "Dog status change Demo:\n";
   dog_status_change(repeat_count);
 
-  // // cat idle demo with status
-  // std::cout << "Cat Idle Demo with status:\n";
-  // cat_weak_idle_with_status(repeat_count);
+  // cat idle demo with status
+  std::cout << "Cat Weak Idle Demo with status:\n";
+  cat_weak_idle_with_status(repeat_count);
 
-  // // dog idle demo with status
-  // std::cout << "Dog Idle Demo with status:\n";
-  // dog_weak_idle_with_status(repeat_count);
+  // dog idle demo with status
+  std::cout << "Dog Weak Idle Demo with status:\n";
+  dog_weak_idle_with_status(repeat_count);
 }
 
 void test_compress_decompress() {

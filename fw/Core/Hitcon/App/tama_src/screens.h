@@ -16,6 +16,12 @@
 #define EGG_HEIGHT 8
 #define FOOD_HEART_OVERVIEW_ICON_WIDTH 4
 #define FOOD_HEART_OVERVIEW_ICON_HEIGHT 4
+#define WEAK_PET_WIDTH 8
+#define WEAK_PET_HEIGHT 8
+#define WEAK_PET_PARTICLE_WIDTH 8
+#define WEAK_PET_PARTICLE_HEIGHT 8
+#define HOSPITAL_WIDTH 8
+#define HOSPITAL_HEIGHT 8
 
 // m_xxx = material xxx
 
@@ -198,6 +204,115 @@ constexpr CompressedImage m_select_cursor_compressed = {
     .width = SELECT_WIDTH,
     .height = SELECT_HEIGHT,
     .data = m_select_cursor_compressed_data};
+
+/**
+ * @brief The compressed data of m_dog_weak_compressed_data.
+ *
+ * The original data is:
+ *
+ *  ```
+ *  0, 0, 0, 0, 0, 0, 0, 0,  //
+ *  0, 0, 0, 0, 0, 0, 0, 0,  //
+ *  0, 0, 0, 0, 0, 0, 0, 0,  //
+ *  0, 0, 0, 0, 0, 0, 0, 0,  //
+ *  0, 0, 0, 1, 0, 1, 0, 0,  //
+ *  1, 1, 0, 1, 1, 1, 0, 0,  //
+ *  0, 1, 1, 1, 1, 1, 1, 0,  //
+ *  0, 1, 1, 1, 1, 1, 0, 0,  //
+ *  ```
+ *
+ * Notice: the compressed data is not directly mapping to the original data.
+ * It packed the bits in a specific way.
+ */
+constexpr uint8_t m_dog_weak_compressed_data[] = {0x20, 0xE0, 0xC0, 0xF0,
+                                                  0xE0, 0xF0, 0x40, 0x00};
+constexpr CompressedImage m_dog_weak_compressed = {
+    .width = WEAK_PET_WIDTH,
+    .height = WEAK_PET_HEIGHT,
+    .data = m_dog_weak_compressed_data};
+
+/**
+ * @brief The compressed data of m_cat_weak_compressed_data.
+ *
+ * The original data is:
+ *
+ *  ```
+ *  0, 0, 0, 0, 0, 0, 0, 0,  //
+ *  0, 0, 0, 0, 0, 0, 0, 0,  //
+ *  0, 0, 0, 0, 0, 0, 0, 0,  //
+ *  0, 0, 0, 0, 0, 0, 0, 0,  //
+ *  1, 1, 0, 0, 1, 0, 1, 0,  //
+ *  0, 0, 1, 0, 1, 1, 1, 0,  //
+ *  0, 1, 0, 1, 1, 1, 1, 0,  //
+ *  0, 0, 1, 1, 1, 1, 1, 0,  //
+ *  ```
+ *
+ * Notice: the compressed data is not directly mapping to the original data.
+ * It packed the bits in a specific way.
+ *
+ */
+constexpr uint8_t m_cat_weak_compressed_data[] = {0x10, 0x50, 0xA0, 0xC0,
+                                                  0xF0, 0xE0, 0xF0, 0x00};
+constexpr CompressedImage m_cat_weak_compressed = {
+    .width = WEAK_PET_WIDTH,
+    .height = WEAK_PET_HEIGHT,
+    .data = m_cat_weak_compressed_data};
+
+/**
+ * @brief The compressed data of m_weak_particle_1_compressed_data.
+ *
+ * The original data is:
+ *
+ *  ```
+ *  0, 0, 0, 0, 0, 0, 0, 0,  //
+ *  0, 0, 0, 0, 1, 0, 0, 0,  //
+ *  0, 0, 0, 0, 0, 0, 1, 0,  //
+ *  0, 0, 1, 0, 0, 0, 0, 0,  //
+ *  0, 0, 0, 0, 0, 0, 0, 0,  //
+ *  0, 0, 0, 0, 0, 0, 0, 0,  //
+ *  0, 0, 0, 0, 0, 0, 0, 0,  //
+ *  0, 0, 0, 0, 0, 0, 0, 0,  //
+ *  ```
+ *
+ * Notice: the compressed data is not directly mapping to the original data.
+ * It packed the bits in a specific way.
+ *
+ */
+
+constexpr uint8_t m_weak_particle_1_compressed_data[] = {
+    0x00, 0x00, 0x08, 0x00, 0x02, 0x00, 0x04, 0x00};
+constexpr CompressedImage m_weak_particle_1_compressed = {
+    .width = WEAK_PET_PARTICLE_WIDTH,
+    .height = WEAK_PET_PARTICLE_HEIGHT,
+    .data = m_weak_particle_1_compressed_data};
+
+/**
+ * @brief The compressed data of m_weak_particle_2_compressed_data.
+ *
+ * The original data is:
+ *
+ *  ```
+ *  0, 0, 0, 0, 0, 0, 0, 0,  //
+ *  0, 0, 0, 0, 0, 0, 1, 0,  //
+ *  0, 0, 1, 0, 1, 0, 0, 0,  //
+ *  0, 0, 0, 0, 0, 0, 0, 0,  //
+ *  0, 0, 0, 0, 0, 0, 0, 0,  //
+ *  0, 0, 0, 0, 0, 0, 0, 0,  //
+ *  0, 0, 0, 0, 0, 0, 0, 0,  //
+ *  0, 0, 0, 0, 0, 0, 0, 0,  //
+ *  ```
+ *
+ * Notice: the compressed data is not directly mapping to the original data.
+ * It packed the bits in a specific way.
+ *
+ */
+
+constexpr uint8_t m_weak_particle_2_compressed_data[] = {
+    0x00, 0x00, 0x04, 0x00, 0x04, 0x00, 0x02, 0x00};
+constexpr CompressedImage m_weak_particle_2_compressed = {
+    .width = WEAK_PET_PARTICLE_WIDTH,
+    .height = WEAK_PET_PARTICLE_HEIGHT,
+    .data = m_weak_particle_2_compressed_data};
 
 }  // namespace components
 
