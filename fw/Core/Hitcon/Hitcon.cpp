@@ -102,9 +102,6 @@ void hitcon_run() {
     badge_controller.change_app(&hardware_test_app);
   }
 
-  tama_app.Init();
-  badge_controller.change_app(&tama_app);
-
   scheduler.Queue(&InitTask, nullptr);
 
   scheduler.Run();

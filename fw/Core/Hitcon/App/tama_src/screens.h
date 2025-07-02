@@ -22,12 +22,37 @@
 #define WEAK_PET_PARTICLE_HEIGHT 8
 #define HOSPITAL_WIDTH 8
 #define HOSPITAL_HEIGHT 8
+#define BATTLE_WIDTH 7
+#define BATTLE_HEIGHT 8
+#define TRAINING_WIDTH 7
+#define TRAINING_HEIGHT 8
+#define YN_WIDTH 16
+#define YN_HEIGHT 8
+#define YN_SELECT_LEFT_WIDTH 4
+#define YN_SELECT_LEFT_HEIGHT 8
+#define YN_SELECT_RIGHT_WIDTH 3
+#define YN_SELECT_RIGHT_HEIGHT 8
 
 // m_xxx = material xxx
 
 enum {
-  IDLE_1,
-  IDLE_2,
+  FRAME_1,
+  FRAME_2,
+};
+
+enum {
+  PET_TYPE_DOG,
+  PET_TYPE_CAT,
+};
+
+enum {
+  BATTLE,
+  TRAINING,
+};
+
+enum {
+  LEFT,
+  RIGHT,
 };
 
 // the structure of compressed data
@@ -824,12 +849,180 @@ constexpr CompressedImage m_icon_status_overview_food_compressed = {
     .height = FOOD_HEART_OVERVIEW_ICON_HEIGHT,
     .data = m_icon_status_overview_food_compressed_data};
 
+/**
+ * @brief The compressed data of m_icon_hospital_compressed_data.
+ *
+ * The original data is:
+ *
+ *  ```
+ *  0, 0, 0, 0, 0, 0, 0, 0,  //
+ *  0, 0, 0, 1, 1, 0, 0, 0,  //
+ *  0, 0, 0, 1, 1, 0, 0, 0,  //
+ *  0, 1, 1, 1, 1, 1, 1, 0,  //
+ *  0, 1, 1, 1, 1, 1, 1, 0,  //
+ *  0, 0, 0, 1, 1, 0, 0, 0,  //
+ *  0, 0, 0, 1, 1, 0, 0, 0,  //
+ *  0, 0, 0, 0, 0, 0, 0, 0,  //
+ *  ```
+ *
+ * Notice: the compressed data is not directly mapping to the original data.
+ * It packed the bits in a specific way.
+ *
+ */
+
+constexpr uint8_t m_icon_hospital_compressed_data[] = {0x00, 0x18, 0x18, 0x7E,
+                                                       0x7E, 0x18, 0x18, 0x00};
+constexpr CompressedImage m_icon_hospital_compressed = {
+    .width = HOSPITAL_WIDTH,
+    .height = HOSPITAL_HEIGHT,
+    .data = m_icon_hospital_compressed_data};
+
+/**
+ * @brief The compressed data of m_battle_icon.
+ *
+ * The original data is:
+ *
+ *  ```
+ *  0, 0, 0, 0, 0, 0, 0,  //
+ *  0, 0, 0, 0, 0, 1, 1,  //
+ *  0, 0, 0, 0, 1, 0, 1,  //
+ *  0, 1, 0, 1, 0, 1, 0,  //
+ *  0, 1, 1, 0, 1, 0, 0,  //
+ *  0, 0, 1, 1, 0, 0, 0,  //
+ *  0, 1, 0, 1, 1, 0, 0,  //
+ *  1, 0, 0, 0, 0, 0, 0,  //
+ *  ```
+ *
+ * Notice: the compressed data is not directly mapping to the original data.
+ * It packed the bits in a specific way.
+ *
+ */
+
+constexpr uint8_t m_battle_icon_compressed_data[] = {0x80, 0x58, 0x30, 0x68,
+                                                     0x54, 0x0A, 0x06};
+constexpr CompressedImage m_battle_icon_compressed = {
+    .width = BATTLE_WIDTH,
+    .height = BATTLE_HEIGHT,
+    .data = m_battle_icon_compressed_data};
+
+/**
+ * @brief The compressed data of m_training_icon.
+ *
+ * The original data is:
+ *
+ *  ```
+ *  0, 0, 0, 0, 0, 0, 0,  //
+ *  0, 1, 0, 0, 0, 1, 0,  //
+ *  1, 1, 0, 0, 0, 1, 1,  //
+ *  1, 1, 1, 1, 1, 1, 1,  //
+ *  1, 1, 0, 0, 0, 1, 1,  //
+ *  0, 1, 0, 0, 0, 1, 0,  //
+ *  0, 0, 0, 0, 0, 0, 0,  //
+ *  0, 0, 0, 0, 0, 0, 0,  //
+ *  ```
+ *
+ * Notice: the compressed data is not directly mapping to the original data.
+ * It packed the bits in a specific way.
+ *
+ */
+
+constexpr uint8_t m_training_icon_compressed_data[] = {0x1C, 0x3E, 0x08, 0x08,
+                                                       0x08, 0x3E, 0x1C};
+constexpr CompressedImage m_training_icon_compressed = {
+    .width = TRAINING_WIDTH,
+    .height = TRAINING_HEIGHT,
+    .data = m_training_icon_compressed_data};
+
+/**
+ * @brief The compressed data of m_YN_icon.
+ *
+ * The original data is:
+ *
+ *  ```
+ *  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, //
+ *  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, //
+ *  1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, //
+ *  1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, //
+ *  1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, //
+ *  1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, //
+ *  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, //
+ *  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, //
+ *  ```
+ *
+ * Notice: the compressed data is not directly mapping to the original data.
+ * It packed the bits in a specific way.
+ *
+ */
+
+constexpr uint8_t m_YN_icon_compressed_data[] = {
+    0x3C, 0x08, 0x10, 0x3C, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x1C, 0x30, 0x1C};
+constexpr CompressedImage m_YN_icon_compressed = {
+    .width = YN_WIDTH, .height = YN_HEIGHT, .data = m_YN_icon_compressed_data};
+
+/**
+ * @brief The compressed data of m_YN_select_cursor_left.
+ *
+ * The original data is:
+ *
+ *  ```
+ *  0, 0, 0, 0,  //
+ *  0, 0, 0, 0,  //
+ *  0, 0, 0, 0,  //
+ *  0, 0, 0, 0,  //
+ *  0, 0, 0, 0,  //
+ *  0, 0, 0, 0,  //
+ *  0, 0, 0, 0,  //
+ *  1, 1, 1, 1,  //
+ *  ```
+ *
+ * Notice: the compressed data is not directly mapping to the original data.
+ * It packed the bits in a specific way.
+ *
+ */
+
+constexpr uint8_t m_YN_select_cursor_left_compressed_data[] = {0x80, 0x80, 0x80,
+                                                               0x80};
+constexpr CompressedImage m_YN_select_cursor_left_compressed = {
+    .width = YN_SELECT_LEFT_WIDTH,
+    .height = YN_SELECT_LEFT_HEIGHT,
+    .data = m_YN_select_cursor_left_compressed_data};
+
+/**
+ * @brief The compressed data of m_YN_select_cursor_right.
+ *
+ * The original data is:
+ *
+ *  ```
+ *  0, 0, 0,  //
+ *  0, 0, 0,  //
+ *  0, 0, 0,  //
+ *  0, 0, 0,  //
+ *  0, 0, 0,  //
+ *  0, 0, 0,  //
+ *  0, 0, 0,  //
+ *  1, 1, 1,  //
+ *  ```
+ *
+ * Notice: the compressed data is not directly mapping to the original data.
+ * It packed the bits in a specific way.
+ *
+ */
+
+constexpr uint8_t m_YN_select_cursor_right_compressed_data[] = {0x80, 0x80,
+                                                                0x80};
+constexpr CompressedImage m_YN_select_cursor_right_compressed = {
+    .width = YN_SELECT_RIGHT_WIDTH,
+    .height = YN_SELECT_RIGHT_HEIGHT,
+    .data = m_YN_select_cursor_right_compressed_data};
+
 }  // namespace menu_icon
 
 }  // namespace tama
 }  // namespace app
 }  // namespace hitcon
 
+#ifdef SIMU
 constexpr uint8_t m_example_of_compress[] = {
     1, 1, 1, 1, 1, 1, 1, 1,  //
     0, 1, 1, 1, 1, 1, 1, 1,  //
@@ -840,11 +1033,12 @@ constexpr uint8_t m_example_of_compress[] = {
     0, 0, 0, 0, 0, 0, 1, 1,  //
     0, 0, 0, 0, 0, 0, 0, 1,  //
 };
+#endif
 
 /*---------- */
-/*
-template
 
+// template
+/**
  * @brief The compressed data of .
  *
  * The original data is:
@@ -856,8 +1050,8 @@ template
  * Notice: the compressed data is not directly mapping to the original data.
  * It packed the bits in a specific way.
  *
+ */
 
-constexpr uint8_t _compressed_data[] = {};
-constexpr CompressedImage _compressed = {
-    .width =, .height =, .data = _compressed_data};
-*/
+// constexpr uint8_t _compressed_data[] = {};
+// constexpr CompressedImage _compressed = {
+//     .width =, .height =, .data = _compressed_data};

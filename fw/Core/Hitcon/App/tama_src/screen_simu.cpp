@@ -71,12 +71,12 @@ void cat_idle(int repeat_count) {
       .height = 8,
   };
 
-  uint8_t* cat_idle1 = stack_target_offset(
-      decompress_component(&m_cat_idle1_compressed), NEW_SCREEN,
-      cat_idle_component_info, screen_info, false);
-  uint8_t* cat_idle2 = stack_target_offset(
-      decompress_component(&m_cat_idle2_compressed), NEW_SCREEN,
-      cat_idle_component_info, screen_info, false);
+  uint8_t* cat_idle1 =
+      stack_component(decompress_component(&m_cat_idle1_compressed), NEW_SCREEN,
+                      cat_idle_component_info, screen_info);
+  uint8_t* cat_idle2 =
+      stack_component(decompress_component(&m_cat_idle2_compressed), NEW_SCREEN,
+                      cat_idle_component_info, screen_info);
   const uint8_t* cat_idle_frame_all[CAT_IDLE_FRAME_COUNT] = {cat_idle1,
                                                              cat_idle2};
   for (int i = 0; i < repeat_count; ++i) {
@@ -105,12 +105,12 @@ void dog_idle(int repeat_count) {
       .width = 16,
       .height = 8,
   };
-  uint8_t* dog_idle1 = stack_target_offset(
-      decompress_component(&m_dog_idle1_compressed), NEW_SCREEN,
-      dog_idle_component_info, screen_info, false);
-  uint8_t* dog_idle2 = stack_target_offset(
-      decompress_component(&m_dog_idle2_compressed), NEW_SCREEN,
-      dog_idle_component_info, screen_info, false);
+  uint8_t* dog_idle1 =
+      stack_component(decompress_component(&m_dog_idle1_compressed), NEW_SCREEN,
+                      dog_idle_component_info, screen_info);
+  uint8_t* dog_idle2 =
+      stack_component(decompress_component(&m_dog_idle2_compressed), NEW_SCREEN,
+                      dog_idle_component_info, screen_info);
   const uint8_t* dog_idle_frame_all[DOG_IDLE_FRAME_COUNT] = {dog_idle1,
                                                              dog_idle2};
   for (int i = 0; i < repeat_count; ++i) {
@@ -153,23 +153,19 @@ void select_character(int repeat_count) {
       .height = 8,
   };
 
-  uint8_t* select_print_all_character1 = stack_target_offset(
+  uint8_t* select_print_all_character1 = stack_component(
       decompress_component(&m_select_print_all_character_compressed),
-      NEW_SCREEN, select_print_all_character_component_info, screen_info,
-      false);
-  uint8_t* select_left =
-      stack_target_offset(decompress_component(&m_select_cursor_compressed),
-                          select_print_all_character1,
-                          select_left_component_info, screen_info, false);
+      NEW_SCREEN, select_print_all_character_component_info, screen_info);
+  uint8_t* select_left = stack_component(
+      decompress_component(&m_select_cursor_compressed),
+      select_print_all_character1, select_left_component_info, screen_info);
 
-  uint8_t* select_print_all_character2 = stack_target_offset(
+  uint8_t* select_print_all_character2 = stack_component(
       decompress_component(&m_select_print_all_character_compressed),
-      NEW_SCREEN, select_print_all_character_component_info, screen_info,
-      false);
-  uint8_t* select_right =
-      stack_target_offset(decompress_component(&m_select_cursor_compressed),
-                          select_print_all_character2,
-                          select_right_component_info, screen_info, false);
+      NEW_SCREEN, select_print_all_character_component_info, screen_info);
+  uint8_t* select_right = stack_component(
+      decompress_component(&m_select_cursor_compressed),
+      select_print_all_character2, select_right_component_info, screen_info);
   const uint8_t* select_character_frame_all[SELECT_CHARACTER_FRAME_COUNT] = {
       select_left, select_right};
 
@@ -296,9 +292,9 @@ void num_test(int repeat_count) {
  */
 void cat_idle_with_status(int repeat_count) {
   const uint8_t* cat_idle1 = get_cat_idle_frame_with_status_overview(
-      IDLE_1, 3, 4);  // dog idle frame with status overview
+      FRAME_1, 3, 4);  // dog idle frame with status overview
   const uint8_t* cat_idle2 = get_cat_idle_frame_with_status_overview(
-      IDLE_2, 3, 4);  // dog idle frame with status overview
+      FRAME_2, 3, 4);  // dog idle frame with status overview
 
   const uint8_t* cat_idle_frame_all[CAT_IDLE_FRAME_COUNT] = {cat_idle1,
                                                              cat_idle2};
@@ -320,9 +316,9 @@ void cat_idle_with_status(int repeat_count) {
  */
 void dog_idle_with_status(int repeat_count) {
   const uint8_t* dog_idle1 = get_dog_idle_frame_with_status_overview(
-      IDLE_1, 3, 4);  // dog idle frame with status overview
+      FRAME_1, 3, 4);  // dog idle frame with status overview
   const uint8_t* dog_idle2 = get_dog_idle_frame_with_status_overview(
-      IDLE_2, 3, 4);  // dog idle frame with status overview
+      FRAME_2, 3, 4);  // dog idle frame with status overview
 
   const uint8_t* dog_idle_frame_all[DOG_IDLE_FRAME_COUNT] = {dog_idle1,
                                                              dog_idle2};
@@ -347,9 +343,9 @@ void dog_idle_with_status(int repeat_count) {
  */
 void cat_weak_idle_with_status(int repeat_count) {
   const uint8_t* cat_idle1 = get_cat_idle_frame_with_status_overview(
-      IDLE_1, 3, 0);  // dog idle frame with status overview
+      FRAME_1, 3, 0);  // dog idle frame with status overview
   const uint8_t* cat_idle2 = get_cat_idle_frame_with_status_overview(
-      IDLE_2, 3, 0);  // dog idle frame with status overview
+      FRAME_2, 3, 0);  // dog idle frame with status overview
 
   const uint8_t* cat_idle_frame_all[CAT_IDLE_FRAME_COUNT] = {cat_idle1,
                                                              cat_idle2};
@@ -375,9 +371,9 @@ void cat_weak_idle_with_status(int repeat_count) {
 
 void dog_weak_idle_with_status(int repeat_count) {
   const uint8_t* dog_idle1 = get_dog_idle_frame_with_status_overview(
-      IDLE_1, 0, 4);  // dog idle frame with status overview
+      FRAME_1, 0, 4);  // dog idle frame with status overview
   const uint8_t* dog_idle2 = get_dog_idle_frame_with_status_overview(
-      IDLE_2, 0, 4);  // dog idle frame with status overview
+      FRAME_2, 0, 4);  // dog idle frame with status overview
 
   const uint8_t* dog_idle_frame_all[DOG_IDLE_FRAME_COUNT] = {dog_idle1,
                                                              dog_idle2};
@@ -394,11 +390,11 @@ void dog_weak_idle_with_status(int repeat_count) {
 
 void dog_status_change(int repeat_count) {
   const uint8_t* dog_status1 = get_dog_idle_frame_with_status_overview(
-      IDLE_1, 3, 4);  // dog idle frame with status overview
+      FRAME_1, 3, 4);  // dog idle frame with status overview
   const uint8_t* dog_status2 = get_dog_idle_frame_with_status_overview(
-      IDLE_2, 2, 2);  // dog idle frame with status overview
+      FRAME_2, 2, 2);  // dog idle frame with status overview
   const uint8_t* dog_status3 = get_dog_idle_frame_with_status_overview(
-      IDLE_1, 1, 0);  // dog idle frame with status overview
+      FRAME_1, 1, 0);  // dog idle frame with status overview
 
   const uint8_t* dog_idle_frame_all[3] = {dog_status1, dog_status2,
                                           dog_status3};
@@ -410,6 +406,84 @@ void dog_status_change(int repeat_count) {
   // loop to release all allocated memory
   for (int i = 0; i < 3; ++i) {
     delete[] dog_idle_frame_all[i];
+  }
+}
+
+/**
+ * @brief The example of pet healing
+ *
+ * This function will show the pet healing animation.
+ *
+ * @param repeat_count How many times should frame_collection repeat
+ */
+void pet_healing(int pet_type, int repeat_count) {
+  const uint8_t frame_count = 2;
+  const uint8_t* pet_healing1 = get_pet_healing_frame(pet_type, FRAME_1);
+  const uint8_t* pet_healing2 = get_pet_healing_frame(pet_type, FRAME_2);
+
+  // heart float up > empty
+  const uint8_t* pet_healing_frame_all[frame_count] = {
+      pet_healing1,
+      pet_healing2,
+  };
+
+  for (int i = 0; i < repeat_count; ++i) {
+    show_anime_with_delay(pet_healing_frame_all, frame_count, SLEEP_US);
+  }
+
+  // loop to release all allocated memory
+  for (int i = 0; i < frame_count; ++i) {
+    delete[] pet_healing_frame_all[i];
+  }
+}
+
+/**
+ * @brief The example of training_selection
+ *
+ * @param repeat_count How many times should frame_collection repeat
+ */
+void training_selection(int repeat_count) {
+  const uint8_t frame_count = 2;
+  const uint8_t* frame_left = get_activity_selection_frame(TRAINING, LEFT);
+  const uint8_t* frame_right = get_activity_selection_frame(TRAINING, RIGHT);
+
+  const uint8_t* frame_all[frame_count] = {
+      frame_left,
+      frame_right,
+  };
+
+  for (int i = 0; i < repeat_count; ++i) {
+    show_anime_with_delay(frame_all, frame_count, SLEEP_US);
+  }
+
+  // loop to release all allocated memory
+  for (int i = 0; i < SELECT_YN_FRAME_COUNT; ++i) {
+    delete[] frame_all[i];
+  }
+}
+
+/**
+ * @brief The example of battle_selection
+ *
+ * @param repeat_count How many times should frame_collection repeat
+ */
+void battle_selection(int repeat_count) {
+  const uint8_t frame_count = 2;
+  const uint8_t* frame_left = get_activity_selection_frame(BATTLE, LEFT);
+  const uint8_t* frame_right = get_activity_selection_frame(BATTLE, RIGHT);
+
+  const uint8_t* frame_all[frame_count] = {
+      frame_left,
+      frame_right,
+  };
+
+  for (int i = 0; i < repeat_count; ++i) {
+    show_anime_with_delay(frame_all, frame_count, SLEEP_US);
+  }
+
+  // loop to release all allocated memory
+  for (int i = 0; i < SELECT_YN_FRAME_COUNT; ++i) {
+    delete[] frame_all[i];
   }
 }
 
@@ -446,8 +520,8 @@ void test_frames() {
   dog_idle_with_status(repeat_count);
 
   // dog idle demo with status
-  std::cout << "Dog status change Demo:\n";
-  dog_status_change(repeat_count);
+  // std::cout << "Dog status change Demo:\n";
+  // dog_status_change(repeat_count);
 
   // cat idle demo with status
   std::cout << "Cat Weak Idle Demo with status:\n";
@@ -456,6 +530,22 @@ void test_frames() {
   // dog idle demo with status
   std::cout << "Dog Weak Idle Demo with status:\n";
   dog_weak_idle_with_status(repeat_count);
+
+  // dog healing demo
+  std::cout << "Dog healing Demo:\n";
+  pet_healing(PET_TYPE_DOG, repeat_count);
+
+  // cat healing demo
+  std::cout << "Cat healing Demo:\n";
+  pet_healing(PET_TYPE_CAT, repeat_count);
+
+  // training selection demo
+  std::cout << "training_selection Demo:\n";
+  training_selection(repeat_count);
+
+  // battle selection demo
+  std::cout << "battle_selection Demo:\n";
+  battle_selection(repeat_count);
 }
 
 void test_compress_decompress() {

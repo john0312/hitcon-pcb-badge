@@ -113,6 +113,7 @@ CompressedImage compress_component(const uint8_t* src, uint8_t width,
 void compress_data_and_print_info(const uint8_t* src, uint8_t width,
                                   uint8_t height) {
   CompressedImage compressed = compress_component(src, width, height);
+#ifdef SIMU
   printf("Compressed data:\n");
   printf("Width: %d, Height: %d\n", compressed.width, compressed.height);
   printf("Size after compressed: %d bytes\n", width);
@@ -124,6 +125,7 @@ void compress_data_and_print_info(const uint8_t* src, uint8_t width,
     }
   }
   printf("}\n");
+#endif
 
   // free the allocated memory
   free((void*)compressed.data);
@@ -138,6 +140,7 @@ void compress_data_and_print_info(const uint8_t* src, uint8_t width,
  */
 void print_decompressed_component(const uint8_t* decompressed, uint8_t width,
                                   uint8_t height) {
+#ifdef SIMU
   printf("Decompressed data:\n");
   for (int y = 0; y < height; ++y) {
     for (int x = 0; x < width; ++x) {
@@ -145,6 +148,7 @@ void print_decompressed_component(const uint8_t* decompressed, uint8_t width,
     }
     printf("\n");
   }
+#endif
 }
 
 /**
