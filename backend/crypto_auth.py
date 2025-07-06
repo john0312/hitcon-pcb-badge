@@ -14,7 +14,7 @@ class CryptoAuth:
     # ===== Generic methods for any other layers =====
     @staticmethod
     async def get_pubkey_by_username(user: int) -> Optional[EccPublicKey]:
-        pub_x = (await db["users"].find_one({"user": user}))["pubkey"]
+        pub_x = int((await db["users"].find_one({"user": user}))["pubkey"])
 
         if pub_x is None:
             return
