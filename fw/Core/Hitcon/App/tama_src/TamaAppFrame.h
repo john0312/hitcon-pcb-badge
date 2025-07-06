@@ -1,32 +1,10 @@
 #include "TamaAppUtils.h"
 
 // -------
-using hitcon::app::tama::components::m_cat_idle1_compressed;
-using hitcon::app::tama::components::m_cat_idle2_compressed;
-using hitcon::app::tama::components::m_cat_weak_compressed;
-using hitcon::app::tama::components::m_dog_idle1_compressed;
-using hitcon::app::tama::components::m_dog_idle2_compressed;
-using hitcon::app::tama::components::m_dog_weak_compressed;
-using hitcon::app::tama::components::m_select_cursor_compressed;
-using hitcon::app::tama::components::m_select_print_all_character_compressed;
-using hitcon::app::tama::components::m_weak_particle_1_compressed;
-using hitcon::app::tama::components::m_weak_particle_2_compressed;
-using hitcon::app::tama::egg_icon::m_egg_0_percent_up_compressed;
-using hitcon::app::tama::egg_icon::m_egg_25_percent_up_compressed;
-using hitcon::app::tama::egg_icon::m_egg_50_percent_up_compressed;
-using hitcon::app::tama::egg_icon::m_egg_75_percent_up_compressed;
-using hitcon::app::tama::egg_icon::m_egg_hatch_shinning1_compressed;
-using hitcon::app::tama::egg_icon::m_egg_hatch_shinning2_compressed;
-using hitcon::app::tama::menu_icon::m_battle_icon_compressed;
-using hitcon::app::tama::menu_icon::m_icon_hospital_compressed;
-using hitcon::app::tama::menu_icon::m_icon_important_compressed;
-using hitcon::app::tama::menu_icon::m_icon_status_overview_food_compressed;
-using hitcon::app::tama::menu_icon::m_icon_status_overview_heart_compressed;
-using hitcon::app::tama::menu_icon::m_num_icon_compressed;
-using hitcon::app::tama::menu_icon::m_training_icon_compressed;
-using hitcon::app::tama::menu_icon::m_YN_icon_compressed;
-using hitcon::app::tama::menu_icon::m_YN_select_cursor_left_compressed;
-using hitcon::app::tama::menu_icon::m_YN_select_cursor_right_compressed;
+using namespace hitcon::app::tama::components;
+using namespace hitcon::app::tama::egg_icon;
+using namespace hitcon::app::tama::menu_icon;
+
 // ------
 
 /** --- basic definition part start ---*/
@@ -67,10 +45,12 @@ typedef struct BASE_INFO {
  * @param comp_info The info of the input component.
  * @param bs_info The info of the base. Must be valid, but only used when
  * base is NULL.
+ * @param eliminate If true, the component will be eliminated from the base.
  * @return uint8_t* : The address of the base. For multi-layer stack.
  */
 uint8_t* stack_component(uint8_t* component, uint8_t* base,
-                         component_info comp_info, base_info bs_info) {
+                         component_info comp_info, base_info bs_info,
+                         bool eliminate = false) {
   // use a new base if input is empty
   if (base == NULL) {
     if (bs_info.width <= 0 || bs_info.height <= 0) {
@@ -104,7 +84,20 @@ uint8_t* stack_component(uint8_t* component, uint8_t* base,
       int base_index =
           (comp_info.y_offset + y) * bs_info.width + (comp_info.x_offset + x);
       int component_index = y * comp_info.x_len + x;
-      int bit_status = component[component_index] | base[base_index];
+      int bit_status;
+      if (eliminate) {
+        if (base[base_index]) {
+          // eliminate the component from base
+          bit_status = base[base_index] & ~component[component_index];
+        } else {
+          /* This provide more attach effect, can delete if not good*/
+          // if base is empty, just use the component
+          bit_status = component[component_index];
+        }
+      } else {
+        // stack the component onto base
+        bit_status = component[component_index] | base[base_index];
+      }
       base[base_index] = bit_status;
     }
   }
@@ -396,8 +389,8 @@ uint8_t* get_heart_overview_component(int heart_count) {
   };
 
   constexpr component_info heart_component_info = {
-      .x_len = FOOD_HEART_OVERVIEW_ICON_WIDTH,
-      .y_len = FOOD_HEART_OVERVIEW_ICON_HEIGHT,
+      .x_len = 4,
+      .y_len = 4,
       .x_offset = 0,
       .y_offset = 0,
   };
@@ -475,8 +468,8 @@ uint8_t* get_food_overview_component(int food_count) {
   };
 
   constexpr component_info food_component_info = {
-      .x_len = FOOD_HEART_OVERVIEW_ICON_WIDTH,
-      .y_len = FOOD_HEART_OVERVIEW_ICON_HEIGHT,
+      .x_len = 4,
+      .y_len = 4,
       .x_offset = 0,
       .y_offset = 0,
   };
@@ -956,6 +949,200 @@ const uint8_t* get_activity_selection_frame(int activity_type, int selection) {
     base = stack_component(
         decompress_component(&m_YN_select_cursor_right_compressed), base,
         select_right_component_info, screen_info);
+  }
+
+  return base;
+}
+
+const uint8_t* get_select_character_frame(int frame) {
+  component_info select_left_component_info = {
+      .x_len = 8,
+      .y_len = 8,
+      .x_offset = 0,
+      .y_offset = 0,
+  };
+  component_info select_right_component_info = {
+      .x_len = 8,
+      .y_len = 8,
+      .x_offset = 8,
+      .y_offset = 0,
+  };
+
+  component_info select_print_all_character_component_info = {
+      .x_len = 16,
+      .y_len = 8,
+      .x_offset = 0,
+      .y_offset = 0,
+  };
+  base_info screen_info = {
+      .width = 16,
+      .height = 8,
+  };
+
+  if (frame < 0 || frame > 1) {
+    frame = 0;
+  }
+
+  uint8_t* base = stack_component(
+      decompress_component(&m_select_print_all_character_compressed),
+      NEW_SCREEN, select_print_all_character_component_info, screen_info);
+
+  if (frame == LEFT) {
+    base = stack_component(decompress_component(&m_select_cursor_compressed),
+                           base, select_left_component_info, screen_info);
+  } else if (frame == RIGHT) {
+    stack_component(decompress_component(&m_select_cursor_compressed), base,
+                    select_right_component_info, screen_info);
+  }
+
+  return base;
+}
+
+const uint8_t* get_battle_result_frame(int pet, int result, int frame) {
+  const component_info dog_component_info = {
+      .x_len = 7,
+      .y_len = 8,
+      .x_offset = 5,
+      .y_offset = 0,
+  };
+  const component_info cat_component_info = {
+      .x_len = 7,
+      .y_len = 8,
+      .x_offset = 4,
+      .y_offset = 0,
+  };
+
+  const component_info component_16x8 = {
+      .x_len = 16,
+      .y_len = 8,
+      .x_offset = 0,
+      .y_offset = 0,
+  };
+
+  const base_info screen_info = {
+      .width = 16,
+      .height = 8,
+  };
+
+  if (frame < 0 || frame > 1) {
+    frame = 0;
+  }
+
+  uint8_t* base;
+  if (pet == PET_TYPE_DOG) {
+    base =
+        stack_component(decompress_component(&m_dog_battle_result_compressed),
+                        NEW_SCREEN, dog_component_info, screen_info);
+  } else if (pet == PET_TYPE_CAT) {
+    base =
+        stack_component(decompress_component(&m_cat_battle_result_compressed),
+                        NEW_SCREEN, cat_component_info, screen_info);
+  }
+
+  if (frame == FRAME_2) {
+    // if frame is 2, no need to stack component
+    return base;
+  }
+
+  if (result == WIN) {
+    base = stack_component(
+        decompress_component(&m_battle_result_win_effect_compressed), base,
+        component_16x8, screen_info);
+  } else if (result == LOSE) {
+    base = stack_component(
+        decompress_component(&m_battle_result_lose_effect_compressed), base,
+        component_16x8, screen_info);
+  }
+  // TODO: tie
+
+  return base;
+}
+
+const uint8_t* get_battle_frame(int player_pet, int enemy_pet,
+                                int damage_target) {
+  const component_info dog_player_component_info = {
+      .x_len = 7,
+      .y_len = 8,
+      .x_offset = 1,
+      .y_offset = 0,
+  };
+  const component_info cat_player_component_info = {
+      .x_len = 7,
+      .y_len = 8,
+      .x_offset = 0,
+      .y_offset = 0,
+  };
+  const component_info dog_enemy_component_info = {
+      .x_len = 7,
+      .y_len = 8,
+      .x_offset = 9,
+      .y_offset = 0,
+  };
+  const component_info cat_enemy_component_info = {
+      .x_len = 7,
+      .y_len = 8,
+      .x_offset = 9,
+      .y_offset = 0,
+  };
+
+  const component_info training_facility_enemy_component_info = {
+      .x_len = 7,
+      .y_len = 8,
+      .x_offset = 9,
+      .y_offset = 0,
+  };
+
+  const component_info damage_player_component_info = {
+      .x_len = 8,
+      .y_len = 8,
+      .x_offset = 0,
+      .y_offset = 0,
+  };
+
+  const component_info damage_enemy_component_info = {
+      .x_len = 8,
+      .y_len = 8,
+      .x_offset = 8,
+      .y_offset = 0,
+  };
+
+  const base_info screen_info = {
+      .width = 16,
+      .height = 8,
+  };
+
+  uint8_t* base;
+  // stack player
+  if (player_pet == PET_TYPE_DOG) {
+    base = stack_component(decompress_component(&m_player_dog_compressed),
+                           NEW_SCREEN, dog_player_component_info, screen_info);
+  } else if (player_pet == PET_TYPE_CAT) {
+    base = stack_component(decompress_component(&m_player_cat_compressed),
+                           NEW_SCREEN, cat_player_component_info, screen_info);
+  }
+
+  // stack enemy
+  if (enemy_pet == PET_TYPE_DOG) {
+    base = stack_component(decompress_component(&m_enemy_dog_compressed), base,
+                           dog_enemy_component_info, screen_info);
+  } else if (enemy_pet == PET_TYPE_CAT) {
+    base = stack_component(decompress_component(&m_enemy_cat_compressed), base,
+                           cat_enemy_component_info, screen_info);
+  } else if (enemy_pet == OTHER_TYPE_TRAINING_FACILITY) {
+    base = stack_component(
+        decompress_component(&m_training_facility_enemy_compressed), base,
+        training_facility_enemy_component_info, screen_info);
+  }
+
+  // stack damage effect
+  if (damage_target == PLAYER) {
+    base =
+        stack_component(decompress_component(&m_hit_player_effect_compressed),
+                        base, damage_player_component_info, screen_info, true);
+  } else if (damage_target == ENEMY) {
+    base =
+        stack_component(decompress_component(&m_hit_enemy_effect_compressed),
+                        base, damage_enemy_component_info, screen_info, true);
   }
 
   return base;

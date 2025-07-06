@@ -1,4 +1,5 @@
 // #define SIMU  // open if needed
+#define TEST_ALL_FRAMES
 
 #ifdef SIMU
 #define constexpr const
@@ -129,43 +130,9 @@ void dog_idle(int repeat_count) {
  * @param repeat_count How many times should frame_collection repeat
  */
 void select_character(int repeat_count) {
-  component_info select_left_component_info = {
-      .x_len = 8,
-      .y_len = 8,
-      .x_offset = 0,
-      .y_offset = 0,
-  };
-  component_info select_right_component_info = {
-      .x_len = 8,
-      .y_len = 8,
-      .x_offset = 8,
-      .y_offset = 0,
-  };
+  const uint8_t* select_left = get_select_character_frame(LEFT);
+  const uint8_t* select_right = get_select_character_frame(RIGHT);
 
-  component_info select_print_all_character_component_info = {
-      .x_len = 16,
-      .y_len = 8,
-      .x_offset = 0,
-      .y_offset = 0,
-  };
-  base_info screen_info = {
-      .width = 16,
-      .height = 8,
-  };
-
-  uint8_t* select_print_all_character1 = stack_component(
-      decompress_component(&m_select_print_all_character_compressed),
-      NEW_SCREEN, select_print_all_character_component_info, screen_info);
-  uint8_t* select_left = stack_component(
-      decompress_component(&m_select_cursor_compressed),
-      select_print_all_character1, select_left_component_info, screen_info);
-
-  uint8_t* select_print_all_character2 = stack_component(
-      decompress_component(&m_select_print_all_character_compressed),
-      NEW_SCREEN, select_print_all_character_component_info, screen_info);
-  uint8_t* select_right = stack_component(
-      decompress_component(&m_select_cursor_compressed),
-      select_print_all_character2, select_right_component_info, screen_info);
   const uint8_t* select_character_frame_all[SELECT_CHARACTER_FRAME_COUNT] = {
       select_left, select_right};
 
@@ -190,17 +157,6 @@ void select_character(int repeat_count) {
  * @param repeat_count How many times should frame_collection repeat
  */
 void egg_hatch(int repeat_count) {
-  component_info component_info = {
-      .x_len = 16,
-      .y_len = 8,
-      .x_offset = 0,
-      .y_offset = 0,
-  };
-  base_info screen_info = {
-      .width = 16,
-      .height = 8,
-  };
-
   // demo case:
   // (remaining_count)
   // 390 > 290 > 190 > 90 > (shine1, shine2)x repeat_shine_count
@@ -487,9 +443,85 @@ void battle_selection(int repeat_count) {
   }
 }
 
+/**
+ * @brief The example of battle_result_demo
+ *
+ * @param repeat_count How many times should frame_collection repeat
+ */
+void battle_result_demo(int pet, int result, int repeat_count) {
+  const uint8_t frame_count = 2;
+  const uint8_t* frame_1 = get_battle_result_frame(pet, result, FRAME_1);
+  const uint8_t* frame_2 = get_battle_result_frame(pet, result, FRAME_2);
+
+  const uint8_t* frame_all[frame_count] = {
+      frame_1,
+      frame_2,
+  };
+
+  for (int i = 0; i < repeat_count; ++i) {
+    show_anime_with_delay(frame_all, frame_count, SLEEP_US);
+  }
+
+  // loop to release all allocated memory
+  for (int i = 0; i < SELECT_YN_FRAME_COUNT; ++i) {
+    delete[] frame_all[i];
+  }
+}
+
+void battle_demo(int player_pet, int enemy_pet, int attack_first,
+                 int repeat_count) {
+  const uint8_t frame_count = 5;
+
+  int damage_target_order1, damage_target_order2;
+  if (attack_first == PLAYER) {
+    damage_target_order1 = ENEMY;
+    damage_target_order2 = PLAYER;
+  } else {
+    damage_target_order1 = PLAYER;
+    damage_target_order2 = ENEMY;
+  }
+
+  const uint8_t* frame_all[frame_count] = {
+      get_battle_frame(player_pet, enemy_pet, NONE),
+      get_battle_frame(player_pet, enemy_pet, damage_target_order1),
+      get_battle_frame(player_pet, enemy_pet, NONE),
+      get_battle_frame(player_pet, enemy_pet, damage_target_order2),
+      get_battle_frame(player_pet, enemy_pet, NONE)};
+
+  for (int i = 0; i < repeat_count; ++i) {
+    show_anime_with_delay(frame_all, frame_count, SLEEP_US);
+  }
+
+  // loop to release all allocated memory
+  for (int i = 0; i < SELECT_YN_FRAME_COUNT; ++i) {
+    delete[] frame_all[i];
+  }
+}
+
+void training_demo(int pet_type, int repeat_count) {
+  const uint8_t frame_count = 3;
+
+  const uint8_t* frame_all[frame_count] = {
+      get_battle_frame(pet_type, OTHER_TYPE_TRAINING_FACILITY, NONE),
+      get_battle_frame(pet_type, OTHER_TYPE_TRAINING_FACILITY, ENEMY),
+      get_battle_frame(pet_type, OTHER_TYPE_TRAINING_FACILITY, NONE),
+  };
+
+  for (int i = 0; i < repeat_count; ++i) {
+    show_anime_with_delay(frame_all, frame_count, SLEEP_US);
+  }
+
+  // loop to release all allocated memory
+  for (int i = 0; i < SELECT_YN_FRAME_COUNT; ++i) {
+    delete[] frame_all[i];
+  }
+}
+
 void test_frames() {
   int repeat_count = 3;
   int repeat_once = 1;
+
+#ifdef TEST_ALL_FRAMES
 
   // cat idle demo
   // std::cout << "Cat Idle Demo:\n";
@@ -546,6 +578,48 @@ void test_frames() {
   // battle selection demo
   std::cout << "battle_selection Demo:\n";
   battle_selection(repeat_count);
+
+  // dog battle result win demo
+  std::cout << "Dog battle result win Demo:\n";
+  battle_result_demo(PET_TYPE_DOG, WIN, repeat_count);
+
+  // dog battle result lose demo
+  std::cout << "Dog battle result lose Demo:\n";
+  battle_result_demo(PET_TYPE_DOG, LOSE, repeat_count);
+
+  // cat battle result win demo
+  std::cout << "Cat battle result win Demo:\n";
+  battle_result_demo(PET_TYPE_CAT, WIN, repeat_count);
+
+  // cat battle result lose demo
+  std::cout << "Cat battle result lose Demo:\n";
+  battle_result_demo(PET_TYPE_CAT, LOSE, repeat_count);
+
+#endif  // TEST_ALL_FRAMES
+
+  // dog-dog battle demo
+  std::cout << "Dog-Dog battle Demo:\n";
+  battle_demo(PET_TYPE_DOG, PET_TYPE_DOG, PLAYER, repeat_count);
+
+  // dog-cat battle demo
+  std::cout << "Dog-Cat battle Demo:\n";
+  battle_demo(PET_TYPE_DOG, PET_TYPE_CAT, ENEMY, repeat_count);
+
+  // cat-dog battle demo
+  std::cout << "Cat-Dog battle Demo:\n";
+  battle_demo(PET_TYPE_CAT, PET_TYPE_DOG, PLAYER, repeat_count);
+
+  // cat-cat battle demo
+  std::cout << "Cat-Cat battle Demo:\n";
+  battle_demo(PET_TYPE_CAT, PET_TYPE_CAT, ENEMY, repeat_count);
+
+  // dog training demo
+  std::cout << "Dog training Demo:\n";
+  training_demo(PET_TYPE_DOG, repeat_count);
+
+  // cat training demo
+  std::cout << "Cat training Demo:\n";
+  training_demo(PET_TYPE_CAT, repeat_count);
 }
 
 void test_compress_decompress() {
