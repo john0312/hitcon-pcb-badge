@@ -64,6 +64,10 @@ enum class SelfTestState {
 
 constexpr uint32_t ROUTINE_INTERVAL = 500;  // milisecond
 constexpr uint32_t SHAKING_THRESHOLD = 5;
+constexpr uint32_t PROXIMITY_INTERVAL = 3 * 60 * 1000;  // 3 minutes
+// step count within PROXIMITY_INTERVAL will be divided by this factor then call
+// GameController SendProximity
+constexpr uint8_t SCALE_FACTOR = 4;
 }  // namespace
 
 class ImuLogic {
@@ -75,14 +79,15 @@ class ImuLogic {
 
   // return the step count since last init
   // update every ROUTINE_INTERVAL
-  uint16_t GetStep() { return _last_step; }
+  uint16_t GetStep() { return _step; }
+
   // within ROUTINE_INTERVAL detected step count if larger than
   // SHAKING_THRESHOLD then is considered shaking
   // update every ROUTINE_INTERVAL
   bool IsShaking() { return _is_shaking; }
 
  private:
-  PeriodicTask _routine_task;
+  PeriodicTask _routine_task, _proximity_task;
   uint8_t _buf[6], _count;
   float_t _avg_values[2][3];
   RoutineState _state;
@@ -91,12 +96,15 @@ class ImuLogic {
   callback_t _gyro_st_cb, _acc_st_cb;
   void *_gyro_st_cb_arg1, *_acc_st_cb_arg1;
   uint32_t _start_time;
-  uint16_t _last_step;
+  uint16_t _step;
   bool _is_shaking;
 
   void OnRxDone(void *arg1);
   void OnTxDone(void *arg1);
   void Routine(void *arg1);
+
+  // send proximity packet every PROXIMITY_INTERVAL
+  void ProximityRoutine(void *arg);
 };
 
 extern ImuLogic g_imu_logic;

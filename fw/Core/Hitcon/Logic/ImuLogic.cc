@@ -1,3 +1,4 @@
+#include <Logic/GameController.h>
 #include <Logic/ImuLogic.h>
 #include <Logic/lsm6ds3tr-c_reg.h>
 #include <Service/ImuService.h>
@@ -15,6 +16,8 @@ ImuLogic g_imu_logic;
 ImuLogic::ImuLogic()
     : _routine_task(419, (task_callback_t)&ImuLogic::Routine, (void*)this,
                     ROUTINE_INTERVAL),
+      _proximity_task(420, (task_callback_t)&ImuLogic::ProximityRoutine,
+                      (void*)this, PROXIMITY_INTERVAL),
       _state(RoutineState::INIT), _init_state(InitState::CHECK_ID) {}
 
 void ImuLogic::Init() {
@@ -22,6 +25,8 @@ void ImuLogic::Init() {
   g_imu_service.SetTxCallback((callback_t)&ImuLogic::OnTxDone, this);
   scheduler.Queue(&_routine_task, nullptr);
   scheduler.EnablePeriodic(&_routine_task);
+  scheduler.Queue(&_proximity_task, nullptr);
+  scheduler.EnablePeriodic(&_proximity_task);
 }
 
 void ImuLogic::GyroSelfTest(callback_t cb, void* cb_arg1) {
@@ -60,7 +65,7 @@ void ImuLogic::Routine(void* arg1) {
         break;
       }
       case InitState::RESET_COUNT: {
-        _last_step = 0;
+        _step = 0;
         lsm6ds3tr_c_ctrl10_c_t ctrl10_c = {0};
         ctrl10_c.pedo_rst_step = PROPERTY_ENABLE;
         g_imu_service.QueueWriteReg(LSM6DS3TR_C_CTRL10_C, ctrl10_c);
@@ -72,7 +77,7 @@ void ImuLogic::Routine(void* arg1) {
       case InitState::CONFIGURE: {
         // TODO: config INT1 pin
         lsm6ds3tr_c_ctrl1_xl_t ctrl1_xl = {0};
-        ctrl1_xl.odr_xl = LSM6DS3TR_C_XL_ODR_26Hz;
+        ctrl1_xl.odr_xl = LSM6DS3TR_C_XL_ODR_416Hz;
         ctrl1_xl.fs_xl = LSM6DS3TR_C_2g;
         g_imu_service.QueueWriteReg(LSM6DS3TR_C_CTRL1_XL, ctrl1_xl);
         lsm6ds3tr_c_ctrl10_c_t ctrl10_c = {0};
@@ -309,8 +314,8 @@ void ImuLogic::OnRxDone(void* arg1) {
 
   if (_state == RoutineState::WAIT_STEP) {
     uint16_t step_count = _buf[0] | (_buf[1] << 8);
-    _is_shaking = step_count - _last_step > SHAKING_THRESHOLD;
-    _last_step = step_count;
+    _is_shaking = step_count - _step > SHAKING_THRESHOLD;
+    _step = step_count;
     _state = RoutineState::GET_STEP;
   }
 }
@@ -328,5 +333,16 @@ void ImuLogic::OnTxDone(void* arg1) {
     _self_test_state = SelfTestState::WAIT_B;
     _start_time = SysTimer::GetTime();
   }
+}
+
+void ImuLogic::ProximityRoutine(void* arg1) {
+  static uint8_t last_step = 0;
+  hitcon::game::Proximity data;
+  uint16_t temp = (GetStep() - last_step) / SCALE_FACTOR;
+  if (temp > 255) temp = 255;
+  data.power = temp;
+  data.nonce = SysTimer::GetTime() & 0xFFFF;
+  g_game_controller.SendProximity(data);
+  last_step = GetStep();
 }
 }  // namespace hitcon
