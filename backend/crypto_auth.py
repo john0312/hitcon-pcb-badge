@@ -105,7 +105,7 @@ class CryptoAuth:
         if len(raw_sig) != 14:
             raise ValueError("Raw signature must be 14 bytes long")
         
-        r = int.from_bytes(raw_sig[:7], 'little')
-        s = int.from_bytes(raw_sig[7:14], 'little')
+        r = int.from_bytes(raw_sig[:7], 'little', signed=False)
+        s = int.from_bytes(raw_sig[7:14], 'little', signed=False)
         
         return EccSignature(r=r, s=s, pub=None)
