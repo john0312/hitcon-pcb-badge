@@ -6,7 +6,7 @@ from schemas import Event, ProximityEvent, PubAnnounceEvent, TwoBadgeActivityEve
 from schemas import IrPacket, IrPacketRequestSchema, IrPacketObject, Station, PacketType, PACKET_HASH_LEN, IR_USERNAME_LEN, PACKET_TYPE_WITHOUT_SIG
 from config import Config
 from hashlib import sha3_256
-from database import db
+from database import db, redis_client
 import inspect
 import uuid
 from io import BytesIO
@@ -26,7 +26,7 @@ class PacketProcessor:
         self.packets = db["packets"]
         self.users = db["users"]
         self.user_queue = db["user_queue"]
-        self.redis: "redis.Redis | None" = None  # TODO: assign redis connection
+        self.redis = redis_client
 
         for k, v in GameLogicController.__dict__.items():
             if k.startswith("on_") and isinstance(v, staticmethod):

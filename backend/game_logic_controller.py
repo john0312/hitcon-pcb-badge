@@ -1,9 +1,9 @@
 from schemas import ProximityEvent, PubAnnounceEvent, TwoBadgeActivityEvent, GameActivityEvent, SingleBadgeActivityEvent, SponsorActivityEvent
-from database import mongo, db
+from database import mongo, db, redis_client
 from game_logic import _GameLogic as GameLogic, GameType
 import uuid
 
-game = GameLogic(mongo)
+game = GameLogic(mongo, redis_client)
 
 class GameLogicController:
     # ===== APIs for PacketProcessor =====
