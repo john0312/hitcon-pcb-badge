@@ -79,12 +79,12 @@ def sign(value: int) -> int:
 
 
 class _GameLogic:
-    def __init__(self, mongo_client: pymongo.AsyncMongoClient, start_time: datetime = None, redis_client: Redis = None):
+    def __init__(self, mongo_client: pymongo.AsyncMongoClient, redis_client: Redis = None, start_time: datetime = None):
         # TODO: maybe use config to update constants
         self.db = mongo_client[const.DATABASE_NAME]
         self.attack_history = self.db[const.ATTACK_HISTORY_COLLECTION]
         self.score_history = self.db[const.SCORE_HISTORY_COLLECTION]
-        self.redis_client: "Redis | None" = redis_client
+        self.redis_client = redis_client
 
         if start_time is None:
             start_time = datetime.now()
@@ -341,7 +341,7 @@ async def test_attack_station_score_history(with_redis = False, cache_min_interv
         redis_client = None
 
     time_base = datetime.now()
-    gl = _GameLogic(pymongo.AsyncMongoClient("mongodb://localhost:27017?uuidRepresentation=standard"), time_base, redis_client=redis_client)
+    gl = _GameLogic(pymongo.AsyncMongoClient("mongodb://localhost:27017?uuidRepresentation=standard"), redis_client, time_base)
     await gl.clear_database()
 
     # Simulate
@@ -418,7 +418,7 @@ async def test_game_score_history_single_player(with_redis = False, game_score_g
         redis_client = None
 
     time_base = datetime.now()
-    gl = _GameLogic(pymongo.AsyncMongoClient("mongodb://localhost:27017?uuidRepresentation=standard"), time_base, redis_client=redis_client)
+    gl = _GameLogic(pymongo.AsyncMongoClient("mongodb://localhost:27017?uuidRepresentation=standard"), redis_client, time_base)
     await gl.clear_database()
 
     table = {
@@ -474,7 +474,7 @@ async def test_game_score_history_two_player(with_redis = False, game_score_gran
         redis_client = None
 
     time_base = datetime.now()
-    gl = _GameLogic(pymongo.AsyncMongoClient("mongodb://localhost:27017?uuidRepresentation=standard"), time_base, redis_client=redis_client)
+    gl = _GameLogic(pymongo.AsyncMongoClient("mongodb://localhost:27017?uuidRepresentation=standard"), redis_client, time_base)
     await gl.clear_database()
 
     table = {
