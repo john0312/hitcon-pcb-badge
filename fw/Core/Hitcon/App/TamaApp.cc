@@ -36,6 +36,8 @@ void TamaApp::Init() {
 
 void SetSingleplayer() {
   tama_app.player_mode = TAMA_PLAYER_MODE::MODE_SINGLEPLAYER;
+  tama_app.xboard_state = TAMA_XBOARD_STATE::XBOARD_INVITE;
+  tama_app.xboard_battle_invite = TAMA_XBOARD_BATTLE_INVITE::XBOARD_BATTLE_N;
 }
 
 void SetMultiplayer() {
@@ -65,10 +67,12 @@ void TamaApp::OnExit() {
 }
 
 void TamaApp::Render() {
-  if (_tama_data.state == TAMA_APP_STATE::INTRO_TEXT) {
-    // For INTRO_TEXT, display_set_mode_scroll_text() is called in OnEntry.
-    // The display system handles rendering for this mode.
-    // This Render() function should not interfere by setting fixed_packed mode.
+  if (
+      // INTRO_TEXT handles render in display_set_mode_scroll_text
+      _tama_data.state == TAMA_APP_STATE::INTRO_TEXT ||
+      // XBoard Waiting user input
+      (xboard_state == TAMA_XBOARD_STATE::XBOARD_BATTLE_ENCOUNTER &&
+       !(_enemy_state == TAMA_XBOARD_STATE::XBOARD_BATTLE_ENCOUNTER))) {
     return;
   }
 
@@ -280,9 +284,44 @@ void TamaApp::UpdateFrameBuffer() {
 
 void TamaApp::XbOnButton(button_t button) {
   // TODO: Handle all XBoard button here
+  switch (xboard_state) {
+    case TAMA_XBOARD_STATE::XBOARD_INVITE:
+      switch (button & BUTTON_VALUE_MASK) {
+        case BUTTON_OK: {
+          TAMA_XBOARD_BATTLE_INVITE invite = xboard_battle_invite;
+          g_xboard_logic.QueueDataForTx(reinterpret_cast<uint8_t*>(&invite),
+                                        sizeof(invite), TAMA_RECV_ID);
+          xboard_state = TAMA_XBOARD_STATE::XBOARD_BATTLE_ENCOUNTER;
+          display_set_mode_scroll_text("Waiting for enemy...");
+          UpdateFrameBuffer();
+          break;
+        }
+        case BUTTON_LEFT:
+          xboard_battle_invite = TAMA_XBOARD_BATTLE_INVITE::XBOARD_BATTLE_N;
+          UpdateFrameBuffer();
+          break;
+        case BUTTON_RIGHT:
+          xboard_battle_invite = TAMA_XBOARD_BATTLE_INVITE::XBOARD_BATTLE_Y;
+          UpdateFrameBuffer();
+          break;
+      }
+      break;
+    case TAMA_XBOARD_STATE::XBOARD_BATTLE_ENCOUNTER:
+      break;
+    default:
+      my_assert("WTF");
+      break;
+  }
 }
 void TamaApp::XbUpdateFrameBuffer() {
   // TODO: Handle all XBoard frame here
+  switch (xboard_state) {
+    case TAMA_XBOARD_STATE::XBOARD_INVITE:
+      // TODO: Draw frame buffer for battel invite
+    default:
+      my_assert("WTF");
+      break;
+  }
 }
 
 void TamaApp::OnXBoardRecv(void* arg) {
@@ -290,7 +329,7 @@ void TamaApp::OnXBoardRecv(void* arg) {
   switch ((TAMA_XBOARD_PACKET_TYPE)packet->data[0]) {
     // TODO: Handle XB game logic here
     case TAMA_XBOARD_PACKET_TYPE::PACKET_CONFIRM:
-      // TODO: Confirm battle
+      _enemy_state = TAMA_XBOARD_STATE::XBOARD_BATTLE_ENCOUNTER;
       break;
     case TAMA_XBOARD_PACKET_TYPE::PACKET_SCORE:
       // TODO: Update score

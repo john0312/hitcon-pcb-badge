@@ -51,9 +51,21 @@ enum class TAMA_PLAYER_MODE : uint8_t {
 enum class TAMA_XBOARD_PACKET_TYPE {
   // TODO: Add all packet type
   PACKET_CONFIRM,
+  PACKET_ENIMY_INFO,
   PACKET_SCORE,
   PACKET_END,
   PACKET_LEAVE,
+};
+
+enum class TAMA_XBOARD_STATE {
+  XBOARD_INVITE,
+  XBOARD_BATTLE_ENCOUNTER,
+  XBOARD_BATTLE_QTE,
+};
+
+enum class TAMA_XBOARD_BATTLE_INVITE {
+  XBOARD_BATTLE_N,
+  XBOARD_BATTLE_Y,
 };
 
 class TamaApp : public App {
@@ -69,6 +81,8 @@ class TamaApp : public App {
   void Routine(void* unused);
   void UpdateFrameBuffer();
 
+  // XBoard related
+  TAMA_XBOARD_STATE _enemy_state;
   void XbOnButton(button_t button);
   void XbUpdateFrameBuffer();
 
@@ -81,6 +95,10 @@ class TamaApp : public App {
   void OnExit() override;
   void OnButton(button_t button) override;
   void OnEdgeButton(button_t button) override;
+
+  // XBoard related
+  TAMA_XBOARD_STATE xboard_state;
+  TAMA_XBOARD_BATTLE_INVITE xboard_battle_invite;
   void OnXBoardRecv(void* arg);
 };
 
