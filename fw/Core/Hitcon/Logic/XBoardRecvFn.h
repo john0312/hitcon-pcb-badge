@@ -14,6 +14,7 @@ enum RecvFnId {
   XBOARD_GAME_CONTROLLER,                   // DISABLED/DEPRECATED
   XBOARD_GAME_CONTROLLER_ACK,               // DISABLED/DEPRECATED
   XBOARD_GAME_CONTROLLER_SEND_ALL_TRIGGER,  // DISABLED/DEPRECATED
+  TAMA_RECV_ID,
   // MAX is to express the length of callback function array
   MAX
 };

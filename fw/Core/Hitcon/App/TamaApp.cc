@@ -3,9 +3,13 @@
 #include <Logic/BadgeController.h>
 #include <Logic/Display/display.h>
 #include <Logic/NvStorage.h>
+#include <Logic/XBoardLogic.h>
 #include <Service/Sched/Scheduler.h>
 
 #include <cstring>  // For memset if needed, though direct assignment is used
+
+using namespace hitcon::service::xboard;
+using hitcon::service::sched::my_assert;
 
 namespace hitcon {
 namespace app {
@@ -30,9 +34,21 @@ void TamaApp::Init() {
   g_nv_storage.MarkDirty();
 }
 
+void SetSingleplayer() {
+  tama_app.player_mode = TAMA_PLAYER_MODE::MODE_SINGLEPLAYER;
+}
+
+void SetMultiplayer() {
+  tama_app.player_mode = TAMA_PLAYER_MODE::MODE_MULTIPLAYER;
+}
+
 void TamaApp::OnEntry() {
   hitcon::service::sched::scheduler.EnablePeriodic(&_routine_task);
-
+  if (player_mode == TAMA_PLAYER_MODE::MODE_MULTIPLAYER) {
+    g_xboard_logic.SetOnPacketArrive((callback_t)&TamaApp::OnXBoardRecv, this,
+                                     TAMA_RECV_ID);
+    return;
+  }
   if (_tama_data.state == TAMA_APP_STATE::CHOOSE_TYPE) {
     // Ensure _current_selection_in_choose_mode is valid. Default to DOG if type
     // is NONE.
@@ -68,6 +84,10 @@ void TamaApp::Render() {
 }
 
 void TamaApp::OnButton(button_t button) {
+  if (player_mode == TAMA_PLAYER_MODE::MODE_MULTIPLAYER) {
+    XbOnButton(button);
+    return;
+  }
   bool needs_save = false;
   bool needs_update_fb = false;
 
@@ -169,6 +189,10 @@ void TamaApp::Routine(void* unused) {
   }
 }
 void TamaApp::UpdateFrameBuffer() {
+  if (player_mode == TAMA_PLAYER_MODE::MODE_MULTIPLAYER) {
+    XbUpdateFrameBuffer();
+    return;
+  }
   switch (_tama_data.state) {
     case TAMA_APP_STATE::CHOOSE_TYPE:
       const tama_ani_t* selected_animation;
@@ -253,6 +277,36 @@ void TamaApp::UpdateFrameBuffer() {
       break;
   }
 }
+
+void TamaApp::XbOnButton(button_t button) {
+  // TODO: Handle all XBoard button here
+}
+void TamaApp::XbUpdateFrameBuffer() {
+  // TODO: Handle all XBoard frame here
+}
+
+void TamaApp::OnXBoardRecv(void* arg) {
+  PacketCallbackArg* packet = reinterpret_cast<PacketCallbackArg*>(arg);
+  switch ((TAMA_XBOARD_PACKET_TYPE)packet->data[0]) {
+    // TODO: Handle XB game logic here
+    case TAMA_XBOARD_PACKET_TYPE::PACKET_CONFIRM:
+      // TODO: Confirm battle
+      break;
+    case TAMA_XBOARD_PACKET_TYPE::PACKET_SCORE:
+      // TODO: Update score
+      break;
+    case TAMA_XBOARD_PACKET_TYPE::PACKET_END:
+      // TODO: End game
+      break;
+    case TAMA_XBOARD_PACKET_TYPE::PACKET_LEAVE:
+      badge_controller.BackToMenu(this);
+      return;  // Exit immediately
+    default:
+      my_assert("WTF");
+      break;
+  }
+}
+
 }  // namespace tama
 }  // namespace app
 }  // namespace hitcon

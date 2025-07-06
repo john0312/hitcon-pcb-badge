@@ -43,6 +43,19 @@ typedef struct {
   uint8_t active_frame;
 } tama_display_fb_t;
 
+enum class TAMA_PLAYER_MODE : uint8_t {
+  MODE_SINGLEPLAYER,
+  MODE_MULTIPLAYER,
+};
+
+enum class TAMA_XBOARD_PACKET_TYPE {
+  // TODO: Add all packet type
+  PACKET_CONFIRM,
+  PACKET_SCORE,
+  PACKET_END,
+  PACKET_LEAVE,
+};
+
 class TamaApp : public App {
  private:
   static constexpr unsigned ROUTINE_INTERVAL_MS =
@@ -56,16 +69,23 @@ class TamaApp : public App {
   void Routine(void* unused);
   void UpdateFrameBuffer();
 
+  void XbOnButton(button_t button);
+  void XbUpdateFrameBuffer();
+
  public:
+  TAMA_PLAYER_MODE player_mode;
   TamaApp();
   virtual ~TamaApp() = default;
   void Init();
-
   void OnEntry() override;
   void OnExit() override;
   void OnButton(button_t button) override;
   void OnEdgeButton(button_t button) override;
+  void OnXBoardRecv(void* arg);
 };
+
+void SetSingleplayer();
+void SetMultiplayer();
 
 extern TamaApp tama_app;
 

@@ -26,7 +26,7 @@ constexpr menu_entry_t main_menu_entries[] = {
     {"Tetris", &tetris_app, &hitcon::app::tetris::SetSingleplayer},
     {"Show Scores", &score_hist::g_score_hist, nullptr},
     {"Bouncing DVD", &bouncing_dvd_app, nullptr},
-    {"Tama", &tama_app, nullptr}};
+    {"Tama", &tama_app, &hitcon::app::tama::SetSingleplayer}};
 
 constexpr int main_menu_entries_len =
     sizeof(main_menu_entries) / sizeof(menu_entry_t);
