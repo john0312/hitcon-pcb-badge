@@ -44,11 +44,13 @@ def ecc_get_point_by_x(x: int, sign: bool = False) -> EccPoint:
     # Get the y-coordinate for the given x-coordinate on the curve.
     # This is used to verify the point is on this specific curve.
     mod = G.x.mod
-    y_squared = (x ** 3 * curve.A + curve.B) % mod
+    y_squared = (x ** 3 + x * curve.A + curve.B) % mod
     y = modulus_congruent_to_3_module_4(y_squared, mod)
 
     if int(sign) ^ (y & 1):
         y = -y
+
+    y = y % mod
 
     return EccPoint(x=x, y=y)
 
