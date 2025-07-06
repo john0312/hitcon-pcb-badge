@@ -20,6 +20,9 @@ PacketType - 1 byte
         * 0x91 for QueueTxBufferResponse
         ... (other cross board commands)
 
+    base station to badge (else, print on badge, use trigger_send_packet(..., print_on_badge=True)):
+        * 0x07 for PrintOnBadgeRequest (No response)
+
     badge to base station (from ir):
         * 0x04 for PushTxBufferRequest
         * 0x84 for PushTxBufferResponse
@@ -169,6 +172,7 @@ class PT(enum.Enum):
     PRR = b'\x85' # PopRxBufferResponse
     SSQ = b'\x06' # SendStatusRequest
     SSR = b'\x86' # SendStatusResponse
+    PBR = b'\x07' # PrintOnBadgeRequest
 
     def get_response(self):
         # Get the response packet type for the request packet type.
@@ -184,7 +188,8 @@ class PT(enum.Enum):
             PT.PRQ: PT.PRR,
             PT.PRR: PT.PRR,
             PT.SSQ: PT.SSR,
-            PT.SSR: PT.SSR
+            PT.SSR: PT.SSR,
+            PT.PBR: PT.PBR
         }
 
         return request_response_map.get(self)
@@ -202,7 +207,8 @@ class PT(enum.Enum):
             PT.PRQ: "PopRxBufferRequest",
             PT.PRR: "PopRxBufferResponse",
             PT.SSQ: "SendStatusRequest",
-            PT.SSR: "SendStatusResponse"
+            PT.SSR: "SendStatusResponse",
+            PT.PBR: "PrintOnBadgeRequest"
         }
 
         return type_name_map.get(self)
@@ -466,16 +472,23 @@ class IrInterface:
         self.recv_packet_que = PacketQue(maxsize=self.packet_que_max, stay_timeout=config.get(key="packet_stay_timeout", default=0.3))
 
     # response: ((bool is_success | bytes payload or status), list of PT_INFO)
-    async def trigger_send_packet(self, data: bytes, packet_type = PT.QTQ, wait_response = True, to_cross_board = False):
+    async def trigger_send_packet(self, data: bytes, packet_type = PT.QTQ, wait_response = True, to_cross_board = False, print_on_badge = False):
         # Triggers the ir interface to send a packet.
         # Returns True if sent successfully, False otherwise.
-        valid_packet_types = [PT.QTQ, PT.RRQ, PT.GSQ]
+        valid_packet_types = [PT.QTQ, PT.RRQ, PT.GSQ, PT.PBR]
         if packet_type not in valid_packet_types:
             raise ValueError(f"Invalid packet type: {packet_type}. Must be one of {valid_packet_types}")
         
         infos = []
         if to_cross_board:
             infos.append(PT_INFO.CROSS_BOARD)
+
+        if print_on_badge:
+            packet_type = PT.PBR
+
+        if packet_type == PT.PBR: # Print on badge request
+            infos.clear() # Clear all infos, since print on badge does not need any infos.
+            wait_response = False # Print on badge does not need response.
 
         for _ in range(self.failure_try):          
             try:
@@ -761,7 +774,10 @@ class IrInterface:
 
 
 async def test():
+    print_msg = b'\x12'
     async with IrInterface(config=config) as ir:
+        print(f"\nTest Print On Badge: {print_msg}")
+        ir.trigger_send_packet(print_msg, print_on_badge=True)
         print("\nTest QTQ response:", await ir.trigger_send_packet(b'123', to_cross_board=True))
         print("Listening:")
         while 1:
