@@ -15,6 +15,9 @@ class BadgeController {
   void Init();
 
   void change_app(App *new_app);
+  // change to menu app based on current xboard peer type, assume that xboard is
+  // connected
+  void change_connect_menu_app();
 
   App *GetCurrentApp() { return current_app; };
 

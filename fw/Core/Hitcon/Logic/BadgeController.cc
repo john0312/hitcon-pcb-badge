@@ -14,6 +14,7 @@
 using hitcon::ir::irController;
 using hitcon::service::sched::my_assert;
 using hitcon::service::xboard::g_xboard_logic;
+using hitcon::service::xboard::PeerType;
 using hitcon::service::xboard::UsartConnectState;
 
 namespace hitcon {
@@ -48,11 +49,22 @@ void BadgeController::change_app(App *new_app) {
   if (current_app) current_app->OnEntry();
 }
 
+void BadgeController::change_connect_menu_app() {
+  auto peer = g_xboard_logic.GetPeerType();
+  if (peer == PeerType::Peer24) {
+    change_app(&menu_24);
+  } else if (peer == PeerType::BaseStn25) {
+    change_app(&menu_25_base);
+  } else {
+    change_app(&menu_25_peer);
+  }
+}
+
 void BadgeController::BackToMenu(App *ending_app) {
   my_assert(current_app == ending_app);
 
   if (g_xboard_logic.GetConnectState() == UsartConnectState::Connect) {
-    change_app(&connect_menu);
+    change_connect_menu_app();
   } else {
     change_app(&main_menu);
   }
@@ -103,8 +115,9 @@ void BadgeController::OnButton(void *arg1) {
 }
 
 void BadgeController::OnXBoardConnect(void *unused) {
-  if (current_app != &hardware_test_app)
-    badge_controller.change_app(&connect_menu);
+  if (current_app != &hardware_test_app) {
+    change_connect_menu_app();
+  }
 }
 
 void BadgeController::OnXBoardDisconnect(void *unused) {

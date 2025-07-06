@@ -63,7 +63,7 @@ void ShowNameApp::OnButton(button_t button) {
   switch (button) {
     case BUTTON_LONG_MODE:
       if (g_xboard_logic.GetConnectState() == UsartConnectState::Connect) {
-        badge_controller.change_app(&connect_menu);
+        badge_controller.change_connect_menu_app();
       } else {
         badge_controller.change_app(&name_setting_menu);
       }
@@ -71,7 +71,7 @@ void ShowNameApp::OnButton(button_t button) {
 
     case BUTTON_MODE:
       if (g_xboard_logic.GetConnectState() == UsartConnectState::Connect) {
-        badge_controller.change_app(&connect_menu);
+        badge_controller.change_connect_menu_app();
       } else {
         badge_controller.change_app(&main_menu);
       }

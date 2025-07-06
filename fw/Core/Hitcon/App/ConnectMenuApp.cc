@@ -2,6 +2,8 @@
 
 namespace hitcon {
 
-ConnectMenuApp connect_menu;
+MenuApp24 menu_24;
+MenuApp25Peer menu_25_peer;
+MenuApp25Base menu_25_base;
 
 }  // namespace hitcon
