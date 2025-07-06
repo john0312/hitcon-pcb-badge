@@ -18,8 +18,11 @@ class CryptoAuth:
 
         if pub_x is None:
             return
+        
+        pub = abs(pub_x)
+        sign = pub_x < 0
 
-        pub = ecc_get_point_by_x(pub_x)
+        pub = ecc_get_point_by_x(pub, sign)
         return EccPublicKey(point=EccPoint(x=pub.x, y=pub.y))
 
 
@@ -66,7 +69,10 @@ class CryptoAuth:
             # SponsorActivityEvent does not require signature verification
             pass
         elif event.__class__ == PubAnnounceEvent:
-            p = ecc_get_point_by_x(event.pubkey)
+            x = int.from_bytes(event.pubkey[:ECC_SIGNATURE_SIZE - 1], 'little', signed=False)
+            sign = bool(event.pubkey[-1])
+
+            p = ecc_get_point_by_x(x, sign)
             # TODO: verify last byte of x, which should only be 0 or 1
             pub = EccPublicKey(point=EccPoint(x=p.x, y=p.y))
 

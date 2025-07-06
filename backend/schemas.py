@@ -111,7 +111,7 @@ class ProximityEvent(Event):
 
 
 class PubAnnounceEvent(Event):
-    pubkey: int
+    pubkey: bytes
     signature: int
 
 

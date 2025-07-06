@@ -40,12 +40,15 @@ def ecc_derive_pub(priv: EccPrivateKey) -> EccPublicKey:
     return EccPublicKey(point=EccPoint(x=point.x.val, y=point.y.val))
 
 
-def ecc_get_point_by_x(x: int) -> EccPoint:
+def ecc_get_point_by_x(x: int, sign: bool = False) -> EccPoint:
     # Get the y-coordinate for the given x-coordinate on the curve.
     # This is used to verify the point is on this specific curve.
     mod = G.x.mod
     y_squared = (x ** 3 * curve.A + curve.B) % mod
     y = modulus_congruent_to_3_module_4(y_squared, mod)
+
+    if int(sign) ^ (y & 1):
+        y = -y
 
     return EccPoint(x=x, y=y)
 
