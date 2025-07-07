@@ -8,6 +8,7 @@
 #include <App/DinoApp.h>
 #include <App/HardwareTestApp.h>
 #include <App/ShowNameApp.h>
+#include <App/ShowTeamScoreApp.h>
 #include <App/SnakeApp.h>
 #include <Hitcon.h>
 #include <Logic/BadgeController.h>
@@ -32,6 +33,7 @@
 using namespace hitcon;
 using namespace hitcon::service::sched;
 using namespace hitcon::service::xboard;
+using hitcon::app::team_score::show_team_score_app;
 
 void TestTaskFunc(void* unused1, void* unused2) {}
 void TestTask2Func(void* unused1, void* unused2) {}
@@ -66,6 +68,7 @@ void hitcon_run() {
   g_xboard_service.Init();
   g_xboard_logic.Init();
   show_name_app.Init();
+  show_team_score_app.Init();
 
   // this call shownameapp onentry
   badge_controller.Init();

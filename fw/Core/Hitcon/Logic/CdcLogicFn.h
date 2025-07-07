@@ -9,6 +9,7 @@ enum FnId {
   PLACE_HOLDER,
   QueueStationTX,
   PopBaseRxBuffer = 0x05,
+  SetDisplayData = 0x07,
   QueueXBoardTX = 0x11,
   PopBaseXbRxBuffer = 0x15,
   // MAX is to express the length of callback function array

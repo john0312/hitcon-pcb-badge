@@ -4,13 +4,14 @@
 #include <App/EditNameApp.h>
 #include <App/HardwareTestApp.h>
 #include <App/MainMenuApp.h>
-#include <App/ShowNameApp.h>
+#include <App/ShowTeamScoreApp.h>
 #include <Logic/IrController.h>
 #include <Logic/XBoardLogic.h>
 #include <Secret/secret.h>
 #include <Service/DisplayService.h>
 #include <Service/Sched/Checks.h>
 
+using hitcon::app::team_score::show_team_score_app;
 using hitcon::ir::irController;
 using hitcon::service::sched::my_assert;
 using hitcon::service::xboard::g_xboard_logic;
@@ -28,7 +29,7 @@ void BadgeController::Init() {
   g_button_logic.SetCallback((callback_t)&BadgeController::OnButton, this);
   g_button_logic.SetEdgeCallback((callback_t)&BadgeController::OnEdgeButton,
                                  this);
-  current_app = &show_name_app;
+  current_app = &show_team_score_app;
   current_app->OnEntry();
   hitcon::service::xboard::g_xboard_logic.SetOnConnect(
       (callback_t)&BadgeController::OnXBoardConnect, this);
@@ -122,7 +123,7 @@ void BadgeController::OnXBoardConnect(void *unused) {
 
 void BadgeController::OnXBoardDisconnect(void *unused) {
   if (current_app != &hardware_test_app)
-    badge_controller.change_app(&show_name_app);
+    badge_controller.change_app(&show_team_score_app);
 }
 
 void BadgeController::OnEdgeButton(void *arg1) {
