@@ -1,5 +1,5 @@
 Designator,Val,Package,Mid X,Mid Y,Rotation,Layer
-BT1,MYOUNG BH-AAA-B5BA021,BH-AAA-B5BA021,115.000002,-127.0,180.0,bottom
+BT1,BAT_2,BH-AAA-B5AK001,115.0,-117.6,0.0,bottom
 C1,0.1u,C_0402_1005Metric_Pad0.74x0.62mm_HandSolder,88.300002,-149.25,180.0,bottom
 C10,1u,C_0603_1608Metric_Pad1.08x0.95mm_HandSolder,80.5,-158.0,180.0,bottom
 C11,1u,C_0603_1608Metric_Pad1.08x0.95mm_HandSolder,78.0,-154.5,270.0,bottom
@@ -15,9 +15,11 @@ C31,0.1u,C_0402_1005Metric_Pad0.74x0.62mm_HandSolder,84.200002,-55.0,270.0,botto
 C32,0.1u,C_0402_1005Metric_Pad0.74x0.62mm_HandSolder,82.900002,-46.1,0.0,bottom
 C33,0.1u,C_0402_1005Metric_Pad0.74x0.62mm_HandSolder,90.5,-43.8,0.0,bottom
 C37,20p,C_0402_1005Metric_Pad0.74x0.62mm_HandSolder,88.5,-40.6,270.0,bottom
-C38,20p,C_0402_1005Metric_Pad0.74x0.62mm_HandSolder,86.300002,-43.8,180.0,bottom
+C38,20p,C_0402_1005Metric_Pad0.74x0.62mm_HandSolder,86.300002,-43.7,180.0,bottom
 C40,0.1u,C_0402_1005Metric_Pad0.74x0.62mm_HandSolder,146.500002,-43.0,0.0,bottom
-C60,4.7u,C_0603_1608Metric_Pad1.08x0.95mm_HandSolder,109.500002,-152.0,-90.0,top
+C50,0.1u,C_0402_1005Metric_Pad0.74x0.62mm_HandSolder,105.125,-45.75,180.0,bottom
+C51,0.1u,C_0402_1005Metric_Pad0.74x0.62mm_HandSolder,103.9325,-49.0,180.0,bottom
+C60,4.7u,C_0603_1608Metric_Pad1.08x0.95mm_HandSolder,116.2,-155.0,270.0,bottom
 C80,0.1u,C_0402_1005Metric_Pad0.74x0.62mm_HandSolder,121.9,-44.0,90.0,bottom
 C92,10u,C_0603_1608Metric_Pad1.08x0.95mm_HandSolder,152.8,-129.2,0.0,bottom
 D00,LED,LED_0402_1005Metric_Pad0.77x0.64mm_HandSolder,133.000002,-53.0,0.0,top
@@ -83,7 +85,7 @@ D155,LED,LED_0402_1005Metric_Pad0.77x0.64mm_HandSolder,124.000002,-74.0,0.0,top
 D156,LED,LED_0402_1005Metric_Pad0.77x0.64mm_HandSolder,127.000002,-74.0,0.0,top
 D157,LED,LED_0402_1005Metric_Pad0.77x0.64mm_HandSolder,130.000002,-74.0,0.0,top
 D16,LED,LED_0402_1005Metric_Pad0.77x0.64mm_HandSolder,151.000002,-56.0,0.0,top
-D161,NEWOPTO XYC-IRA2835A90-X4,LED_PLCC_2835_Handsoldering,144.5,-127.5,180.0,top
+D161,NEWOPTO XYC-IRA2835A90-X4,LED_PLCC_2835_Handsoldering,144.5,-127.5,0.0,top
 D17,LED,LED_0402_1005Metric_Pad0.77x0.64mm_HandSolder,154.000002,-56.0,0.0,top
 D18,SOD4007-MS,D_SOD-123F,95.600002,-136.5,0.0,bottom
 D2,SOD4007-MS,D_SOD-123F,91.100002,-135.75,180.0,bottom
@@ -177,9 +179,9 @@ Q98,2N7002,SOT-23,113.000002,-49.0,90.0,bottom
 Q99,2N7002,SOT-23,116.500002,-49.0,90.0,bottom
 R1,20R,R_0402_1005Metric_Pad0.72x0.64mm_HandSolder,84.0,-68.1,270.0,bottom
 R10,0,R_0402_1005Metric_Pad0.72x0.64mm_HandSolder,85.600002,-151.6,180.0,bottom
-R11,4.7M,R_0402_1005Metric_Pad0.72x0.64mm_HandSolder,92.3,-39.8,180.0,bottom
+R11,10M,R_0402_1005Metric_Pad0.72x0.64mm_HandSolder,92.3,-39.8,180.0,bottom
 R14,220,R_0402_1005Metric_Pad0.72x0.64mm_HandSolder,149.7,-129.1,180.0,bottom
-R16,33k,R_0402_1005Metric_Pad0.72x0.64mm_HandSolder,82.300002,-59.4,180.0,bottom
+R16,100k,R_0402_1005Metric_Pad0.72x0.64mm_HandSolder,82.300002,-59.4,180.0,bottom
 R162,110R,R_1206_3216Metric_Pad1.30x1.75mm_HandSolder,150.5,-122.0,0.0,bottom
 R163,110R,R_1206_3216Metric_Pad1.30x1.75mm_HandSolder,150.5,-118.0,0.0,bottom
 R164,110R,R_1206_3216Metric_Pad1.30x1.75mm_HandSolder,111.0,-34.0,0.0,bottom
@@ -200,10 +202,12 @@ R31,470,R_0402_1005Metric_Pad0.72x0.64mm_HandSolder,149.6,-131.5,90.0,bottom
 R32,470,R_0402_1005Metric_Pad0.72x0.64mm_HandSolder,148.5,-131.5,90.0,bottom
 R33,470,R_0402_1005Metric_Pad0.72x0.64mm_HandSolder,154.0,-131.5,90.0,bottom
 R34,470,R_0402_1005Metric_Pad0.72x0.64mm_HandSolder,152.9,-131.5,90.0,bottom
-R4,4.7M,R_0402_1005Metric_Pad0.72x0.64mm_HandSolder,93.3,-41.9,90.0,bottom
+R4,10M,R_0402_1005Metric_Pad0.72x0.64mm_HandSolder,93.3,-41.9,90.0,bottom
 R5,100k,R_0402_1005Metric_Pad0.72x0.64mm_HandSolder,92.000002,-137.6,0.0,bottom
+R50,4.7k,R_0402_1005Metric_Pad0.72x0.64mm_HandSolder,103.8,-43.3,180.0,bottom
+R51,4.7k,R_0402_1005Metric_Pad0.72x0.64mm_HandSolder,102.2,-49.2,90.0,bottom
 R6,100k,R_0402_1005Metric_Pad0.72x0.64mm_HandSolder,99.1,-34.5,90.0,bottom
-R61,100,R_0402_1005Metric_Pad0.72x0.64mm_HandSolder,118.050002,-153.9,90.0,top
+R61,100,R_0402_1005Metric_Pad0.72x0.64mm_HandSolder,118.8,-154.5,180.0,bottom
 R7,100k,R_0402_1005Metric_Pad0.72x0.64mm_HandSolder,131.000002,-34.8,90.0,bottom
 R8,470,R_0402_1005Metric_Pad0.72x0.64mm_HandSolder,100.3,-34.5,90.0,bottom
 R9,470,R_0402_1005Metric_Pad0.72x0.64mm_HandSolder,129.7,-34.8,90.0,bottom
@@ -227,6 +231,7 @@ U1,TLV70328DBVR,SOT-23-5,82.0,-155.0,180.0,bottom
 U2,QX2304L33F,SOT-23-5,91.600002,-141.5,180.0,bottom
 U3,STM32F103CBT6,LQFP-48_7x7mm_P0.5mm,88.000002,-50.0,180.0,bottom
 U4,74HC238,SOP-16_3.9x9.9mm_P1.27mm,144.5,-37.0,90.0,bottom
+U5,LSM6DS3TR-C,QFN_S3TR-C_STM,102.375,-46.25,270.0,bottom
 U6,IRM-H638T/TR2,IRM-H638T,113.500002,-155.0,90.0,top
 U8,74HC238,SOP-16_3.9x9.9mm_P1.27mm,128.0,-41.5,180.0,bottom
 Y1,TAXM8M4RFDCET2T,Oscillator_SMD_Abracon_ASE-4Pin_3.2x2.5mm,86.2,-41.2,270.0,bottom
