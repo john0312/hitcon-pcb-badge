@@ -54,8 +54,13 @@ void DisplayService::Init() {
   tmp_request_cb_param.callback = request_frame_callback_arg1;
   tmp_request_cb_param.buf_index = 0;
   scheduler.Queue(&task, &tmp_request_cb_param);
+#ifdef V2_0A
   HAL_TIM_PWM_Start(&htim3,
                     TIM_CHANNEL_2);  // decoder enable to control brightness
+#elifdef V2_1B
+  HAL_TIM_PWM_Start(&htim3,
+                    TIM_CHANNEL_1);  // decoder enable to control brightness
+#endif
   __HAL_TIM_ENABLE_DMA(&htim1, TIM_DMA_UPDATE);
   HAL_TIM_Base_Start(&htim1);  // start dma trigger dma ch5 to control matrix
 
@@ -129,7 +134,7 @@ void DisplayService::PopulateFrames(display_buf_t* buffer,
       0B0000'0000'0000'0000 << 16 | 0B0000'0011'0001'1000,  // 1111
       0B0000'0010'0000'0000 << 16 | 0B0000'0001'0001'1000,  // 0111
   };
-#elifdef V2_1BB
+#elifdef V2_1B
   constexpr uint32_t row_map[16] = {
       0B0000'0001'0010'1000 << 16 | 0B0000'0010'0000'0000,  // 1000
       0B0000'0011'0010'1000 << 16 | 0B0000'0000'0000'0000,  // 0000
@@ -197,7 +202,7 @@ void DisplayService::SetBrightness(uint8_t brightness) {
       brightness * 1.0 / DISPLAY_MAX_BRIGHTNESS * (htim3.Init.Period);
 #ifdef V1_1C
   __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_2, value);
-#elifdef V2_1BB
+#elifdef V2_1B
   __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_1, value);
 #endif
 }

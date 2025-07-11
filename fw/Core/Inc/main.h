@@ -130,7 +130,7 @@ void Error_Handler(void);
 #define LedA0_Pin GPIO_PIN_3
 #define LedA1_Pin GPIO_PIN_4
 #define DEC_EN_Pin GPIO_PIN_5
-#elifdef V2_1BB
+#elifdef V2_1B
 #undef LedA0_Pin
 #undef LedA1_Pin
 #undef DEC_EN_Pin
