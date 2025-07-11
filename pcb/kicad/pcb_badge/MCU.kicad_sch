@@ -7961,7 +7961,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "110R"
+		(property "Value" "NC"
 			(at 238.76 209.5499 0)
 			(effects
 				(font
@@ -8306,7 +8306,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "110R"
+		(property "Value" "NC"
 			(at 251.46 209.5499 0)
 			(effects
 				(font
@@ -9329,7 +9329,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "110R"
+		(property "Value" "NC"
 			(at 226.06 209.5499 0)
 			(effects
 				(font
@@ -9748,7 +9748,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "110R"
+		(property "Value" "NC"
 			(at 187.96 209.5499 0)
 			(effects
 				(font
@@ -10555,7 +10555,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "110R"
+		(property "Value" "NC"
 			(at 200.66 209.5499 0)
 			(effects
 				(font
