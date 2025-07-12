@@ -134,17 +134,29 @@ class _GameLogic:
         # check cache
         cached_score = None
         if self.redis_client is not None:
-            # Check the last cached score (before the given time)
-            last_cached_time = self.start_time
-            async for key in self.redis_client.scan_iter(match=f"station_score:{player_id}:{station_id}:*"):
-                # Extract the timestamp from the key and find the latest one
-                cached_time = datetime.fromisoformat(key.decode().split(":", maxsplit=3)[-1])
-                if cached_time < before and cached_time > last_cached_time:
-                    last_cached_time = cached_time
-
-            tmp = await self.redis_client.get(f"station_score:{player_id}:{station_id}:{last_cached_time.isoformat()}")
+            # check if we can directly use the latest cached score
+            tmp = await self.redis_client.get(f"latest_station_score_time:{player_id}:{station_id}")
             if tmp is not None:
-                cached_score = int(tmp)
+                last_cached_time = datetime.fromisoformat(tmp.decode())
+                if last_cached_time < before:
+                    tmp = await self.redis_client.get(f"station_score:{player_id}:{station_id}:{last_cached_time.isoformat()}")
+                    if tmp is not None:
+                        cached_score = int(tmp)
+
+            else:
+                # we are not getting the latest cached score (maybe calculating history score)
+                # so we need to iterate through the cached scores to find the latest one before the given time
+                # this is not efficient, but it is a fallback
+                last_cached_time = self.start_time
+                async for key in self.redis_client.scan_iter(match=f"station_score:{player_id}:{station_id}:*"):
+                    # Extract the timestamp from the key and find the latest one
+                    cached_time = datetime.fromisoformat(key.decode().split(":", maxsplit=3)[-1])
+                    if cached_time < before and cached_time > last_cached_time:
+                        last_cached_time = cached_time
+
+                tmp = await self.redis_client.get(f"station_score:{player_id}:{station_id}:{last_cached_time.isoformat()}")
+                if tmp is not None:
+                    cached_score = int(tmp)
 
         if cached_score is not None:
             total_score = cached_score
@@ -175,6 +187,12 @@ class _GameLogic:
             # Cache the total score, if it has been a while since the last cache
             if (before - last_cached_time).total_seconds() >= const.STATION_SCORE_CACHE_MIN_INTERVAL:
                 await self.redis_client.set(f"station_score:{player_id}:{station_id}:{before.isoformat()}", total_score)
+
+                # Update the latest cached time if it is the newest one
+                await self.redis_client.set(f"latest_station_score_time:{player_id}:{station_id}", before.isoformat(), nx=True)
+                tmp = await self.redis_client.get(f"latest_station_score_time:{player_id}:{station_id}")
+                if before > datetime.fromisoformat(tmp.decode()):
+                    await self.redis_client.set(f"latest_station_score_time:{player_id}:{station_id}", before.isoformat())
 
         return total_score
 
