@@ -234,13 +234,13 @@ class PacketProcessor:
                 user = b2i(buf.read(IR_USERNAME_LEN))
                 power = b2i(buf.read(1))
                 nonce = b2i(buf.read(2))
-                signature = b2i(buf.read(ECC_SIGNATURE_SIZE))
+                signature = buf.read(ECC_SIGNATURE_SIZE)
                 return ProximityEvent(packet_id=packet_id, station_id=station_id, user=user, power=power, nonce=nonce, signature=signature)
 
             case PacketType.kPubAnnounce:
                 # Public announce packet
                 pubkey = buf.read(ECC_PUBKEY_SIZE)
-                signature = b2i(buf.read(ECC_SIGNATURE_SIZE))
+                signature = buf.read(ECC_SIGNATURE_SIZE)
                 return PubAnnounceEvent(packet_id=packet_id, station_id=station_id, pubkey=pubkey, signature=signature)
 
             case PacketType.kTwoBadgeActivity:
@@ -248,14 +248,14 @@ class PacketProcessor:
                 user1 = b2i(buf.read(IR_USERNAME_LEN))
                 user2 = b2i(buf.read(IR_USERNAME_LEN))
                 game_data = buf.read(5)
-                signature = b2i(buf.read(ECC_SIGNATURE_SIZE))
+                signature = buf.read(ECC_SIGNATURE_SIZE)
                 return TwoBadgeActivityEvent(packet_id=packet_id, station_id=station_id, user1=user1, user2=user2, game_data=game_data, signature=signature)
 
             case PacketType.kScoreAnnounce:
                 # Score announce packet
                 user = b2i(buf.read(IR_USERNAME_LEN))
                 score = b2i(buf.read(4))
-                signature = b2i(buf.read(ECC_SIGNATURE_SIZE))
+                signature = buf.read(ECC_SIGNATURE_SIZE)
                 return ScoreAnnounceEvent(packet_id=packet_id, station_id=station_id, user=user, score=score, signature=signature)
 
             case PacketType.kSingleBadgeActivity:
