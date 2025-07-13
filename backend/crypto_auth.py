@@ -45,7 +45,7 @@ class CryptoAuth:
         Returns username if the packet is valid.
         """
         if event.__class__ == TwoBadgeActivityEvent:
-            sig = CryptoAuth.parse_raw_signature(event.signature.to_bytes(14, 'little'))
+            sig = CryptoAuth.parse_raw_signature(event.signature)
 
             pub1 = await CryptoAuth.get_pubkey_by_username(event.user1)
             pub2 = await CryptoAuth.get_pubkey_by_username(event.user2)
@@ -76,7 +76,7 @@ class CryptoAuth:
             # TODO: verify last byte of x, which should only be 0 or 1
             pub = EccPublicKey(point=EccPoint(x=p.x, y=p.y))
 
-            sig = CryptoAuth.parse_raw_signature(event.signature.to_bytes(14, 'little'))
+            sig = CryptoAuth.parse_raw_signature(event.signature)
             sig = EccSignature(**(sig.model_dump() | {"pub": pub}))
             
             if not ecc_verify(
@@ -88,7 +88,7 @@ class CryptoAuth:
             user = await CryptoAuth.derive_user_by_pubkey(pub)
             return user
         else:
-            sig = CryptoAuth.parse_raw_signature(event.signature.to_bytes(14, 'little'))
+            sig = CryptoAuth.parse_raw_signature(event.signature)
             pub = await CryptoAuth.get_pubkey_by_username(event.user)
 
             sig = EccSignature(**(sig.model_dump() | {"pub": pub}))
