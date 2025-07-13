@@ -136,6 +136,14 @@ class GameLogicController:
 
     @staticmethod
     async def on_proximity_event(evt: ProximityEvent, packet_processor: 'PacketProcessor'):
+        await game.receive_game_score_single_player(
+            player_id=evt.user,
+            station_id=evt.station_id,
+            score=evt.power,
+            game_type=GameType.SHAKE_BADGE,
+            timestamp=evt.timestamp
+        )
+
         await game.attack_station(
             player_id=evt.user,
             station_id=evt.station_id,
