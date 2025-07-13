@@ -3,6 +3,7 @@ from schemas import IrPacket, Event, TwoBadgeActivityEvent, SponsorActivityEvent
 from schemas import EccPoint, EccPublicKey, EccPrivateKey, EccSignature
 from database import db
 from ecc_utils import ECC_SIGNATURE_SIZE, ecc_sign, ecc_verify, ecc_get_point_by_x
+import bson.int64
 
 
 class UnsignedPacketError(Exception):
@@ -28,7 +29,7 @@ class CryptoAuth:
 
     @staticmethod
     async def derive_user_by_pubkey(pub: EccPublicKey) -> Optional[int]:
-        pub_x = pub.point.x
+        pub_x = bson.int64.Int64(pub.point.x)
         user = await db["users"].find_one({"pubkey": pub_x})
 
         if user is None:
