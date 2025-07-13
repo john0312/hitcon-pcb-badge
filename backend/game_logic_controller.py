@@ -146,12 +146,12 @@ class GameLogicController:
         user_score = await game.get_game_score(player_id=evt.user)
         # announce the score to the user
         pkt = IrPacket(
-            data=bytes([
-                0,                                  # TTL
-                PacketType.kScoreAnnounce.value,
-                evt.user.to_bytes(4, 'little'),     # User
-                user_score.to_bytes(4, 'little'),   # Score
-                b"\x87" * ECC_SIGNATURE_SIZE,       # TODO: Dummy signature 
+            data=b"".join([
+                b"\x00",                                    # TTL
+                bytes([PacketType.kScoreAnnounce.value]),   # PacketType
+                evt.user.to_bytes(4, 'little'),             # User
+                user_score.to_bytes(4, 'little'),           # Score
+                b"\x87" * ECC_SIGNATURE_SIZE,               # TODO: Dummy signature 
             ]),
             station_id=evt.station_id,
             to_stn=True
