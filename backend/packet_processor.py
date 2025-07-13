@@ -102,7 +102,7 @@ class PacketProcessor:
             # retransmit packets in the user queue (move these packets to station tx)
             if user is not None:
                 # Associate the user with the station.
-                await self.set_user_last_station_uuid(user, station.station_id)
+                await self.set_user_last_station_id(user, station.station_id)
                 # Dequeue packets for the user and add them to the station tx list.
                 packet_ids = await self.deque_user_packets(user, station)
                 if packet_ids:
@@ -151,7 +151,7 @@ class PacketProcessor:
         packet_id = ir_packet.packet_id or uuid.uuid4()
         ir_packet.packet_id = packet_id
         ir_packet.to_stn = True
-        ir_packet.station_id = await self.get_user_last_station_uuid(user)
+        ir_packet.station_id = await self.get_user_last_station_id(user)
 
         if ir_packet.station_id is None:
             # If the user is not associated with any station, put to user queue and wait until the user is associated with a station.
@@ -334,7 +334,7 @@ class PacketProcessor:
             return None
 
 
-    async def set_user_last_station_uuid(self, user: int, station_id: uuid.UUID) -> None:
+    async def set_user_last_station_id(self, user: int, station_id: int) -> None:
         # Set the station associated with a user.
         # This is used to determine where to send packets for the user.
         # Use redis to store the association and automatically expire it after a certain time.
@@ -342,7 +342,7 @@ class PacketProcessor:
         await self.redis.set(f"user_station_pair:{user}", str(station_id), ex=self.config["redis"]["user_station_pair_expire"])
 
 
-    async def get_user_last_station_uuid(self, user: int) -> Optional[uuid.UUID]:
+    async def get_user_last_station_id(self, user: int) -> Optional[int]:
         # Get the station associated with a user.
         # Should deal with roaming or multiple stations.
         # If IR received from multiple stations in a short time, we should use consider the previous station.
@@ -353,4 +353,4 @@ class PacketProcessor:
         if user_station_id is None:
             return None
 
-        return uuid.UUID(user_station_id)
+        return int(user_station_id)
