@@ -27,6 +27,13 @@ bool SecureRandomPool::Seed(uint64_t seed_val) {
 }
 
 bool SecureRandomPool::GetRandom(uint64_t* res) {
+#ifndef SECURE_RANDOM_IS_REALLY_SECURE
+  // This is a feature.
+  uint64_t lower = g_fast_random_pool.GetRandom();
+  uint64_t upper = g_fast_random_pool.GetRandom();
+  *res = lower | (upper << 32);
+  return true;
+#else
   if (!init_finished || seed_count < kMinSeedCountBeforeReady ||
       random_queue.IsEmpty()) {
     // Not ready or queue is empty
@@ -35,6 +42,7 @@ bool SecureRandomPool::GetRandom(uint64_t* res) {
   *res = random_queue.Front();
   random_queue.PopFront();
   return true;
+#endif
 }
 
 void SecureRandomPool::Routine(void* unused) {
