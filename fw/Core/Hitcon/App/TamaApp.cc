@@ -207,8 +207,7 @@ void TamaApp::UpdateFrameBuffer() {
         selected_animation =
             &animation[static_cast<uint8_t>(TAMA_ANIMATION_TYPE::CAT)];
       } else {
-        hitcon::service::sched::my_assert(
-            false);  // Should not happen if state is CHOOSE_TYPE
+        my_assert(false);  // Should not happen if state is CHOOSE_TYPE
       }
 
       _fb.fb_size = selected_animation->frame_count;
@@ -264,7 +263,7 @@ void TamaApp::UpdateFrameBuffer() {
             &animation[static_cast<uint8_t>(TAMA_ANIMATION_TYPE::CAT)];
       } else {
         // Should not happen if state is ALIVE
-        hitcon::service::sched::my_assert(false);
+        my_assert(false);
       }
       _fb.fb_size = selected_animation->frame_count;
       _fb.active_frame = 0;  // Start from the first frame
@@ -277,7 +276,7 @@ void TamaApp::UpdateFrameBuffer() {
       break;
     default:
       // Should not happen in CHOOSE_TYPE state
-      hitcon::service::sched::my_assert(false);
+      my_assert(false);
       break;
   }
 }
@@ -309,7 +308,7 @@ void TamaApp::XbOnButton(button_t button) {
     case TAMA_XBOARD_STATE::XBOARD_BATTLE_ENCOUNTER:
       break;
     default:
-      my_assert("WTF");
+      my_assert(false);
       break;
   }
 }
@@ -319,7 +318,7 @@ void TamaApp::XbUpdateFrameBuffer() {
     case TAMA_XBOARD_STATE::XBOARD_INVITE:
       // TODO: Draw frame buffer for battel invite
     default:
-      my_assert("WTF");
+      my_assert(false);
       break;
   }
 }
@@ -341,7 +340,7 @@ void TamaApp::OnXBoardRecv(void* arg) {
       badge_controller.BackToMenu(this);
       return;  // Exit immediately
     default:
-      my_assert("WTF");
+      my_assert(false);
       break;
   }
 }
