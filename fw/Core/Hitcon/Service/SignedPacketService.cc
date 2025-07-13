@@ -74,6 +74,7 @@ static bool getPacketSigInfo(packet_type packetType, size_t &sigOffset,
  */
 bool SignedPacketService::SignAndSendData(packet_type packetType,
                                           const uint8_t *data, size_t size) {
+  // TODO: include ttl and packet type
   size_t packetId;
   for (packetId = 0; packetId < PACKET_QUEUE_SIZE; ++packetId) {
     if (packet_queue_[packetId].status == PacketStatus::kFree) break;
@@ -119,7 +120,7 @@ void SignedPacketService::RoutineFunc() {
            packet.sig, sizeof(packet.sig));
     bool ret = hitcon::ir::irController.SendPacketWithRetransmit(
         reinterpret_cast<uint8_t *>(&irdata),
-        packet.dataSize + ECC_SIGNATURE_SIZE, 3,
+        packet.dataSize + ECC_SIGNATURE_SIZE + ir::IR_DATA_HEADER_SIZE, 3,
         ::hitcon::ir::AckTag::ACK_TAG_NONE);
     packet.status = PacketStatus::kFree;
   }
