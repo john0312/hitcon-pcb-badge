@@ -35,7 +35,7 @@ class PacketProcessor:
             packet_data = await self.ir.get_next_packet()
             packet_id = uuid.uuid4()
             print(f"[RX] Received IR packet -> {packet_data}, ID: {packet_id}")
-            await self.backend.send_received_packet(packet_data, packet_id)
+            await self.backend.send_received_packet(packet_data[0], packet_id)
 
     async def __aenter__(self):
         # Start background tasks
