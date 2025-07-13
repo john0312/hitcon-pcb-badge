@@ -751,6 +751,15 @@ class IrInterface:
 
             await asyncio.sleep(0) # Yield control to allow other tasks to run
 
+    async def show_graphic(self, display_data: bytes):
+        """
+        Shows graphic on the base station's display.
+        display_data is 16 bytes, each byte is a vertical column in the display.
+        The LSB is the lowest LED.
+        The first byte is the left most column.
+        """
+        return await self.trigger_send_packet(display_data, packet_type=PT.PBR, wait_response=False, print_on_badge=True)
+
     async def __aenter__(self):
         try:
             self.serial = await asyncio.wait_for(asyncio.to_thread(serial.Serial,

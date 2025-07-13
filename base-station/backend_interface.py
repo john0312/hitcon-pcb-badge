@@ -1,4 +1,4 @@
-import uuid
+import uuid, json
 import aiohttp
 import asyncio
 from config import Config
@@ -63,4 +63,25 @@ class BackendInterface:
             print(f"[TX] Polling failed: {e}")
             raise
 
+    async def get_station_score(self) -> Optional[int]:
+        url = f"{self.backend_url}/station-score"
+        headers = {"Authorization": f"Bearer {self.station_key}"}
+        try:
+            assert self.session is not None, "Session not initialized for getting station score"
+            timeout = aiohttp.ClientTimeout(total=self.REQUEST_TIMEOUT)
+            async with self.session.get(url, headers=headers, timeout=timeout) as resp:
+                if resp.status == 200:
+                    result = await resp.json()
+                    assert type(result) == int, "Expected a number"
+                    #print(f"Got score {result}")
+                    return result
+                else:
+                    print(f"[TX] Error fetching station score: {url} {resp.status} - {resp.reason}")
+                    raise Exception(f"Failed to fetching station score: {resp.status} - {resp.reason}")
+        except Exception as e:
+            # Priint stack trace.
+            import traceback
+            traceback.print_exc()
+            print(f"[TX] Polling station score failed: {e}")
+            raise
 
