@@ -18,7 +18,7 @@ class CryptoAuth:
 
         if pub_x is None:
             return
-        
+
         pub = abs(pub_x)
         sign = pub_x < 0
 
@@ -54,12 +54,12 @@ class CryptoAuth:
             sig_user2 = EccSignature(**(sig.model_dump() | {"pub": pub2}))
 
             if ecc_verify(
-                msg=ir_packet.data[2:ECC_SIGNATURE_SIZE],
+                msg=ir_packet.data[2:-ECC_SIGNATURE_SIZE],
                 sig=sig_user1
             ):
                 return event.user1
             elif ecc_verify(
-                msg=ir_packet.data[2:ECC_SIGNATURE_SIZE],
+                msg=ir_packet.data[2:-ECC_SIGNATURE_SIZE],
                 sig=sig_user2
             ):
                 return event.user2
@@ -80,7 +80,7 @@ class CryptoAuth:
             sig = EccSignature(**(sig.model_dump() | {"pub": pub}))
             
             if not ecc_verify(
-                msg=ir_packet.data[2:ECC_SIGNATURE_SIZE],
+                msg=ir_packet.data[2:-ECC_SIGNATURE_SIZE],
                 sig=sig
             ):
                 raise UnsignedPacketError("Invalid signature for the public key")
@@ -94,7 +94,7 @@ class CryptoAuth:
             sig = EccSignature(**(sig.model_dump() | {"pub": pub}))
 
             if not ecc_verify(
-                msg=ir_packet.data[2:ECC_SIGNATURE_SIZE],
+                msg=ir_packet.data[2:-ECC_SIGNATURE_SIZE],
                 sig=sig
             ):
                 raise UnsignedPacketError("Invalid signature for the packet")
@@ -110,7 +110,7 @@ class CryptoAuth:
         """
         if len(raw_sig) != 14:
             raise ValueError("Raw signature must be 14 bytes long")
-        
+
         r = int.from_bytes(raw_sig[:7], 'little', signed=False)
         s = int.from_bytes(raw_sig[7:14], 'little', signed=False)
         
