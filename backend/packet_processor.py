@@ -96,13 +96,15 @@ class PacketProcessor:
                 {"$push": {"rx": result.inserted_id}}
             )
 
+            # Associate the user with the station.
+            if user is not None:
+                await self.set_user_last_station_id(user, station.station_id)
+
             # handle the event
             await PacketProcessor.packet_handlers[event.__class__](event, self)
 
             # retransmit packets in the user queue (move these packets to station tx)
             if user is not None:
-                # Associate the user with the station.
-                await self.set_user_last_station_id(user, station.station_id)
                 # Dequeue packets for the user and add them to the station tx list.
                 packet_ids = await self.deque_user_packets(user, station)
                 if packet_ids:
