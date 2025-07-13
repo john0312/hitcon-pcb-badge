@@ -23,11 +23,14 @@ class ShowTeamScoreApp : public App {
  private:
   bool have_display_data = false;
   bool need_updated = false;
+  // time in seconds
+  unsigned last_update_time = 0;
   std::array<uint8_t, 16> display_data;
   hitcon::service::sched::PeriodicTask routine_task;
   void CheckUpdate();
   void UpdateDisplay();
   void SetDisplayHandler(hitcon::logic::cdc::PacketCallbackArg* arg);
+  bool DataOutdated();
 };
 
 extern ShowTeamScoreApp show_team_score_app;

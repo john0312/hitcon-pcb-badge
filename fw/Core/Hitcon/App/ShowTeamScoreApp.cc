@@ -3,6 +3,8 @@
 #include <Logic/BadgeController.h>
 #include <Logic/Display/display.h>
 #include <Service/Sched/Scheduler.h>
+#include <Service/Sched/SysTimer.h>
+
 namespace hitcon {
 namespace app {
 namespace team_score {
@@ -32,6 +34,13 @@ void ShowTeamScoreApp::OnButton(button_t button) {}
 
 // private
 void ShowTeamScoreApp::CheckUpdate() {
+  // check outdate
+  if (have_display_data && DataOutdated()) {
+    have_display_data = false;
+    need_updated = true;
+  }
+
+  // update
   if (need_updated) {
     UpdateDisplay();
   }
@@ -39,7 +48,7 @@ void ShowTeamScoreApp::CheckUpdate() {
 
 void ShowTeamScoreApp::UpdateDisplay() {
   if (!have_display_data) {
-    display_set_mode_scroll_text("INIT");
+    display_set_mode_scroll_text("Base Stn 2025");
   } else {
     display_set_mode_fixed_packed(display_data.data());
   }
@@ -52,11 +61,17 @@ void ShowTeamScoreApp::SetDisplayHandler(PacketCallbackArg* arg) {
   }
   have_display_data = true;
   need_updated = true;
+  last_update_time = SysTimer::GetTime() / 1000;
   std::copy(arg->data, arg->data + arg->len, display_data.begin());
   if (badge_controller.GetCurrentApp() == this) {
     // Only update display if this app is currently active
     UpdateDisplay();
   }
+}
+
+bool ShowTeamScoreApp::DataOutdated() {
+  unsigned current_time = SysTimer::GetTime() / 1000;
+  return (current_time - last_update_time) >= 30;  // 30 seconds timeout
 }
 
 ShowTeamScoreApp show_team_score_app;
