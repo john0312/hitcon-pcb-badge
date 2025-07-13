@@ -56,7 +56,7 @@ class IrPacket(BaseModel):
     packet_id: Optional[uuid.UUID] = Field(default_factory=uuid.uuid4)
     # The packet_id to avoid duplication at base station.
     data: bytes
-    station_id: Optional[uuid.UUID] = Field(0)
+    station_id: Optional[int] = Field(0)
     to_stn: bool
     # to_stn is True for backend -> base station packet, False otherwise.
 
@@ -99,7 +99,7 @@ class IrPacketObject(BaseModel):
 class Event(BaseModel):
     event_id: Optional[uuid.UUID] = Field(default_factory=uuid.uuid4)
     packet_id: Optional[uuid.UUID] = Field(None)
-    station_id: Optional[uuid.UUID] = Field(None)
+    station_id: Optional[int] = Field(0)
     timestamp: Optional[datetime.datetime] = Field(default_factory=utcnow)
 
 
@@ -156,7 +156,7 @@ class SponsorActivityEvent(Event):
 # For Mongo collections `stations`
 class Station(BaseModel):
     id: Optional[PyObjectId] = Field(alias="_id", default=None)
-    station_id: uuid.UUID
+    station_id: int
     station_key: str
     display: Optional[Display]
     tx: List[PyObjectId]
@@ -174,7 +174,7 @@ class User(BaseModel):
     user: int
     pubkey: int
     # Tracking the last station the user was seen
-    station_id: Optional[uuid.UUID] = Field(None)
+    station_id: Optional[int] = Field(0)
 
 
 # Elliptic Curve Crytography related.
