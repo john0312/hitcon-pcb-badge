@@ -143,7 +143,7 @@ class _GameLogic:
                     if tmp is not None:
                         cached_score = int(tmp)
 
-            else:
+            if cached_score is None:
                 # we are not getting the latest cached score (maybe calculating history score)
                 # so we need to iterate through the cached scores to find the latest one before the given time
                 # this is not efficient, but it is a fallback
