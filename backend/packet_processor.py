@@ -18,7 +18,7 @@ if typing.TYPE_CHECKING:
 from game_logic_controller import GameLogicController
 
 class PacketProcessor:
-    packet_handlers: ClassVar[Dict[type[Event], Callable[[Event], Awaitable[None]]]] = dict()
+    packet_handlers: ClassVar[Dict[type[Event], Callable[[Event, 'PacketProcessor'], Awaitable[None]]]] = dict()
 
     def __init__(self, config: Config):
         self.config = config
@@ -97,7 +97,7 @@ class PacketProcessor:
             )
 
             # handle the event
-            await PacketProcessor.packet_handlers[event.__class__](event)
+            await PacketProcessor.packet_handlers[event.__class__](event, self)
 
             # retransmit packets in the user queue (move these packets to station tx)
             if user is not None:

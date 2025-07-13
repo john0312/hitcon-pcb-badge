@@ -1,14 +1,19 @@
-from schemas import ProximityEvent, PubAnnounceEvent, TwoBadgeActivityEvent, GameActivityEvent, SingleBadgeActivityEvent, SponsorActivityEvent
+from schemas import PacketType, ProximityEvent, PubAnnounceEvent, TwoBadgeActivityEvent, GameActivityEvent, SingleBadgeActivityEvent, SponsorActivityEvent, IrPacket
 from database import mongo, db, redis_client
 from game_logic import _GameLogic as GameLogic, GameType
-import uuid
+from ecc_utils import ECC_SIGNATURE_SIZE
+
+# Simply for type notation
+import typing
+if typing.TYPE_CHECKING:
+    from packet_processor import PacketProcessor
 
 game = GameLogic(mongo, redis_client)
 
 class GameLogicController:
     # ===== APIs for PacketProcessor =====
     @staticmethod
-    async def on_single_badge_activity_event(evt: SingleBadgeActivityEvent):
+    async def on_single_badge_activity_event(evt: SingleBadgeActivityEvent, packet_processor: 'PacketProcessor'):
         # GameType
         # 0x01 - Snake
         # 0x02 - Tetris
@@ -42,7 +47,7 @@ class GameLogicController:
 
 
     @staticmethod
-    async def on_two_badge_activity_event(evt: TwoBadgeActivityEvent):
+    async def on_two_badge_activity_event(evt: TwoBadgeActivityEvent, packet_processor: 'PacketProcessor'):
         # game_data structure (MSB):
         # Bit [0:4] - Game Type
         #          0x00 - None/Reserved
@@ -111,7 +116,7 @@ class GameLogicController:
 
 
     @staticmethod
-    async def on_game_activity_event(evt: GameActivityEvent):
+    async def on_game_activity_event(evt: GameActivityEvent, packet_processor: 'PacketProcessor'):
         await game.receive_game_score_two_player(
             two_player_event_id=evt.event_id,
             player1_id=evt.user1,
@@ -124,13 +129,13 @@ class GameLogicController:
 
 
     @staticmethod
-    async def on_sponsor_activity_event(evt: SponsorActivityEvent):
+    async def on_sponsor_activity_event(evt: SponsorActivityEvent, packet_processor: 'PacketProcessor'):
         # TODO: pre-generate sponsor random hash
         pass
 
 
     @staticmethod
-    async def on_proximity_event(evt: ProximityEvent):
+    async def on_proximity_event(evt: ProximityEvent, packet_processor: 'PacketProcessor'):
         await game.attack_station(
             player_id=evt.user,
             station_id=evt.station_id,
@@ -138,9 +143,24 @@ class GameLogicController:
             timestamp=evt.timestamp
         )
 
+        user_score = await game.get_game_score(player_id=evt.user)
+        # announce the score to the user
+        pkt = IrPacket(
+            data=bytes([
+                0,                                  # TTL
+                PacketType.SCORE_ANNOUNCE.value,
+                evt.user.to_bytes(4, 'little'),     # User
+                user_score.to_bytes(4, 'little'),   # Score
+                b"\x87" * ECC_SIGNATURE_SIZE,       # TODO: Dummy signature 
+            ]),
+            station_id=evt.station_id,
+            to_stn=True
+        )
+        await packet_processor.send_packet_to_user(pkt, evt.user)
+
 
     @staticmethod
-    async def on_pub_announce_event(evt: PubAnnounceEvent):
+    async def on_pub_announce_event(evt: PubAnnounceEvent, packet_processor: 'PacketProcessor'):
         print(f"Pub announce event: {hex(evt.pubkey)}")
         print(f"Signature: {hex(evt.signature)}")
         # station <--> user has been recorded by the PacketProcessor
