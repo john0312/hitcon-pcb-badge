@@ -107,12 +107,12 @@ class ProximityEvent(Event):
     user: int
     power: int
     nonce: int
-    signature: int
+    signature: bytes
 
 
 class PubAnnounceEvent(Event):
     pubkey: bytes
-    signature: int
+    signature: bytes
 
 
 # Converted from user packet
@@ -120,7 +120,7 @@ class TwoBadgeActivityEvent(Event):
     user1: int
     user2: int
     game_data: bytes
-    signature: int
+    signature: bytes
 
 
 # Collected ActivityEvent from two users
@@ -132,13 +132,13 @@ class GameActivityEvent(Event):
     score1: int
     score2: int
     nonce: int
-    signatures: List[int]
+    signatures: List[bytes]
 
 
 class ScoreAnnounceEvent(Event):
     user: int
     score: int
-    signature: int
+    signature: bytes
 
 
 class SingleBadgeActivityEvent(Event):
