@@ -61,6 +61,7 @@ enum class TAMA_XBOARD_STATE {
   XBOARD_INVITE,
   XBOARD_BATTLE_ENCOUNTER,
   XBOARD_BATTLE_QTE,
+  XBOARD_BATTLE_SENT_SCORE,
 };
 
 enum class TAMA_XBOARD_BATTLE_INVITE {
@@ -84,6 +85,9 @@ class TamaApp : public App {
 
   // XBoard related
   TAMA_XBOARD_STATE _enemy_state;
+  uint8_t _qte_count;
+  uint8_t _qte_score;
+  uint8_t _enemy_score;
   void XbOnButton(button_t button);
   void XbUpdateFrameBuffer();
   void XbRoutine(void* unused);
