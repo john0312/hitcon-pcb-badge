@@ -76,6 +76,7 @@ class TamaApp : public App {
   hitcon::service::sched::PeriodicTask _routine_task;
   tama_storage_t& _tama_data;
   tama_display_fb_t _fb;
+  int _frame_count = 0;
 
   void Render();
   void Routine(void* unused);
@@ -85,6 +86,7 @@ class TamaApp : public App {
   TAMA_XBOARD_STATE _enemy_state;
   void XbOnButton(button_t button);
   void XbUpdateFrameBuffer();
+  void XbRoutine(void* unused);
 
  public:
   TAMA_PLAYER_MODE player_mode;

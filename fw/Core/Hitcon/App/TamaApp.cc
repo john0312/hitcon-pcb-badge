@@ -49,6 +49,8 @@ void TamaApp::OnEntry() {
   if (player_mode == TAMA_PLAYER_MODE::MODE_MULTIPLAYER) {
     g_xboard_logic.SetOnPacketArrive((callback_t)&TamaApp::OnXBoardRecv, this,
                                      TAMA_RECV_ID);
+    _enemy_state = TAMA_XBOARD_STATE::XBOARD_INVITE;
+    _enemy_score = 0;
     return;
   }
   if (_tama_data.state == TAMA_APP_STATE::CHOOSE_TYPE) {
@@ -69,10 +71,7 @@ void TamaApp::OnExit() {
 void TamaApp::Render() {
   if (
       // INTRO_TEXT handles render in display_set_mode_scroll_text
-      _tama_data.state == TAMA_APP_STATE::INTRO_TEXT ||
-      // XBoard Waiting user input
-      (xboard_state == TAMA_XBOARD_STATE::XBOARD_BATTLE_ENCOUNTER &&
-       !(_enemy_state == TAMA_XBOARD_STATE::XBOARD_BATTLE_ENCOUNTER))) {
+      _tama_data.state == TAMA_APP_STATE::INTRO_TEXT) {
     return;
   }
 
@@ -85,6 +84,7 @@ void TamaApp::Render() {
   display_buf_t* current_screen_buffer = _fb.fb[_fb.active_frame];
   display_set_mode_fixed_packed(current_screen_buffer);
   _fb.active_frame = (_fb.active_frame + 1) % _fb.fb_size;
+  _frame_count++;
 }
 
 void TamaApp::OnButton(button_t button) {
@@ -282,6 +282,7 @@ void TamaApp::UpdateFrameBuffer() {
       // Should not happen in CHOOSE_TYPE state
       my_assert(false);
       break;
+      _frame_count = 0;
   }
 }
 
@@ -296,20 +297,35 @@ void TamaApp::XbOnButton(button_t button) {
                                         sizeof(invite), TAMA_RECV_ID);
           xboard_state = TAMA_XBOARD_STATE::XBOARD_BATTLE_ENCOUNTER;
           display_set_mode_scroll_text("Waiting for enemy...");
-          XbUpdateFrameBuffer();
+          UpdateFrameBuffer();
           break;
         }
         case BUTTON_LEFT:
           xboard_battle_invite = TAMA_XBOARD_BATTLE_INVITE::XBOARD_BATTLE_N;
-          XbUpdateFrameBuffer();
+          UpdateFrameBuffer();
           break;
         case BUTTON_RIGHT:
           xboard_battle_invite = TAMA_XBOARD_BATTLE_INVITE::XBOARD_BATTLE_Y;
-          XbUpdateFrameBuffer();
+          UpdateFrameBuffer();
           break;
       }
       break;
     case TAMA_XBOARD_STATE::XBOARD_BATTLE_ENCOUNTER:
+      break;
+    case TAMA_XBOARD_STATE::XBOARD_BATTLE_QTE:
+      if (button & BUTTON_VALUE_MASK == BUTTON_OK) {
+        // TODO: get score
+        _qte_count++;
+        if (_qte_count == 5) {
+          xboard_state = TAMA_XBOARD_STATE::XBOARD_BATTLE_SENT_SCORE;
+          uint8_t code[2] = {
+              static_cast<uint8_t>(TAMA_XBOARD_PACKET_TYPE::PACKET_SCORE),
+              _qte_score};
+          g_xboard_logic.QueueDataForTx(reinterpret_cast<uint8_t*>(&code),
+                                        sizeof(_qte_score), TAMA_RECV_ID);
+          display_set_mode_scroll_text("Waiting for enemy...");
+        }
+      }
       break;
     default:
       my_assert(false);
@@ -325,6 +341,13 @@ void TamaApp::XbUpdateFrameBuffer() {
     case TAMA_XBOARD_STATE::XBOARD_BATTLE_ENCOUNTER:
       // TODO: Draw frame buffer for battle encounter
       break;
+    case TAMA_XBOARD_STATE::XBOARD_BATTLE_QTE:
+      // TODO: Draw frame buffer for QTE
+      break;
+    case TAMA_XBOARD_STATE::XBOARD_BATTLE_SENT_SCORE:
+      // TODO: Draw frame buffer for sent score
+      my_assert(_enemy_score);
+      break;
     default:
       my_assert(false);
       break;
@@ -339,7 +362,7 @@ void TamaApp::OnXBoardRecv(void* arg) {
       _enemy_state = TAMA_XBOARD_STATE::XBOARD_BATTLE_ENCOUNTER;
       break;
     case TAMA_XBOARD_PACKET_TYPE::PACKET_SCORE:
-      // TODO: Update score
+      _enemy_score = packet->data[1];
       break;
     case TAMA_XBOARD_PACKET_TYPE::PACKET_END:
       // TODO: End game
@@ -351,6 +374,33 @@ void TamaApp::OnXBoardRecv(void* arg) {
       my_assert(false);
       break;
   }
+}
+
+void TamaApp::XbRoutine(void* unused) {
+  // TODO: Handle all XBoard routine here
+  if (xboard_state == TAMA_XBOARD_STATE::XBOARD_BATTLE_ENCOUNTER &&
+      !(_enemy_state == TAMA_XBOARD_STATE::XBOARD_BATTLE_ENCOUNTER)) {
+    return;
+  }
+  if (xboard_state == TAMA_XBOARD_STATE::XBOARD_BATTLE_ENCOUNTER &&
+      _frame_count >= 8) {
+    xboard_state = TAMA_XBOARD_STATE::XBOARD_BATTLE_QTE;
+    _qte_count = 0;
+    _qte_score = 0;
+    UpdateFrameBuffer();
+  }
+  if (xboard_state == TAMA_XBOARD_STATE::XBOARD_BATTLE_QTE) {
+    // TODO: implement QTE game logic here
+  }
+  if (xboard_state == TAMA_XBOARD_STATE::XBOARD_BATTLE_SENT_SCORE) {
+    if (_enemy_state != TAMA_XBOARD_STATE::XBOARD_BATTLE_SENT_SCORE) {
+      return;
+    }
+    // We need to know enemy score to update our frames
+    UpdateFrameBuffer();
+  }
+
+  Render();
 }
 
 }  // namespace tama
