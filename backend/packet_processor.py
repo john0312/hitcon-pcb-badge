@@ -121,6 +121,8 @@ class PacketProcessor:
             await self.packets.delete_one({"_id": result.inserted_id})
         except UnsignedPacketError as e:
             print(f"Invalid packet received: {e}")
+        except AssertionError as e:
+            print(f"Assertion error: {e}")
         finally:
             # Always send an acknowledgment packet.
             await self.ack(ir_packet_schema, station)
