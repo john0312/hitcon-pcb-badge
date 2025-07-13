@@ -148,7 +148,7 @@ class GameLogicController:
         pkt = IrPacket(
             data=bytes([
                 0,                                  # TTL
-                PacketType.SCORE_ANNOUNCE.value,
+                PacketType.kScoreAnnounce.value,
                 evt.user.to_bytes(4, 'little'),     # User
                 user_score.to_bytes(4, 'little'),   # Score
                 b"\x87" * ECC_SIGNATURE_SIZE,       # TODO: Dummy signature 
