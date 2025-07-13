@@ -163,6 +163,10 @@ void TamaApp::OnButton(button_t button) {
 void TamaApp::OnEdgeButton(button_t button) {}
 
 void TamaApp::Routine(void* unused) {
+  if (player_mode == TAMA_PLAYER_MODE::MODE_MULTIPLAYER) {
+    XbRoutine(unused);
+    return;
+  }
   bool needs_render = true;
   bool needs_save = false;
 
@@ -292,16 +296,16 @@ void TamaApp::XbOnButton(button_t button) {
                                         sizeof(invite), TAMA_RECV_ID);
           xboard_state = TAMA_XBOARD_STATE::XBOARD_BATTLE_ENCOUNTER;
           display_set_mode_scroll_text("Waiting for enemy...");
-          UpdateFrameBuffer();
+          XbUpdateFrameBuffer();
           break;
         }
         case BUTTON_LEFT:
           xboard_battle_invite = TAMA_XBOARD_BATTLE_INVITE::XBOARD_BATTLE_N;
-          UpdateFrameBuffer();
+          XbUpdateFrameBuffer();
           break;
         case BUTTON_RIGHT:
           xboard_battle_invite = TAMA_XBOARD_BATTLE_INVITE::XBOARD_BATTLE_Y;
-          UpdateFrameBuffer();
+          XbUpdateFrameBuffer();
           break;
       }
       break;
@@ -317,6 +321,10 @@ void TamaApp::XbUpdateFrameBuffer() {
   switch (xboard_state) {
     case TAMA_XBOARD_STATE::XBOARD_INVITE:
       // TODO: Draw frame buffer for battel invite
+      break;
+    case TAMA_XBOARD_STATE::XBOARD_BATTLE_ENCOUNTER:
+      // TODO: Draw frame buffer for battle encounter
+      break;
     default:
       my_assert(false);
       break;
