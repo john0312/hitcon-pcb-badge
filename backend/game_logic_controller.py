@@ -1,4 +1,4 @@
-from schemas import PacketType, ProximityEvent, PubAnnounceEvent, TwoBadgeActivityEvent, GameActivityEvent, SingleBadgeActivityEvent, SponsorActivityEvent, IrPacket
+from schemas import PacketType, ProximityEvent, PubAnnounceEvent, TwoBadgeActivityEvent, GameActivityEvent, ScoreAnnounceEvent, SingleBadgeActivityEvent, SponsorActivityEvent, IrPacket
 from database import mongo, db, redis_client
 from game_logic import _GameLogic as GameLogic, GameType
 from ecc_utils import ECC_SIGNATURE_SIZE
@@ -166,6 +166,10 @@ class GameLogicController:
         # station <--> user has been recorded by the PacketProcessor
         result = await db["users"].find_one({"pubkey": evt.pubkey})  # Ensure user exists
 
+
+    @staticmethod
+    async def on_score_announce_event(evt: ScoreAnnounceEvent, packet_processor: 'PacketProcessor'):
+        pass
 
     @staticmethod
     async def get_user_score():

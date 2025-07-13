@@ -1,5 +1,5 @@
 from typing import Optional
-from schemas import IrPacket, Event, TwoBadgeActivityEvent, SponsorActivityEvent, PubAnnounceEvent
+from schemas import IrPacket, Event, TwoBadgeActivityEvent, ScoreAnnounceEvent, SponsorActivityEvent, PubAnnounceEvent
 from schemas import EccPoint, EccPublicKey, EccPrivateKey, EccSignature
 from database import db
 from ecc_utils import ECC_SIGNATURE_SIZE, ecc_sign, ecc_verify, ecc_get_point_by_x
@@ -66,8 +66,8 @@ class CryptoAuth:
                 return event.user2
             else:
                 raise UnsignedPacketError("Invalid signature for the packet")
-        elif event.__class__ == SponsorActivityEvent:
-            # SponsorActivityEvent does not require signature verification
+        elif event.__class__ == SponsorActivityEvent or event.__class__ == ScoreAnnounceEvent:
+            # SponsorActivityEvent, ScoreAnnounceEvent does not require signature verification
             pass
         elif event.__class__ == PubAnnounceEvent:
             x = int.from_bytes(event.pubkey[:ECC_SIGNATURE_SIZE - 1], 'little', signed=False)
