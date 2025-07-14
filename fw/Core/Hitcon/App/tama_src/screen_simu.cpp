@@ -517,6 +517,88 @@ void training_demo(int pet_type, int repeat_count) {
   }
 }
 
+void detail_information_demo(int repeat_count) {
+  const uint8_t frame_count = 12;
+
+  const uint8_t* frame_all[frame_count] = {
+      get_LV_status_frame(999), get_LV_status_frame(32), get_LV_status_frame(1),
+      get_FD_status_frame(4),   get_FD_status_frame(3),  get_FD_status_frame(2),
+      get_FD_status_frame(1),   get_FD_status_frame(0),  get_HP_status_frame(3),
+      get_HP_status_frame(2),   get_HP_status_frame(1),  get_HP_status_frame(0),
+  };
+
+  for (int i = 0; i < repeat_count; ++i) {
+    show_anime_with_delay(frame_all, frame_count, SLEEP_US);
+  }
+
+  // loop to release all allocated memory
+  for (int i = 0; i < frame_count; ++i) {
+    delete[] frame_all[i];
+  }
+}
+
+void feed_confirm_demo(int repeat_count) {
+  const uint8_t frame_count = 2;
+
+  const uint8_t* frame_left = get_feed_confirm_frame(LEFT);
+  const uint8_t* frame_right = get_feed_confirm_frame(RIGHT);
+
+  const uint8_t* frame_all[frame_count] = {frame_left, frame_right};
+
+  for (int i = 0; i < repeat_count; ++i) {
+    show_anime_with_delay(frame_all, frame_count, SLEEP_US);
+  }
+
+  // loop to release all allocated memory
+  for (int i = 0; i < SELECT_YN_FRAME_COUNT; ++i) {
+    delete[] frame_all[i];
+  }
+}
+
+void feed_pet_demo(int pet_type, int repeat_count) {
+  const uint8_t frame_count = 10;
+
+  const uint8_t* frame_all[frame_count] = {
+      get_feed_pet_frame(cookie_100),
+      get_feed_pet_frame(cookie_50),
+      get_feed_pet_frame(cookie_30),
+      get_feed_pet_frame(cookie_0),
+      get_pet_happy_frame_after_feed(pet_type, FRAME_1),
+      get_pet_happy_frame_after_feed(pet_type, FRAME_2),
+      get_pet_happy_frame_after_feed(pet_type, FRAME_1),
+      get_pet_happy_frame_after_feed(pet_type, FRAME_2),
+      get_pet_happy_frame_after_feed(pet_type, FRAME_1),
+      get_pet_happy_frame_after_feed(pet_type, FRAME_2),
+  };
+
+  for (int i = 0; i < repeat_count; ++i) {
+    show_anime_with_delay(frame_all, frame_count, SLEEP_US);
+  }
+
+  // loop to release all allocated memory
+  for (int i = 0; i < frame_count; ++i) {
+    delete[] frame_all[i];
+  }
+}
+
+void scoring_then_end_demo(int repeat_count) {
+  const uint8_t frame_count = 6;
+
+  const uint8_t* frame_all[frame_count] = {
+      get_scoring_frame(5, 0), get_scoring_frame(0, 5), get_end_frame(),
+      get_empty_frame(),       get_end_frame(),         get_empty_frame(),
+  };
+
+  for (int i = 0; i < repeat_count; ++i) {
+    show_anime_with_delay(frame_all, frame_count, SLEEP_US);
+  }
+
+  // loop to release all allocated memory
+  for (int i = 0; i < frame_count; ++i) {
+    delete[] frame_all[i];
+  }
+}
+
 void test_frames() {
   int repeat_count = 3;
   int repeat_once = 1;
@@ -595,8 +677,6 @@ void test_frames() {
   std::cout << "Cat battle result lose Demo:\n";
   battle_result_demo(PET_TYPE_CAT, LOSE, repeat_count);
 
-#endif  // TEST_ALL_FRAMES
-
   // dog-dog battle demo
   std::cout << "Dog-Dog battle Demo:\n";
   battle_demo(PET_TYPE_DOG, PET_TYPE_DOG, PLAYER, repeat_count);
@@ -620,6 +700,25 @@ void test_frames() {
   // cat training demo
   std::cout << "Cat training Demo:\n";
   training_demo(PET_TYPE_CAT, repeat_count);
+
+  // detail information demo
+  std::cout << "Pet detail information Demo:\n";
+  detail_information_demo(repeat_once);
+
+  // feed confirm demo
+  std::cout << "Feed confirm Demo:\n";
+  feed_confirm_demo(repeat_count);
+
+  // feed pet demo
+  std::cout << "Feed pet Demo:\n";
+  feed_pet_demo(PET_TYPE_DOG, repeat_once);
+  feed_pet_demo(PET_TYPE_CAT, repeat_once);
+
+#endif  // TEST_ALL_FRAMES
+
+  // scoring and end demo
+  std::cout << "Scoring then end Demo:\n";
+  scoring_then_end_demo(repeat_count);
 }
 
 void test_compress_decompress() {

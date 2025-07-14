@@ -538,6 +538,131 @@ uint8_t* get_food_overview_component(int food_count) {
   return base;
 }
 
+uint8_t* get_fd_icons_component(int food_count) {
+  constexpr base_info my_base_info = {
+      .width = 8,
+      .height = 8,
+  };
+
+  uint8_t* base;
+
+  // the first food icon
+  constexpr component_info food_component_info_LT = {
+      .x_len = 3,
+      .y_len = 3,
+      .x_offset = 1,
+      .y_offset = 1,
+  };
+
+  base =
+      stack_target_offset(decompress_component(&m_food_icon_detail_compressed),
+                          NULL, food_component_info_LT, my_base_info, false);
+  food_count -= 1;
+  if (food_count < 1) {
+    // no more food, return the base with icon and one full square
+    return base;
+  }
+
+  // the second food icon
+  constexpr component_info food_component_info_RT = {
+      .x_len = 3,
+      .y_len = 3,
+      .x_offset = 5,
+      .y_offset = 1,
+  };
+  base =
+      stack_target_offset(decompress_component(&m_food_icon_detail_compressed),
+                          base, food_component_info_RT, my_base_info, false);
+  food_count -= 1;
+  if (food_count < 1) {
+    // no more food, return the base with icon and one full square
+    return base;
+  }
+
+  // the third food icon
+  constexpr component_info food_component_info_LB = {
+      .x_len = 3,
+      .y_len = 3,
+      .x_offset = 0,
+      .y_offset = 5,
+  };
+  base =
+      stack_target_offset(decompress_component(&m_food_icon_detail_compressed),
+                          base, food_component_info_LB, my_base_info, false);
+  food_count -= 1;
+  if (food_count < 1) {
+    // no more food, return the base with icon and one full square
+    return base;
+  }
+
+  // the fourth food icon
+  constexpr component_info food_component_info_RB = {
+      .x_len = 3,
+      .y_len = 3,
+      .x_offset = 4,
+      .y_offset = 5,
+  };
+  base =
+      stack_target_offset(decompress_component(&m_food_icon_detail_compressed),
+                          base, food_component_info_RB, my_base_info, false);
+  return base;
+}
+
+uint8_t* get_hp_icons_component(int hp_count) {
+  constexpr base_info my_base_info = {
+      .width = 8,
+      .height = 8,
+  };
+
+  uint8_t* base;
+
+  // the first food icon
+  constexpr component_info hp_component_info_top = {
+      .x_len = 3,
+      .y_len = 3,
+      .x_offset = 3,
+      .y_offset = 1,
+  };
+
+  base =
+      stack_target_offset(decompress_component(&m_heart_icon_detail_compressed),
+                          NULL, hp_component_info_top, my_base_info, false);
+  hp_count -= 1;
+  if (hp_count < 1) {
+    // no more food, return the base with icon and one full square
+    return base;
+  }
+
+  // the second food icon
+  constexpr component_info hp_component_info_bottom_left = {
+      .x_len = 3,
+      .y_len = 3,
+      .x_offset = 0,
+      .y_offset = 5,
+  };
+  base = stack_target_offset(
+      decompress_component(&m_heart_icon_detail_compressed), base,
+      hp_component_info_bottom_left, my_base_info, false);
+  hp_count -= 1;
+  if (hp_count < 1) {
+    // no more food, return the base with icon and one full square
+    return base;
+  }
+
+  // the third food icon
+  constexpr component_info hp_component_info_bottom_right = {
+      .x_len = 3,
+      .y_len = 3,
+      .x_offset = 5,
+      .y_offset = 5,
+  };
+  base = stack_target_offset(
+      decompress_component(&m_heart_icon_detail_compressed), base,
+      hp_component_info_bottom_right, my_base_info, false);
+
+  return base;
+}
+
 /** --- component part end---*/
 
 /** --- frame part start ---*/
@@ -1148,4 +1273,379 @@ const uint8_t* get_battle_frame(int player_pet, int enemy_pet,
   return base;
 }
 
+const uint8_t* get_LV_status_frame(int level_number) {
+  // check boundary of input
+  if (level_number > 999) {
+    level_number = 999;
+  } else if (level_number < 0) {
+    level_number = 0;
+  }
+
+  constexpr base_info my_base_info = {
+      .width = DISPLAY_WIDTH,
+      .height = DISPLAY_HEIGHT,
+  };
+
+  constexpr component_info LV_component_info = {
+      .x_len = 7,
+      .y_len = 8,
+      .x_offset = 0,
+      .y_offset = 0,
+  };
+
+  constexpr component_info num_component_info = {
+      .x_len = NUM_AREA_WIDTH,
+      .y_len = NUM_AREA_HEIGHT,
+      .x_offset = 8,
+      .y_offset = 0,
+  };
+
+  uint8_t* base;
+  /* combine hatch component with num component */
+  // stack LV word icon
+  base = stack_component(decompress_component(&m_lv_word_icon_compressed), NULL,
+                         LV_component_info, my_base_info);
+
+  // stack number icon
+  if (level_number == 0) {
+    // if level number is 0, return the base with LV word icon only
+    return base;
+  }
+  base = stack_component(get_number_component(level_number), base,
+                         num_component_info, my_base_info);
+
+  return base;
+}
+
+const uint8_t* get_FD_status_frame(int food_count) {
+  // check boundary of input
+  if (food_count > 4) {
+    food_count = 4;
+  } else if (food_count < 0) {
+    food_count = 0;
+  }
+
+  constexpr base_info my_base_info = {
+      .width = DISPLAY_WIDTH,
+      .height = DISPLAY_HEIGHT,
+  };
+
+  constexpr component_info FD_word_component_info = {
+      .x_len = 7,
+      .y_len = 8,
+      .x_offset = 0,
+      .y_offset = 0,
+  };
+
+  constexpr component_info FD_icons_component_info = {
+      .x_len = 8,
+      .y_len = 8,
+      .x_offset = 8,
+      .y_offset = 0,
+  };
+
+  uint8_t* base;
+  /* combine hatch component with num component */
+  // stack LV word icon
+  base = stack_component(decompress_component(&m_fd_word_icon_compressed), NULL,
+                         FD_word_component_info, my_base_info);
+
+  if (food_count == 0) {
+    // if food count is 0, return the base with FD word icon only
+    return base;
+  }
+  // stack number icon
+  base = stack_component(get_fd_icons_component(food_count), base,
+                         FD_icons_component_info, my_base_info);
+
+  return base;
+}
+
+const uint8_t* get_HP_status_frame(int hp_count) {
+  // check boundary of input
+  if (hp_count > 3) {
+    hp_count = 3;
+  } else if (hp_count < 0) {
+    hp_count = 0;
+  }
+
+  constexpr base_info my_base_info = {
+      .width = DISPLAY_WIDTH,
+      .height = DISPLAY_HEIGHT,
+  };
+
+  constexpr component_info HP_word_component_info = {
+      .x_len = 7,
+      .y_len = 8,
+      .x_offset = 0,
+      .y_offset = 0,
+  };
+
+  constexpr component_info HP_icons_component_info = {
+      .x_len = 8,
+      .y_len = 8,
+      .x_offset = 8,
+      .y_offset = 0,
+  };
+
+  uint8_t* base;
+  /* combine hatch component with num component */
+  // stack LV word icon
+  base = stack_component(decompress_component(&m_hp_word_icon_compressed), NULL,
+                         HP_word_component_info, my_base_info);
+  if (hp_count == 0) {
+    // if hp count is 0, return the base with HP word icon only
+    return base;
+  }
+  // stack number icon
+  base = stack_component(get_hp_icons_component(hp_count), base,
+                         HP_icons_component_info, my_base_info);
+
+  return base;
+}
+
+const uint8_t* get_feed_confirm_frame(int selection) {
+  // check boundary of input
+  if (selection < 0 || selection > 1) {
+    selection = 0;
+  }
+
+  component_info select_left_component_info = {
+      .x_len = 4,
+      .y_len = 8,
+      .x_offset = 0,
+      .y_offset = 0,
+  };
+  component_info select_right_component_info = {
+      .x_len = 3,
+      .y_len = 8,
+      .x_offset = 13,
+      .y_offset = 0,
+  };
+
+  component_info food_component_info = {
+      .x_len = 7,
+      .y_len = 8,
+      .x_offset = 5,
+      .y_offset = 0,
+  };
+
+  component_info YN_componenet_info = {
+      .x_len = 16,
+      .y_len = 8,
+      .x_offset = 0,
+      .y_offset = 0,
+  };
+
+  base_info screen_info = {
+      .width = 16,
+      .height = 8,
+  };
+
+  uint8_t* base;
+  base = stack_component(decompress_component(&m_YN_icon_compressed),
+                         NEW_SCREEN, YN_componenet_info, screen_info);
+
+  // food component
+  base = stack_component(decompress_component(&m_cookie_100_icon_compressed),
+                         base, food_component_info, screen_info);
+
+  // left or right selection
+  if (selection == LEFT) {
+    base = stack_component(
+        decompress_component(&m_YN_select_cursor_left_compressed), base,
+        select_left_component_info, screen_info);
+  } else if (selection == RIGHT) {
+    base = stack_component(
+        decompress_component(&m_YN_select_cursor_right_compressed), base,
+        select_right_component_info, screen_info);
+  }
+
+  return base;
+}
+
+uint8_t* get_empty_frame() {
+  const component_info full_frame_component_info = {
+      .x_len = 16,
+      .y_len = 8,
+      .x_offset = 0,
+      .y_offset = 0,
+  };
+
+  const base_info screen_info = {
+      .width = 16,
+      .height = 8,
+  };
+
+  uint8_t* base;
+  base = stack_component(decompress_component(&m_empty_frame_compressed),
+                         NEW_SCREEN, full_frame_component_info, screen_info);
+  return base;
+}
+
+const uint8_t* get_feed_pet_frame(int cookie_percent) {
+  component_info food_component_info = {
+      .x_len = 7,
+      .y_len = 8,
+      .x_offset = 5,
+      .y_offset = 0,
+  };
+
+  base_info screen_info = {
+      .width = 16,
+      .height = 8,
+  };
+
+  uint8_t* base;
+
+  // food component
+  if (cookie_percent == cookie_100) {
+    base = stack_component(decompress_component(&m_cookie_100_icon_compressed),
+                           NEW_SCREEN, food_component_info, screen_info);
+  } else if (cookie_percent == cookie_50) {
+    base = stack_component(decompress_component(&m_cookie_50_icon_compressed),
+                           NEW_SCREEN, food_component_info, screen_info);
+  } else if (cookie_percent == cookie_30) {
+    base = stack_component(decompress_component(&m_cookie_30_icon_compressed),
+                           NEW_SCREEN, food_component_info, screen_info);
+  } else if (cookie_percent == cookie_0) {
+    base = get_empty_frame();
+  }
+
+  return base;
+}
+
+const uint8_t* get_pet_happy_frame_after_feed(int pet_type, int frame) {
+  CompressedImage character;
+  // reuse the pet weak compressed image
+  if (pet_type == PET_TYPE_CAT) {
+    character = m_cat_weak_compressed;
+  } else if (pet_type == PET_TYPE_DOG) {
+    character = m_dog_weak_compressed;
+  } else {
+#ifdef SIMU
+    std::cerr << "Error: Invalid pet type." << std::endl;
+#endif
+    return nullptr;  // Invalid pet type
+  }
+
+  // check boundary of input
+  if (frame < 0 || frame > 1) {
+    frame = 0;
+  }
+
+  constexpr component_info pet_component_info = {
+      .x_len = 8,
+      .y_len = 8,
+      .x_offset = 4,
+      .y_offset = 0,
+  };
+
+  constexpr base_info my_base_info = {
+      .width = DISPLAY_WIDTH,
+      .height = DISPLAY_HEIGHT,
+  };
+
+  constexpr base_info screen_info = {
+      .width = 16,
+      .height = 8,
+  };
+
+  constexpr component_info heart_pixel_info_1 = {
+      .x_len = 1,
+      .y_len = 1,
+      .x_offset = 7,
+      .y_offset = 1,
+  };
+  constexpr component_info heart_pixel_info_2 = {
+      .x_len = 1,
+      .y_len = 1,
+      .x_offset = 8,
+      .y_offset = 2,
+  };
+  constexpr component_info heart_pixel_info_3 = {
+      .x_len = 1,
+      .y_len = 1,
+      .x_offset = 9,
+      .y_offset = 1,
+  };
+
+  constexpr uint8_t full_1x1[1 * 1] = {1};
+  uint8_t* base;
+  base = stack_component(decompress_component(&character), NEW_SCREEN,
+                         pet_component_info, screen_info);
+  if (frame == FRAME_1) {
+    base = stack_target_offset(full_1x1, base, heart_pixel_info_1, my_base_info,
+                               false);
+    base = stack_target_offset(full_1x1, base, heart_pixel_info_2, my_base_info,
+                               false);
+    base = stack_target_offset(full_1x1, base, heart_pixel_info_3, my_base_info,
+                               false);
+  }
+
+  return base;
+}
+
+const uint8_t* get_scoring_frame(int ok_qty, int fail_qty) {
+  const component_info icon_component_info = {
+      .x_len = 5,
+      .y_len = 8,
+      .x_offset = 0,
+      .y_offset = 0,
+  };
+
+  const base_info screen_info = {
+      .width = 16,
+      .height = 8,
+  };
+
+  component_info score_icon_info_base = {
+      .x_len = 1,
+      .y_len = 3,
+      .x_offset = 6,
+      .y_offset = 1,
+  };
+
+  // icon
+  uint8_t* base;
+  base = stack_component(decompress_component(&m_scoring_page_icon_compressed),
+                         NEW_SCREEN, icon_component_info, screen_info);
+
+  // score
+  for (int i = 0; i < ok_qty; ++i) {
+    component_info score_icon_info_copy = score_icon_info_base;
+    score_icon_info_copy.x_offset += i * 2;  // offset for each icon
+    base = stack_component(decompress_component(&m_score_icon_compressed), base,
+                           score_icon_info_copy, screen_info);
+  }
+  for (int i = 0; i < fail_qty; ++i) {
+    component_info score_icon_info_copy = score_icon_info_base;
+    score_icon_info_copy.y_offset = 5;       // offset for fail icon
+    score_icon_info_copy.x_offset += i * 2;  // offset for each icon
+    base = stack_component(decompress_component(&m_score_icon_compressed), base,
+                           score_icon_info_copy, screen_info);
+  }
+
+  return base;
+}
+
+const uint8_t* get_end_frame() {
+  const component_info full_frame_component_info = {
+      .x_len = 16,
+      .y_len = 8,
+      .x_offset = 0,
+      .y_offset = 0,
+  };
+
+  const base_info screen_info = {
+      .width = 16,
+      .height = 8,
+  };
+
+  uint8_t* base;
+  base =
+      stack_component(decompress_component(&m_battle_training_end_compressed),
+                      NEW_SCREEN, full_frame_component_info, screen_info);
+  return base;
+}
 /** --- frame part end ---*/

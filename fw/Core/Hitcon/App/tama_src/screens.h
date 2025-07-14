@@ -53,6 +53,15 @@ enum {
   NONE,
 };
 
+enum {
+  cookie_100,
+  cookie_50,
+  cookie_30,
+  cookie_0,
+  ate_frame0,
+  ate_frame1,
+};
+
 // the structure of compressed data
 struct CompressedImage {
   uint8_t width;        // image width info
@@ -1287,6 +1296,311 @@ constexpr CompressedImage m_YN_select_cursor_right_compressed = {
     .width = YN_SELECT_RIGHT_WIDTH,
     .height = COMMON_HEIGHT,
     .data = m_YN_select_cursor_right_compressed_data};
+
+/**
+ * @brief The compressed data of m_lv_word_icon (level).
+ *
+ * The original data is:
+ *
+ *  ```
+ *  0, 0, 0, 0, 0, 0, 0,  //
+ *  1, 1, 1, 1, 1, 1, 1,  //
+ *  0, 0, 0, 0, 0, 0, 0,  //
+ *  1, 0, 0, 0, 1, 0, 1,  //
+ *  1, 0, 0, 0, 1, 0, 1,  //
+ *  1, 0, 0, 0, 1, 0, 1,  //
+ *  1, 0, 0, 0, 1, 0, 1,  //
+ *  1, 1, 1, 0, 0, 1, 0,  //
+ *  ```
+ *
+ * Notice: the compressed data is not directly mapping to the original data.
+ * It packed the bits in a specific way.
+ *
+ */
+
+constexpr uint8_t m_lv_word_icon_compressed_data[] = {0xFA, 0x82, 0x82, 0x02,
+                                                      0x7A, 0x82, 0x7A};
+constexpr CompressedImage m_lv_word_icon_compressed = {
+    .width = 7,
+    .height = COMMON_HEIGHT,
+    .data = m_lv_word_icon_compressed_data};
+
+/**
+ * @brief The compressed data of m_fd_word_icon (food).
+ *
+ * The original data is:
+ *
+ *  ```
+ *  0, 0, 0, 0, 0, 0, 0,  //
+ *  1, 1, 1, 1, 1, 1, 1,  //
+ *  0, 0, 0, 0, 0, 0, 0,  //
+ *  1, 1, 1, 0, 1, 1, 0,  //
+ *  1, 0, 0, 0, 1, 0, 1,  //
+ *  1, 1, 1, 0, 1, 0, 1,  //
+ *  1, 0, 0, 0, 1, 0, 1,  //
+ *  1, 0, 0, 0, 1, 1, 0,  //
+ *  ```
+ *
+ * Notice: the compressed data is not directly mapping to the original data.
+ * It packed the bits in a specific way.
+ *
+ */
+
+constexpr uint8_t m_fd_word_icon_compressed_data[] = {0xFA, 0x2A, 0x2A, 0x02,
+                                                      0xFA, 0x8A, 0x72};
+constexpr CompressedImage m_fd_word_icon_compressed = {
+    .width = 7,
+    .height = COMMON_HEIGHT,
+    .data = m_fd_word_icon_compressed_data};
+
+/**
+ * @brief The compressed data of m_hp_word_icon (health point).
+ *
+ * The original data is:
+ *
+ *  ```
+ *  0, 0, 0, 0, 0, 0, 0,  //
+ *  1, 1, 1, 1, 1, 1, 1,  //
+ *  0, 0, 0, 0, 0, 0, 0,  //
+ *  1, 0, 1, 0, 1, 1, 1,  //
+ *  1, 0, 1, 0, 1, 0, 1,  //
+ *  1, 1, 1, 0, 1, 1, 1,  //
+ *  1, 0, 1, 0, 1, 0, 0,  //
+ *  1, 0, 1, 0, 1, 0, 0,  //
+ *  ```
+ *
+ * Notice: the compressed data is not directly mapping to the original data.
+ * It packed the bits in a specific way.
+ *
+ */
+
+constexpr uint8_t m_hp_word_icon_compressed_data[] = {0xFA, 0x22, 0xFA, 0x02,
+                                                      0xFA, 0x2A, 0x3A};
+constexpr CompressedImage m_hp_word_icon_compressed = {
+    .width = 7,
+    .height = COMMON_HEIGHT,
+    .data = m_hp_word_icon_compressed_data};
+
+/**
+ * @brief The compressed data of m_heart_icon_detail.
+ *
+ * The original data is:
+ *
+ *  ```
+ *  1, 0, 1,  //
+ *  1, 1, 1,  //
+ *  0, 1, 0,  //
+ *  ```
+ *
+ * Notice: the compressed data is not directly mapping to the original data.
+ * It packed the bits in a specific way.
+ *
+ */
+
+constexpr uint8_t m_heart_icon_detail_compressed_data[] = {0x03, 0x06, 0x03};
+constexpr CompressedImage m_heart_icon_detail_compressed = {
+    .width = 3, .height = 3, .data = m_heart_icon_detail_compressed_data};
+
+/**
+ * @brief The compressed data of m_food_icon_detail.
+ *
+ * The original data is:
+ *
+ *  ```
+ *  0, 1, 0,  //
+ *  1, 0, 1,  //
+ *  1, 1, 1,  //
+ *  ```
+ *
+ * Notice: the compressed data is not directly mapping to the original data.
+ * It packed the bits in a specific way.
+ *
+ */
+
+constexpr uint8_t m_food_icon_detail_compressed_data[] = {0x06, 0x05, 0x06};
+constexpr CompressedImage m_food_icon_detail_compressed = {
+    .width = 3, .height = 3, .data = m_food_icon_detail_compressed_data};
+
+/**
+ * @brief The compressed data of m_cookie_100_icon.
+ *
+ * The original data is:
+ *
+ *  ```
+ *  0, 0, 0, 0, 0, 0, 0,  //
+ *  0, 0, 1, 1, 1, 0, 0,  //
+ *  0, 1, 1, 1, 0, 1, 0,  //
+ *  1, 1, 0, 1, 1, 1, 1,  //
+ *  1, 1, 1, 1, 1, 0, 1,  //
+ *  1, 0, 1, 1, 1, 1, 1,  //
+ *  0, 1, 1, 0, 1, 1, 0,  //
+ *  0, 0, 1, 1, 1, 0, 0,  //
+ *  ```
+ *
+ * Notice: the compressed data is not directly mapping to the original data.
+ * It packed the bits in a specific way.
+ *
+ */
+
+constexpr uint8_t m_cookie_100_icon_compressed_data[] = {0x38, 0x5C, 0xF6, 0xBE,
+                                                         0xFA, 0x6C, 0x38};
+constexpr CompressedImage m_cookie_100_icon_compressed = {
+    .width = 7, .height = 8, .data = m_cookie_100_icon_compressed_data};
+
+/**
+ * @brief The compressed data of m_cookie_50_icon.
+ *
+ * The original data is:
+ *
+ *  ```
+ * 0, 0, 0, 0, 0, 0, 0,  //
+ * 0, 0, 0, 1, 0, 0, 0,  //
+ * 0, 1, 0, 0, 0, 0, 0,  //
+ * 1, 0, 0, 1, 0, 1, 0,  //
+ * 1, 1, 1, 0, 1, 0, 1,  //
+ * 1, 0, 1, 1, 1, 1, 1,  //
+ * 0, 1, 1, 0, 1, 1, 0,  //
+ * 0, 0, 1, 1, 1, 0, 0,  //
+ *  ```
+ *
+ * Notice: the compressed data is not directly mapping to the original data.
+ * It packed the bits in a specific way.
+ *
+ */
+
+constexpr uint8_t m_cookie_50_icon_compressed_data[] = {0x38, 0x54, 0xF0, 0xAA,
+                                                        0xF0, 0x68, 0x30};
+constexpr CompressedImage m_cookie_50_icon_compressed = {
+    .width = 7, .height = 8, .data = m_cookie_50_icon_compressed_data};
+
+/**
+ * @brief The compressed data of m_cookie_30_icon.
+ *
+ * The original data is:
+ *
+ *  ```
+ * 0, 0, 0, 0, 0, 0, 0,  //
+ * 0, 0, 0, 0, 0, 0, 0,  //
+ * 0, 0, 0, 0, 0, 0, 0,  //
+ * 0, 0, 0, 1, 0, 0, 0,  //
+ * 0, 1, 0, 0, 0, 1, 0,  //
+ * 1, 0, 1, 0, 0, 0, 0,  //
+ * 0, 1, 0, 1, 0, 1, 0,  //
+ * 0, 0, 1, 0, 1, 0, 0,  //
+ *  ```
+ *
+ * Notice: the compressed data is not directly mapping to the original data.
+ * It packed the bits in a specific way.
+ *
+ */
+
+constexpr uint8_t m_cookie_30_icon_compressed_data[] = {0x20, 0x50, 0xA0, 0x48,
+                                                        0x80, 0x50, 0x00};
+constexpr CompressedImage m_cookie_30_icon_compressed = {
+    .width = 7, .height = 8, .data = m_cookie_30_icon_compressed_data};
+
+/**
+ * @brief The compressed data of m_cookie_0_icon.
+ *
+ * The original data is:
+ *
+ *  ```
+ * 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, //
+ * 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, //
+ * 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, //
+ * 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, //
+ * 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, //
+ * 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, //
+ * 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, //
+ * 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, //
+ *  ```
+ *
+ * Notice: the compressed data is not directly mapping to the original data.
+ * It packed the bits in a specific way.
+ *
+ */
+
+constexpr uint8_t m_empty_frame_compressed_data[] = {
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+};
+constexpr CompressedImage m_empty_frame_compressed = {
+    .width = 16, .height = 8, .data = m_empty_frame_compressed_data};
+
+/**
+ * @brief The compressed data of m_battle_training_end.
+ *
+ * The original data is:
+ *
+ *  ```
+ *  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  //
+ *  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  //
+ *  0, 0, 1, 1, 1, 0, 1, 0, 0, 1, 0, 1, 1, 1, 0, 0,  //
+ *  0, 0, 1, 0, 0, 0, 1, 1, 0, 1, 0, 1, 0, 0, 1, 0,  //
+ *  0, 0, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 0, 0, 1, 0,  //
+ *  0, 0, 1, 0, 0, 0, 1, 0, 1, 1, 0, 1, 0, 0, 1, 0,  //
+ *  0, 0, 1, 1, 1, 0, 1, 0, 0, 1, 0, 1, 1, 1, 0, 0,  //
+ *  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  //
+ *  ```
+ *
+ * Notice: the compressed data is not directly mapping to the original data.
+ * It packed the bits in a specific way.
+ *
+ */
+
+constexpr uint8_t m_battle_training_end_compressed_data[] = {
+    0x00, 0x00, 0x7C, 0x54, 0x54, 0x00, 0x7C, 0x18,
+    0x30, 0x7C, 0x00, 0x7C, 0x44, 0x44, 0x38, 0x00};
+constexpr CompressedImage m_battle_training_end_compressed = {
+    .width = 16, .height = 8, .data = m_battle_training_end_compressed_data};
+
+/**
+ * @brief The compressed data of m_scoring_page_icon.
+ *
+ * The original data is:
+ *
+ *  ```
+ *  0, 0, 0, 0, 0,  //
+ *  0, 1, 0, 1, 0,  //
+ *  0, 1, 0, 1, 0,  //
+ *  0, 0, 1, 0, 0,  //
+ *  0, 0, 0, 0, 0,  //
+ *  0, 1, 0, 1, 0,  //
+ *  0, 0, 1, 0, 0,  //
+ *  0, 1, 0, 1, 0,  //
+ *  ```
+ *
+ * Notice: the compressed data is not directly mapping to the original data.
+ * It packed the bits in a specific way.
+ *
+ */
+
+constexpr uint8_t m_scoring_page_icon_compressed_data[] = {0x00, 0xA6, 0x48,
+                                                           0xA6, 0x00};
+constexpr CompressedImage m_scoring_page_icon_compressed = {
+    .width = 5, .height = 8, .data = m_scoring_page_icon_compressed_data};
+
+/**
+ * @brief The compressed data of m_score_icon.
+ *
+ * The original data is:
+ *
+ *  ```
+ *  1, //
+ *  1, //
+ *  1, //
+ *  ```
+ *
+ * Notice: the compressed data is not directly mapping to the original data.
+ * It packed the bits in a specific way.
+ *
+ */
+
+constexpr uint8_t m_score_icon_compressed_data[] = {
+    0x07,
+};
+constexpr CompressedImage m_score_icon_compressed = {
+    .width = 1, .height = 3, .data = m_score_icon_compressed_data};
 
 }  // namespace menu_icon
 
