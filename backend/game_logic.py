@@ -133,30 +133,28 @@ class _GameLogic:
 
         # check cache
         cached_score = None
+        last_cached_time = None
         if self.redis_client is not None:
-            # check if we can directly use the latest cached score
-            tmp = await self.redis_client.get(f"latest_station_score_time:{player_id}:{station_id}")
-            if tmp is not None:
-                last_cached_time = datetime.fromisoformat(tmp.decode())
-                if last_cached_time < before:
-                    tmp = await self.redis_client.get(f"station_score:{player_id}:{station_id}:{last_cached_time.isoformat()}")
-                    if tmp is not None:
-                        cached_score = int(tmp)
+            # redis's sorted set
+            # key: f"station_score:{player_id}:{station_id}"
+            # score: timestamp
+            # member: f"{timestamp}:{score}" (note that sorted set requires member to be unique)
 
-            if cached_score is None:
-                # we are not getting the latest cached score (maybe calculating history score)
-                # so we need to iterate through the cached scores to find the latest one before the given time
-                # this is not efficient, but it is a fallback
-                last_cached_time = self.start_time
-                async for key in self.redis_client.scan_iter(match=f"station_score:{player_id}:{station_id}:*"):
-                    # Extract the timestamp from the key and find the latest one
-                    cached_time = datetime.fromisoformat(key.decode().split(":", maxsplit=3)[-1])
-                    if cached_time < before and cached_time > last_cached_time:
-                        last_cached_time = cached_time
-
-                tmp = await self.redis_client.get(f"station_score:{player_id}:{station_id}:{last_cached_time.isoformat()}")
-                if tmp is not None:
-                    cached_score = int(tmp)
+            # get the latest cached score before the given time
+            tmp = await self.redis_client.zrange(
+                f"station_score:{player_id}:{station_id}",
+                start=before.timestamp(),
+                end=self.start_time.timestamp(),
+                desc=True,
+                withscores=True,
+                byscore=True,
+                offset=0,
+                num=1,
+            )
+            if tmp:
+                cached_score = int(tmp[0][0].decode().rpartition(":")[2])
+                last_cached_time = datetime.fromtimestamp(tmp[0][1])
+                # print(f'cache hit: {cached_score} at {last_cached_time.isoformat()}')
 
         if cached_score is not None:
             total_score = cached_score
@@ -185,14 +183,11 @@ class _GameLogic:
 
         if self.redis_client is not None:
             # Cache the total score, if it has been a while since the last cache
-            if (before - last_cached_time).total_seconds() >= const.STATION_SCORE_CACHE_MIN_INTERVAL:
-                await self.redis_client.set(f"station_score:{player_id}:{station_id}:{before.isoformat()}", total_score)
-
-                # Update the latest cached time if it is the newest one
-                await self.redis_client.set(f"latest_station_score_time:{player_id}:{station_id}", before.isoformat(), nx=True)
-                tmp = await self.redis_client.get(f"latest_station_score_time:{player_id}:{station_id}")
-                if before > datetime.fromisoformat(tmp.decode()):
-                    await self.redis_client.set(f"latest_station_score_time:{player_id}:{station_id}", before.isoformat())
+            if last_cached_time is None or (before - last_cached_time).total_seconds() >= const.STATION_SCORE_CACHE_MIN_INTERVAL:
+                await self.redis_client.zadd(
+                    f"station_score:{player_id}:{station_id}",
+                    {f"{before.isoformat()}:{total_score}": before.timestamp()},
+                )
 
         return total_score
 
