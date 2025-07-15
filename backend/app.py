@@ -121,5 +121,7 @@ async def receive_rectf_score(schema: ReCTFScoreSchema, credentials: HTTPAuthori
     # Process the ReCTF score for the user
     await GameLogicController.apply_rectf_score(schema.uid, schema.solves)
 
+    return {"status": "ok"}
+
 
 app.include_router(router)
