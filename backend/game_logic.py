@@ -101,6 +101,7 @@ class _GameLogic:
         based on the history of attacks.
         """
         # TODO: validate the player_id and the amount
+        # TODO: apply buff to amount (power)
         await self.attack_history.insert_one({
             "player_id": player_id,
             "station_id": station_id,
@@ -213,9 +214,6 @@ class _GameLogic:
                 # TODO: validate the score and timestamp
                 pass
 
-            case GameType.RECTF:
-                # TODO: validate the score and timestamp
-                pass
 
         await self.score_history.insert_one({
             "player_id": player_id,
@@ -339,6 +337,15 @@ class _GameLogic:
             await self.redis_client.set(f"game_score:{player_id}:{station_id}:{game_type}:{num_of_player}:{before.isoformat()}", score)
 
         return score
+
+
+    async def apply_player_buff(player_id: int, buff_a_count: int, buff_b_count: int, timestamp: datetime):
+        """
+        Apply a buff to the player.
+        buff_a and buff_b has different parameter on the modifier.
+        The attack power = amount * modifier.
+        """
+        # TODO: implement the buff logic
 
 
 async def test_attack_station_score_history(with_redis = False, cache_min_interval = None):

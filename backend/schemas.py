@@ -193,3 +193,14 @@ class EccSignature(BaseModel):
 
 class EccPrivateKey(BaseModel):
     dA: int
+
+
+## ReCTF related
+class ReCTFSolves(BaseModel):
+    a: int = Field(0)
+    b: int = Field(0)
+
+
+class ReCTFScoreSchema(BaseModel):
+    uid: str
+    solves: ReCTFSolves

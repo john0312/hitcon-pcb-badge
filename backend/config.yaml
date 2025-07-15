@@ -10,3 +10,6 @@ redis:
   port: 6379
 
   user_station_pair_expire: 180 # 3 minutes
+
+rectf:
+  api_key: "reRErERe-C7F-4F7B-8A3B-1E2D3C4B5A6B"

@@ -1,4 +1,4 @@
-from schemas import PacketType, ProximityEvent, PubAnnounceEvent, TwoBadgeActivityEvent, GameActivityEvent, ScoreAnnounceEvent, SingleBadgeActivityEvent, SponsorActivityEvent, IrPacket
+from schemas import utcnow, PacketType, ProximityEvent, PubAnnounceEvent, TwoBadgeActivityEvent, GameActivityEvent, ScoreAnnounceEvent, SingleBadgeActivityEvent, SponsorActivityEvent, IrPacket, ReCTFSolves
 from database import mongo, db, redis_client
 from game_logic import _GameLogic as GameLogic, GameType
 from ecc_utils import ECC_SIGNATURE_SIZE
@@ -179,11 +179,36 @@ class GameLogicController:
     async def on_score_announce_event(evt: ScoreAnnounceEvent, packet_processor: 'PacketProcessor'):
         pass
 
+
     @staticmethod
-    async def get_user_score():
-        return await game.get_game_score()
+    async def get_user_score(user: int):
+        return await game.get_game_score(player_id=user)
 
 
     @staticmethod
     async def get_station_score(station_id: int):
         return await game.get_station_score(station_id=station_id)
+
+
+    @staticmethod
+    async def apply_rectf_score(uid: str, solves: ReCTFSolves):
+        """
+        Apply ReCTF score as buff to the user.
+        """
+        user = await GameLogicController.translate_uid_to_user(uid)
+
+        # TODO: postpone if the user has not bind the badge username
+
+        return await game.apply_player_buff(
+            player_id=user,
+            buff_a=solves.a,
+            buff_b=solves.b,
+            timestamp=utcnow()
+        )
+
+    @staticmethod
+    async def translate_uid_to_user(uid: str) -> int:
+        """
+        Translate ReCTF UID to user ID.
+        """
+        # TODO: Implement the logic to translate UID to badge username.

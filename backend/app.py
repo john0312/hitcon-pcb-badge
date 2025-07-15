@@ -112,4 +112,14 @@ async def get_history(station: Station = Depends(get_station)):
     return history
 
 
+@router.post("/rectf/score")
+async def receive_rectf_score(schema: ReCTFScoreSchema, credentials: HTTPAuthorizationCredentials = Security(security)):
+    # Validate ReCTF key
+    if credentials.credentials != config.get('rectf', {}).get('api_key'):
+        raise HTTPException(status_code=403, detail="Invalid key")
+
+    # Process the ReCTF score for the user
+    await GameLogicController.apply_rectf_score(schema.uid, schema.solves)
+
+
 app.include_router(router)
