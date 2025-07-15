@@ -43,7 +43,7 @@ CompressedImage compress_component(const uint8_t* src, uint8_t width,
       width *
       ((height + 7) /
        8);  // every 8 rows of pixels are packed into one byte, +7 to round up
-  uint8_t* compressed_data = (uint8_t*)malloc(compressed_size);
+  uint8_t* compressed_data = new uint8_t[compressed_size];
   memset(compressed_data, 0, compressed_size);
 
   /**
@@ -128,7 +128,7 @@ void compress_data_and_print_info(const uint8_t* src, uint8_t width,
 #endif
 
   // free the allocated memory
-  free((void*)compressed.data);
+  delete[] compressed.data;
 }
 
 /**
@@ -160,5 +160,5 @@ void decompress_and_print_component(const CompressedImage* compressed) {
   uint8_t* decompressed = decompress_component(compressed);
   print_decompressed_component(decompressed, compressed->width,
                                compressed->height);
-  free(decompressed);
+  delete[] decompressed;
 }

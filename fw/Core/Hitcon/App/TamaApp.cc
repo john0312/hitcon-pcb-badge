@@ -8,6 +8,8 @@
 
 #include <cstring>  // For memset if needed, though direct assignment is used
 
+#include "tama_src/TamaAppFrame.h"
+
 using namespace hitcon::service::xboard;
 using hitcon::service::sched::my_assert;
 
@@ -82,7 +84,8 @@ void TamaApp::Render() {
   }
 
   display_buf_t* current_screen_buffer = _fb.fb[_fb.active_frame];
-  display_set_mode_fixed_packed(current_screen_buffer);
+  // render non-compressed data
+  display_set_mode_fixed(current_screen_buffer);
   _fb.active_frame = (_fb.active_frame + 1) % _fb.fb_size;
   _frame_count++;
 }
@@ -125,10 +128,10 @@ void TamaApp::OnButton(button_t button) {
     case BUTTON_LEFT:
       switch (_tama_data.state) {
         case TAMA_APP_STATE::CHOOSE_TYPE:
-          if (_current_selection_in_choose_mode == TAMA_TYPE::CAT) {
+          if (_current_selection_in_choose_mode == TAMA_TYPE::DOG) {
             needs_update_fb = true;
           }
-          _current_selection_in_choose_mode = TAMA_TYPE::DOG;
+          _current_selection_in_choose_mode = TAMA_TYPE::CAT;
           break;
           // TODO: Handle other states for BUTTON_LEFT if necessary
         default:
@@ -138,10 +141,10 @@ void TamaApp::OnButton(button_t button) {
     case BUTTON_RIGHT:
       switch (_tama_data.state) {
         case TAMA_APP_STATE::CHOOSE_TYPE:
-          if (_current_selection_in_choose_mode == TAMA_TYPE::DOG) {
+          if (_current_selection_in_choose_mode == TAMA_TYPE::CAT) {
             needs_update_fb = true;
           }
-          _current_selection_in_choose_mode = TAMA_TYPE::CAT;
+          _current_selection_in_choose_mode = TAMA_TYPE::DOG;
           break;
           // TODO: Handle other states for BUTTON_LEFT if necessary
         default:
@@ -203,80 +206,36 @@ void TamaApp::UpdateFrameBuffer() {
   }
   switch (_tama_data.state) {
     case TAMA_APP_STATE::CHOOSE_TYPE:
-      const tama_ani_t* selected_animation;
+      uint8_t* frame;
       if (_current_selection_in_choose_mode == TAMA_TYPE::DOG) {
-        selected_animation =
-            &animation[static_cast<uint8_t>(TAMA_ANIMATION_TYPE::DOG)];
+        frame = (uint8_t*)get_select_character_frame(RIGHT);
       } else if (_current_selection_in_choose_mode == TAMA_TYPE::CAT) {
-        selected_animation =
-            &animation[static_cast<uint8_t>(TAMA_ANIMATION_TYPE::CAT)];
+        frame = (uint8_t*)get_select_character_frame(LEFT);
       } else {
         my_assert(false);  // Should not happen if state is CHOOSE_TYPE
       }
 
-      _fb.fb_size = selected_animation->frame_count;
-      _fb.active_frame = 0;  // Start from the first frame
       switch (_current_selection_in_choose_mode) {
         case TAMA_TYPE::DOG:
-          // Copy DOG animation frames to left
-          for (int i = 0; i < _fb.fb_size; ++i) {
-            memset(_fb.fb[i], 0, sizeof(display_buf_t) * DISPLAY_WIDTH);
-            memcpy(_fb.fb[i], selected_animation->frames_data[i],
-                   sizeof(display_buf_t[8]));
-            // Draw right arrow
-            for (int col = 0; col < BITMAP_RIGHT_ARROW_WIDTH; ++col) {
-              _fb.fb[i][DISPLAY_WIDTH - 1 - col] |=
-                  bitmap_right_arrow_cols[BITMAP_RIGHT_ARROW_WIDTH - 1 - col];
-            }
-          }
+          _fb.fb_size = 1;
+          memset(_fb.fb[0], 0,
+                 sizeof(display_buf_t[DISPLAY_HEIGHT * DISPLAY_WIDTH]));
+          memcpy(_fb.fb[0], frame,
+                 sizeof(display_buf_t[DISPLAY_HEIGHT * DISPLAY_WIDTH]));
+          delete[] frame;
           break;
         case TAMA_TYPE::CAT:
-          // Copy CAT animation frames to right
-          for (int i = 0; i < _fb.fb_size; ++i) {
-            memset(_fb.fb[i], 0, sizeof(display_buf_t) * DISPLAY_WIDTH);
-            memcpy(_fb.fb[i] + (DISPLAY_WIDTH - sizeof(display_buf_t[8])),
-                   selected_animation->frames_data[i],
-                   sizeof(display_buf_t[8]));
-            // Draw left arrow
-            for (int col = 0; col < BITMAP_LEFT_ARROW_WIDTH; ++col) {
-              _fb.fb[i][col] |= bitmap_left_arrow_cols[col];
-            }
-          }
+          _fb.fb_size = 1;
+          memset(_fb.fb[0], 0,
+                 sizeof(display_buf_t[DISPLAY_HEIGHT * DISPLAY_WIDTH]));
+          memcpy(_fb.fb[0], frame,
+                 sizeof(display_buf_t[DISPLAY_HEIGHT * DISPLAY_WIDTH]));
+          delete[] frame;
       }
       break;
     case TAMA_APP_STATE::EGG:
-      // Draw egg animation in the cneter
-      selected_animation =
-          &animation[static_cast<uint8_t>(TAMA_ANIMATION_TYPE::EGG)];
-      _fb.fb_size = selected_animation->frame_count;
-      _fb.active_frame = 0;  // Start from the first frame
-      for (int i = 0; i < _fb.fb_size; ++i) {
-        // Center the egg animation (8 columns wide)
-        memset(_fb.fb[i], 0, sizeof(display_buf_t) * DISPLAY_WIDTH);
-        memcpy(_fb.fb[i] + (DISPLAY_WIDTH / 2 - 4), TAMA_EGG_FRAMES[i],
-               sizeof(display_buf_t[8]));
-      }
       break;
     case TAMA_APP_STATE::ALIVE:
-      // Draw pet animation in the center
-      if (_tama_data.type == TAMA_TYPE::DOG) {
-        selected_animation =
-            &animation[static_cast<uint8_t>(TAMA_ANIMATION_TYPE::DOG)];
-      } else if (_tama_data.type == TAMA_TYPE::CAT) {
-        selected_animation =
-            &animation[static_cast<uint8_t>(TAMA_ANIMATION_TYPE::CAT)];
-      } else {
-        // Should not happen if state is ALIVE
-        my_assert(false);
-      }
-      _fb.fb_size = selected_animation->frame_count;
-      _fb.active_frame = 0;  // Start from the first frame
-      for (int i = 0; i < _fb.fb_size; ++i) {
-        // Center the pet animation (8 columns wide)
-        memset(_fb.fb[i], 0, sizeof(display_buf_t) * DISPLAY_WIDTH);
-        memcpy(_fb.fb[i] + (DISPLAY_WIDTH / 2 - 4),
-               selected_animation->frames_data[i], sizeof(display_buf_t[8]));
-      }
       break;
     default:
       // Should not happen in CHOOSE_TYPE state
