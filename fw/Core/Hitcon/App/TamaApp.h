@@ -14,8 +14,9 @@ namespace tama {
 enum class TAMA_APP_STATE : uint8_t {
   INTRO_TEXT,   // Displaying introductory text
   CHOOSE_TYPE,  // Player is selecting a pet type
-  EGG,          // Pet is an egg, waiting to hatch
-  ALIVE,        // Pet has hatched and is alive
+  EGG,          // Pet is in egg state, waiting to hatch
+  HATCHING,
+  ALIVE,  // Pet has hatched and is alive
   // TODO: Add states like DEAD, EVOLVING, etc.
 };
 
@@ -29,7 +30,9 @@ typedef struct {
   TAMA_APP_STATE state;
   TAMA_TYPE type;
   unsigned int state_enter_time_ms;  // Timestamp when the current state (e.g.,
-                                     // EGG) was entered
+  // EGG) was entered
+  int hatching_start_shaking_count;
+  int latest_shaking_count;
   // TODO: Add more stats for ALIVE state:
   // uint32_t birth_time_ms; // Actual hatch time
   // uint8_t hunger;
@@ -78,6 +81,8 @@ class TamaApp : public App {
   tama_storage_t& _tama_data;
   tama_display_fb_t _fb;
   int _frame_count = 0;
+  int hatching_warning_frame_count = 10;  // How many times the egg has shined
+  int anime_frame = 0;
 
   void Render();
   void Routine(void* unused);

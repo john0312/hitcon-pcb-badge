@@ -24,7 +24,7 @@ TamaApp::TamaApp()
                     (hitcon::service::sched::task_callback_t)&TamaApp::Routine,
                     (void*)this, ROUTINE_INTERVAL_MS),
       _tama_data(g_nv_storage.GetCurrentStorage().tama_storage),
-      _current_selection_in_choose_mode(TAMA_TYPE::DOG), _fb() {}
+      _current_selection_in_choose_mode(TAMA_TYPE::CAT), _fb() {}
 
 void TamaApp::Init() {
   hitcon::service::sched::scheduler.Queue(&_routine_task, nullptr);
@@ -107,16 +107,14 @@ void TamaApp::OnButton(button_t button) {
     case BUTTON_OK:
       switch (_tama_data.state) {
         case TAMA_APP_STATE::INTRO_TEXT:
+          // just wait for the text to scroll finished
           break;
         case TAMA_APP_STATE::CHOOSE_TYPE:
           _tama_data.type = _current_selection_in_choose_mode;
           _tama_data.state = TAMA_APP_STATE::EGG;
-          needs_update_fb = true;
-          needs_save = true;
-          break;
-        case TAMA_APP_STATE::EGG:
-          // This allows pressing OK on the egg to hatch it immediately.
-          _tama_data.state = TAMA_APP_STATE::ALIVE;
+          // TODO: get the actual value
+          _tama_data.hatching_start_shaking_count =
+              123;  // Placeholder for actual logic
           needs_update_fb = true;
           needs_save = true;
           break;
@@ -147,6 +145,11 @@ void TamaApp::OnButton(button_t button) {
           _current_selection_in_choose_mode = TAMA_TYPE::DOG;
           break;
           // TODO: Handle other states for BUTTON_LEFT if necessary
+        case TAMA_APP_STATE::EGG:
+          // for test egg, // TODO delete
+          _tama_data.latest_shaking_count += 50;
+          needs_save = true;
+          needs_update_fb = true;
         default:
           break;
       }
@@ -182,6 +185,36 @@ void TamaApp::Routine(void* unused) {
         UpdateFrameBuffer();
       }
       break;
+    case TAMA_APP_STATE::EGG:
+      // TODO: get motion count
+      //      int latest_shaking_count;
+      //      latest_shaking_count = 123;  // Placeholder for actual logic
+      //
+      //      if (_tama_data.latest_shaking_count != latest_shaking_count) {
+      //        _tama_data.latest_shaking_count = latest_shaking_count;
+      //        needs_save = true;
+      //        needs_render = true;
+      //        UpdateFrameBuffer();
+      //      }
+      break;
+    case TAMA_APP_STATE::HATCHING:
+      if (hatching_warning_frame_count < 0) {
+        _tama_data.state = TAMA_APP_STATE::ALIVE;
+        needs_save = true;
+      }
+      hatching_warning_frame_count--;
+      needs_render = true;
+      UpdateFrameBuffer();
+      break;
+    case TAMA_APP_STATE::ALIVE:
+      if (anime_frame == 0) {
+        anime_frame = 1;
+      } else if (anime_frame == 1) {
+        anime_frame = 0;
+      }
+      needs_render = true;
+      UpdateFrameBuffer();
+      break;
     default:
       break;
   }
@@ -205,8 +238,8 @@ void TamaApp::UpdateFrameBuffer() {
     return;
   }
   switch (_tama_data.state) {
+    uint8_t* frame;
     case TAMA_APP_STATE::CHOOSE_TYPE:
-      uint8_t* frame;
       if (_current_selection_in_choose_mode == TAMA_TYPE::DOG) {
         frame = (uint8_t*)get_select_character_frame(RIGHT);
       } else if (_current_selection_in_choose_mode == TAMA_TYPE::CAT) {
@@ -215,27 +248,57 @@ void TamaApp::UpdateFrameBuffer() {
         my_assert(false);  // Should not happen if state is CHOOSE_TYPE
       }
 
-      switch (_current_selection_in_choose_mode) {
-        case TAMA_TYPE::DOG:
-          _fb.fb_size = 1;
-          memset(_fb.fb[0], 0,
-                 sizeof(display_buf_t[DISPLAY_HEIGHT * DISPLAY_WIDTH]));
-          memcpy(_fb.fb[0], frame,
-                 sizeof(display_buf_t[DISPLAY_HEIGHT * DISPLAY_WIDTH]));
-          delete[] frame;
-          break;
-        case TAMA_TYPE::CAT:
-          _fb.fb_size = 1;
-          memset(_fb.fb[0], 0,
-                 sizeof(display_buf_t[DISPLAY_HEIGHT * DISPLAY_WIDTH]));
-          memcpy(_fb.fb[0], frame,
-                 sizeof(display_buf_t[DISPLAY_HEIGHT * DISPLAY_WIDTH]));
-          delete[] frame;
-      }
+      _fb.fb_size = 1;
+      memset(_fb.fb[0], 0,
+             sizeof(display_buf_t[DISPLAY_HEIGHT * DISPLAY_WIDTH]));
+      memcpy(_fb.fb[0], frame,
+             sizeof(display_buf_t[DISPLAY_HEIGHT * DISPLAY_WIDTH]));
+      delete[] frame;
+
       break;
     case TAMA_APP_STATE::EGG:
+      int remaining_count;
+      remaining_count =
+          HATCH_START_COUNT - (_tama_data.latest_shaking_count -
+                               _tama_data.hatching_start_shaking_count);
+      if (remaining_count < 0) {
+        _tama_data.state = TAMA_APP_STATE::HATCHING;
+      } else {
+        uint8_t* frame = (uint8_t*)get_hatch_status_frame(remaining_count);
+        _fb.fb_size = 1;
+        memset(_fb.fb[0], 0,
+               sizeof(display_buf_t[DISPLAY_HEIGHT * DISPLAY_WIDTH]));
+        memcpy(_fb.fb[0], frame,
+               sizeof(display_buf_t[DISPLAY_HEIGHT * DISPLAY_WIDTH]));
+        delete[] frame;
+      }
+      break;
+    case TAMA_APP_STATE::HATCHING:
+      _fb.fb_size = 1;
+      frame = (uint8_t*)get_hatch_born_warning_frame(
+          hatching_warning_frame_count % 2);
+      memset(_fb.fb[0], 0,
+             sizeof(display_buf_t[DISPLAY_HEIGHT * DISPLAY_WIDTH]));
+      memcpy(_fb.fb[0], frame,
+             sizeof(display_buf_t[DISPLAY_HEIGHT * DISPLAY_WIDTH]));
+      delete[] frame;
       break;
     case TAMA_APP_STATE::ALIVE:
+      _fb.fb_size = 1;
+      if (_tama_data.type == TAMA_TYPE::DOG) {
+        frame = (uint8_t*)get_dog_idle_frame_with_status_overview(anime_frame,
+                                                                  3, 4);
+      } else if (_tama_data.type == TAMA_TYPE::CAT) {
+        frame = (uint8_t*)get_cat_idle_frame_with_status_overview(anime_frame,
+                                                                  3, 4);
+      } else {
+        my_assert(false);  // Should not happen in ALIVE state
+      }
+      memset(_fb.fb[0], 0,
+             sizeof(display_buf_t[DISPLAY_HEIGHT * DISPLAY_WIDTH]));
+      memcpy(_fb.fb[0], frame,
+             sizeof(display_buf_t[DISPLAY_HEIGHT * DISPLAY_WIDTH]));
+      delete[] frame;
       break;
     default:
       // Should not happen in CHOOSE_TYPE state
