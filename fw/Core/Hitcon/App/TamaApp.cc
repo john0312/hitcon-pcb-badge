@@ -1,3 +1,5 @@
+// #define FOR_TAMA_TEST
+
 #include "TamaApp.h"
 
 #include <Logic/BadgeController.h>
@@ -32,6 +34,7 @@ void TamaApp::Init() {
   // If it's a fresh start (e.g., NvStorage is zeroed), _tama_data.type will be
   // 0 (NONE_TYPE).
   // use new data always for debugging
+  // TODO, to memory all settings
   _tama_data = {};
   g_nv_storage.MarkDirty();
 }
@@ -112,9 +115,7 @@ void TamaApp::OnButton(button_t button) {
         case TAMA_APP_STATE::CHOOSE_TYPE:
           _tama_data.type = _current_selection_in_choose_mode;
           _tama_data.state = TAMA_APP_STATE::EGG;
-          // TODO: get the actual value
-          _tama_data.hatching_start_shaking_count =
-              123;  // Placeholder for actual logic
+          _tama_data.hatching_start_shaking_count = g_imu_logic.GetStep();
           needs_update_fb = true;
           needs_save = true;
           break;
@@ -145,11 +146,14 @@ void TamaApp::OnButton(button_t button) {
           _current_selection_in_choose_mode = TAMA_TYPE::DOG;
           break;
           // TODO: Handle other states for BUTTON_LEFT if necessary
+
+#ifdef FOR_TAMA_TEST
         case TAMA_APP_STATE::EGG:
-          // for test egg, // TODO delete
           _tama_data.latest_shaking_count += 50;
           needs_save = true;
           needs_update_fb = true;
+          break;
+#endif
         default:
           break;
       }
@@ -186,16 +190,15 @@ void TamaApp::Routine(void* unused) {
       }
       break;
     case TAMA_APP_STATE::EGG:
-      // TODO: get motion count
-      //      int latest_shaking_count;
-      //      latest_shaking_count = 123;  // Placeholder for actual logic
-      //
-      //      if (_tama_data.latest_shaking_count != latest_shaking_count) {
-      //        _tama_data.latest_shaking_count = latest_shaking_count;
-      //        needs_save = true;
-      //        needs_render = true;
-      //        UpdateFrameBuffer();
-      //      }
+      int latest_shaking_count;
+      latest_shaking_count = g_imu_logic.GetStep();
+
+      if (_tama_data.latest_shaking_count != latest_shaking_count) {
+        _tama_data.latest_shaking_count = latest_shaking_count;
+        needs_save = true;
+        needs_render = true;
+        UpdateFrameBuffer();
+      }
       break;
     case TAMA_APP_STATE::HATCHING:
       if (hatching_warning_frame_count < 0) {

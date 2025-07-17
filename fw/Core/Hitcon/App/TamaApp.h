@@ -2,6 +2,7 @@
 #define TAMA_APP_H
 
 #include <Logic/Display/display.h>
+#include <Logic/ImuLogic.h>
 #include <Service/Sched/PeriodicTask.h>
 #include <Service/Sched/SysTimer.h>  // For SysTimer
 
