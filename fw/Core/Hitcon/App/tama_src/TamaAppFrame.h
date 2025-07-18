@@ -5,6 +5,10 @@
 
 #define NEW_SCREEN NULL
 
+using namespace hitcon::app::tama::components;
+using namespace hitcon::app::tama::egg_icon;
+using namespace hitcon::app::tama::menu_icon;
+
 // Constants
 constexpr int CAT_IDLE_FRAME_COUNT = 2;
 constexpr int DOG_IDLE_FRAME_COUNT = 2;

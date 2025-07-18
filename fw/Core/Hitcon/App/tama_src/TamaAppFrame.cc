@@ -1,9 +1,5 @@
 #include "TamaAppFrame.h"
 
-using namespace hitcon::app::tama::components;
-using namespace hitcon::app::tama::egg_icon;
-using namespace hitcon::app::tama::menu_icon;
-
 // ------
 
 /** --- basic definition part start ---*/
@@ -76,9 +72,6 @@ uint8_t* stack_component(uint8_t* component, uint8_t* base,
       base[base_index] = bit_status;
     }
   }
-
-  // free the input component
-  delete[] component;
 
   return base;
 }
@@ -207,25 +200,31 @@ uint8_t* get_number_component(int target_num) {
   uint8_t* base;
   // stack number icon at 1x digit
   if (digit_count) {
-    base =
-        stack_component(decompress_component(&m_num_icon_compressed[digit_1x]),
-                        NULL, digit_1x_component_info, my_base_info);
+    const CompressedImage* target = &m_num_icon_compressed[digit_1x];
+    uint8_t decompressed_buffer[target->width * target->height];
+    decompress_component(target, decompressed_buffer);
+    base = stack_component(decompressed_buffer, NULL, digit_1x_component_info,
+                           my_base_info);
     digit_count--;
   }
 
   // stack number icon at 10x digit
   if (digit_count) {
-    base =
-        stack_component(decompress_component(&m_num_icon_compressed[digit_10x]),
-                        base, digit_10x_component_info, my_base_info);
+    const CompressedImage* target = &m_num_icon_compressed[digit_10x];
+    uint8_t decompressed_buffer[target->width * target->height];
+    decompress_component(target, decompressed_buffer);
+    base = stack_component(decompressed_buffer, base, digit_10x_component_info,
+                           my_base_info);
     digit_count--;
   }
 
   // stack number icon at 100x digit
   if (digit_count) {
-    base = stack_component(
-        decompress_component(&m_num_icon_compressed[digit_100x]), base,
-        digit_100x_component_info, my_base_info);
+    const CompressedImage* target = &m_num_icon_compressed[digit_100x];
+    uint8_t decompressed_buffer[target->width * target->height];
+    decompress_component(target, decompressed_buffer);
+    base = stack_component(decompressed_buffer, base, digit_100x_component_info,
+                           my_base_info);
     digit_count--;
   }
 
@@ -267,13 +266,18 @@ uint8_t* get_warning_component() {
       .y_offset = 0,
   };
   // stack warning icon
-  uint8_t* base =
-      stack_component(decompress_component(&m_icon_important_compressed), NULL,
-                      warning_component_info_1, my_base_info);
-  base = stack_component(decompress_component(&m_icon_important_compressed),
-                         base, warning_component_info_2, my_base_info);
-  base = stack_component(decompress_component(&m_icon_important_compressed),
-                         base, warning_component_info_3, my_base_info);
+  const CompressedImage* target = &m_icon_important_compressed;
+
+  uint8_t* base;
+  uint8_t decompressed_buffer[target->width * target->height];
+  decompress_component(target, decompressed_buffer);
+  base = stack_component(decompressed_buffer, NULL, warning_component_info_1,
+                         my_base_info);
+  base = stack_component(decompressed_buffer, base, warning_component_info_2,
+                         my_base_info);
+  base = stack_component(decompressed_buffer, base, warning_component_info_3,
+                         my_base_info);
+
   // return the base with warning icon
   return base;
 }
@@ -313,20 +317,29 @@ uint8_t* get_egg_component(int percentage) {
 
   uint8_t* base;
   if (percentage <= 25) {
-    base = stack_component(decompress_component(&m_egg_0_percent_up_compressed),
-                           NULL, egg_component_info, my_base_info);
+    const CompressedImage* target = &m_egg_0_percent_up_compressed;
+    uint8_t decompressed_buffer[target->width * target->height];
+    decompress_component(target, decompressed_buffer);
+    base = stack_component(decompressed_buffer, NULL, egg_component_info,
+                           my_base_info);
   } else if (percentage <= 50) {
-    base =
-        stack_component(decompress_component(&m_egg_25_percent_up_compressed),
-                        NULL, egg_component_info, my_base_info);
+    const CompressedImage* target = &m_egg_25_percent_up_compressed;
+    uint8_t decompressed_buffer[target->width * target->height];
+    decompress_component(target, decompressed_buffer);
+    base = stack_component(decompressed_buffer, NULL, egg_component_info,
+                           my_base_info);
   } else if (percentage <= 75) {
-    base =
-        stack_component(decompress_component(&m_egg_50_percent_up_compressed),
-                        NULL, egg_component_info, my_base_info);
+    const CompressedImage* target = &m_egg_50_percent_up_compressed;
+    uint8_t decompressed_buffer[target->width * target->height];
+    decompress_component(target, decompressed_buffer);
+    base = stack_component(decompressed_buffer, NULL, egg_component_info,
+                           my_base_info);
   } else if (percentage <= 100) {
-    base =
-        stack_component(decompress_component(&m_egg_75_percent_up_compressed),
-                        NULL, egg_component_info, my_base_info);
+    const CompressedImage* target = &m_egg_75_percent_up_compressed;
+    uint8_t decompressed_buffer[target->width * target->height];
+    decompress_component(target, decompressed_buffer);
+    base = stack_component(decompressed_buffer, NULL, egg_component_info,
+                           my_base_info);
   }
 
   return base;
@@ -361,9 +374,11 @@ uint8_t* get_heart_overview_component(int heart_count) {
   };
   uint8_t* base;
   // icon
-  base = stack_component(
-      decompress_component(&m_icon_status_overview_heart_compressed), NULL,
-      heart_component_info, my_base_info);
+  const CompressedImage* target = &m_icon_status_overview_heart_compressed;
+  uint8_t decompressed_buffer[target->width * target->height];
+  decompress_component(target, decompressed_buffer);
+  base = stack_component(decompressed_buffer, NULL, heart_component_info,
+                         my_base_info);
   if (heart_count < 1) {
     // no food, return the base with icon only
     return base;
@@ -441,9 +456,11 @@ uint8_t* get_food_overview_component(int food_count) {
 
   uint8_t* base;
   // icon
-  base = stack_component(
-      decompress_component(&m_icon_status_overview_food_compressed), NULL,
-      food_component_info, my_base_info);
+  const CompressedImage* target = &m_icon_status_overview_food_compressed;
+  uint8_t decompressed_buffer[target->width * target->height];
+  decompress_component(target, decompressed_buffer);
+  base = stack_component(decompressed_buffer, NULL, food_component_info,
+                         my_base_info);
   if (food_count < 1) {
     // no food, return the base with icon only
     return base;
@@ -518,9 +535,12 @@ uint8_t* get_fd_icons_component(int food_count) {
       .x_offset = 1,
       .y_offset = 1,
   };
+  const CompressedImage* target = &m_food_icon_detail_compressed;
+  uint8_t decompressed_buffer[target->width * target->height];
+  decompress_component(target, decompressed_buffer);
+  base = stack_component(decompressed_buffer, NULL, food_component_info_LT,
+                         my_base_info);
 
-  base = stack_component(decompress_component(&m_food_icon_detail_compressed),
-                         NULL, food_component_info_LT, my_base_info);
   food_count -= 1;
   if (food_count < 1) {
     // no more food, return the base with icon and one full square
@@ -534,8 +554,11 @@ uint8_t* get_fd_icons_component(int food_count) {
       .x_offset = 5,
       .y_offset = 1,
   };
-  base = stack_component(decompress_component(&m_food_icon_detail_compressed),
-                         base, food_component_info_RT, my_base_info);
+  const CompressedImage* target2 = &m_food_icon_detail_compressed;
+  uint8_t decompressed_buffer2[target2->width * target2->height];
+  decompress_component(target2, decompressed_buffer2);
+  base = stack_component(decompressed_buffer2, base, food_component_info_RT,
+                         my_base_info);
   food_count -= 1;
   if (food_count < 1) {
     // no more food, return the base with icon and one full square
@@ -549,8 +572,11 @@ uint8_t* get_fd_icons_component(int food_count) {
       .x_offset = 0,
       .y_offset = 5,
   };
-  base = stack_component(decompress_component(&m_food_icon_detail_compressed),
-                         base, food_component_info_LB, my_base_info);
+  const CompressedImage* target3 = &m_food_icon_detail_compressed;
+  uint8_t decompressed_buffer3[target3->width * target3->height];
+  decompress_component(target3, decompressed_buffer3);
+  base = stack_component(decompressed_buffer3, base, food_component_info_LB,
+                         my_base_info);
   food_count -= 1;
   if (food_count < 1) {
     // no more food, return the base with icon and one full square
@@ -564,8 +590,11 @@ uint8_t* get_fd_icons_component(int food_count) {
       .x_offset = 4,
       .y_offset = 5,
   };
-  base = stack_component(decompress_component(&m_food_icon_detail_compressed),
-                         base, food_component_info_RB, my_base_info);
+  const CompressedImage* target4 = &m_food_icon_detail_compressed;
+  uint8_t decompressed_buffer4[target4->width * target4->height];
+  decompress_component(target4, decompressed_buffer4);
+  base = stack_component(decompressed_buffer4, base, food_component_info_RB,
+                         my_base_info);
   return base;
 }
 
@@ -585,8 +614,11 @@ uint8_t* get_hp_icons_component(int hp_count) {
       .y_offset = 1,
   };
 
-  base = stack_component(decompress_component(&m_heart_icon_detail_compressed),
-                         NULL, hp_component_info_top, my_base_info);
+  const CompressedImage* target = &m_heart_icon_detail_compressed;
+  uint8_t decompressed_buffer[target->width * target->height];
+  decompress_component(target, decompressed_buffer);
+  base = stack_component(decompressed_buffer, NULL, hp_component_info_top,
+                         my_base_info);
   hp_count -= 1;
   if (hp_count < 1) {
     // no more food, return the base with icon and one full square
@@ -600,8 +632,12 @@ uint8_t* get_hp_icons_component(int hp_count) {
       .x_offset = 0,
       .y_offset = 5,
   };
-  base = stack_component(decompress_component(&m_heart_icon_detail_compressed),
-                         base, hp_component_info_bottom_left, my_base_info);
+
+  const CompressedImage* target2 = &m_heart_icon_detail_compressed;
+  uint8_t decompressed_buffer2[target2->width * target2->height];
+  decompress_component(target2, decompressed_buffer2);
+  base = stack_component(decompressed_buffer2, base,
+                         hp_component_info_bottom_left, my_base_info);
   hp_count -= 1;
   if (hp_count < 1) {
     // no more food, return the base with icon and one full square
@@ -615,8 +651,12 @@ uint8_t* get_hp_icons_component(int hp_count) {
       .x_offset = 5,
       .y_offset = 5,
   };
-  base = stack_component(decompress_component(&m_heart_icon_detail_compressed),
-                         base, hp_component_info_bottom_right, my_base_info);
+
+  const CompressedImage* target3 = &m_heart_icon_detail_compressed;
+  uint8_t decompressed_buffer3[target3->width * target3->height];
+  decompress_component(target3, decompressed_buffer3);
+  base = stack_component(decompressed_buffer3, base,
+                         hp_component_info_bottom_right, my_base_info);
 
   return base;
 }
@@ -710,15 +750,19 @@ const uint8_t* get_hatch_born_warning_frame(int frame) {
 
   uint8_t* base;
   if (frame == 0) {
-    base =
-        stack_component(decompress_component(&m_egg_hatch_shinning1_compressed),
-                        NULL, egg_component_info, my_base_info);
+    const CompressedImage* target = &m_egg_hatch_shinning1_compressed;
+    uint8_t decompressed_buffer[target->width * target->height];
+    decompress_component(target, decompressed_buffer);
+    base = stack_component(decompressed_buffer, NULL, egg_component_info,
+                           my_base_info);
     base = stack_component(get_warning_component(), base,
                            warning_component_info, my_base_info);
   } else {
-    base =
-        stack_component(decompress_component(&m_egg_hatch_shinning2_compressed),
-                        NULL, egg_component_info, my_base_info);
+    const CompressedImage* target = &m_egg_hatch_shinning2_compressed;
+    uint8_t decompressed_buffer[target->width * target->height];
+    decompress_component(target, decompressed_buffer);
+    base = stack_component(decompressed_buffer, NULL, egg_component_info,
+                           my_base_info);
     base = stack_component(get_warning_component(), base,
                            warning_component_info, my_base_info);
   }
@@ -778,24 +822,37 @@ const uint8_t* get_dog_idle_frame_with_status_overview(int frame,
 
   uint8_t* base;
   if (heart_count == 0 || food_count == 0) {
-    base = stack_component(decompress_component(&m_dog_weak_compressed),
-                           NEW_SCREEN, dog_weak_component_info, screen_info);
+    const CompressedImage* target = &m_dog_weak_compressed;
+    uint8_t decompressed_buffer[target->width * target->height];
+    decompress_component(target, decompressed_buffer);
+    base = stack_component(decompressed_buffer, NEW_SCREEN,
+                           dog_weak_component_info, screen_info);
     if (frame == FRAME_1) {
-      base =
-          stack_component(decompress_component(&m_weak_particle_1_compressed),
-                          base, weak_particle_component_info, screen_info);
+      const CompressedImage* target = &m_weak_particle_1_compressed;
+      uint8_t decompressed_buffer[target->width * target->height];
+      decompress_component(target, decompressed_buffer);
+      base = stack_component(decompressed_buffer, base,
+                             weak_particle_component_info, screen_info);
     } else if (frame == FRAME_2) {
-      base =
-          stack_component(decompress_component(&m_weak_particle_2_compressed),
-                          base, weak_particle_component_info, screen_info);
+      const CompressedImage* target = &m_weak_particle_2_compressed;
+      uint8_t decompressed_buffer[target->width * target->height];
+      decompress_component(target, decompressed_buffer);
+      base = stack_component(decompressed_buffer, base,
+                             weak_particle_component_info, screen_info);
     }
   } else {
     if (frame == FRAME_1) {
-      base = stack_component(decompress_component(&m_dog_idle1_compressed),
-                             NEW_SCREEN, dog_idle_component_info, screen_info);
+      const CompressedImage* target = &m_dog_idle1_compressed;
+      uint8_t decompressed_buffer[target->width * target->height];
+      decompress_component(target, decompressed_buffer);
+      base = stack_component(decompressed_buffer, NEW_SCREEN,
+                             dog_idle_component_info, screen_info);
     } else if (frame == FRAME_2) {
-      base = stack_component(decompress_component(&m_dog_idle2_compressed),
-                             NEW_SCREEN, dog_idle_component_info, screen_info);
+      const CompressedImage* target = &m_dog_idle2_compressed;
+      uint8_t decompressed_buffer[target->width * target->height];
+      decompress_component(target, decompressed_buffer);
+      base = stack_component(decompressed_buffer, NEW_SCREEN,
+                             dog_idle_component_info, screen_info);
     }
   }
 
@@ -860,24 +917,37 @@ const uint8_t* get_cat_idle_frame_with_status_overview(int frame,
 
   uint8_t* base;
   if (heart_count == 0 || food_count == 0) {
-    base = stack_component(decompress_component(&m_cat_weak_compressed),
-                           NEW_SCREEN, cat_weak_component_info, screen_info);
+    const CompressedImage* target = &m_cat_weak_compressed;
+    uint8_t decompressed_buffer[target->width * target->height];
+    decompress_component(target, decompressed_buffer);
+    base = stack_component(decompressed_buffer, NEW_SCREEN,
+                           cat_weak_component_info, screen_info);
     if (frame == FRAME_1) {
-      base =
-          stack_component(decompress_component(&m_weak_particle_1_compressed),
-                          base, weak_particle_component_info, screen_info);
+      const CompressedImage* target = &m_weak_particle_1_compressed;
+      uint8_t decompressed_buffer[target->width * target->height];
+      decompress_component(target, decompressed_buffer);
+      base = stack_component(decompressed_buffer, base,
+                             weak_particle_component_info, screen_info);
     } else if (frame == FRAME_2) {
-      base =
-          stack_component(decompress_component(&m_weak_particle_2_compressed),
-                          base, weak_particle_component_info, screen_info);
+      const CompressedImage* target = &m_weak_particle_2_compressed;
+      uint8_t decompressed_buffer[target->width * target->height];
+      decompress_component(target, decompressed_buffer);
+      base = stack_component(decompressed_buffer, base,
+                             weak_particle_component_info, screen_info);
     }
   } else {
     if (frame == FRAME_1) {
-      base = stack_component(decompress_component(&m_cat_idle1_compressed),
-                             NEW_SCREEN, cat_idle_component_info, screen_info);
+      const CompressedImage* target = &m_cat_idle1_compressed;
+      uint8_t decompressed_buffer[target->width * target->height];
+      decompress_component(target, decompressed_buffer);
+      base = stack_component(decompressed_buffer, NEW_SCREEN,
+                             cat_idle_component_info, screen_info);
     } else if (frame == FRAME_2) {
-      base = stack_component(decompress_component(&m_cat_idle2_compressed),
-                             NEW_SCREEN, cat_idle_component_info, screen_info);
+      const CompressedImage* target = &m_cat_idle2_compressed;
+      uint8_t decompressed_buffer[target->width * target->height];
+      decompress_component(target, decompressed_buffer);
+      base = stack_component(decompressed_buffer, NEW_SCREEN,
+                             cat_idle_component_info, screen_info);
     }
   }
 
@@ -951,10 +1021,18 @@ const uint8_t* get_pet_healing_frame(int pet_type, int frame) {
 
   constexpr uint8_t full_1x1[1 * 1] = {1};
   uint8_t* base;
-  base = stack_component(decompress_component(&character), NEW_SCREEN,
+
+  const CompressedImage* target = &character;
+  uint8_t decompressed_buffer[target->width * target->height];
+  decompress_component(target, decompressed_buffer);
+  base = stack_component(decompressed_buffer, NEW_SCREEN,
                          pet_weak_component_info, screen_info);
-  base = stack_component(decompress_component(&m_icon_hospital_compressed),
-                         base, m_icon_hospital_component_info, screen_info);
+
+  const CompressedImage* target2 = &m_icon_hospital_compressed;
+  uint8_t decompressed_buffer2[target2->width * target2->height];
+  decompress_component(target2, decompressed_buffer2);
+  base = stack_component(decompressed_buffer2, base,
+                         m_icon_hospital_component_info, screen_info);
   if (frame == FRAME_2) {
     base =
         stack_const_component(full_1x1, base, heart_pixel_info_1, my_base_info);
@@ -1006,29 +1084,40 @@ const uint8_t* get_activity_selection_frame(int activity_type, int selection) {
   };
 
   uint8_t* base;
-  base = stack_component(decompress_component(&m_YN_icon_compressed),
-                         NEW_SCREEN, YN_componenet_info, screen_info);
+  const CompressedImage* target = &m_YN_icon_compressed;
+  uint8_t decompressed_buffer[target->width * target->height];
+  decompress_component(target, decompressed_buffer);
+  base = stack_component(decompressed_buffer, NEW_SCREEN, YN_componenet_info,
+                         screen_info);
 
   // battle or training
   if (activity_type == BATTLE) {
-    base =
-        stack_component(decompress_component(&m_battle_icon_compressed), base,
-                        select_battle_training_component_info, screen_info);
+    const CompressedImage* target = &m_battle_icon_compressed;
+    uint8_t decompressed_buffer[target->width * target->height];
+    decompress_component(target, decompressed_buffer);
+    base = stack_component(decompressed_buffer, base,
+                           select_battle_training_component_info, screen_info);
   } else if (activity_type == TRAINING) {
-    base =
-        stack_component(decompress_component(&m_training_icon_compressed), base,
-                        select_battle_training_component_info, screen_info);
+    const CompressedImage* target = &m_training_icon_compressed;
+    uint8_t decompressed_buffer[target->width * target->height];
+    decompress_component(target, decompressed_buffer);
+    base = stack_component(decompressed_buffer, base,
+                           select_battle_training_component_info, screen_info);
   }
 
   // left or right selection
   if (selection == LEFT) {
-    base = stack_component(
-        decompress_component(&m_YN_select_cursor_left_compressed), base,
-        select_left_component_info, screen_info);
+    const CompressedImage* target = &m_YN_select_cursor_left_compressed;
+    uint8_t decompressed_buffer[target->width * target->height];
+    decompress_component(target, decompressed_buffer);
+    base = stack_component(decompressed_buffer, base,
+                           select_left_component_info, screen_info);
   } else if (selection == RIGHT) {
-    base = stack_component(
-        decompress_component(&m_YN_select_cursor_right_compressed), base,
-        select_right_component_info, screen_info);
+    const CompressedImage* target = &m_YN_select_cursor_right_compressed;
+    uint8_t decompressed_buffer[target->width * target->height];
+    decompress_component(target, decompressed_buffer);
+    base = stack_component(decompressed_buffer, base,
+                           select_right_component_info, screen_info);
   }
 
   return base;
@@ -1063,16 +1152,25 @@ const uint8_t* get_select_character_frame(int frame) {
     frame = 0;
   }
 
-  uint8_t* base = stack_component(
-      decompress_component(&m_select_print_all_character_compressed),
-      NEW_SCREEN, select_print_all_character_component_info, screen_info);
+  const CompressedImage* target = &m_select_print_all_character_compressed;
+  uint8_t decompressed_buffer[target->width * target->height];
+  decompress_component(target, decompressed_buffer);
+  uint8_t* base =
+      stack_component(decompressed_buffer, NEW_SCREEN,
+                      select_print_all_character_component_info, screen_info);
 
   if (frame == LEFT) {
-    base = stack_component(decompress_component(&m_select_cursor_compressed),
-                           base, select_left_component_info, screen_info);
+    const CompressedImage* target = &m_select_cursor_compressed;
+    uint8_t decompressed_buffer[target->width * target->height];
+    decompress_component(target, decompressed_buffer);
+    base = stack_component(decompressed_buffer, base,
+                           select_left_component_info, screen_info);
   } else if (frame == RIGHT) {
-    stack_component(decompress_component(&m_select_cursor_compressed), base,
-                    select_right_component_info, screen_info);
+    const CompressedImage* target = &m_select_cursor_compressed;
+    uint8_t decompressed_buffer[target->width * target->height];
+    decompress_component(target, decompressed_buffer);
+    stack_component(decompressed_buffer, base, select_right_component_info,
+                    screen_info);
   }
 
   return base;
@@ -1110,13 +1208,17 @@ const uint8_t* get_battle_result_frame(int pet, int result, int frame) {
 
   uint8_t* base;
   if (pet == PET_TYPE_DOG) {
-    base =
-        stack_component(decompress_component(&m_dog_battle_result_compressed),
-                        NEW_SCREEN, dog_component_info, screen_info);
+    const CompressedImage* target = &m_dog_battle_result_compressed;
+    uint8_t decompressed_buffer[target->width * target->height];
+    decompress_component(target, decompressed_buffer);
+    base = stack_component(decompressed_buffer, NEW_SCREEN, dog_component_info,
+                           screen_info);
   } else if (pet == PET_TYPE_CAT) {
-    base =
-        stack_component(decompress_component(&m_cat_battle_result_compressed),
-                        NEW_SCREEN, cat_component_info, screen_info);
+    const CompressedImage* target = &m_cat_battle_result_compressed;
+    uint8_t decompressed_buffer[target->width * target->height];
+    decompress_component(target, decompressed_buffer);
+    base = stack_component(decompressed_buffer, NEW_SCREEN, cat_component_info,
+                           screen_info);
   }
 
   if (frame == FRAME_2) {
@@ -1125,13 +1227,17 @@ const uint8_t* get_battle_result_frame(int pet, int result, int frame) {
   }
 
   if (result == WIN) {
-    base = stack_component(
-        decompress_component(&m_battle_result_win_effect_compressed), base,
-        component_16x8, screen_info);
+    const CompressedImage* target = &m_battle_result_win_effect_compressed;
+    uint8_t decompressed_buffer[target->width * target->height];
+    decompress_component(target, decompressed_buffer);
+    base =
+        stack_component(decompressed_buffer, base, component_16x8, screen_info);
   } else if (result == LOSE) {
-    base = stack_component(
-        decompress_component(&m_battle_result_lose_effect_compressed), base,
-        component_16x8, screen_info);
+    const CompressedImage* target = &m_battle_result_lose_effect_compressed;
+    uint8_t decompressed_buffer[target->width * target->height];
+    decompress_component(target, decompressed_buffer);
+    base =
+        stack_component(decompressed_buffer, base, component_16x8, screen_info);
   }
   // TODO: tie
 
@@ -1194,35 +1300,53 @@ const uint8_t* get_battle_frame(int player_pet, int enemy_pet,
   uint8_t* base;
   // stack player
   if (player_pet == PET_TYPE_DOG) {
-    base = stack_component(decompress_component(&m_player_dog_compressed),
-                           NEW_SCREEN, dog_player_component_info, screen_info);
+    const CompressedImage* target = &m_player_dog_compressed;
+    uint8_t decompressed_buffer[target->width * target->height];
+    decompress_component(target, decompressed_buffer);
+    base = stack_component(decompressed_buffer, NEW_SCREEN,
+                           dog_player_component_info, screen_info);
   } else if (player_pet == PET_TYPE_CAT) {
-    base = stack_component(decompress_component(&m_player_cat_compressed),
-                           NEW_SCREEN, cat_player_component_info, screen_info);
+    const CompressedImage* target = &m_player_cat_compressed;
+    uint8_t decompressed_buffer[target->width * target->height];
+    decompress_component(target, decompressed_buffer);
+    base = stack_component(decompressed_buffer, NEW_SCREEN,
+                           cat_player_component_info, screen_info);
   }
 
   // stack enemy
   if (enemy_pet == PET_TYPE_DOG) {
-    base = stack_component(decompress_component(&m_enemy_dog_compressed), base,
-                           dog_enemy_component_info, screen_info);
+    const CompressedImage* target = &m_enemy_dog_compressed;
+    uint8_t decompressed_buffer[target->width * target->height];
+    decompress_component(target, decompressed_buffer);
+    base = stack_component(decompressed_buffer, base, dog_enemy_component_info,
+                           screen_info);
   } else if (enemy_pet == PET_TYPE_CAT) {
-    base = stack_component(decompress_component(&m_enemy_cat_compressed), base,
-                           cat_enemy_component_info, screen_info);
+    const CompressedImage* target = &m_enemy_cat_compressed;
+    uint8_t decompressed_buffer[target->width * target->height];
+    decompress_component(target, decompressed_buffer);
+    base = stack_component(decompressed_buffer, base, cat_enemy_component_info,
+                           screen_info);
   } else if (enemy_pet == OTHER_TYPE_TRAINING_FACILITY) {
-    base = stack_component(
-        decompress_component(&m_training_facility_enemy_compressed), base,
-        training_facility_enemy_component_info, screen_info);
+    const CompressedImage* target = &m_training_facility_enemy_compressed;
+    uint8_t decompressed_buffer[target->width * target->height];
+    decompress_component(target, decompressed_buffer);
+    base = stack_component(decompressed_buffer, base,
+                           training_facility_enemy_component_info, screen_info);
   }
 
   // stack damage effect
   if (damage_target == PLAYER) {
-    base =
-        stack_component(decompress_component(&m_hit_player_effect_compressed),
-                        base, damage_player_component_info, screen_info, true);
+    const CompressedImage* target = &m_hit_player_effect_compressed;
+    uint8_t decompressed_buffer[target->width * target->height];
+    decompress_component(target, decompressed_buffer);
+    base = stack_component(decompressed_buffer, base,
+                           damage_player_component_info, screen_info, true);
   } else if (damage_target == ENEMY) {
-    base =
-        stack_component(decompress_component(&m_hit_enemy_effect_compressed),
-                        base, damage_enemy_component_info, screen_info, true);
+    const CompressedImage* target = &m_hit_enemy_effect_compressed;
+    uint8_t decompressed_buffer[target->width * target->height];
+    decompress_component(target, decompressed_buffer);
+    base = stack_component(decompressed_buffer, base,
+                           damage_enemy_component_info, screen_info, true);
   }
 
   return base;
@@ -1258,8 +1382,11 @@ const uint8_t* get_LV_status_frame(int level_number) {
   uint8_t* base;
   /* combine hatch component with num component */
   // stack LV word icon
-  base = stack_component(decompress_component(&m_lv_word_icon_compressed), NULL,
-                         LV_component_info, my_base_info);
+  const CompressedImage* target = &m_lv_word_icon_compressed;
+  uint8_t decompressed_buffer[target->width * target->height];
+  decompress_component(target, decompressed_buffer);
+  base = stack_component(decompressed_buffer, NULL, LV_component_info,
+                         my_base_info);
 
   // stack number icon
   if (level_number == 0) {
@@ -1302,8 +1429,11 @@ const uint8_t* get_FD_status_frame(int food_count) {
   uint8_t* base;
   /* combine hatch component with num component */
   // stack LV word icon
-  base = stack_component(decompress_component(&m_fd_word_icon_compressed), NULL,
-                         FD_word_component_info, my_base_info);
+  const CompressedImage* target = &m_fd_word_icon_compressed;
+  uint8_t decompressed_buffer[target->width * target->height];
+  decompress_component(target, decompressed_buffer);
+  base = stack_component(decompressed_buffer, NULL, FD_word_component_info,
+                         my_base_info);
 
   if (food_count == 0) {
     // if food count is 0, return the base with FD word icon only
@@ -1346,8 +1476,11 @@ const uint8_t* get_HP_status_frame(int hp_count) {
   uint8_t* base;
   /* combine hatch component with num component */
   // stack LV word icon
-  base = stack_component(decompress_component(&m_hp_word_icon_compressed), NULL,
-                         HP_word_component_info, my_base_info);
+  const CompressedImage* target = &m_hp_word_icon_compressed;
+  uint8_t decompressed_buffer[target->width * target->height];
+  decompress_component(target, decompressed_buffer);
+  base = stack_component(decompressed_buffer, NULL, HP_word_component_info,
+                         my_base_info);
   if (hp_count == 0) {
     // if hp count is 0, return the base with HP word icon only
     return base;
@@ -1398,22 +1531,32 @@ const uint8_t* get_feed_confirm_frame(int selection) {
   };
 
   uint8_t* base;
-  base = stack_component(decompress_component(&m_YN_icon_compressed),
-                         NEW_SCREEN, YN_componenet_info, screen_info);
+  const CompressedImage* target = &m_YN_icon_compressed;
+  uint8_t decompressed_buffer[target->width * target->height];
+  decompress_component(target, decompressed_buffer);
+  base = stack_component(decompressed_buffer, NEW_SCREEN, YN_componenet_info,
+                         screen_info);
 
   // food component
-  base = stack_component(decompress_component(&m_cookie_100_icon_compressed),
-                         base, food_component_info, screen_info);
+  const CompressedImage* target2 = &m_cookie_100_icon_compressed;
+  uint8_t decompressed_buffer2[target2->width * target2->height];
+  decompress_component(target2, decompressed_buffer2);
+  base = stack_component(decompressed_buffer2, base, food_component_info,
+                         screen_info);
 
   // left or right selection
   if (selection == LEFT) {
-    base = stack_component(
-        decompress_component(&m_YN_select_cursor_left_compressed), base,
-        select_left_component_info, screen_info);
+    const CompressedImage* target = &m_YN_select_cursor_left_compressed;
+    uint8_t decompressed_buffer[target->width * target->height];
+    decompress_component(target, decompressed_buffer);
+    base = stack_component(decompressed_buffer, base,
+                           select_left_component_info, screen_info);
   } else if (selection == RIGHT) {
-    base = stack_component(
-        decompress_component(&m_YN_select_cursor_right_compressed), base,
-        select_right_component_info, screen_info);
+    const CompressedImage* target = &m_YN_select_cursor_right_compressed;
+    uint8_t decompressed_buffer[target->width * target->height];
+    decompress_component(target, decompressed_buffer);
+    base = stack_component(decompressed_buffer, base,
+                           select_right_component_info, screen_info);
   }
 
   return base;
@@ -1433,8 +1576,11 @@ uint8_t* get_empty_frame() {
   };
 
   uint8_t* base;
-  base = stack_component(decompress_component(&m_empty_frame_compressed),
-                         NEW_SCREEN, full_frame_component_info, screen_info);
+  const CompressedImage* target = &m_empty_frame_compressed;
+  uint8_t decompressed_buffer[target->width * target->height];
+  decompress_component(target, decompressed_buffer);
+  base = stack_component(decompressed_buffer, NEW_SCREEN,
+                         full_frame_component_info, screen_info);
   return base;
 }
 
@@ -1455,14 +1601,23 @@ const uint8_t* get_feed_pet_frame(int cookie_percent) {
 
   // food component
   if (cookie_percent == cookie_100) {
-    base = stack_component(decompress_component(&m_cookie_100_icon_compressed),
-                           NEW_SCREEN, food_component_info, screen_info);
+    const CompressedImage* target = &m_cookie_100_icon_compressed;
+    uint8_t decompressed_buffer[target->width * target->height];
+    decompress_component(target, decompressed_buffer);
+    base = stack_component(decompressed_buffer, NEW_SCREEN, food_component_info,
+                           screen_info);
   } else if (cookie_percent == cookie_50) {
-    base = stack_component(decompress_component(&m_cookie_50_icon_compressed),
-                           NEW_SCREEN, food_component_info, screen_info);
+    const CompressedImage* target = &m_cookie_50_icon_compressed;
+    uint8_t decompressed_buffer[target->width * target->height];
+    decompress_component(target, decompressed_buffer);
+    base = stack_component(decompressed_buffer, NEW_SCREEN, food_component_info,
+                           screen_info);
   } else if (cookie_percent == cookie_30) {
-    base = stack_component(decompress_component(&m_cookie_30_icon_compressed),
-                           NEW_SCREEN, food_component_info, screen_info);
+    const CompressedImage* target = &m_cookie_30_icon_compressed;
+    uint8_t decompressed_buffer[target->width * target->height];
+    decompress_component(target, decompressed_buffer);
+    base = stack_component(decompressed_buffer, NEW_SCREEN, food_component_info,
+                           screen_info);
   } else if (cookie_percent == cookie_0) {
     base = get_empty_frame();
   }
@@ -1527,8 +1682,11 @@ const uint8_t* get_pet_happy_frame_after_feed(int pet_type, int frame) {
 
   constexpr uint8_t full_1x1[1 * 1] = {1};
   uint8_t* base;
-  base = stack_component(decompress_component(&character), NEW_SCREEN,
-                         pet_component_info, screen_info);
+  const CompressedImage* target = &character;
+  uint8_t decompressed_buffer[target->width * target->height];
+  decompress_component(target, decompressed_buffer);
+  base = stack_component(decompressed_buffer, NEW_SCREEN, pet_component_info,
+                         screen_info);
   if (frame == FRAME_1) {
     base =
         stack_const_component(full_1x1, base, heart_pixel_info_1, my_base_info);
@@ -1563,22 +1721,31 @@ const uint8_t* get_scoring_frame(int ok_qty, int fail_qty) {
 
   // icon
   uint8_t* base;
-  base = stack_component(decompress_component(&m_scoring_page_icon_compressed),
-                         NEW_SCREEN, icon_component_info, screen_info);
+  const CompressedImage* target = &m_scoring_page_icon_compressed;
+  uint8_t decompressed_buffer[target->width * target->height];
+  decompress_component(target, decompressed_buffer);
+  base = stack_component(decompressed_buffer, NEW_SCREEN, icon_component_info,
+                         screen_info);
 
   // score
   for (int i = 0; i < ok_qty; ++i) {
     component_info score_icon_info_copy = score_icon_info_base;
     score_icon_info_copy.x_offset += i * 2;  // offset for each icon
-    base = stack_component(decompress_component(&m_score_icon_compressed), base,
-                           score_icon_info_copy, screen_info);
+    const CompressedImage* target = &m_score_icon_compressed;
+    uint8_t decompressed_buffer[target->width * target->height];
+    decompress_component(target, decompressed_buffer);
+    base = stack_component(decompressed_buffer, base, score_icon_info_copy,
+                           screen_info);
   }
   for (int i = 0; i < fail_qty; ++i) {
     component_info score_icon_info_copy = score_icon_info_base;
     score_icon_info_copy.y_offset = 5;       // offset for fail icon
     score_icon_info_copy.x_offset += i * 2;  // offset for each icon
-    base = stack_component(decompress_component(&m_score_icon_compressed), base,
-                           score_icon_info_copy, screen_info);
+    const CompressedImage* target = &m_score_icon_compressed;
+    uint8_t decompressed_buffer[target->width * target->height];
+    decompress_component(target, decompressed_buffer);
+    base = stack_component(decompressed_buffer, base, score_icon_info_copy,
+                           screen_info);
   }
 
   return base;
@@ -1598,9 +1765,11 @@ const uint8_t* get_end_frame() {
   };
 
   uint8_t* base;
-  base =
-      stack_component(decompress_component(&m_battle_training_end_compressed),
-                      NEW_SCREEN, full_frame_component_info, screen_info);
+  const CompressedImage* target = &m_battle_training_end_compressed;
+  uint8_t decompressed_buffer[target->width * target->height];
+  decompress_component(target, decompressed_buffer);
+  base = stack_component(decompressed_buffer, NEW_SCREEN,
+                         full_frame_component_info, screen_info);
   return base;
 }
 /** --- frame part end ---*/

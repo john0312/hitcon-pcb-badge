@@ -12,7 +12,8 @@
  * @return uint8_t* The pointer to the decompressed data. Must be freed after
  * use.
  */
-uint8_t* decompress_component(const CompressedImage* compressed);
+void decompress_component(const CompressedImage* compressed,
+                          uint8_t* decompressed_buffer);
 
 #ifdef SIMU
 /**

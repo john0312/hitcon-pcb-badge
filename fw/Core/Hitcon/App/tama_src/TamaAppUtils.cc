@@ -7,23 +7,22 @@
  * @return uint8_t* The pointer to the decompressed data. Must be freed after
  * use.
  */
-uint8_t* decompress_component(const CompressedImage* compressed) {
-  // new the memory at heap
-  uint8_t* decompressed_data =
-      new uint8_t[compressed->width * compressed->height];
-  // set the memory to 0
-  memset(decompressed_data, 0, compressed->width * compressed->height);
+void decompress_component(const CompressedImage* compressed,
+                          uint8_t* decompressed_buffer) {
+  // // new the memory at heap
+  // uint8_t* decompressed_data =
+  //     new uint8_t[compressed->width * compressed->height];
+  // // set the memory to 0
+  // memset(decompressed_data, 0, compressed->width * compressed->height);
 
   for (int y = 0; y < compressed->height; ++y) {
     for (int x = 0; x < compressed->width; ++x) {
       int byte_index = x;  // each column corresponds to one uint8_t
       int bit_index = y % 8;
-      decompressed_data[y * compressed->width + x] =
+      decompressed_buffer[y * compressed->width + x] =
           (compressed->data[byte_index] & (1 << bit_index)) ? 1 : 0;
     }
   }
-
-  return decompressed_data;
 }
 
 /**  The test function for compress and decompress , not in use in runtime */
@@ -158,9 +157,9 @@ void print_decompressed_component(const uint8_t* decompressed, uint8_t width,
  * @param compressed The compressed image data to be decompressed
  */
 void decompress_and_print_component(const CompressedImage* compressed) {
-  uint8_t* decompressed = decompress_component(compressed);
-  print_decompressed_component(decompressed, compressed->width,
+  uint8_t decompressed_buffer[compressed->width * compressed->height];
+  decompress_component(compressed, decompressed_buffer);
+  print_decompressed_component(decompressed_buffer, compressed->width,
                                compressed->height);
-  delete[] decompressed;
 }
 #endif

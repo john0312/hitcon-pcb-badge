@@ -2,7 +2,6 @@
 #define TEST_ALL_FRAMES
 
 #ifdef SIMU
-#define constexpr const
 #define SLEEP_US 500000
 
 #include "TamaAppFrame.h"
@@ -71,22 +70,21 @@ void cat_idle(int repeat_count) {
       .width = 16,
       .height = 8,
   };
+  const CompressedImage* target = &m_cat_idle1_compressed;
+  uint8_t decompressed_buffer[target->width * target->height];
+  decompress_component(target, decompressed_buffer);
+  uint8_t* cat_idle1 = stack_component(decompressed_buffer, NEW_SCREEN,
+                                       cat_idle_component_info, screen_info);
 
-  uint8_t* cat_idle1 =
-      stack_component(decompress_component(&m_cat_idle1_compressed), NEW_SCREEN,
-                      cat_idle_component_info, screen_info);
-  uint8_t* cat_idle2 =
-      stack_component(decompress_component(&m_cat_idle2_compressed), NEW_SCREEN,
-                      cat_idle_component_info, screen_info);
+  const CompressedImage* target2 = &m_cat_idle2_compressed;
+  uint8_t decompressed_buffer2[target2->width * target2->height];
+  decompress_component(target2, decompressed_buffer2);
+  uint8_t* cat_idle2 = stack_component(decompressed_buffer, NEW_SCREEN,
+                                       cat_idle_component_info, screen_info);
   const uint8_t* cat_idle_frame_all[CAT_IDLE_FRAME_COUNT] = {cat_idle1,
                                                              cat_idle2};
   for (int i = 0; i < repeat_count; ++i) {
     show_anime_with_delay(cat_idle_frame_all, CAT_IDLE_FRAME_COUNT, SLEEP_US);
-  }
-
-  // loop to release all allocated memory
-  for (int i = 0; i < CAT_IDLE_FRAME_COUNT; ++i) {
-    delete[] cat_idle_frame_all[i];
   }
 }
 
@@ -106,21 +104,22 @@ void dog_idle(int repeat_count) {
       .width = 16,
       .height = 8,
   };
-  uint8_t* dog_idle1 =
-      stack_component(decompress_component(&m_dog_idle1_compressed), NEW_SCREEN,
-                      dog_idle_component_info, screen_info);
-  uint8_t* dog_idle2 =
-      stack_component(decompress_component(&m_dog_idle2_compressed), NEW_SCREEN,
-                      dog_idle_component_info, screen_info);
+
+  const CompressedImage* target = &m_dog_idle1_compressed;
+  uint8_t decompressed_buffer[target->width * target->height];
+  decompress_component(target, decompressed_buffer);
+  uint8_t* dog_idle1 = stack_component(decompressed_buffer, NEW_SCREEN,
+                                       dog_idle_component_info, screen_info);
+
+  const CompressedImage* target2 = &m_dog_idle2_compressed;
+  uint8_t decompressed_buffer2[target2->width * target2->height];
+  decompress_component(target2, decompressed_buffer2);
+  uint8_t* dog_idle2 = stack_component(decompressed_buffer, NEW_SCREEN,
+                                       dog_idle_component_info, screen_info);
   const uint8_t* dog_idle_frame_all[DOG_IDLE_FRAME_COUNT] = {dog_idle1,
                                                              dog_idle2};
   for (int i = 0; i < repeat_count; ++i) {
     show_anime_with_delay(dog_idle_frame_all, DOG_IDLE_FRAME_COUNT, SLEEP_US);
-  }
-
-  // loop to release all allocated memory
-  for (int i = 0; i < DOG_IDLE_FRAME_COUNT; ++i) {
-    delete[] dog_idle_frame_all[i];
   }
 }
 
@@ -140,11 +139,6 @@ void select_character(int repeat_count) {
   for (int i = 0; i < repeat_count; ++i) {
     show_anime_with_delay(select_character_frame_all,
                           SELECT_CHARACTER_FRAME_COUNT, SLEEP_US);
-  }
-
-  // loop to release all allocated memory
-  for (int i = 0; i < SELECT_CHARACTER_FRAME_COUNT; ++i) {
-    delete[] select_character_frame_all[i];
   }
 }
 
@@ -183,13 +177,6 @@ void egg_hatch(int repeat_count) {
         HATCH_STATUS_FRAME_COUNT + 2 * HATCH_WARNING_REPEAT_SHINE_COUNT,
         SLEEP_US);
   }
-
-  // loop to release all allocated memory
-  for (int i = 0;
-       i < HATCH_STATUS_FRAME_COUNT + 2 * HATCH_WARNING_REPEAT_SHINE_COUNT;
-       ++i) {
-    delete[] frame_collection[i];
-  }
 }
 
 /**
@@ -216,7 +203,7 @@ void num_test(int repeat_count) {
       .height = 8,
   };
 
-  const uint8_t* num_component_all[frame_count] = {
+  uint8_t* num_component_all[frame_count] = {
       get_number_component(1),   get_number_component(23),
       get_number_component(456), get_number_component(789),
       get_number_component(100),
@@ -225,19 +212,13 @@ void num_test(int repeat_count) {
   // create screens
   const uint8_t* frame_all[frame_count];
   for (int i = 0; i < frame_count; ++i) {
-    frame_all[i] =
-        stack_target_offset(num_component_all[i], NEW_SCREEN,
-                            num_area_component_info, screen_info, true);
+    frame_all[i] = stack_component(num_component_all[i], NEW_SCREEN,
+                                   num_area_component_info, screen_info);
   }
 
   // show animation
   for (int i = 0; i < repeat_count; ++i) {
     show_anime_with_delay(frame_all, frame_count, SLEEP_US);
-  }
-
-  // loop to release all allocated memory
-  for (int i = 0; i < frame_count; ++i) {
-    delete[] frame_all[i];
   }
 }
 
@@ -258,11 +239,6 @@ void cat_idle_with_status(int repeat_count) {
   for (int i = 0; i < repeat_count; ++i) {
     show_anime_with_delay(cat_idle_frame_all, CAT_IDLE_FRAME_COUNT, SLEEP_US);
   }
-
-  // loop to release all allocated memory
-  for (int i = 0; i < CAT_IDLE_FRAME_COUNT; ++i) {
-    delete[] cat_idle_frame_all[i];
-  }
 }
 
 /**
@@ -281,11 +257,6 @@ void dog_idle_with_status(int repeat_count) {
 
   for (int i = 0; i < repeat_count; ++i) {
     show_anime_with_delay(dog_idle_frame_all, DOG_IDLE_FRAME_COUNT, SLEEP_US);
-  }
-
-  // loop to release all allocated memory
-  for (int i = 0; i < DOG_IDLE_FRAME_COUNT; ++i) {
-    delete[] dog_idle_frame_all[i];
   }
 }
 
@@ -308,11 +279,6 @@ void cat_weak_idle_with_status(int repeat_count) {
 
   for (int i = 0; i < repeat_count; ++i) {
     show_anime_with_delay(cat_idle_frame_all, CAT_IDLE_FRAME_COUNT, SLEEP_US);
-  }
-
-  // loop to release all allocated memory
-  for (int i = 0; i < CAT_IDLE_FRAME_COUNT; ++i) {
-    delete[] cat_idle_frame_all[i];
   }
 }
 
@@ -337,11 +303,6 @@ void dog_weak_idle_with_status(int repeat_count) {
   for (int i = 0; i < repeat_count; ++i) {
     show_anime_with_delay(dog_idle_frame_all, DOG_IDLE_FRAME_COUNT, SLEEP_US);
   }
-
-  // loop to release all allocated memory
-  for (int i = 0; i < DOG_IDLE_FRAME_COUNT; ++i) {
-    delete[] dog_idle_frame_all[i];
-  }
 }
 
 void dog_status_change(int repeat_count) {
@@ -357,11 +318,6 @@ void dog_status_change(int repeat_count) {
 
   for (int i = 0; i < repeat_count; ++i) {
     show_anime_with_delay(dog_idle_frame_all, 3, SLEEP_US);
-  }
-
-  // loop to release all allocated memory
-  for (int i = 0; i < 3; ++i) {
-    delete[] dog_idle_frame_all[i];
   }
 }
 
@@ -386,11 +342,6 @@ void pet_healing(int pet_type, int repeat_count) {
   for (int i = 0; i < repeat_count; ++i) {
     show_anime_with_delay(pet_healing_frame_all, frame_count, SLEEP_US);
   }
-
-  // loop to release all allocated memory
-  for (int i = 0; i < frame_count; ++i) {
-    delete[] pet_healing_frame_all[i];
-  }
 }
 
 /**
@@ -410,11 +361,6 @@ void training_selection(int repeat_count) {
 
   for (int i = 0; i < repeat_count; ++i) {
     show_anime_with_delay(frame_all, frame_count, SLEEP_US);
-  }
-
-  // loop to release all allocated memory
-  for (int i = 0; i < SELECT_YN_FRAME_COUNT; ++i) {
-    delete[] frame_all[i];
   }
 }
 
@@ -436,11 +382,6 @@ void battle_selection(int repeat_count) {
   for (int i = 0; i < repeat_count; ++i) {
     show_anime_with_delay(frame_all, frame_count, SLEEP_US);
   }
-
-  // loop to release all allocated memory
-  for (int i = 0; i < SELECT_YN_FRAME_COUNT; ++i) {
-    delete[] frame_all[i];
-  }
 }
 
 /**
@@ -460,11 +401,6 @@ void battle_result_demo(int pet, int result, int repeat_count) {
 
   for (int i = 0; i < repeat_count; ++i) {
     show_anime_with_delay(frame_all, frame_count, SLEEP_US);
-  }
-
-  // loop to release all allocated memory
-  for (int i = 0; i < SELECT_YN_FRAME_COUNT; ++i) {
-    delete[] frame_all[i];
   }
 }
 
@@ -491,11 +427,6 @@ void battle_demo(int player_pet, int enemy_pet, int attack_first,
   for (int i = 0; i < repeat_count; ++i) {
     show_anime_with_delay(frame_all, frame_count, SLEEP_US);
   }
-
-  // loop to release all allocated memory
-  for (int i = 0; i < SELECT_YN_FRAME_COUNT; ++i) {
-    delete[] frame_all[i];
-  }
 }
 
 void training_demo(int pet_type, int repeat_count) {
@@ -509,11 +440,6 @@ void training_demo(int pet_type, int repeat_count) {
 
   for (int i = 0; i < repeat_count; ++i) {
     show_anime_with_delay(frame_all, frame_count, SLEEP_US);
-  }
-
-  // loop to release all allocated memory
-  for (int i = 0; i < SELECT_YN_FRAME_COUNT; ++i) {
-    delete[] frame_all[i];
   }
 }
 
@@ -530,11 +456,6 @@ void detail_information_demo(int repeat_count) {
   for (int i = 0; i < repeat_count; ++i) {
     show_anime_with_delay(frame_all, frame_count, SLEEP_US);
   }
-
-  // loop to release all allocated memory
-  for (int i = 0; i < frame_count; ++i) {
-    delete[] frame_all[i];
-  }
 }
 
 void feed_confirm_demo(int repeat_count) {
@@ -547,11 +468,6 @@ void feed_confirm_demo(int repeat_count) {
 
   for (int i = 0; i < repeat_count; ++i) {
     show_anime_with_delay(frame_all, frame_count, SLEEP_US);
-  }
-
-  // loop to release all allocated memory
-  for (int i = 0; i < SELECT_YN_FRAME_COUNT; ++i) {
-    delete[] frame_all[i];
   }
 }
 
@@ -574,11 +490,6 @@ void feed_pet_demo(int pet_type, int repeat_count) {
   for (int i = 0; i < repeat_count; ++i) {
     show_anime_with_delay(frame_all, frame_count, SLEEP_US);
   }
-
-  // loop to release all allocated memory
-  for (int i = 0; i < frame_count; ++i) {
-    delete[] frame_all[i];
-  }
 }
 
 void scoring_then_end_demo(int repeat_count) {
@@ -591,11 +502,6 @@ void scoring_then_end_demo(int repeat_count) {
 
   for (int i = 0; i < repeat_count; ++i) {
     show_anime_with_delay(frame_all, frame_count, SLEEP_US);
-  }
-
-  // loop to release all allocated memory
-  for (int i = 0; i < frame_count; ++i) {
-    delete[] frame_all[i];
   }
 }
 
