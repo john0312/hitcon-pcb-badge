@@ -4,7 +4,7 @@ from packet_processor import PacketProcessor
 from game_logic_controller import GameLogicController
 from config import Config
 from database import db
-from schemas import Station, IrPacket, IrPacketRequestSchema, Display, PacketType, ScoreEntry
+from schemas import Station, IrPacketRequestSchema, Display, ScoreEntry, ReCTFScoreSchema
 
 config = Config("config.yaml")
 
