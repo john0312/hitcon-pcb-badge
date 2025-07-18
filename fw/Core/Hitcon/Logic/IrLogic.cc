@@ -12,7 +12,7 @@
 
 using hitcon::service::sched::my_assert;
 using hitcon::service::xboard::g_xboard_logic;
-using hitcon::service::xboard::IR_RECV_ID;
+using hitcon::service::xboard::IR_TO_ATTENDEE;
 
 namespace hitcon {
 namespace ir {
@@ -33,7 +33,7 @@ void IrLogic::Init() {
   // Possible Vuln: the IR decode can cause CPU out of service if there are
   // too many xboard packets.
   g_xboard_logic.SetOnPacketArrive((callback_t)&IrLogic::OnBufferReceived, this,
-                                   IR_RECV_ID);
+                                   IR_TO_ATTENDEE);
 }
 
 size_t packet_buf{0};

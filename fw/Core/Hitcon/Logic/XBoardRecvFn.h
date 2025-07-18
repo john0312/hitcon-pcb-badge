@@ -11,10 +11,11 @@ enum RecvFnId {
   SNAKE_RECV_ID,
   TEST_APP_RECV_ID,
   TETRIS_RECV_ID,
-  IR_RECV_ID,
   XBOARD_GAME_CONTROLLER,                   // DISABLED/DEPRECATED
   XBOARD_GAME_CONTROLLER_ACK,               // DISABLED/DEPRECATED
   XBOARD_GAME_CONTROLLER_SEND_ALL_TRIGGER,  // DISABLED/DEPRECATED
+  IR_TO_BASE_STATION,                       // attendee -> base
+  IR_TO_ATTENDEE,                           // base -> attendee
   TAMA_RECV_ID,
   // MAX is to express the length of callback function array
   MAX

@@ -129,7 +129,7 @@ bool XBoardLogic::TryReadBytes(uint8_t *dst, size_t size,
 }
 
 bool XBoardLogic::SendIRPacket(uint8_t *data, size_t len) {
-  g_xboard_logic.QueueDataForTx(data, len, IR_RECV_ID);
+  g_xboard_logic.QueueDataForTx(data, len, IR_TO_BASE_STATION);
   // TODO: Checking ACK
   // assuming always ACKed now
   return true;
