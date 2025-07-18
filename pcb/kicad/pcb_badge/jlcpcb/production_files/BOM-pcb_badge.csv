@@ -1,9 +1,7 @@
 Comment,Designator,Footprint,LCSC
-110R,"R165,R166,R167",R_1206_3216Metric_Pad1.30x1.75mm_HandSolder,C1450
 0.1u,"C1,C21,C30,C31,C32,C33,C40,C50,C51,C80",C_0402_1005Metric_Pad0.74x0.62mm_HandSolder,C1525
 1u,"C10,C11",C_0603_1608Metric_Pad1.08x0.95mm_HandSolder,C152900
 20p,"C37,C38",C_0402_1005Metric_Pad0.74x0.62mm_HandSolder,C1554
-110R,"R162,R163",R_1206_3216Metric_Pad1.30x1.75mm_HandSolder,C159726
 4.7u,C60,C_0603_1608Metric_Pad1.08x0.95mm_HandSolder,C1705
 10M,"R11,R4",R_0402_1005Metric_Pad0.72x0.64mm_HandSolder,C177265
 TLV70328DBVR,U1,SOT-23-5,C19631758
@@ -55,3 +53,8 @@ NC,D163,LED_PLCC_2835_Handsoldering,
 NC,D167,LED_PLCC_2835_Handsoldering,
 NC,D162,LED_PLCC_2835_Handsoldering,
 NC,D165,LED_PLCC_2835_Handsoldering,
+NC,R165,R_1206_3216Metric_Pad1.30x1.75mm_HandSolder,
+NC,R166,R_1206_3216Metric_Pad1.30x1.75mm_HandSolder,
+NC,R162,R_1206_3216Metric_Pad1.30x1.75mm_HandSolder,
+NC,R167,R_1206_3216Metric_Pad1.30x1.75mm_HandSolder,
+NC,R163,R_1206_3216Metric_Pad1.30x1.75mm_HandSolder,
