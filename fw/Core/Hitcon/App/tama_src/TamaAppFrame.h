@@ -38,66 +38,65 @@ struct base_info {
 };
 
 // Function declarations
-uint8_t* stack_component(uint8_t* component, uint8_t* base,
-                         component_info comp_info, base_info bs_info,
-                         bool eliminate = false);
+void stack_component(uint8_t* component, uint8_t* base,
+                     component_info comp_info, base_info bs_info,
+                     bool eliminate = false);
 
-uint8_t* stack_const_component(const uint8_t* component, uint8_t* base,
-                               component_info comp_info, base_info bs_info);
+void stack_const_component(const uint8_t* component, uint8_t* base,
+                           component_info comp_info, base_info bs_info);
 
-uint8_t* get_number_component(int target_num);
+void get_number_component(int target_num, uint8_t* base);
 
-uint8_t* get_warning_component();
+void get_warning_component(uint8_t* base);
 
-uint8_t* get_egg_component(int percentage);
+void get_egg_component(int percentage, uint8_t* base);
 
-uint8_t* get_heart_overview_component(int heart_count);
+void get_heart_overview_component(int heart_count, uint8_t* base);
 
-uint8_t* get_food_overview_component(int food_count);
+void get_food_overview_component(int food_count, uint8_t* base);
 
-uint8_t* get_fd_icons_component(int food_count);
+void get_fd_icons_component(int food_count, uint8_t* base);
 
-uint8_t* get_hp_icons_component(int hp_count);
+void get_hp_icons_component(int hp_count, uint8_t* base);
 
-const uint8_t* get_hatch_status_frame(int remaining_count);
+void get_hatch_status_frame(int remaining_count, uint8_t* base);
 
-const uint8_t* get_hatch_born_warning_frame(int frame);
+void get_hatch_born_warning_frame(int frame, uint8_t* base);
 
-const uint8_t* get_dog_idle_frame_with_status_overview(int frame,
-                                                       int heart_count,
-                                                       int food_count);
+void get_dog_idle_frame_with_status_overview(int frame, int heart_count,
+                                             int food_count, uint8_t* base);
 
-const uint8_t* get_cat_idle_frame_with_status_overview(int frame,
-                                                       int heart_count,
-                                                       int food_count);
+void get_cat_idle_frame_with_status_overview(int frame, int heart_count,
+                                             int food_count, uint8_t* base);
 
-const uint8_t* get_pet_healing_frame(int pet_type, int frame);
+void get_pet_healing_frame(int pet_type, int frame, uint8_t* base);
 
-const uint8_t* get_activity_selection_frame(int activity_type, int selection);
+void get_activity_selection_frame(int activity_type, int selection,
+                                  uint8_t* base);
 
-const uint8_t* get_select_character_frame(int frame);
+void get_select_character_frame(int frame, uint8_t* base);
 
-const uint8_t* get_battle_result_frame(int pet, int result, int frame);
+void get_battle_result_frame(int pet, int result, int frame, uint8_t* base);
 
-const uint8_t* get_battle_frame(int player_pet, int enemy_pet,
-                                int damage_target);
+void get_battle_frame(int player_pet, int enemy_pet, int damage_target,
+                      uint8_t* base);
 
-const uint8_t* get_LV_status_frame(int level_number);
+void get_LV_status_frame(int level_number, uint8_t* base);
 
-const uint8_t* get_FD_status_frame(int food_count);
+void get_FD_status_frame(int food_count, uint8_t* base);
 
-const uint8_t* get_HP_status_frame(int hp_count);
+void get_HP_status_frame(int hp_count, uint8_t* base);
 
-const uint8_t* get_feed_confirm_frame(int selection);
+void get_feed_confirm_frame(int selection, uint8_t* base);
 
-uint8_t* get_empty_frame();
+void get_empty_frame(uint8_t* base);
 
-const uint8_t* get_feed_pet_frame(int cookie_percent);
+void get_feed_pet_frame(int cookie_percent, uint8_t* base);
 
-const uint8_t* get_pet_happy_frame_after_feed(int pet_type, int frame);
+void get_pet_happy_frame_after_feed(int pet_type, int frame, uint8_t* base);
 
-const uint8_t* get_scoring_frame(int ok_qty, int fail_qty);
+void get_scoring_frame(int ok_qty, int fail_qty, uint8_t* base);
 
-const uint8_t* get_end_frame();
+void get_end_frame(uint8_t* base);
 
 #endif  // TAMA_APP_FRAME_H

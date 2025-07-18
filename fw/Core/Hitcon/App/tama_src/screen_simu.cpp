@@ -73,14 +73,16 @@ void cat_idle(int repeat_count) {
   const CompressedImage* target = &m_cat_idle1_compressed;
   uint8_t decompressed_buffer[target->width * target->height];
   decompress_component(target, decompressed_buffer);
-  uint8_t* cat_idle1 = stack_component(decompressed_buffer, NEW_SCREEN,
-                                       cat_idle_component_info, screen_info);
+  uint8_t cat_idle1[screen_info.width * screen_info.height];
+  stack_component(decompressed_buffer, cat_idle1, cat_idle_component_info,
+                  screen_info);
 
   const CompressedImage* target2 = &m_cat_idle2_compressed;
   uint8_t decompressed_buffer2[target2->width * target2->height];
   decompress_component(target2, decompressed_buffer2);
-  uint8_t* cat_idle2 = stack_component(decompressed_buffer, NEW_SCREEN,
-                                       cat_idle_component_info, screen_info);
+  uint8_t cat_idle2[screen_info.width * screen_info.height];
+  stack_component(decompressed_buffer, cat_idle2, cat_idle_component_info,
+                  screen_info);
   const uint8_t* cat_idle_frame_all[CAT_IDLE_FRAME_COUNT] = {cat_idle1,
                                                              cat_idle2};
   for (int i = 0; i < repeat_count; ++i) {
@@ -108,14 +110,16 @@ void dog_idle(int repeat_count) {
   const CompressedImage* target = &m_dog_idle1_compressed;
   uint8_t decompressed_buffer[target->width * target->height];
   decompress_component(target, decompressed_buffer);
-  uint8_t* dog_idle1 = stack_component(decompressed_buffer, NEW_SCREEN,
-                                       dog_idle_component_info, screen_info);
+  uint8_t dog_idle1[screen_info.width * screen_info.height];
+  stack_component(decompressed_buffer, dog_idle1, dog_idle_component_info,
+                  screen_info);
 
   const CompressedImage* target2 = &m_dog_idle2_compressed;
   uint8_t decompressed_buffer2[target2->width * target2->height];
   decompress_component(target2, decompressed_buffer2);
-  uint8_t* dog_idle2 = stack_component(decompressed_buffer, NEW_SCREEN,
-                                       dog_idle_component_info, screen_info);
+  uint8_t dog_idle2[screen_info.width * screen_info.height];
+  stack_component(decompressed_buffer, dog_idle2, dog_idle_component_info,
+                  screen_info);
   const uint8_t* dog_idle_frame_all[DOG_IDLE_FRAME_COUNT] = {dog_idle1,
                                                              dog_idle2};
   for (int i = 0; i < repeat_count; ++i) {
@@ -129,8 +133,10 @@ void dog_idle(int repeat_count) {
  * @param repeat_count How many times should frame_collection repeat
  */
 void select_character(int repeat_count) {
-  const uint8_t* select_left = get_select_character_frame(LEFT);
-  const uint8_t* select_right = get_select_character_frame(RIGHT);
+  uint8_t select_left[DISPLAY_WIDTH * DISPLAY_HEIGHT] = {0};
+  uint8_t select_right[DISPLAY_WIDTH * DISPLAY_HEIGHT] = {0};
+  get_select_character_frame(LEFT, select_left);
+  get_select_character_frame(RIGHT, select_right);
 
   const uint8_t* select_character_frame_all[SELECT_CHARACTER_FRAME_COUNT] = {
       select_left, select_right};
@@ -155,20 +161,32 @@ void egg_hatch(int repeat_count) {
   // (remaining_count)
   // 390 > 290 > 190 > 90 > (shine1, shine2)x repeat_shine_count
 
-  // add to frame_collection
+  uint8_t frame1[DISPLAY_WIDTH * DISPLAY_HEIGHT] = {0};
+  uint8_t frame2[DISPLAY_WIDTH * DISPLAY_HEIGHT] = {0};
+  uint8_t frame3[DISPLAY_WIDTH * DISPLAY_HEIGHT] = {0};
+  uint8_t frame4[DISPLAY_WIDTH * DISPLAY_HEIGHT] = {0};
+  uint8_t frame5[DISPLAY_WIDTH * DISPLAY_HEIGHT] = {0};
+  uint8_t frame6[DISPLAY_WIDTH * DISPLAY_HEIGHT] = {0};
+  uint8_t frame7[DISPLAY_WIDTH * DISPLAY_HEIGHT] = {0};
+  uint8_t frame8[DISPLAY_WIDTH * DISPLAY_HEIGHT] = {0};
+  uint8_t frame9[DISPLAY_WIDTH * DISPLAY_HEIGHT] = {0};
+  uint8_t frame10[DISPLAY_WIDTH * DISPLAY_HEIGHT] = {0};
+
   const uint8_t* frame_collection[HATCH_STATUS_FRAME_COUNT +
-                                  2 * HATCH_WARNING_REPEAT_SHINE_COUNT];
-  int remaining_count = 390;
-  for (int j = 0; j < HATCH_STATUS_FRAME_COUNT; ++j) {
-    frame_collection[j] = get_hatch_status_frame(remaining_count);
-    remaining_count -= 100;
-  }
-  for (int j = 0; j < HATCH_WARNING_REPEAT_SHINE_COUNT; ++j) {
-    frame_collection[HATCH_STATUS_FRAME_COUNT + j * 2] =
-        get_hatch_born_warning_frame(0);
-    frame_collection[HATCH_STATUS_FRAME_COUNT + j * 2 + 1] =
-        get_hatch_born_warning_frame(1);
-  }
+                                  2 * HATCH_WARNING_REPEAT_SHINE_COUNT] = {
+      frame1, frame2, frame3, frame4, frame5,
+      frame6, frame7, frame8, frame9, frame10};
+
+  get_hatch_status_frame(390, frame1);
+  get_hatch_status_frame(290, frame2);
+  get_hatch_status_frame(190, frame3);
+  get_hatch_status_frame(90, frame4);
+  get_hatch_born_warning_frame(0, frame5);
+  get_hatch_born_warning_frame(1, frame6);
+  get_hatch_born_warning_frame(0, frame7);
+  get_hatch_born_warning_frame(1, frame8);
+  get_hatch_born_warning_frame(0, frame9);
+  get_hatch_born_warning_frame(1, frame10);
 
   // show animation
   for (int i = 0; i < repeat_count; ++i) {
@@ -192,29 +210,66 @@ void egg_hatch(int repeat_count) {
  */
 void num_test(int repeat_count) {
   const int frame_count = 5;
-  component_info num_area_component_info = {
+  const component_info num_area_component_info = {
       .x_len = 8,
       .y_len = 8,
       .x_offset = 0,
       .y_offset = 0,
   };
-  base_info screen_info = {
+  const base_info screen_info = {
       .width = 16,
       .height = 8,
   };
 
-  uint8_t* num_component_all[frame_count] = {
-      get_number_component(1),   get_number_component(23),
-      get_number_component(456), get_number_component(789),
-      get_number_component(100),
-  };
-
   // create screens
-  const uint8_t* frame_all[frame_count];
-  for (int i = 0; i < frame_count; ++i) {
-    frame_all[i] = stack_component(num_component_all[i], NEW_SCREEN,
-                                   num_area_component_info, screen_info);
-  }
+  uint8_t num_component1[num_area_component_info.x_len *
+                         num_area_component_info.y_len];
+  memset(num_component1, 0,
+         num_area_component_info.x_len * num_area_component_info.y_len);
+  uint8_t num_component2[num_area_component_info.x_len *
+                         num_area_component_info.y_len];
+  memset(num_component2, 0,
+         num_area_component_info.x_len * num_area_component_info.y_len);
+  uint8_t num_component3[num_area_component_info.x_len *
+                         num_area_component_info.y_len];
+  memset(num_component3, 0,
+         num_area_component_info.x_len * num_area_component_info.y_len);
+  uint8_t num_component4[num_area_component_info.x_len *
+                         num_area_component_info.y_len];
+  memset(num_component4, 0,
+         num_area_component_info.x_len * num_area_component_info.y_len);
+  uint8_t num_component5[num_area_component_info.x_len *
+                         num_area_component_info.y_len];
+  memset(num_component5, 0,
+         num_area_component_info.x_len * num_area_component_info.y_len);
+  get_number_component(1, num_component1);
+  get_number_component(23, num_component2);
+  get_number_component(456, num_component3);
+  get_number_component(789, num_component4);
+  get_number_component(100, num_component5);
+
+  uint8_t frame1[screen_info.width * screen_info.height];
+  memset(frame1, 0, screen_info.width * screen_info.height);
+  uint8_t frame2[screen_info.width * screen_info.height];
+  memset(frame2, 0, screen_info.width * screen_info.height);
+  uint8_t frame3[screen_info.width * screen_info.height];
+  memset(frame3, 0, screen_info.width * screen_info.height);
+  uint8_t frame4[screen_info.width * screen_info.height];
+  memset(frame4, 0, screen_info.width * screen_info.height);
+  uint8_t frame5[screen_info.width * screen_info.height];
+  memset(frame5, 0, screen_info.width * screen_info.height);
+
+  uint8_t* num_component_all[frame_count] = {num_component1, num_component2,
+                                             num_component3, num_component4,
+                                             num_component5};
+  stack_component(num_component1, frame1, num_area_component_info, screen_info);
+  stack_component(num_component2, frame2, num_area_component_info, screen_info);
+  stack_component(num_component3, frame3, num_area_component_info, screen_info);
+  stack_component(num_component4, frame4, num_area_component_info, screen_info);
+  stack_component(num_component5, frame5, num_area_component_info, screen_info);
+
+  const uint8_t* frame_all[frame_count] = {frame1, frame2, frame3, frame4,
+                                           frame5};
 
   // show animation
   for (int i = 0; i < repeat_count; ++i) {
@@ -228,10 +283,12 @@ void num_test(int repeat_count) {
  * @param repeat_count How many times should frame_collection repeat
  */
 void cat_idle_with_status(int repeat_count) {
-  const uint8_t* cat_idle1 = get_cat_idle_frame_with_status_overview(
-      FRAME_1, 3, 4);  // dog idle frame with status overview
-  const uint8_t* cat_idle2 = get_cat_idle_frame_with_status_overview(
-      FRAME_2, 3, 4);  // dog idle frame with status overview
+  uint8_t cat_idle1[DISPLAY_WIDTH * DISPLAY_HEIGHT] = {0};
+  uint8_t cat_idle2[DISPLAY_WIDTH * DISPLAY_HEIGHT] = {0};
+  get_cat_idle_frame_with_status_overview(
+      FRAME_1, 3, 4, cat_idle1);  // dog idle frame with status overview
+  get_cat_idle_frame_with_status_overview(
+      FRAME_2, 3, 4, cat_idle2);  // dog idle frame with status overview
 
   const uint8_t* cat_idle_frame_all[CAT_IDLE_FRAME_COUNT] = {cat_idle1,
                                                              cat_idle2};
@@ -247,10 +304,13 @@ void cat_idle_with_status(int repeat_count) {
  * @param repeat_count How many times should frame_collection repeat
  */
 void dog_idle_with_status(int repeat_count) {
-  const uint8_t* dog_idle1 = get_dog_idle_frame_with_status_overview(
-      FRAME_1, 3, 4);  // dog idle frame with status overview
-  const uint8_t* dog_idle2 = get_dog_idle_frame_with_status_overview(
-      FRAME_2, 3, 4);  // dog idle frame with status overview
+  uint8_t dog_idle1[DISPLAY_WIDTH * DISPLAY_HEIGHT] = {0};
+  uint8_t dog_idle2[DISPLAY_WIDTH * DISPLAY_HEIGHT] = {0};
+
+  get_dog_idle_frame_with_status_overview(
+      FRAME_1, 3, 4, dog_idle1);  // dog idle frame with status overview
+  get_dog_idle_frame_with_status_overview(
+      FRAME_2, 3, 4, dog_idle2);  // dog idle frame with status overview
 
   const uint8_t* dog_idle_frame_all[DOG_IDLE_FRAME_COUNT] = {dog_idle1,
                                                              dog_idle2};
@@ -269,10 +329,13 @@ void dog_idle_with_status(int repeat_count) {
  * @param repeat_count How many times should frame_collection repeat
  */
 void cat_weak_idle_with_status(int repeat_count) {
-  const uint8_t* cat_idle1 = get_cat_idle_frame_with_status_overview(
-      FRAME_1, 3, 0);  // dog idle frame with status overview
-  const uint8_t* cat_idle2 = get_cat_idle_frame_with_status_overview(
-      FRAME_2, 3, 0);  // dog idle frame with status overview
+  uint8_t cat_idle1[DISPLAY_WIDTH * DISPLAY_HEIGHT] = {0};
+  uint8_t cat_idle2[DISPLAY_WIDTH * DISPLAY_HEIGHT] = {0};
+  // cat idle frame with status overview
+  get_cat_idle_frame_with_status_overview(
+      FRAME_1, 3, 0, cat_idle1);  // dog idle frame with status overview
+  get_cat_idle_frame_with_status_overview(
+      FRAME_2, 3, 0, cat_idle2);  // dog idle frame with status overview
 
   const uint8_t* cat_idle_frame_all[CAT_IDLE_FRAME_COUNT] = {cat_idle1,
                                                              cat_idle2};
@@ -292,10 +355,12 @@ void cat_weak_idle_with_status(int repeat_count) {
  */
 
 void dog_weak_idle_with_status(int repeat_count) {
-  const uint8_t* dog_idle1 = get_dog_idle_frame_with_status_overview(
-      FRAME_1, 0, 4);  // dog idle frame with status overview
-  const uint8_t* dog_idle2 = get_dog_idle_frame_with_status_overview(
-      FRAME_2, 0, 4);  // dog idle frame with status overview
+  uint8_t dog_idle1[DISPLAY_WIDTH * DISPLAY_HEIGHT] = {0};
+  uint8_t dog_idle2[DISPLAY_WIDTH * DISPLAY_HEIGHT] = {0};
+  get_dog_idle_frame_with_status_overview(
+      FRAME_1, 0, 4, dog_idle1);  // dog idle frame with status overview
+  get_dog_idle_frame_with_status_overview(
+      FRAME_2, 0, 4, dog_idle2);  // dog idle frame with status overview
 
   const uint8_t* dog_idle_frame_all[DOG_IDLE_FRAME_COUNT] = {dog_idle1,
                                                              dog_idle2};
@@ -306,12 +371,17 @@ void dog_weak_idle_with_status(int repeat_count) {
 }
 
 void dog_status_change(int repeat_count) {
-  const uint8_t* dog_status1 = get_dog_idle_frame_with_status_overview(
-      FRAME_1, 3, 4);  // dog idle frame with status overview
-  const uint8_t* dog_status2 = get_dog_idle_frame_with_status_overview(
-      FRAME_2, 2, 2);  // dog idle frame with status overview
-  const uint8_t* dog_status3 = get_dog_idle_frame_with_status_overview(
-      FRAME_1, 1, 0);  // dog idle frame with status overview
+  uint8_t dog_status1[DISPLAY_WIDTH * DISPLAY_HEIGHT] = {0};
+  uint8_t dog_status2[DISPLAY_WIDTH * DISPLAY_HEIGHT] = {0};
+  uint8_t dog_status3[DISPLAY_WIDTH * DISPLAY_HEIGHT] = {0};
+
+  // dog idle frame with status overview
+  get_dog_idle_frame_with_status_overview(
+      FRAME_1, 3, 4, dog_status1);  // dog idle frame with status overview
+  get_dog_idle_frame_with_status_overview(
+      FRAME_2, 2, 2, dog_status2);  // dog idle frame with status overview
+  get_dog_idle_frame_with_status_overview(
+      FRAME_1, 1, 0, dog_status3);  // dog idle frame with status overview
 
   const uint8_t* dog_idle_frame_all[3] = {dog_status1, dog_status2,
                                           dog_status3};
@@ -330,8 +400,10 @@ void dog_status_change(int repeat_count) {
  */
 void pet_healing(int pet_type, int repeat_count) {
   const uint8_t frame_count = 2;
-  const uint8_t* pet_healing1 = get_pet_healing_frame(pet_type, FRAME_1);
-  const uint8_t* pet_healing2 = get_pet_healing_frame(pet_type, FRAME_2);
+  uint8_t pet_healing1[DISPLAY_WIDTH * DISPLAY_HEIGHT] = {0};
+  uint8_t pet_healing2[DISPLAY_WIDTH * DISPLAY_HEIGHT] = {0};
+  get_pet_healing_frame(pet_type, FRAME_1, pet_healing1);
+  get_pet_healing_frame(pet_type, FRAME_2, pet_healing2);
 
   // heart float up > empty
   const uint8_t* pet_healing_frame_all[frame_count] = {
@@ -351,8 +423,10 @@ void pet_healing(int pet_type, int repeat_count) {
  */
 void training_selection(int repeat_count) {
   const uint8_t frame_count = 2;
-  const uint8_t* frame_left = get_activity_selection_frame(TRAINING, LEFT);
-  const uint8_t* frame_right = get_activity_selection_frame(TRAINING, RIGHT);
+  uint8_t frame_left[DISPLAY_WIDTH * DISPLAY_HEIGHT] = {0};
+  uint8_t frame_right[DISPLAY_WIDTH * DISPLAY_HEIGHT] = {0};
+  get_activity_selection_frame(TRAINING, LEFT, frame_left);
+  get_activity_selection_frame(TRAINING, RIGHT, frame_right);
 
   const uint8_t* frame_all[frame_count] = {
       frame_left,
@@ -371,8 +445,10 @@ void training_selection(int repeat_count) {
  */
 void battle_selection(int repeat_count) {
   const uint8_t frame_count = 2;
-  const uint8_t* frame_left = get_activity_selection_frame(BATTLE, LEFT);
-  const uint8_t* frame_right = get_activity_selection_frame(BATTLE, RIGHT);
+  uint8_t frame_left[DISPLAY_WIDTH * DISPLAY_HEIGHT] = {0};
+  uint8_t frame_right[DISPLAY_WIDTH * DISPLAY_HEIGHT] = {0};
+  get_activity_selection_frame(BATTLE, LEFT, frame_left);
+  get_activity_selection_frame(BATTLE, RIGHT, frame_right);
 
   const uint8_t* frame_all[frame_count] = {
       frame_left,
@@ -391,8 +467,10 @@ void battle_selection(int repeat_count) {
  */
 void battle_result_demo(int pet, int result, int repeat_count) {
   const uint8_t frame_count = 2;
-  const uint8_t* frame_1 = get_battle_result_frame(pet, result, FRAME_1);
-  const uint8_t* frame_2 = get_battle_result_frame(pet, result, FRAME_2);
+  uint8_t frame_1[DISPLAY_WIDTH * DISPLAY_HEIGHT] = {0};
+  uint8_t frame_2[DISPLAY_WIDTH * DISPLAY_HEIGHT] = {0};
+  get_battle_result_frame(pet, result, FRAME_1, frame_1);
+  get_battle_result_frame(pet, result, FRAME_2, frame_2);
 
   const uint8_t* frame_all[frame_count] = {
       frame_1,
@@ -417,12 +495,18 @@ void battle_demo(int player_pet, int enemy_pet, int attack_first,
     damage_target_order2 = ENEMY;
   }
 
-  const uint8_t* frame_all[frame_count] = {
-      get_battle_frame(player_pet, enemy_pet, NONE),
-      get_battle_frame(player_pet, enemy_pet, damage_target_order1),
-      get_battle_frame(player_pet, enemy_pet, NONE),
-      get_battle_frame(player_pet, enemy_pet, damage_target_order2),
-      get_battle_frame(player_pet, enemy_pet, NONE)};
+  uint8_t frame1[DISPLAY_WIDTH * DISPLAY_HEIGHT] = {0};
+  uint8_t frame2[DISPLAY_WIDTH * DISPLAY_HEIGHT] = {0};
+  uint8_t frame3[DISPLAY_WIDTH * DISPLAY_HEIGHT] = {0};
+  uint8_t frame4[DISPLAY_WIDTH * DISPLAY_HEIGHT] = {0};
+  uint8_t frame5[DISPLAY_WIDTH * DISPLAY_HEIGHT] = {0};
+  get_battle_frame(player_pet, enemy_pet, NONE, frame1);
+  get_battle_frame(player_pet, enemy_pet, damage_target_order1, frame2);
+  get_battle_frame(player_pet, enemy_pet, NONE, frame3);
+  get_battle_frame(player_pet, enemy_pet, damage_target_order2, frame4);
+  get_battle_frame(player_pet, enemy_pet, NONE, frame5);
+  const uint8_t* frame_all[frame_count] = {frame1, frame2, frame3, frame4,
+                                           frame5};
 
   for (int i = 0; i < repeat_count; ++i) {
     show_anime_with_delay(frame_all, frame_count, SLEEP_US);
@@ -432,11 +516,15 @@ void battle_demo(int player_pet, int enemy_pet, int attack_first,
 void training_demo(int pet_type, int repeat_count) {
   const uint8_t frame_count = 3;
 
-  const uint8_t* frame_all[frame_count] = {
-      get_battle_frame(pet_type, OTHER_TYPE_TRAINING_FACILITY, NONE),
-      get_battle_frame(pet_type, OTHER_TYPE_TRAINING_FACILITY, ENEMY),
-      get_battle_frame(pet_type, OTHER_TYPE_TRAINING_FACILITY, NONE),
-  };
+  uint8_t frame1[DISPLAY_WIDTH * DISPLAY_HEIGHT] = {0};
+  uint8_t frame2[DISPLAY_WIDTH * DISPLAY_HEIGHT] = {0};
+  uint8_t frame3[DISPLAY_WIDTH * DISPLAY_HEIGHT] = {0};
+
+  get_battle_frame(pet_type, OTHER_TYPE_TRAINING_FACILITY, NONE, frame1);
+  get_battle_frame(pet_type, OTHER_TYPE_TRAINING_FACILITY, ENEMY, frame2);
+  get_battle_frame(pet_type, OTHER_TYPE_TRAINING_FACILITY, NONE, frame3);
+
+  const uint8_t* frame_all[frame_count] = {frame1, frame2, frame3};
 
   for (int i = 0; i < repeat_count; ++i) {
     show_anime_with_delay(frame_all, frame_count, SLEEP_US);
@@ -446,12 +534,35 @@ void training_demo(int pet_type, int repeat_count) {
 void detail_information_demo(int repeat_count) {
   const uint8_t frame_count = 12;
 
-  const uint8_t* frame_all[frame_count] = {
-      get_LV_status_frame(999), get_LV_status_frame(32), get_LV_status_frame(1),
-      get_FD_status_frame(4),   get_FD_status_frame(3),  get_FD_status_frame(2),
-      get_FD_status_frame(1),   get_FD_status_frame(0),  get_HP_status_frame(3),
-      get_HP_status_frame(2),   get_HP_status_frame(1),  get_HP_status_frame(0),
-  };
+  uint8_t frame1[DISPLAY_WIDTH * DISPLAY_HEIGHT] = {0};
+  uint8_t frame2[DISPLAY_WIDTH * DISPLAY_HEIGHT] = {0};
+  uint8_t frame3[DISPLAY_WIDTH * DISPLAY_HEIGHT] = {0};
+  uint8_t frame4[DISPLAY_WIDTH * DISPLAY_HEIGHT] = {0};
+  uint8_t frame5[DISPLAY_WIDTH * DISPLAY_HEIGHT] = {0};
+  uint8_t frame6[DISPLAY_WIDTH * DISPLAY_HEIGHT] = {0};
+  uint8_t frame7[DISPLAY_WIDTH * DISPLAY_HEIGHT] = {0};
+  uint8_t frame8[DISPLAY_WIDTH * DISPLAY_HEIGHT] = {0};
+  uint8_t frame9[DISPLAY_WIDTH * DISPLAY_HEIGHT] = {0};
+  uint8_t frame10[DISPLAY_WIDTH * DISPLAY_HEIGHT] = {0};
+  uint8_t frame11[DISPLAY_WIDTH * DISPLAY_HEIGHT] = {0};
+  uint8_t frame12[DISPLAY_WIDTH * DISPLAY_HEIGHT] = {0};
+
+  get_LV_status_frame(999, frame1);
+  get_LV_status_frame(32, frame2);
+  get_LV_status_frame(1, frame3);
+  get_FD_status_frame(4, frame4);
+  get_FD_status_frame(3, frame5);
+  get_FD_status_frame(2, frame6);
+  get_FD_status_frame(1, frame7);
+  get_FD_status_frame(0, frame8);
+  get_HP_status_frame(3, frame9);
+  get_HP_status_frame(2, frame10);
+  get_HP_status_frame(1, frame11);
+  get_HP_status_frame(0, frame12);
+
+  const uint8_t* frame_all[frame_count] = {frame1, frame2,  frame3,  frame4,
+                                           frame5, frame6,  frame7,  frame8,
+                                           frame9, frame10, frame11, frame12};
 
   for (int i = 0; i < repeat_count; ++i) {
     show_anime_with_delay(frame_all, frame_count, SLEEP_US);
@@ -461,8 +572,10 @@ void detail_information_demo(int repeat_count) {
 void feed_confirm_demo(int repeat_count) {
   const uint8_t frame_count = 2;
 
-  const uint8_t* frame_left = get_feed_confirm_frame(LEFT);
-  const uint8_t* frame_right = get_feed_confirm_frame(RIGHT);
+  uint8_t frame_left[DISPLAY_WIDTH * DISPLAY_HEIGHT] = {0};
+  uint8_t frame_right[DISPLAY_WIDTH * DISPLAY_HEIGHT] = {0};
+  get_feed_confirm_frame(LEFT, frame_left);
+  get_feed_confirm_frame(RIGHT, frame_right);
 
   const uint8_t* frame_all[frame_count] = {frame_left, frame_right};
 
@@ -474,18 +587,44 @@ void feed_confirm_demo(int repeat_count) {
 void feed_pet_demo(int pet_type, int repeat_count) {
   const uint8_t frame_count = 10;
 
-  const uint8_t* frame_all[frame_count] = {
-      get_feed_pet_frame(cookie_100),
-      get_feed_pet_frame(cookie_50),
-      get_feed_pet_frame(cookie_30),
-      get_feed_pet_frame(cookie_0),
-      get_pet_happy_frame_after_feed(pet_type, FRAME_1),
-      get_pet_happy_frame_after_feed(pet_type, FRAME_2),
-      get_pet_happy_frame_after_feed(pet_type, FRAME_1),
-      get_pet_happy_frame_after_feed(pet_type, FRAME_2),
-      get_pet_happy_frame_after_feed(pet_type, FRAME_1),
-      get_pet_happy_frame_after_feed(pet_type, FRAME_2),
-  };
+  uint8_t feed_pet_frame1[DISPLAY_WIDTH * DISPLAY_HEIGHT] = {0};
+  uint8_t feed_pet_frame2[DISPLAY_WIDTH * DISPLAY_HEIGHT] = {0};
+  uint8_t feed_pet_frame3[DISPLAY_WIDTH * DISPLAY_HEIGHT] = {0};
+  uint8_t feed_pet_frame4[DISPLAY_WIDTH * DISPLAY_HEIGHT] = {0};
+  uint8_t pet_happy_frame_after_feed1[DISPLAY_WIDTH * DISPLAY_HEIGHT] = {0};
+  uint8_t pet_happy_frame_after_feed2[DISPLAY_WIDTH * DISPLAY_HEIGHT] = {0};
+  uint8_t pet_happy_frame_after_feed3[DISPLAY_WIDTH * DISPLAY_HEIGHT] = {0};
+  uint8_t pet_happy_frame_after_feed4[DISPLAY_WIDTH * DISPLAY_HEIGHT] = {0};
+  uint8_t pet_happy_frame_after_feed5[DISPLAY_WIDTH * DISPLAY_HEIGHT] = {0};
+  uint8_t pet_happy_frame_after_feed6[DISPLAY_WIDTH * DISPLAY_HEIGHT] = {0};
+
+  get_feed_pet_frame(cookie_100, feed_pet_frame1);
+  get_feed_pet_frame(cookie_50, feed_pet_frame2);
+  get_feed_pet_frame(cookie_30, feed_pet_frame3);
+  get_feed_pet_frame(cookie_0, feed_pet_frame4);
+  get_pet_happy_frame_after_feed(pet_type, FRAME_1,
+                                 pet_happy_frame_after_feed1);
+  get_pet_happy_frame_after_feed(pet_type, FRAME_2,
+                                 pet_happy_frame_after_feed2);
+  get_pet_happy_frame_after_feed(pet_type, FRAME_1,
+                                 pet_happy_frame_after_feed3);
+  get_pet_happy_frame_after_feed(pet_type, FRAME_2,
+                                 pet_happy_frame_after_feed4);
+  get_pet_happy_frame_after_feed(pet_type, FRAME_1,
+                                 pet_happy_frame_after_feed5);
+  get_pet_happy_frame_after_feed(pet_type, FRAME_2,
+                                 pet_happy_frame_after_feed6);
+
+  const uint8_t* frame_all[frame_count] = {feed_pet_frame1,
+                                           feed_pet_frame2,
+                                           feed_pet_frame3,
+                                           feed_pet_frame4,
+                                           pet_happy_frame_after_feed1,
+                                           pet_happy_frame_after_feed2,
+                                           pet_happy_frame_after_feed3,
+                                           pet_happy_frame_after_feed4,
+                                           pet_happy_frame_after_feed5,
+                                           pet_happy_frame_after_feed6};
 
   for (int i = 0; i < repeat_count; ++i) {
     show_anime_with_delay(frame_all, frame_count, SLEEP_US);
@@ -495,10 +634,23 @@ void feed_pet_demo(int pet_type, int repeat_count) {
 void scoring_then_end_demo(int repeat_count) {
   const uint8_t frame_count = 6;
 
-  const uint8_t* frame_all[frame_count] = {
-      get_scoring_frame(5, 0), get_scoring_frame(0, 5), get_end_frame(),
-      get_empty_frame(),       get_end_frame(),         get_empty_frame(),
-  };
+  uint8_t scoring_frame1[DISPLAY_WIDTH * DISPLAY_HEIGHT] = {0};
+  uint8_t scoring_frame2[DISPLAY_WIDTH * DISPLAY_HEIGHT] = {0};
+  uint8_t end_frame1[DISPLAY_WIDTH * DISPLAY_HEIGHT] = {0};
+  uint8_t empty_frame1[DISPLAY_WIDTH * DISPLAY_HEIGHT] = {0};
+  uint8_t end_frame2[DISPLAY_WIDTH * DISPLAY_HEIGHT] = {0};
+  uint8_t empty_frame2[DISPLAY_WIDTH * DISPLAY_HEIGHT] = {0};
+
+  get_scoring_frame(5, 0, scoring_frame1);
+  get_scoring_frame(0, 5, scoring_frame2);
+  get_end_frame(end_frame1);
+  get_empty_frame(empty_frame1);
+  get_end_frame(end_frame2);
+  get_empty_frame(empty_frame2);
+
+  const uint8_t* frame_all[frame_count] = {scoring_frame1, scoring_frame2,
+                                           end_frame1,     empty_frame1,
+                                           end_frame2,     empty_frame2};
 
   for (int i = 0; i < repeat_count; ++i) {
     show_anime_with_delay(frame_all, frame_count, SLEEP_US);
@@ -602,7 +754,6 @@ void test_frames() {
   // dog training demo
   std::cout << "Dog training Demo:\n";
   training_demo(PET_TYPE_DOG, repeat_count);
-
   // cat training demo
   std::cout << "Cat training Demo:\n";
   training_demo(PET_TYPE_CAT, repeat_count);
