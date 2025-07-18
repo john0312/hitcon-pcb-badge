@@ -1,3 +1,6 @@
+#ifndef SCREENS_H
+#define SCREENS_H
+
 #include "simu_setting.h"
 /// -- -- -- --
 
@@ -1641,3 +1644,5 @@ constexpr uint8_t m_example_of_compress[] = {
 // constexpr uint8_t _compressed_data[] = {};
 // constexpr CompressedImage _compressed = {
 //     .width =, .height =, .data = _compressed_data};
+
+#endif
