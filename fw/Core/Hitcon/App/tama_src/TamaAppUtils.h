@@ -14,6 +14,7 @@
  */
 uint8_t* decompress_component(const CompressedImage* compressed);
 
+#ifdef SIMU
 /**
  * @brief Compress a component into a compressed format
  *
@@ -51,5 +52,6 @@ void print_decompressed_component(const uint8_t* decompressed, uint8_t width,
  * @param compressed The compressed image data to be decompressed
  */
 void decompress_and_print_component(const CompressedImage* compressed);
+#endif
 
 #endif  // TAMA_APP_UTILS_H

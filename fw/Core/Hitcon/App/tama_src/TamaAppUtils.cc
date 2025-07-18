@@ -28,6 +28,7 @@ uint8_t* decompress_component(const CompressedImage* compressed) {
 
 /**  The test function for compress and decompress , not in use in runtime */
 
+#ifdef SIMU
 /**
  * @brief Compress a component into a compressed format
  *
@@ -162,3 +163,4 @@ void decompress_and_print_component(const CompressedImage* compressed) {
                                compressed->height);
   delete[] decompressed;
 }
+#endif
