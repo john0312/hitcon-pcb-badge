@@ -1,5 +1,7 @@
 import uuid
 import asyncio
+import ir_interface
+from packet_recorder import PacketRecorder
 
 class PacketProcessor:
     def __init__(self):
@@ -9,6 +11,7 @@ class PacketProcessor:
         self.seen_packet_ids = set()
         self._rx_task = None
         self._tx_task = None
+        self.recorder = PacketRecorder()
 
     async def _tx_stream_task(self):
         # Get packets from backend, check if already sent, if not send via IR
@@ -26,6 +29,7 @@ class PacketProcessor:
                     assert type(packet_data) == bytes, "Packet data must be bytes"
                     await self.ir.trigger_send_packet(packet_data)
                     self.seen_packet_ids.add(packet_id)
+                    await self.recorder.record_packet(packet_data, "TX", packet_id)
             if len(packets)-duplicate_count == 0:
                 await asyncio.sleep(2.0)
 
@@ -36,6 +40,7 @@ class PacketProcessor:
             packet_id = uuid.uuid4()
             print(f"[RX] Received IR packet -> {packet_data}, ID: {packet_id}")
             await self.backend.send_received_packet(packet_data[0], packet_id)
+            await self.recorder.record_packet(packet_data[0], "RX", packet_id)
 
     async def _disp_task_fn(self):
         try:
