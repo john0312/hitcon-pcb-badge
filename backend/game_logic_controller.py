@@ -2,6 +2,7 @@ from schemas import utcnow, PacketType, ProximityEvent, PubAnnounceEvent, TwoBad
 from database import mongo, db, redis_client
 from game_logic import _GameLogic as GameLogic, GameType
 from ecc_utils import ECC_SIGNATURE_SIZE
+from crypto_auth import CryptoAuth
 
 # Simply for type notation
 import typing
@@ -144,10 +145,12 @@ class GameLogicController:
             timestamp=evt.timestamp
         )
 
+        team = await CryptoAuth.get_user_team(evt.user) # team is in fact sign, positive for team RED (?), negative for team Blue (?)
+
         await game.attack_station(
             player_id=evt.user,
             station_id=evt.station_id,
-            amount=evt.power,
+            amount=team * evt.power,
             timestamp=evt.timestamp
         )
 

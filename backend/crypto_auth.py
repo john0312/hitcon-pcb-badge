@@ -121,3 +121,18 @@ class CryptoAuth:
         s = int.from_bytes(raw_sig[7:14], 'little', signed=False)
         
         return EccSignature(r=r, s=s, pub=None)
+
+
+    # ===== APIs for GameLogic =====
+    @staticmethod
+    async def get_user_team(user: int) -> int:
+        """
+        Return team as sign.
+        """
+        key = await CryptoAuth.get_pubkey_by_username(user)
+
+        sign = key.point.y % 2
+        if sign == 0:
+            return -1
+        else:
+            return 1
