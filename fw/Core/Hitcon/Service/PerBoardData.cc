@@ -16,6 +16,7 @@ constexpr uint8_t kPubKeyCert[PerBoardData::kPubKeyCertSize] = {
     0x5c, 0xfc, 0xca, 0x24, 0xbb, 0xe9, 0x38,
     0xae, 0x02, 0x12, 0x38, 0xa2, 0xf5, 0x48};
 
+constexpr uint64_t kPrivKey = 13447439586820736;
 }  // namespace
 
 constexpr PerBoardData::PerBoardData() {}
@@ -25,4 +26,6 @@ const uint8_t* PerBoardData::GetPerBoardRandom() { return kPerBoardRandom; }
 const uint8_t* PerBoardData::GetPerBoardSecret() { return kPerBoardSecret; }
 
 const uint8_t* PerBoardData::GetPubKeyCert() { return kPubKeyCert; }
+
+const uint64_t PerBoardData::GetPrivKey() { return kPrivKey; }
 }  // namespace hitcon

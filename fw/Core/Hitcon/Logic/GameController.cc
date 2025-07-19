@@ -78,7 +78,7 @@ void GameController::OnPrivKeyHashFinish(void *arg2) {
   uint8_t *ptr = reinterpret_cast<uint8_t *>(arg2);
   uint64_t privkey;
   memcpy(&privkey, ptr, sizeof(uint64_t));
-  hitcon::ecc::g_ec_logic.SetPrivateKey(privkey);
+  hitcon::ecc::g_ec_logic.SetPrivateKey(g_per_board_data.GetPrivKey());
   state_ = 3;
 }
 

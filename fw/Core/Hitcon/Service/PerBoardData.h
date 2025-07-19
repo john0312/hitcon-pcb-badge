@@ -17,6 +17,8 @@ class PerBoardData {
 
   const uint8_t* GetPubKeyCert();
 
+  const uint64_t GetPrivKey();
+
   static constexpr size_t kRandomLen = 16;
   static constexpr size_t kSecretLen = 16;
   static constexpr size_t kPubKeyCertSize = hitcon::ECC_SIGNATURE_SIZE;
