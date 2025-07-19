@@ -336,7 +336,7 @@ void ImuLogic::OnTxDone(void* arg1) {
 }
 
 void ImuLogic::ProximityRoutine(void* arg1) {
-  static uint8_t last_step = 0;
+  static uint16_t last_step = 0;
   hitcon::game::Proximity data;
   uint16_t temp = (GetStep() - last_step) / SCALE_FACTOR;
   if (temp > 255) temp = 255;
