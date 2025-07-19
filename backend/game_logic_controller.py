@@ -57,7 +57,7 @@ class GameLogicController:
         # Bit [4:14] - Player 1 Score
         # Bit [14:24] - Player 2 Score
         # Bit [24:40] - Nonce
-        data_bits = f"{evt.game_data:0>40b}"
+        data_bits = f"{int.from_bytes(evt.game_data, 'big', signed=False):0>40b}"
         raw_game_type = int(data_bits[0:4], 2)
         player1_score = int(data_bits[4:14], 2)
         player2_score = int(data_bits[14:24], 2)
