@@ -1752,4 +1752,42 @@ void get_end_frame(uint8_t* base) {
   stack_component(decompressed_buffer, base, full_frame_component_info,
                   screen_info);
 }
+
+void get_feeding_frame(int pet_type, int frame_ID, uint8_t* frame_buff) {
+  switch (frame_ID) {
+    case 0:
+      get_feed_pet_frame(cookie_100, frame_buff);
+      break;
+    case 1:
+      get_feed_pet_frame(cookie_50, frame_buff);
+      break;
+    case 2:
+      get_feed_pet_frame(cookie_30, frame_buff);
+      break;
+    case 3:
+      get_feed_pet_frame(cookie_0, frame_buff);
+      break;
+    case 4:
+      get_pet_happy_frame_after_feed(pet_type, FRAME_1, frame_buff);
+      break;
+    case 5:
+      get_pet_happy_frame_after_feed(pet_type, FRAME_2, frame_buff);
+      break;
+    case 6:
+      get_pet_happy_frame_after_feed(pet_type, FRAME_1, frame_buff);
+      break;
+    case 7:
+      get_pet_happy_frame_after_feed(pet_type, FRAME_2, frame_buff);
+      break;
+    case 8:
+      get_pet_happy_frame_after_feed(pet_type, FRAME_1, frame_buff);
+      break;
+    case 9:
+      get_pet_happy_frame_after_feed(pet_type, FRAME_2, frame_buff);
+      break;
+    default:
+      break;
+  }
+}
+
 /** --- frame part end ---*/

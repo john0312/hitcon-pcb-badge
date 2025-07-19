@@ -598,22 +598,16 @@ void feed_pet_demo(int pet_type, int repeat_count) {
   uint8_t pet_happy_frame_after_feed5[DISPLAY_WIDTH * DISPLAY_HEIGHT] = {0};
   uint8_t pet_happy_frame_after_feed6[DISPLAY_WIDTH * DISPLAY_HEIGHT] = {0};
 
-  get_feed_pet_frame(cookie_100, feed_pet_frame1);
-  get_feed_pet_frame(cookie_50, feed_pet_frame2);
-  get_feed_pet_frame(cookie_30, feed_pet_frame3);
-  get_feed_pet_frame(cookie_0, feed_pet_frame4);
-  get_pet_happy_frame_after_feed(pet_type, FRAME_1,
-                                 pet_happy_frame_after_feed1);
-  get_pet_happy_frame_after_feed(pet_type, FRAME_2,
-                                 pet_happy_frame_after_feed2);
-  get_pet_happy_frame_after_feed(pet_type, FRAME_1,
-                                 pet_happy_frame_after_feed3);
-  get_pet_happy_frame_after_feed(pet_type, FRAME_2,
-                                 pet_happy_frame_after_feed4);
-  get_pet_happy_frame_after_feed(pet_type, FRAME_1,
-                                 pet_happy_frame_after_feed5);
-  get_pet_happy_frame_after_feed(pet_type, FRAME_2,
-                                 pet_happy_frame_after_feed6);
+  get_feeding_frame(pet_type, 0, feed_pet_frame1);
+  get_feeding_frame(pet_type, 1, feed_pet_frame2);
+  get_feeding_frame(pet_type, 2, feed_pet_frame3);
+  get_feeding_frame(pet_type, 3, feed_pet_frame4);
+  get_feeding_frame(pet_type, 4, pet_happy_frame_after_feed1);
+  get_feeding_frame(pet_type, 5, pet_happy_frame_after_feed2);
+  get_feeding_frame(pet_type, 6, pet_happy_frame_after_feed3);
+  get_feeding_frame(pet_type, 7, pet_happy_frame_after_feed4);
+  get_feeding_frame(pet_type, 8, pet_happy_frame_after_feed5);
+  get_feeding_frame(pet_type, 9, pet_happy_frame_after_feed6);
 
   const uint8_t* frame_all[frame_count] = {feed_pet_frame1,
                                            feed_pet_frame2,

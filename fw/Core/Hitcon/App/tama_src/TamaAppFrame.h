@@ -99,4 +99,5 @@ void get_scoring_frame(int ok_qty, int fail_qty, uint8_t* base);
 
 void get_end_frame(uint8_t* base);
 
+void get_feeding_frame(int per_type, int frame_ID, uint8_t* frame_buff);
 #endif  // TAMA_APP_FRAME_H
