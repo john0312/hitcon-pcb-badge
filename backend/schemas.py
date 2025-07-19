@@ -145,6 +145,7 @@ class SingleBadgeActivityEvent(Event):
     user: int
     event_type: int
     event_data: bytes
+    signature: bytes
 
 
 class SponsorActivityEvent(Event):

@@ -267,7 +267,8 @@ class PacketProcessor:
                 user = b2i(buf.read(IR_USERNAME_LEN))
                 event_type = b2i(buf.read(1))
                 event_data = buf.read(3)
-                return SingleBadgeActivityEvent(packet_id=packet_id, station_id=station_id, user=user, event_type=event_type, event_data=event_data)
+                signature = buf.read(ECC_SIGNATURE_SIZE)
+                return SingleBadgeActivityEvent(packet_id=packet_id, station_id=station_id, user=user, event_type=event_type, event_data=event_data, signature=signature)
 
             case PacketType.kSponsorActivity:
                 # Sponsor activity packet
