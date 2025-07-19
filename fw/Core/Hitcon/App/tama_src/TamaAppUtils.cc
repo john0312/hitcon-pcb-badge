@@ -9,12 +9,6 @@
  */
 void decompress_component(const CompressedImage* compressed,
                           uint8_t* decompressed_buffer) {
-  // // new the memory at heap
-  // uint8_t* decompressed_data =
-  //     new uint8_t[compressed->width * compressed->height];
-  // // set the memory to 0
-  // memset(decompressed_data, 0, compressed->width * compressed->height);
-
   for (int y = 0; y < compressed->height; ++y) {
     for (int x = 0; x < compressed->width; ++x) {
       int byte_index = x;  // each column corresponds to one uint8_t
@@ -37,15 +31,7 @@ void decompress_component(const CompressedImage* compressed,
  * @return CompressedImage
  */
 CompressedImage compress_component(const uint8_t* src, uint8_t width,
-                                   uint8_t height) {
-  // calculate compressed size
-  uint16_t compressed_size =
-      width *
-      ((height + 7) /
-       8);  // every 8 rows of pixels are packed into one byte, +7 to round up
-  uint8_t* compressed_data = new uint8_t[compressed_size];
-  memset(compressed_data, 0, compressed_size);
-
+                                   uint8_t height, uint8_t* compressed_data) {
   /**
    * The compress method:
    * Example：
@@ -112,8 +98,11 @@ CompressedImage compress_component(const uint8_t* src, uint8_t width,
  */
 void compress_data_and_print_info(const uint8_t* src, uint8_t width,
                                   uint8_t height) {
-  CompressedImage compressed = compress_component(src, width, height);
-#ifdef SIMU
+  uint16_t compressed_size = width * ((height + 7) / 8);
+  uint8_t compress_buf[compressed_size];
+  memset(compress_buf, 0, compressed_size);
+  CompressedImage compressed =
+      compress_component(src, width, height, compress_buf);
   printf("Compressed data:\n");
   printf("Width: %d, Height: %d\n", compressed.width, compressed.height);
   printf("Size after compressed: %d bytes\n", width);
@@ -125,10 +114,6 @@ void compress_data_and_print_info(const uint8_t* src, uint8_t width,
     }
   }
   printf("}\n");
-#endif
-
-  // free the allocated memory
-  delete[] compressed.data;
 }
 
 /**
