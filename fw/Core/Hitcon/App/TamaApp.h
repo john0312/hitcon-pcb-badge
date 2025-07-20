@@ -3,6 +3,7 @@
 
 #include <Logic/Display/display.h>
 #include <Logic/ImuLogic.h>
+#include <Logic/IrController.h>
 #include <Service/Sched/PeriodicTask.h>
 #include <Service/Sched/SysTimer.h>  // For SysTimer
 
@@ -76,6 +77,13 @@ enum class TAMA_XBOARD_BATTLE_INVITE {
   XBOARD_BATTLE_Y,
 };
 
+typedef struct {
+  TAMA_XBOARD_PACKET_TYPE packet_type;
+  uint8_t user[hitcon::ir::IR_USERNAME_LEN];
+  uint8_t score;
+  uint8_t nonce;
+} tama_xboard_result_t;
+
 class TamaApp : public App {
  private:
   static constexpr unsigned ROUTINE_INTERVAL_MS =
@@ -96,7 +104,8 @@ class TamaApp : public App {
   TAMA_XBOARD_STATE _enemy_state;
   uint8_t _qte_count;
   uint8_t _qte_score;
-  uint8_t _enemy_score;
+  uint8_t _my_nounce;
+  tama_xboard_result_t* _enemy_score;
   void XbOnButton(button_t button);
   void XbUpdateFrameBuffer();
   void XbRoutine(void* unused);

@@ -4,7 +4,9 @@
 
 #include <Logic/BadgeController.h>
 #include <Logic/Display/display.h>
+#include <Logic/GameController.h>
 #include <Logic/NvStorage.h>
+#include <Logic/RandomPool.h>
 #include <Logic/XBoardLogic.h>
 #include <Service/Sched/Scheduler.h>
 
@@ -60,7 +62,7 @@ void TamaApp::OnEntry() {
     g_xboard_logic.SetOnPacketArrive((callback_t)&TamaApp::OnXBoardRecv, this,
                                      TAMA_RECV_ID);
     _enemy_state = TAMA_XBOARD_STATE::XBOARD_INVITE;
-    _enemy_score = 0;
+    _enemy_score = nullptr;
     if (_tama_data.state != TAMA_APP_STATE::ALIVE) {
       xboard_state = TAMA_XBOARD_STATE::XBOARD_UNAVAILABLE;
       display_set_mode_scroll_text("Your pet is not ready yet");
@@ -368,12 +370,15 @@ void TamaApp::XbOnButton(button_t button) {
         // TODO: get score
         _qte_count++;
         if (_qte_count == 5) {
-          xboard_state = TAMA_XBOARD_STATE::XBOARD_BATTLE_SENT_SCORE;
-          uint8_t code[2] = {
-              static_cast<uint8_t>(TAMA_XBOARD_PACKET_TYPE::PACKET_SCORE),
-              _qte_score};
-          g_xboard_logic.QueueDataForTx(reinterpret_cast<uint8_t*>(&code),
-                                        sizeof(_qte_score), TAMA_RECV_ID);
+          _my_nounce = g_fast_random_pool.GetRandom();
+          tama_xboard_result_t result = {
+              .packet_type = TAMA_XBOARD_PACKET_TYPE::PACKET_SCORE,
+              .score = _qte_score,
+              .nonce = _my_nounce,
+          };
+          g_game_controller.GetUsername(result.user);
+          g_xboard_logic.QueueDataForTx(reinterpret_cast<uint8_t*>(&result),
+                                        sizeof(result), TAMA_RECV_ID);
           display_set_mode_scroll_text("Waiting for enemy...");
         }
       }
@@ -415,7 +420,7 @@ void TamaApp::OnXBoardRecv(void* arg) {
       _enemy_state = TAMA_XBOARD_STATE::XBOARD_BATTLE_ENCOUNTER;
       break;
     case TAMA_XBOARD_PACKET_TYPE::PACKET_SCORE:
-      _enemy_score = packet->data[1];
+      _enemy_score = reinterpret_cast<tama_xboard_result_t*>(packet->data);
       break;
     case TAMA_XBOARD_PACKET_TYPE::PACKET_END:
       // TODO: End game
@@ -461,6 +466,18 @@ void TamaApp::XbRoutine(void* unused) {
     }
     // We need to know enemy score to update our frames
     UpdateFrameBuffer();
+    my_assert(_enemy_score);
+    my_assert(_enemy_score->packet_type ==
+              TAMA_XBOARD_PACKET_TYPE::PACKET_SCORE);
+    // Send result with TwoBadgeActivity
+    hitcon::game::TwoBadgeActivity activity = {
+        .gameType = hitcon::game::EventType::kTama,
+        .myScore = _qte_score,
+        .otherScore = _enemy_score->score,
+        .nonce = _my_nounce + _enemy_score->nonce,
+    };
+    memcpy(activity.otherUser, _enemy_score->user, sizeof(_enemy_score->user));
+    g_game_controller.SendTwoBadgeActivity(activity);
   }
 
   Render();
