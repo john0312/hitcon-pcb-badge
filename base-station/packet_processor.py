@@ -76,6 +76,7 @@ class PacketProcessor:
     def start(self):
         self._tx_task = asyncio.create_task(self._tx_stream_task())
         self._rx_task = asyncio.create_task(self._rx_stream_task())
+        self._disp_task = asyncio.create_task(self._disp_task_fn())
 
     async def __aexit__(self, exc_type, exc, tb):
         # Cancel background tasks
