@@ -4,6 +4,7 @@
 namespace hitcon {
 
 unsigned int uint_to_chr(char* str, unsigned int size, int n);
+unsigned int uint_to_chr_hex(char* str, unsigned size, int n);
 
 }  // namespace hitcon
 
