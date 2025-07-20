@@ -43,6 +43,13 @@ class GameLogicController:
         score = (evt.event_data[0] | ((evt.event_data[1] & 0x03) << 8)) & 0x3FF
         nonce = (evt.event_data[1] >> 2) | (evt.event_data[2] << 6)
 
+        # check nonce
+        nonce_key = f"single_badge:{evt.user.hex()}:{game_type.value}:{nonce}"
+        if redis_client.get(nonce_key) is not None:
+            # Duplicate event, ignore it
+            return
+
+        redis_client.set(nonce_key, "1", ex=config.get("redis", {}).get("game_nonce_expire", 180)) # default 3 minutes
         await game.receive_game_score_single_player(
             player_id=evt.user,
             station_id=evt.station_id,
@@ -126,6 +133,7 @@ class GameLogicController:
             await GameLogicController.on_game_activity_event(game_event)
             await queue.delete_one({"_id": existing_game["_id"]})
         else:
+            # Insert the game into the queue
             await queue.insert_one({
                 "game_id": evt.event_id,
                 "game_type": str(game_type),
@@ -141,6 +149,15 @@ class GameLogicController:
 
     @staticmethod
     async def on_game_activity_event(evt: GameActivityEvent, packet_processor: 'PacketProcessor'):
+        print(f"Game activity event: {evt.game_type_str}, {evt.user1} vs {evt.user2}, scores: {evt.score1} vs {evt.score2}, nonce: {evt.nonce}")
+
+        # Check nonce
+        nonce_key = f"game_activity:{evt.user1.hex()}:{evt.user2.hex()}:{evt.game_type_str}:{evt.nonce}"
+        if redis_client.get(nonce_key) is not None:
+            # Duplicate event, ignore it
+            return
+        redis_client.set(nonce_key, "1", ex=config.get("redis", {}).get("game_nonce_expire", 180)) # default 3 minutes
+
         await game.receive_game_score_two_player(
             two_player_event_id=evt.event_id,
             player1_id=evt.user1,
