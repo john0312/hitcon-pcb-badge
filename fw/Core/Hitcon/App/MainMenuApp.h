@@ -1,5 +1,6 @@
 #include <App/BadUsbApp.h>
 #include <App/BouncingDVDApp.h>
+#include <App/DebugApp.h>
 #include <App/DinoApp.h>
 #include <App/ScoreHistApp.h>
 #include <App/ShowNameApp.h>
@@ -26,7 +27,8 @@ constexpr menu_entry_t main_menu_entries[] = {
     {"Tetris", &tetris_app, &hitcon::app::tetris::SetSingleplayer},
     {"Show Scores", &score_hist::g_score_hist, nullptr},
     {"Bouncing DVD", &bouncing_dvd_app, nullptr},
-    {"Tama", &tama_app, &hitcon::app::tama::SetSingleplayer}};
+    {"Tama", &tama_app, &hitcon::app::tama::SetSingleplayer},
+    {"Debug", &g_debug_app, nullptr}};
 
 constexpr int main_menu_entries_len =
     sizeof(main_menu_entries) / sizeof(menu_entry_t);
