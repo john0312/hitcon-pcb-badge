@@ -13,6 +13,9 @@ using namespace hitcon::service::sched;
 #define I2C_HANDLE &hi2c1
 #define SLAVE_ADDR 0xD5U
 #define QUEUE_SIZE 10
+// if I2C rx/tx interrupt is not called within TIMEOUT ms then
+// reset IMU service and logic
+#define TIMEOUT 10000
 
 namespace hitcon {
 
@@ -39,6 +42,7 @@ class ImuService {
   ImuService();
 
   void Init();
+  void ResetI2C();
 
   // query sensor reg value
   void QueueReadReg(uint8_t addr, uint8_t* value);
@@ -65,10 +69,10 @@ class ImuService {
   CircularQueue<WriteOp, QUEUE_SIZE> _tx_queue;
   callback_t _rx_cb;
   void* _rx_cb_arg1;
-  bool _is_rx_called;
+  bool _is_rx_done;
   callback_t _tx_cb;
   void* _tx_cb_arg1;
-  bool _is_tx_called;
+  bool _is_tx_done;
 
   PeriodicTask _routine_task;
   void Routine(void* arg);

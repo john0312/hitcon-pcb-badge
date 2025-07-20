@@ -18,7 +18,7 @@ ImuLogic::ImuLogic()
                     ROUTINE_INTERVAL),
       _proximity_task(420, (task_callback_t)&ImuLogic::ProximityRoutine,
                       (void*)this, PROXIMITY_INTERVAL),
-      _state(RoutineState::INIT), _init_state(InitState::CHECK_ID) {}
+      _state(RoutineState::INIT), _init_state(InitState::CHECK_ID), _step(0) {}
 
 void ImuLogic::Init() {
   g_imu_service.SetRxCallback((callback_t)&ImuLogic::OnRxDone, this);
@@ -27,6 +27,11 @@ void ImuLogic::Init() {
   scheduler.EnablePeriodic(&_routine_task);
   scheduler.Queue(&_proximity_task, nullptr);
   scheduler.EnablePeriodic(&_proximity_task);
+}
+
+void ImuLogic::Reset() {
+  _state = RoutineState::INIT;
+  _init_state = InitState::CHECK_ID;
 }
 
 void ImuLogic::GyroSelfTest(callback_t cb, void* cb_arg1) {
@@ -64,8 +69,8 @@ void ImuLogic::Routine(void* arg1) {
         _init_state = InitState::WAIT_SW_RESET;
         break;
       }
-      case InitState::RESET_COUNT: {
-        _step = 0;
+      case InitState::RESET_STEP_COUNT: {
+        _last_step_reg = 0;
         lsm6ds3tr_c_ctrl10_c_t ctrl10_c = {0};
         ctrl10_c.pedo_rst_step = PROPERTY_ENABLE;
         g_imu_service.QueueWriteReg(LSM6DS3TR_C_CTRL10_C, ctrl10_c);
@@ -75,7 +80,6 @@ void ImuLogic::Routine(void* arg1) {
         break;
       }
       case InitState::CONFIGURE: {
-        // TODO: config INT1 pin
         lsm6ds3tr_c_ctrl1_xl_t ctrl1_xl = {0};
         ctrl1_xl.odr_xl = LSM6DS3TR_C_XL_ODR_416Hz;
         ctrl1_xl.fs_xl = LSM6DS3TR_C_2g;
@@ -246,8 +250,6 @@ void ImuLogic::Routine(void* arg1) {
   } else if (_state == RoutineState::GET_STEP) {
     g_imu_service.QueueReadReg(LSM6DS3TR_C_STEP_COUNTER_L, &_buf[0]);
     g_imu_service.QueueReadReg(LSM6DS3TR_C_STEP_COUNTER_H, &_buf[1]);
-    g_imu_service.QueueReadReg(LSM6DS3TR_C_STEP_TIMESTAMP_L, &_buf[2]);
-    g_imu_service.QueueReadReg(LSM6DS3TR_C_STEP_TIMESTAMP_H, &_buf[3]);
     _state = RoutineState::WAIT_STEP;
   }
 }
@@ -263,7 +265,7 @@ void ImuLogic::OnRxDone(void* arg1) {
       if (ctrl3_c->sw_reset)  // check if sw reset is done
         g_imu_service.QueueReadReg(LSM6DS3TR_C_CTRL3_C, _buf);
       else
-        _init_state = InitState::RESET_COUNT;
+        _init_state = InitState::RESET_STEP_COUNT;
       break;
     }
     case InitState::WAIT_CONFIGURE:
@@ -313,9 +315,16 @@ void ImuLogic::OnRxDone(void* arg1) {
   }
 
   if (_state == RoutineState::WAIT_STEP) {
-    uint16_t step_count = _buf[0] | (_buf[1] << 8);
-    _is_shaking = step_count - _step > SHAKING_THRESHOLD;
-    _step = step_count;
+    uint16_t val = _buf[0] | (_buf[1] << 8);
+    uint16_t increment = 0;
+    if (val < _last_step_reg) {  // handle STEP_COUNTER (16bit) overflow
+      increment = (UINT16_MAX - _last_step_reg + 1) + val;
+    } else {
+      increment = (val - _last_step_reg);
+    }
+    _step += increment;
+    _last_step_reg = val;
+    _is_shaking = (increment >= SHAKING_THRESHOLD);
     _state = RoutineState::GET_STEP;
   }
 }
@@ -336,7 +345,7 @@ void ImuLogic::OnTxDone(void* arg1) {
 }
 
 void ImuLogic::ProximityRoutine(void* arg1) {
-  static uint16_t last_step = 0;
+  static uint32_t last_step = 0;
   hitcon::game::Proximity data;
   uint16_t temp = (GetStep() - last_step) / SCALE_FACTOR;
   if (temp > 255) temp = 255;
