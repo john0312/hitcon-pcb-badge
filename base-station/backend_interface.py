@@ -1,12 +1,13 @@
 import uuid, json
 import aiohttp
 import asyncio
+import traceback
 from config import Config
 from typing import Tuple, Optional
 
 
 class BackendInterface:
-    REQUEST_TIMEOUT = 5  # seconds
+    REQUEST_TIMEOUT = 15  # seconds
     def __init__(self, config: Config):
         self.station_id = config.get("station_id")
         self.backend_url = config.get("backend_url")
@@ -37,6 +38,7 @@ class BackendInterface:
                 print(f"[RX] POST /rx status: {resp.status}")
                 return resp.status == 200
         except Exception as e:
+            traceback.print_exc()
             print(f"[RX] Send failed: {e}")
             return False
 
@@ -60,6 +62,7 @@ class BackendInterface:
                     print(f"[TX] Error fetching packet: {url} {resp.status} - {resp.reason}")
                     raise Exception(f"Failed to fetch packet: {resp.status} - {resp.reason}")
         except Exception as e:
+            traceback.print_exc()
             print(f"[TX] Polling failed: {e}")
             raise
 
@@ -79,8 +82,6 @@ class BackendInterface:
                     print(f"[TX] Error fetching station score: {url} {resp.status} - {resp.reason}")
                     raise Exception(f"Failed to fetching station score: {resp.status} - {resp.reason}")
         except Exception as e:
-            # Priint stack trace.
-            import traceback
             traceback.print_exc()
             print(f"[TX] Polling station score failed: {e}")
             raise
