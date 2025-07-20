@@ -206,3 +206,9 @@ class ReCTFSolves(BaseModel):
 class ReCTFScoreSchema(BaseModel):
     uid: str
     solves: ReCTFSolves
+
+
+## Badge Linking related
+class BadgeLinkSchema(BaseModel):
+    badge_user: int
+    name: str

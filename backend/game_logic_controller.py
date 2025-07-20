@@ -4,6 +4,7 @@ from database import mongo, db, redis_client
 from game_logic import _GameLogic as GameLogic, GameType
 from ecc_utils import ECC_SIGNATURE_SIZE
 from crypto_auth import CryptoAuth
+from badge_link_controller import BadgeLinkController
 
 # Simply for type notation
 import typing
@@ -238,7 +239,7 @@ class GameLogicController:
         """
         Apply ReCTF score as buff to the user.
         """
-        user = await GameLogicController.translate_uid_to_user(uid)
+        user = await BadgeLinkController.translate_uid_to_user(uid)
 
         # TODO: postpone if the user has not bind the badge username
 
@@ -248,10 +249,3 @@ class GameLogicController:
             buff_b=solves.b,
             timestamp=utcnow()
         )
-
-    @staticmethod
-    async def translate_uid_to_user(uid: str) -> int:
-        """
-        Translate ReCTF UID to user ID.
-        """
-        # TODO: Implement the logic to translate UID to badge username.

@@ -1,10 +1,11 @@
 from fastapi import FastAPI, APIRouter, Depends, Security, HTTPException
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from packet_processor import PacketProcessor
+from badge_link_controller import BadgeLinkController
 from game_logic_controller import GameLogicController
 from config import Config
 from database import db
-from schemas import Station, IrPacketRequestSchema, Display, ScoreEntry, ReCTFScoreSchema
+from schemas import Station, IrPacketRequestSchema, Display, ScoreEntry, ReCTFScoreSchema, BadgeLinkSchema
 
 config = Config("config.yaml")
 
@@ -120,6 +121,25 @@ async def receive_rectf_score(schema: ReCTFScoreSchema, credentials: HTTPAuthori
 
     # Process the ReCTF score for the user
     await GameLogicController.apply_rectf_score(schema.uid, schema.solves)
+
+    return {"status": "ok"}
+
+
+@app.post("/hitcon/link")
+async def hitcon_link(schema: BadgeLinkSchema, credentials: HTTPAuthorizationCredentials = Security(security)):
+    # Validate attendee token
+    if not credentials.credentials:
+        raise HTTPException(status_code=400, detail="Missing token")
+
+    uid = await BadgeLinkController.get_uid_with_token(credentials.credentials)
+
+    if not uid:
+        raise HTTPException(status_code=401, detail="Invalid token")
+
+    # Link the badge with the attendee
+    await BadgeLinkController.link_badge_with_attendee(uid, schema.badge_user)
+
+    # TODO: apply rectf buff if the user has not link with the badge
 
     return {"status": "ok"}
 
