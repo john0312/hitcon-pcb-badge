@@ -1,4 +1,5 @@
 from schemas import utcnow, PacketType, ProximityEvent, PubAnnounceEvent, TwoBadgeActivityEvent, GameActivityEvent, ScoreAnnounceEvent, SingleBadgeActivityEvent, SponsorActivityEvent, IrPacket, ReCTFSolves
+from config import Config
 from database import mongo, db, redis_client
 from game_logic import _GameLogic as GameLogic, GameType
 from ecc_utils import ECC_SIGNATURE_SIZE
@@ -9,6 +10,7 @@ import typing
 if typing.TYPE_CHECKING:
     from packet_processor import PacketProcessor
 
+config = Config("config.yaml")
 game = GameLogic(mongo, redis_client)
 
 class GameLogicController:
@@ -33,10 +35,13 @@ class GameLogicController:
                 raise ValueError(f"Unknown game type: {evt.event_type}")
 
         # Parse score from event data
-        score = int.from_bytes(evt.event_data, 'big')
-        score = (score & 0xFFF000) >> 12  # Extract the score from the event data
-
-        # TODO: check nonce
+        # event_data[3]
+        # packet.event_data[0] = (myScore & 0xFF);
+        # packet.event_data[1] = (myScore & 0x0300) >> 8;
+        # packet.event_data[1] |= (data.nonce & 0x03F) << 2;
+        # packet.event_data[2] = (data.nonce & 0x3FC0) >> 6;
+        score = (evt.event_data[0] | ((evt.event_data[1] & 0x03) << 8)) & 0x3FF
+        nonce = (evt.event_data[1] >> 2) | (evt.event_data[2] << 6)
 
         await game.receive_game_score_single_player(
             player_id=evt.user,
@@ -50,18 +55,20 @@ class GameLogicController:
     @staticmethod
     async def on_two_badge_activity_event(evt: TwoBadgeActivityEvent, packet_processor: 'PacketProcessor'):
         # game_data structure (MSB):
-        # Bit [0:4] - Game Type
-        #          0x00 - None/Reserved
-        #          0x01 - Snake
-        #          0x02 - Tetris
-        # Bit [4:14] - Player 1 Score
-        # Bit [14:24] - Player 2 Score
-        # Bit [24:40] - Nonce
-        data_bits = f"{int.from_bytes(evt.game_data, 'big', signed=False):0>40b}"
-        raw_game_type = int(data_bits[0:4], 2)
-        player1_score = int(data_bits[4:14], 2)
-        player2_score = int(data_bits[14:24], 2)
-        nonce = int(data_bits[24:40], 2)
+        # game_data[5]
+        # // Game Type: byte 0 bits 0:4
+        # packet.game_data[0] = data.gameType & 0xf;
+        # // Player 1 Score: byte 0 bits 4:8, byte 1 bits 0:6
+        # packet.game_data[0] |= (data.myScore & 0xf) << 4;
+        # packet.game_data[1] = (data.myScore & 0x3f0) >> 4;
+        # // Player 2 Score: byte 1 bits 6:8, byte 2 bits 0:8
+        # packet.game_data[1] |= (data.otherScore & 0x3) << 6;
+        # packet.game_data[2] = (data.otherScore & 0x3fc) >> 2;
+        # // Nonce: byte 3, byte 4
+        raw_game_type = evt.game_data[0] & 0x0F
+        player1_score = ((evt.game_data[0] & 0xF0) >> 4) | ((evt.game_data[1] & 0x3F) << 4)
+        player2_score = ((evt.game_data[1] & 0xC0) >> 6) | ((evt.game_data[2] & 0xFF) << 2)
+        nonce = int.from_bytes(evt.game_data[3:5], 'little', signed=False)
 
         match raw_game_type:
             case 0x01:
@@ -71,13 +78,20 @@ class GameLogicController:
             case 0x03:
                 game_type = GameType.DINO
             case _:
-                raise ValueError(f"Unknown game type: {raw_game_type}")
+                raise ValueError(f"TwoBadgeGameActivity: Unknown game type: {raw_game_type}")
 
-        scores = [(evt.user1, player1_score), (evt.user2, player2_score)]
-        scores.sort(key=lambda x: x[0])
+        if evt.user1 > evt.user2:
+            scores = [(evt.user2, player2_score), (evt.user1, player1_score)]
+            # user1 and user2 inversed, should adjust packet_from
+            evt.packet_from = 2 if evt.packet_from == 1 else 1
+        elif evt.user1 < evt.user2: 
+            scores = [(evt.user1, player1_score), (evt.user2, player2_score)]
+        else:
+            # the equal case should not happen
+            raise ValueError(f"TwoBadgeGameActivity: users are equal {evt.user1} == {evt.user2}")
 
         queue = db["battle_queue"]
-        # Check if the game is already in the queue
+        # Match TwoBadgeActivityPacket from both users
         existing_game = await queue.find_one({
             "game_type": str(game_type),
             "player1": scores[0][0],
@@ -88,6 +102,15 @@ class GameLogicController:
         })
 
         if existing_game:
+            if existing_game["packet_from"] == evt.packet_from:
+                # This is a duplicate packet, ignore it
+                return
+
+            if evt.packet_from == 1:
+                signatures = [evt.signature, existing_game["signature"]]
+            else:
+                signatures = [existing_game["signature"], evt.signature]
+
             game_event = GameActivityEvent(
                 event_id=evt.event_id, # use second packet's event_id
                 station_id=evt.station_id,
@@ -98,7 +121,7 @@ class GameLogicController:
                 score2=scores[1][1],
                 nonce=nonce,
                 timestamp=evt.timestamp,
-                signatures=[evt.signature, existing_game["signature"]]  # TODO: Combine signatures in right order
+                signatures=signatures
             )
             await GameLogicController.on_game_activity_event(game_event)
             await queue.delete_one({"_id": existing_game["_id"]})
