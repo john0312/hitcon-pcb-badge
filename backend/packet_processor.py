@@ -344,7 +344,10 @@ class PacketProcessor:
         # This is used to determine where to send packets for the user.
         # Use redis to store the association and automatically expire it after a certain time.
         assert self.redis is not None, "Redis connection is not initialized."
-        await self.redis.set(f"user_station_pair:{user}", str(station_id), ex=self.config["redis"]["user_station_pair_expire"])
+        await self.redis.set(
+            f"user_station_pair:{user}", str(station_id),
+            ex=self.config.get("redis", {}).get("user_station_pair_expire", 180) # default 3 minutes
+        )
 
 
     async def get_user_last_station_id(self, user: int) -> Optional[int]:
