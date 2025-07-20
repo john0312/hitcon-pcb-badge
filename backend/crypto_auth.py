@@ -63,11 +63,13 @@ class CryptoAuth:
                 msg=ir_packet.data[2:-ECC_SIGNATURE_SIZE],
                 sig=sig_user1
             ):
+                event.packet_from = 1
                 return event.user1
             elif ecc_verify(
                 msg=ir_packet.data[2:-ECC_SIGNATURE_SIZE],
                 sig=sig_user2
             ):
+                event.packet_from = 2
                 return event.user2
             else:
                 raise UnsignedPacketError("Invalid signature for the packet")
