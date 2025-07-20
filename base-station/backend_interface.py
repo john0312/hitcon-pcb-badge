@@ -35,7 +35,8 @@ class BackendInterface:
             assert self.session is not None, "Session not initialized"
             timeout = aiohttp.ClientTimeout(total=self.REQUEST_TIMEOUT)
             async with self.session.post(url, json=payload, headers=headers, timeout=timeout) as resp:
-                print(f"[RX] POST /rx status: {resp.status}")
+                response_body = await resp.text()
+                print(f"[RX] POST /rx status: {resp.status} body: '{response_body}'")
                 return resp.status == 200
         except Exception as e:
             traceback.print_exc()
