@@ -538,7 +538,12 @@ class IrInterface:
 
             except serial.serialutil.SerialException: # raise serial connection broken error
                 raise
+            except TimeoutError as e:
+                # No packets, this is expected.
+                pass
             except Exception as e:
+                import traceback
+                traceback.print_exc()
                 print(f"Error getting packet: {type(e)}, {e}")
 
             await asyncio.sleep(self.failure_wait)
