@@ -104,7 +104,7 @@ int main(void)
   MX_CRC_Init();
   MX_USB_DEVICE_Init();
   /* USER CODE BEGIN 2 */
-#ifndef V1_1C
+#ifndef V1_1
   MX_I2C1_Init();
 #endif
   hitcon_run();

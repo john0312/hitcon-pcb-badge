@@ -116,21 +116,21 @@ void Error_Handler(void);
 #define DEC_EN_GPIO_Port GPIOB
 #endif
 
-#ifdef V1_1C
+#ifdef V1_1
 #undef LedA0_Pin
 #undef LedA1_Pin
 #undef DEC_EN_Pin
 #define LedA0_Pin GPIO_PIN_6
 #define LedA1_Pin GPIO_PIN_7
 #define DEC_EN_Pin GPIO_PIN_5
-#elifdef V2_0A
+#elifdef V2_0
 #undef LedA0_Pin
 #undef LedA1_Pin
 #undef DEC_EN_Pin
 #define LedA0_Pin GPIO_PIN_3
 #define LedA1_Pin GPIO_PIN_4
 #define DEC_EN_Pin GPIO_PIN_5
-#elifdef V2_1B
+#elifdef V2_1
 #undef LedA0_Pin
 #undef LedA1_Pin
 #undef DEC_EN_Pin

@@ -54,10 +54,10 @@ void DisplayService::Init() {
   tmp_request_cb_param.callback = request_frame_callback_arg1;
   tmp_request_cb_param.buf_index = 0;
   scheduler.Queue(&task, &tmp_request_cb_param);
-#ifdef V2_0A
+#ifdef V2_0
   HAL_TIM_PWM_Start(&htim3,
                     TIM_CHANNEL_2);  // decoder enable to control brightness
-#elifdef V2_1B
+#elifdef V2_1
   HAL_TIM_PWM_Start(&htim3,
                     TIM_CHANNEL_1);  // decoder enable to control brightness
 #endif
@@ -96,7 +96,7 @@ void DisplayService::PopulateFrames(display_buf_t* buffer,
                                     size_t buffer_index) {
   constexpr uint16_t gpio_pin[8] = {15, 14, 13, 12, 11, 10, 2, 1};
 // row_map[n] => set A3~A0 BSRR register
-#ifdef V1_1C
+#ifdef V1_1
   constexpr uint32_t row_map[16] = {
       0B0000'0001'1100'0000 << 16 | 0B0000'0010'0000'0000,  // 1000
       0B0000'0011'1100'0000 << 16 | 0B0000'0000'0000'0000,  // 0000
@@ -115,7 +115,7 @@ void DisplayService::PopulateFrames(display_buf_t* buffer,
       0B0000'0000'0000'0000 << 16 | 0B0000'0011'1100'0000,  // 1111
       0B0000'0010'0000'0000 << 16 | 0B0000'0001'1100'0000,  // 0111
   };
-#elifdef V2_0A
+#elifdef V2_0
   constexpr uint32_t row_map[16] = {
       0B0000'0001'0001'1000 << 16 | 0B0000'0010'0000'0000,  // 1000
       0B0000'0011'0001'1000 << 16 | 0B0000'0000'0000'0000,  // 0000
@@ -134,7 +134,7 @@ void DisplayService::PopulateFrames(display_buf_t* buffer,
       0B0000'0000'0000'0000 << 16 | 0B0000'0011'0001'1000,  // 1111
       0B0000'0010'0000'0000 << 16 | 0B0000'0001'0001'1000,  // 0111
   };
-#elifdef V2_1B
+#elifdef V2_1
   constexpr uint32_t row_map[16] = {
       0B0000'0001'0010'1000 << 16 | 0B0000'0010'0000'0000,  // 1000
       0B0000'0011'0010'1000 << 16 | 0B0000'0000'0000'0000,  // 0000
@@ -200,9 +200,9 @@ void DisplayService::RequestFrameWrapper(request_cb_param* arg) {
 void DisplayService::SetBrightness(uint8_t brightness) {
   uint8_t value =
       brightness * 1.0 / DISPLAY_MAX_BRIGHTNESS * (htim3.Init.Period);
-#ifdef V1_1C
+#ifdef V1_1
   __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_2, value);
-#elifdef V2_1B
+#elifdef V2_1
   __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_1, value);
 #endif
 }

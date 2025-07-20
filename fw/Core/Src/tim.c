@@ -177,13 +177,13 @@ void MX_TIM3_Init(void)
     Error_Handler();
   }
   /* USER CODE BEGIN TIM3_Init 2 */
-#ifdef V1_1C
+#ifdef V1_1
   sConfigOC.OCMode = TIM_OCMODE_PWM2;
   sConfigOC.Pulse = 30;
   if (HAL_TIM_PWM_ConfigChannel(&htim3, &sConfigOC, TIM_CHANNEL_2) != HAL_OK) {
     Error_Handler();
   }
-#elifdef V2_1B
+#elifdef V2_1
 sConfigOC.OCMode = TIM_OCMODE_PWM2;
   sConfigOC.Pulse = 30;
   if (HAL_TIM_PWM_ConfigChannel(&htim3, &sConfigOC, TIM_CHANNEL_1) != HAL_OK) {
@@ -389,7 +389,7 @@ void HAL_TIM_MspPostInit(TIM_HandleTypeDef* timHandle)
 
   /* USER CODE BEGIN TIM3_MspPostInit 1 */
 
-#ifdef V1_1C
+#ifdef V1_1
     // PB5     ------> TIM3_CH2
     GPIO_InitStruct.Pin = DEC_EN_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
@@ -397,7 +397,7 @@ void HAL_TIM_MspPostInit(TIM_HandleTypeDef* timHandle)
     HAL_GPIO_Init(DEC_EN_GPIO_Port, &GPIO_InitStruct);
 
     __HAL_AFIO_REMAP_TIM3_PARTIAL();
-#elifdef V2_1B
+#elifdef V2_1
     // PB4     ------> TIM3_CH1
     GPIO_InitStruct.Pin = DEC_EN_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;

@@ -8,12 +8,11 @@
 #ifndef HITCON_HITCON_H_
 #define HITCON_HITCON_H_
 
-// V1_1C  - HITCON CMT 2024 final version
-// V2_0A  - HITCON CMT 2025 first prototype
-// V2_1BB - HITCON CMT 2025 second prototype (blue light version)
-// V2_1BR - HITCON CMT 2025 second prototype (red light version)
-#if !defined(V1_1C) && !defined(V2_0A) && !defined(V2_1B)
-#error "You must define at least one of: V1_1C, V2_0A, V2_1B"
+// V1_1  - HITCON CMT 2024 attendee version
+// V2_0  - HITCON CMT 2025 first prototype
+// V2_1  - HITCON CMT 2025 attendee version
+#if !defined(V1_1) && !defined(V2_0) && !defined(V2_1)
+#error "You must define at least one of: V1_1, V2_0, V2_1"
 #endif
 
 void hitcon_run();

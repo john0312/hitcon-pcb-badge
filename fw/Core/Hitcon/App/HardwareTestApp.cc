@@ -49,7 +49,7 @@ void HardwareTestApp::CheckIr(void* arg1) {
     if (packet->message[i] != _ir_data.opaq.show.message[i]) break;
   }
   if (i == _ir_data_len) {
-#ifdef V1_1C
+#ifdef V1_1
     next_state = TS_PASS;
 #else
     next_state = TS_GYRO;
