@@ -1,3 +1,6 @@
+backend:
+  ecc_key: 878787
+
 mongo:
   host: localhost
   port: 27017
