@@ -98,6 +98,8 @@ struct SingleBadgeActivityPacket {
   // 0x03 - Dino
   // 0x10 - Shake
   uint8_t event_data[3];
+  // Bit [0:10] - Score
+  // Bit [10:24] - Nonce
   uint8_t sig[ECC_SIGNATURE_SIZE];
 };
 

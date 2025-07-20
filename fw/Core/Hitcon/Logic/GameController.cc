@@ -59,9 +59,15 @@ bool GameController::SendProximity(const Proximity &data) {
 bool GameController::SendSingleBadgeActivity(const SingleBadgeActivity &data) {
   hitcon::ir::SingleBadgeActivityPacket packet;
   GetUsername(packet.user);
+  uint16_t myScore = data.myScore;
+  if (myScore >= 1024) {
+    myScore = 1023;
+  }
   packet.event_type = data.eventType;
-  static_assert(sizeof(packet.event_data) == sizeof(data.eventData));
-  memcpy(packet.event_data, data.eventData, sizeof(packet.event_data));
+  packet.event_data[0] = (myScore & 0xFF);
+  packet.event_data[1] = (myScore & 0x0300) >> 8;
+  packet.event_data[1] |= (data.nonce & 0x03F) << 2;
+  packet.event_data[2] = (data.nonce & 0x3FC0) >> 6;
   return g_signed_packet_service.SignAndSendData(
       packet_type::kSingleBadgeActivity, reinterpret_cast<uint8_t *>(&packet),
       sizeof(packet) - ECC_SIGNATURE_SIZE);

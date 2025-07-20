@@ -22,7 +22,8 @@ enum EventType : uint8_t {
 
 struct SingleBadgeActivity {
   EventType eventType;
-  uint8_t eventData[3];
+  uint16_t myScore;
+  uint16_t nonce;
 };
 
 struct TwoBadgeActivity {

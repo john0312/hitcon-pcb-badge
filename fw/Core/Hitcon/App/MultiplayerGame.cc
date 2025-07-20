@@ -59,9 +59,14 @@ void MultiplayerGame::UploadMultiplayerScore(PacketCallbackArg *packet) {
 }
 
 void MultiplayerGame::UploadSingleplayerScore() {
-  SingleBadgeActivity activity = {.eventType = GetGameType(), .eventData = {0}};
+  SingleBadgeActivity activity = {
+      .eventType = GetGameType(), .myScore = 0, .nonce = 0};
   uint32_t score = GetScore();
-  memcpy(activity.eventData, &score, sizeof(activity.eventData));
+  if (score >= 1024) {
+    score = 1023;
+  }
+  activity.myScore = score;
+  activity.nonce = (uint16_t)g_fast_random_pool.GetRandom();
   g_game_controller.SendSingleBadgeActivity(activity);
 }
 
