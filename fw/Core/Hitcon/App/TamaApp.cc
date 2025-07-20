@@ -30,12 +30,13 @@ TamaApp::TamaApp()
 
 void TamaApp::Init() {
   hitcon::service::sched::scheduler.Queue(&_routine_task, nullptr);
-  // _tama_data is loaded from NvStorage.
-  // If it's a fresh start (e.g., NvStorage is zeroed), _tama_data.type will be
-  // 0 (NONE_TYPE).
-  // use new data always for debugging
-  // TODO, to memory all settings
+// _tama_data is loaded from NvStorage.
+// If it's a fresh start (e.g., NvStorage is zeroed), _tama_data.type will be
+// 0 (NONE_TYPE).
+// use new data always for debugging
+#ifdef DEBUG
   _tama_data = {};
+#endif
   g_nv_storage.MarkDirty();
 }
 
@@ -136,6 +137,11 @@ void TamaApp::OnButton(button_t button) {
           needs_update_fb = true;
           needs_save = true;
           break;
+#ifdef DEBUG
+        case TAMA_APP_STATE::EGG:
+          // Hatch egg for debug use
+          hatching_warning_frame_count = 0;
+#endif
         default:
           // No action for other states on OK press, or handle as needed
           break;
