@@ -31,9 +31,10 @@ async def get_station(credentials: HTTPAuthorizationCredentials = Security(secur
 async def read_root():
     return {"message": "Hello World"}
 
-#Fake scores
+## ====== Public API Endpoints ======
 @app.get("/api/scores", response_model=list[ScoreEntry])
-async def get_fake_scores():
+async def get_scoreboard():
+    # TODO: return scoreboard from GameLogic
     return [
         {
             "name": "tony",
@@ -77,6 +78,7 @@ async def get_fake_scores():
     ]
 
 
+## ====== Station API Endpoints ======
 @router.get("/tx")
 async def tx(station: Station = Depends(get_station)) -> list[IrPacketRequestSchema]:
     # Backend asks the base station to send a packet.
@@ -113,7 +115,8 @@ async def get_history(station: Station = Depends(get_station)):
     return history
 
 
-@router.post("/rectf/score")
+## ====== ReCTF API Endpoints ======
+@app.post("/rectf/score")
 async def receive_rectf_score(schema: ReCTFScoreSchema, credentials: HTTPAuthorizationCredentials = Security(security)):
     # Validate ReCTF key
     if credentials.credentials != config.get('rectf', {}).get('api_key'):
@@ -125,6 +128,7 @@ async def receive_rectf_score(schema: ReCTFScoreSchema, credentials: HTTPAuthori
     return {"status": "ok"}
 
 
+## ====== Badge Linking API Endpoints ======
 @app.post("/hitcon/link")
 async def hitcon_link(schema: BadgeLinkSchema, credentials: HTTPAuthorizationCredentials = Security(security)):
     # Validate attendee token
