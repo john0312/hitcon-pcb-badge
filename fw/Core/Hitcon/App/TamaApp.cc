@@ -49,6 +49,10 @@ void SetMultiplayer() {
   tama_app.player_mode = TAMA_PLAYER_MODE::MODE_MULTIPLAYER;
 }
 
+void SetBaseStationConnect() {
+  tama_app.player_mode = TAMA_PLAYER_MODE::MODE_BASESTATION;
+}
+
 void TamaApp::OnEntry() {
   hitcon::service::sched::scheduler.EnablePeriodic(&_routine_task);
   if (player_mode == TAMA_PLAYER_MODE::MODE_MULTIPLAYER) {
@@ -56,8 +60,21 @@ void TamaApp::OnEntry() {
                                      TAMA_RECV_ID);
     _enemy_state = TAMA_XBOARD_STATE::XBOARD_INVITE;
     _enemy_score = 0;
+    if (_tama_data.state != TAMA_APP_STATE::ALIVE) {
+      xboard_state = TAMA_XBOARD_STATE::XBOARD_UNAVAILABLE;
+      display_set_mode_scroll_text("Your pet is not ready yet");
+      TAMA_XBOARD_PACKET_TYPE packet =
+          TAMA_XBOARD_PACKET_TYPE::PACKET_UNAVAILABLE;
+      g_xboard_logic.QueueDataForTx(reinterpret_cast<uint8_t*>(&packet),
+                                    sizeof(packet), TAMA_RECV_ID);
+    }
     return;
   }
+  if (player_mode == TAMA_PLAYER_MODE::MODE_BASESTATION) {
+    TamaHeal();
+    return;
+  }
+  my_assert(player_mode == TAMA_PLAYER_MODE::MODE_SINGLEPLAYER);
   if (_tama_data.state == TAMA_APP_STATE::CHOOSE_TYPE) {
     // Ensure _current_selection_in_choose_mode is valid. Default to DOG if type
     // is NONE.
@@ -177,6 +194,12 @@ void TamaApp::Routine(void* unused) {
     XbRoutine(unused);
     return;
   }
+  if (player_mode == TAMA_PLAYER_MODE::MODE_BASESTATION) {
+    // Do not do anything for healing in routine. This is so simple so
+    // we just do it in TamaHeal which is called from OnEntry.
+    return;
+  }
+  my_assert(player_mode == TAMA_PLAYER_MODE::MODE_SINGLEPLAYER);
   bool needs_render = true;
   bool needs_save = false;
 
@@ -304,7 +327,17 @@ void TamaApp::XbOnButton(button_t button) {
     case TAMA_XBOARD_STATE::XBOARD_INVITE:
       switch (button & BUTTON_VALUE_MASK) {
         case BUTTON_OK: {
-          TAMA_XBOARD_BATTLE_INVITE invite = xboard_battle_invite;
+          uint8_t invite;
+          if (xboard_battle_invite ==
+              TAMA_XBOARD_BATTLE_INVITE::XBOARD_BATTLE_N) {
+            invite =
+                static_cast<uint8_t>(TAMA_XBOARD_PACKET_TYPE::PACKET_CONFIRM);
+          } else {
+            my_assert(xboard_battle_invite ==
+                      TAMA_XBOARD_BATTLE_INVITE::XBOARD_BATTLE_Y);
+            invite =
+                static_cast<uint8_t>(TAMA_XBOARD_PACKET_TYPE::PACKET_LEAVE);
+          }
           g_xboard_logic.QueueDataForTx(reinterpret_cast<uint8_t*>(&invite),
                                         sizeof(invite), TAMA_RECV_ID);
           xboard_state = TAMA_XBOARD_STATE::XBOARD_BATTLE_ENCOUNTER;
@@ -382,6 +415,10 @@ void TamaApp::OnXBoardRecv(void* arg) {
     case TAMA_XBOARD_PACKET_TYPE::PACKET_LEAVE:
       badge_controller.BackToMenu(this);
       return;  // Exit immediately
+    case TAMA_XBOARD_PACKET_TYPE::PACKET_UNAVAILABLE:
+      _enemy_state = TAMA_XBOARD_STATE::XBOARD_UNAVAILABLE;
+      display_set_mode_scroll_text("Enemy unavailable");
+      break;
     default:
       my_assert(false);
       break;
@@ -390,6 +427,12 @@ void TamaApp::OnXBoardRecv(void* arg) {
 
 void TamaApp::XbRoutine(void* unused) {
   // TODO: Handle all XBoard routine here
+  if (xboard_state == TAMA_XBOARD_STATE::XBOARD_UNAVAILABLE ||
+      _enemy_state == TAMA_XBOARD_STATE::XBOARD_UNAVAILABLE) {
+    // We can not battle now. Do nothing to let the display scroll
+    return;
+  }
+
   if (xboard_state == TAMA_XBOARD_STATE::XBOARD_BATTLE_ENCOUNTER &&
       !(_enemy_state == TAMA_XBOARD_STATE::XBOARD_BATTLE_ENCOUNTER)) {
     return;
@@ -412,6 +455,12 @@ void TamaApp::XbRoutine(void* unused) {
     UpdateFrameBuffer();
   }
 
+  Render();
+}
+
+void TamaApp::TamaHeal() {
+  // TODO: Display animation of restoring
+  // self._tama_data.hp = ...
   Render();
 }
 

@@ -50,6 +50,7 @@ typedef struct {
 enum class TAMA_PLAYER_MODE : uint8_t {
   MODE_SINGLEPLAYER,
   MODE_MULTIPLAYER,
+  MODE_BASESTATION,
 };
 
 enum class TAMA_XBOARD_PACKET_TYPE {
@@ -59,6 +60,7 @@ enum class TAMA_XBOARD_PACKET_TYPE {
   PACKET_SCORE,
   PACKET_END,
   PACKET_LEAVE,
+  PACKET_UNAVAILABLE,
 };
 
 enum class TAMA_XBOARD_STATE {
@@ -66,6 +68,7 @@ enum class TAMA_XBOARD_STATE {
   XBOARD_BATTLE_ENCOUNTER,
   XBOARD_BATTLE_QTE,
   XBOARD_BATTLE_SENT_SCORE,
+  XBOARD_UNAVAILABLE,
 };
 
 enum class TAMA_XBOARD_BATTLE_INVITE {
@@ -112,10 +115,14 @@ class TamaApp : public App {
   TAMA_XBOARD_STATE xboard_state;
   TAMA_XBOARD_BATTLE_INVITE xboard_battle_invite;
   void OnXBoardRecv(void* arg);
+
+  // BaseStation
+  void TamaHeal();
 };
 
 void SetSingleplayer();
 void SetMultiplayer();
+void SetBaseStationConnect();
 
 extern TamaApp tama_app;
 

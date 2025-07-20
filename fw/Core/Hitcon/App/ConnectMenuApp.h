@@ -1,5 +1,6 @@
 #include <App/ShowNameApp.h>
 #include <App/SnakeApp.h>
+#include <App/TamaApp.h>
 #include <App/TetrisApp.h>
 #include <Logic/BadgeController.h>
 
@@ -8,12 +9,14 @@
 namespace hitcon {
 
 using hitcon::app::snake::snake_app;
+using hitcon::app::tama::tama_app;
 using hitcon::app::tetris::tetris_app;
 // using hitcon::app::tetris
 
 constexpr menu_entry_t connect_menu_entries[] = {
     {"Tetris", &tetris_app, &hitcon::app::tetris::SetMultiplayer},
     {"Snake", &snake_app, &hitcon::app::snake::SetMultiplayer},
+    {"Tama", &tama_app, &hitcon::app::tama::SetMultiplayer},
 };
 
 constexpr int connect_menu_entries_len =
@@ -49,6 +52,7 @@ extern ConnectLegacyMenuApp connect_legacy_menu;
 
 constexpr menu_entry_t connect_basestn_menu_entries[] = {
     {"BaseStation", nullptr, nullptr},
+    {"Tama Heal", &tama_app, &hitcon::app::tama::SetBaseStationConnect},
 };
 
 constexpr int connect_basestn_menu_entries_len =
