@@ -372,6 +372,8 @@ void TamaApp::XbOnButton(button_t button) {
         }
       }
       break;
+    case TAMA_XBOARD_STATE::XBOARD_UNAVAILABLE:
+      break;
     default:
       my_assert(false);
       break;
