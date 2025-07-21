@@ -39348,7 +39348,7 @@
 				)
 			)
 		)
-		(property "Value" "300"
+		(property "Value" "100"
 			(at 0 -1.17 90)
 			(layer "B.Fab")
 			(hide yes)
@@ -45370,7 +45370,7 @@
 				)
 			)
 		)
-		(property "Value" "300"
+		(property "Value" "100"
 			(at 0 -1.17 90)
 			(layer "B.Fab")
 			(hide yes)
@@ -46556,7 +46556,7 @@
 				)
 			)
 		)
-		(property "Value" "300"
+		(property "Value" "100"
 			(at 0 -1.17 90)
 			(layer "B.Fab")
 			(hide yes)
@@ -48597,7 +48597,7 @@
 				)
 			)
 		)
-		(property "Value" "300"
+		(property "Value" "100"
 			(at 0 -1.17 90)
 			(layer "B.Fab")
 			(hide yes)
@@ -50126,7 +50126,7 @@
 				)
 			)
 		)
-		(property "Value" "300"
+		(property "Value" "100"
 			(at 0 -1.17 90)
 			(layer "B.Fab")
 			(hide yes)
@@ -57515,7 +57515,7 @@
 				)
 			)
 		)
-		(property "Value" "300"
+		(property "Value" "100"
 			(at 0 -1.17 90)
 			(layer "B.Fab")
 			(hide yes)
@@ -59981,7 +59981,7 @@
 				)
 			)
 		)
-		(property "Value" "300"
+		(property "Value" "100"
 			(at 0 -1.17 90)
 			(layer "B.Fab")
 			(hide yes)
@@ -61060,7 +61060,7 @@
 				)
 			)
 		)
-		(property "Value" "300"
+		(property "Value" "100"
 			(at 0 -1.17 90)
 			(layer "B.Fab")
 			(hide yes)
