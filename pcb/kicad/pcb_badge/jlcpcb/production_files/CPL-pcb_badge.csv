@@ -160,6 +160,7 @@ J5,Conn_01x03_Pin,PinHeader_1x03_P2.54mm_Vertical,136.04,-34.5,180.0,top
 L20,CYL104R-33UH,L_10.4x10.4_H4.8,82.500002,-141.5,180.0,bottom
 Q1,SI2302,SOT-23,82.162502,-149.3,270.0,bottom
 Q2,JSM2301S,SOT-23,95.900002,-139.6,180.0,bottom
+Q50,JSM2301S,SOT-23,108.4,-47.3,180.0,bottom
 Q9,2N7002,SOT-23,151.500002,-126.5,0.0,bottom
 Q90,2N7002,SOT-23,141.000002,-48.5,90.0,bottom
 Q91,2N7002,SOT-23,144.500002,-48.5,90.0,bottom
@@ -206,6 +207,9 @@ R4,10M,R_0402_1005Metric_Pad0.72x0.64mm_HandSolder,93.3,-41.9,90.0,bottom
 R5,100k,R_0402_1005Metric_Pad0.72x0.64mm_HandSolder,92.000002,-137.6,0.0,bottom
 R50,4.7k,R_0402_1005Metric_Pad0.72x0.64mm_HandSolder,103.8,-43.3,180.0,bottom
 R51,4.7k,R_0402_1005Metric_Pad0.72x0.64mm_HandSolder,102.2,-49.2,90.0,bottom
+R52,100k,R_0402_1005Metric_Pad0.72x0.64mm_HandSolder,102.15,-43.25,90.0,bottom
+R53,NC,R_0402_1005Metric_Pad0.72x0.64mm_HandSolder,106.3,-49.685,180.0,bottom
+R54,4.7k,R_0402_1005Metric_Pad0.72x0.64mm_HandSolder,106.5,-42.2,0.0,bottom
 R6,100k,R_0402_1005Metric_Pad0.72x0.64mm_HandSolder,99.1,-34.5,90.0,bottom
 R61,100,R_0402_1005Metric_Pad0.72x0.64mm_HandSolder,118.8,-154.5,180.0,bottom
 R7,100k,R_0402_1005Metric_Pad0.72x0.64mm_HandSolder,131.000002,-34.8,90.0,bottom
