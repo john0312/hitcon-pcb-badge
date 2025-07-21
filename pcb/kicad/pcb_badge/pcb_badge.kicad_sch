@@ -899,7 +899,7 @@
 				)
 			)
 		)
-		(property "Value" "300"
+		(property "Value" "100"
 			(at 181.61 93.98 90)
 			(effects
 				(font
@@ -967,7 +967,7 @@
 				)
 			)
 		)
-		(property "Value" "300"
+		(property "Value" "100"
 			(at 181.61 86.36 90)
 			(effects
 				(font
@@ -1035,7 +1035,7 @@
 				)
 			)
 		)
-		(property "Value" "300"
+		(property "Value" "100"
 			(at 181.61 78.74 90)
 			(effects
 				(font
@@ -1169,7 +1169,7 @@
 				)
 			)
 		)
-		(property "Value" "300"
+		(property "Value" "100"
 			(at 196.85 91.44 90)
 			(effects
 				(font
@@ -1237,7 +1237,7 @@
 				)
 			)
 		)
-		(property "Value" "300"
+		(property "Value" "100"
 			(at 196.85 83.82 90)
 			(effects
 				(font
@@ -1371,7 +1371,7 @@
 				)
 			)
 		)
-		(property "Value" "300"
+		(property "Value" "100"
 			(at 189.23 96.52 90)
 			(effects
 				(font
@@ -1439,7 +1439,7 @@
 				)
 			)
 		)
-		(property "Value" "300"
+		(property "Value" "100"
 			(at 189.23 81.28 90)
 			(effects
 				(font
@@ -1507,7 +1507,7 @@
 				)
 			)
 		)
-		(property "Value" "300"
+		(property "Value" "100"
 			(at 189.23 88.9 90)
 			(effects
 				(font
