@@ -18,7 +18,8 @@ namespace game {
 
 GameController::GameController()
     : state_(0),
-      pubAnnounceTask(960, (callback_t)&GameController::TrySendPubAnnounce, this, 1490) {}
+      pubAnnounceTask(960, (callback_t)&GameController::TrySendPubAnnounce,
+                      this, 1490) {}
 
 void GameController::Init() {
   hitcon::ecc::g_ec_logic.SetPrivateKey(g_per_board_data.GetPrivKey());
@@ -109,9 +110,8 @@ void GameController::TrySendPubAnnounce() {
       hitcon::ir::IR_DATA_HEADER_SIZE + sizeof(hitcon::ir::PubAnnouncePacket);
 
   hitcon::ir::irController.SendPacketWithRetransmit(
-    reinterpret_cast<uint8_t *>(&irdata),
-    irdata_len, 3,
-    ::hitcon::ir::AckTag::ACK_TAG_PUBKEY_RECOG);
+      reinterpret_cast<uint8_t *>(&irdata), irdata_len, 3,
+      ::hitcon::ir::AckTag::ACK_TAG_PUBKEY_RECOG);
 }
 
 }  // namespace game
