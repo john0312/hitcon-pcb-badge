@@ -18,12 +18,12 @@ namespace game {
 
 GameController::GameController()
     : state_(0),
-      routine_task(960, (callback_t)&GameController::RoutineFunc, this, 490) {}
+      pubAnnounceTask(960, (callback_t)&GameController::TrySendPubAnnounce, this, 1490) {}
 
 void GameController::Init() {
-  state_ = 1;
-  hitcon::service::sched::scheduler.Queue(&routine_task, nullptr);
-  hitcon::service::sched::scheduler.EnablePeriodic(&routine_task);
+  hitcon::ecc::g_ec_logic.SetPrivateKey(g_per_board_data.GetPrivKey());
+  hitcon::service::sched::scheduler.Queue(&pubAnnounceTask, nullptr);
+  hitcon::service::sched::scheduler.EnablePeriodic(&pubAnnounceTask);
 }
 
 bool GameController::SendTwoBadgeActivity(const TwoBadgeActivity &data) {
@@ -68,19 +68,9 @@ bool GameController::SendSingleBadgeActivity(const SingleBadgeActivity &data) {
 }
 
 void GameController::NotifyPubkeyAck() {
-  if (state_ == 4) {
-    g_nv_storage.GetCurrentStorage().game_storage.user_id_acknowledged = 1;
-    g_nv_storage.MarkDirty();
-    state_ = 5;
-  }
-}
-
-void GameController::OnPrivKeyHashFinish(void *arg2) {
-  uint8_t *ptr = reinterpret_cast<uint8_t *>(arg2);
-  uint64_t privkey;
-  memcpy(&privkey, ptr, sizeof(uint64_t));
-  hitcon::ecc::g_ec_logic.SetPrivateKey(g_per_board_data.GetPrivKey());
-  state_ = 3;
+  g_nv_storage.GetCurrentStorage().game_storage.user_id_acknowledged = 1;
+  g_nv_storage.MarkDirty();
+  hitcon::service::sched::scheduler.DisablePeriodic(&pubAnnounceTask);
 }
 
 void GameController::GetUsername(uint8_t *buf) {
@@ -91,7 +81,7 @@ void GameController::GetUsername(uint8_t *buf) {
   memcpy(buf, pubkey + ECC_PUBKEY_SIZE - IR_USERNAME_LEN - 1, IR_USERNAME_LEN);
 }
 
-bool GameController::TrySendPubAnnounce() {
+void GameController::TrySendPubAnnounce() {
   // Create a PubAnnouncePacket
   hitcon::ir::IrData irdata = {
       .ttl = 0,
@@ -104,14 +94,12 @@ bool GameController::TrySendPubAnnounce() {
 
   if (!success) {
     // Public key not ready yet, will try again later
-    return false;
+    return;
   }
 
   // Copy the public key to the packet
   memcpy(irdata.opaq.pub_announce.pubkey, pubkey, ECC_PUBKEY_SIZE);
 
-  // TODO: Add proper signature from Certificate Authority
-  // For now, initialize with zeros or some placeholder
   static_assert(ECC_SIGNATURE_SIZE == PerBoardData::kPubKeyCertSize);
   memcpy(irdata.opaq.pub_announce.sig, g_per_board_data.GetPubKeyCert(),
          ECC_SIGNATURE_SIZE);
@@ -120,32 +108,10 @@ bool GameController::TrySendPubAnnounce() {
   uint8_t irdata_len =
       hitcon::ir::IR_DATA_HEADER_SIZE + sizeof(hitcon::ir::PubAnnouncePacket);
 
-  return hitcon::ir::irController.SendPacketWithRetransmit(
-      reinterpret_cast<uint8_t *>(&irdata), irdata_len, 3,
-      ::hitcon::ir::AckTag::ACK_TAG_PUBKEY_RECOG);
-}
-
-void GameController::RoutineFunc() {
-  if (state_ == 1) {
-    memcpy(&privkey_src_[0], PRIVATE_KEY_SRC_PREFIX,
-           sizeof(PRIVATE_KEY_SRC_PREFIX));
-    memcpy(&privkey_src_[sizeof(PRIVATE_KEY_SRC_PREFIX)],
-           g_per_board_data.GetPerBoardSecret(), PerBoardData::kSecretLen);
-    bool ret = hitcon::hash::g_hash_service.StartHash(
-        privkey_src_, sizeof(PRIVATE_KEY_SRC_PREFIX) + PerBoardData::kSecretLen,
-        (service::sched::task_callback_t)&GameController::OnPrivKeyHashFinish,
-        this);
-    if (ret) {
-      state_ = 2;
-    }
-  } else if (state_ == 2) {
-    // Waiting for hash processor.
-  } else if (state_ == 3) {
-    // TODO: Publish the public key through PubAnnouncePacket.
-    bool ret = TrySendPubAnnounce();
-    if (ret) state_ = 4;
-  }
-  // TODO: disable the periodic task if it stays idle forever.
+  hitcon::ir::irController.SendPacketWithRetransmit(
+    reinterpret_cast<uint8_t *>(&irdata),
+    irdata_len, 3,
+    ::hitcon::ir::AckTag::ACK_TAG_PUBKEY_RECOG);
 }
 
 }  // namespace game

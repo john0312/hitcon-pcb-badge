@@ -9,9 +9,6 @@
 namespace hitcon {
 namespace game {
 
-constexpr uint8_t PRIVATE_KEY_SRC_PREFIX[] = {'2', '0', '2', '5',
-                                              'P', 'R', 'I', 'V'};
-
 enum EventType : uint8_t {
   kNone = 0,
   kSnake = 1,
@@ -68,14 +65,9 @@ class GameController {
   */
   int state_;
 
-  uint8_t
-      privkey_src_[PerBoardData::kSecretLen + sizeof(PRIVATE_KEY_SRC_PREFIX)];
+  hitcon::service::sched::PeriodicTask pubAnnounceTask;
 
-  hitcon::service::sched::PeriodicTask routine_task;
-
-  bool TrySendPubAnnounce();
-  void OnPrivKeyHashFinish(void *arg2);
-  void RoutineFunc();
+  void TrySendPubAnnounce();
 };
 
 }  // namespace game
