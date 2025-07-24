@@ -342,10 +342,12 @@ void TamaApp::Routine(void* unused) {
         _feeding_anime_frame = 0;
         needs_render = true;
         UpdateFrameBuffer();
+        break;
       }
       _feeding_anime_frame += 1;
       needs_render = true;
       UpdateFrameBuffer();
+      break;
     default:
       break;
   }
