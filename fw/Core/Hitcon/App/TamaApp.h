@@ -19,6 +19,7 @@ enum class TAMA_APP_STATE : uint8_t {
   EGG,          // Pet is in egg state, waiting to hatch
   HATCHING,
   IDLE,
+  ALIVE,
   HP_DETAIL,
   FD_DETAIL,
   LV_DETAIL,
