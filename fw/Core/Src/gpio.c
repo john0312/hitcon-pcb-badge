@@ -51,16 +51,26 @@ void MX_GPIO_Init(void)
   __HAL_RCC_GPIOB_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(IMU_PWR_GPIO_Port, IMU_PWR_Pin, GPIO_PIN_RESET);
+
+  /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOB, LedCh_Pin|LedCg_Pin|LedCf_Pin|LedCe_Pin
                           |LedCd_Pin|LedCc_Pin|LedCb_Pin|LedCa_Pin
                           |LedA0_Pin|LedA1_Pin|DEC_EN_Pin|LedA2_Pin
                           |LedA3_Pin, GPIO_PIN_RESET);
 
-  /*Configure GPIO pin : IMU_INT1_Pin */
-  GPIO_InitStruct.Pin = IMU_INT1_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
+  /*Configure GPIO pin : USB_DET_Pin */
+  GPIO_InitStruct.Pin = USB_DET_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(IMU_INT1_GPIO_Port, &GPIO_InitStruct);
+  HAL_GPIO_Init(USB_DET_GPIO_Port, &GPIO_InitStruct);
+
+  /*Configure GPIO pin : IMU_PWR_Pin */
+  GPIO_InitStruct.Pin = IMU_PWR_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(IMU_PWR_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pin : IrRx_Pin */
   GPIO_InitStruct.Pin = IrRx_Pin;
@@ -88,10 +98,6 @@ void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
-
-  /* EXTI interrupt init*/
-  HAL_NVIC_SetPriority(EXTI15_10_IRQn, 4, 0);
-  HAL_NVIC_EnableIRQ(EXTI15_10_IRQn);
 
 }
 
