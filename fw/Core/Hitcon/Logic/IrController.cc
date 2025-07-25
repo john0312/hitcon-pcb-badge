@@ -282,5 +282,31 @@ bool IrController::TrySendPriority() {
   return false;
 }
 
+uint8_t IrController::GetSlotStatusForDebug(uint8_t slot_index) const {
+  if (slot_index >= RETX_QUEUE_SIZE) return 0;
+  return queued_packets_[slot_index].status & kRetransmitStatusMask;
+}
+
+uint8_t IrController::GetSlotPacketTypeForDebug(uint8_t slot_index) const {
+  if (slot_index >= RETX_QUEUE_SIZE) return 0;
+  uint8_t status_mask =
+      queued_packets_[slot_index].status & kRetransmitStatusMask;
+  if (status_mask == kRetransmitStatusSlotUnused) return 0;
+
+  // The packet type is stored in the second byte of the data
+  // (after the TTL byte in IrData structure)
+  return static_cast<uint8_t>(queued_packets_[slot_index].data[1]);
+}
+
+uint8_t IrController::GetSlotRetryCountForDebug(uint8_t slot_index) const {
+  if (slot_index >= RETX_QUEUE_SIZE) return 0;
+  return queued_packets_[slot_index].status & kRetransmitLimitMask;
+}
+
+uint16_t IrController::GetSlotTimeToRetryForDebug(uint8_t slot_index) const {
+  if (slot_index >= RETX_QUEUE_SIZE) return 0;
+  return queued_packets_[slot_index].time_to_retry;
+}
+
 }  // namespace ir
 }  // namespace hitcon

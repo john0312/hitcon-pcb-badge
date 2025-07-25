@@ -181,6 +181,12 @@ class IrController {
   bool SendPacketWithRetransmit(uint8_t* data, size_t len, uint8_t retries,
                                 AckTag ack_tag);
 
+  // Query methods for debug interface
+  uint8_t GetSlotStatusForDebug(uint8_t slot_index) const;
+  uint8_t GetSlotPacketTypeForDebug(uint8_t slot_index) const;
+  uint8_t GetSlotRetryCountForDebug(uint8_t slot_index) const;
+  uint16_t GetSlotTimeToRetryForDebug(uint8_t slot_index) const;
+
  private:
   bool send_lock;
   bool recv_lock;

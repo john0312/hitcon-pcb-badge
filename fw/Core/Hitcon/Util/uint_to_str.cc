@@ -2,6 +2,15 @@
 
 #include <string.h>
 
+char hitcon::uint_to_chr_hex_nibble(uint8_t value) {
+  value &= 0x0F;  // Ensure we only have low nibble
+  if (value < 10) {
+    return '0' + value;
+  } else {
+    return 'A' + value - 10;
+  }
+}
+
 unsigned int hitcon::uint_to_chr(char *str, unsigned size, int n) {
   int count = 0;
   do {
@@ -32,11 +41,7 @@ unsigned int hitcon::uint_to_chr_hex(char *str, unsigned size, int n) {
   int count = 0;
   while (n != 0 && count < size - 1) {
     int digit = n % 16;
-    if (digit < 10) {
-      str[count++] = '0' + digit;
-    } else {
-      str[count++] = 'A' + digit - 10;
-    }
+    str[count++] = uint_to_chr_hex_nibble(digit);
     n /= 16;
   }
   str[count] = '\0';
