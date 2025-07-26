@@ -67,12 +67,9 @@ class ImuService {
  private:
   CircularQueue<ReadOp, QUEUE_SIZE> _rx_queue;
   CircularQueue<WriteOp, QUEUE_SIZE> _tx_queue;
-  callback_t _rx_cb;
-  void* _rx_cb_arg1;
-  bool _is_rx_done;
-  callback_t _tx_cb;
-  void* _tx_cb_arg1;
-  bool _is_tx_done;
+  callback_t _rx_cb, _tx_cb;
+  void *_rx_cb_arg1, *_tx_cb_arg1;
+  bool _is_rx_done, _is_tx_done;
 
   PeriodicTask _routine_task;
   void Routine(void* arg);
