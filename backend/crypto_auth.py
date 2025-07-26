@@ -2,9 +2,11 @@ from typing import Optional
 from schemas import IrPacket, Event, TwoBadgeActivityEvent, ScoreAnnounceEvent, SponsorActivityEvent, PubAnnounceEvent
 from schemas import EccPoint, EccPublicKey, EccPrivateKey, EccSignature
 from database import db
-from ecc_utils import ECC_SIGNATURE_SIZE, ecc_sign, ecc_verify, ecc_get_point_by_x
+from ecc_utils import ECC_SIGNATURE_SIZE, ecc_sign, ecc_derive_pub, ecc_verify, ecc_get_point_by_x
 import bson.int64
+from config import Config
 
+config = Config("config.yaml")
 
 class UnsignedPacketError(Exception):
     pass
@@ -12,6 +14,12 @@ class UnsignedPacketError(Exception):
 
 # This module is responsible for verifying & signing the packets
 class CryptoAuth:
+    # This is the private key of the server, used to sign packets
+    server_key = EccPrivateKey(
+        dA=config.get("backend", {}).get("ecc_key", 878787)
+    )
+    server_pub = ecc_derive_pub(server_key)
+
     # ===== Generic methods for any other layers =====
     @staticmethod
     async def get_pubkey_by_username(user: int) -> Optional[EccPublicKey]:
