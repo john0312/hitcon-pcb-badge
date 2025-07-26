@@ -70,6 +70,7 @@ class PacketProcessor:
 
         event = PacketParser.parse_packet(ir_packet)
         hv = PacketProcessor.packet_hash(ir_packet)
+        result = None # packet insert result
 
         try:
             # verify the packet
@@ -109,11 +110,12 @@ class PacketProcessor:
             print(f"Assertion error: {e}")
         finally:
             # Always remove rx packets from the database, in case the packet is not processible.
-            await self.stations.update_one(
-                {"station_id": station.station_id},
-                {"$pull": {"rx": result.inserted_id}}
-            )
-            await self.packets.delete_one({"_id": result.inserted_id})
+            if result:
+                await self.stations.update_one(
+                    {"station_id": station.station_id},
+                    {"$pull": {"rx": result.inserted_id}}
+                )
+                await self.packets.delete_one({"_id": result.inserted_id})
 
             # Always send an acknowledgment packet.
             await self.ack(ir_packet_schema, station)
