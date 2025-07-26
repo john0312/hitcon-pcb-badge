@@ -115,11 +115,15 @@ class GameLogicController:
                 return
 
             if evt.packet_from == 1:
+                packet_ids = [evt.packet_id, existing_game["packet_id"]]
                 signatures = [evt.signature, existing_game["signature"]]
             else:
+                packet_ids = [existing_game["packet_id"], evt.packet_id]
                 signatures = [existing_game["signature"], evt.signature]
 
             game_event = GameActivityEvent(
+                packet_id=evt.packet_id,
+                packet_ids=packet_ids,
                 event_id=evt.event_id, # use second packet's event_id
                 station_id=evt.station_id,
                 game_type_str=str(game_type),
