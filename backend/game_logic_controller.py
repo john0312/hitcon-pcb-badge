@@ -203,12 +203,12 @@ class GameLogicController:
                 bytes([PacketType.kScoreAnnounce.value]),   # PacketType
                 evt.user.to_bytes(4, 'little'),             # User
                 user_score.to_bytes(4, 'little'),           # Score
-                b"\x87" * ECC_SIGNATURE_SIZE,               # TODO: Dummy signature 
             ]),
             station_id=evt.station_id,
             to_stn=True
         )
-        await packet_processor.send_packet_to_user(pkt, evt.user)
+        signed_pkt = CryptoAuth.sign_packet(pkt)
+        await packet_processor.send_packet_to_user(signed_pkt, evt.user)
 
 
     @staticmethod

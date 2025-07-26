@@ -117,6 +117,20 @@ class CryptoAuth:
         return event.user
 
 
+    @staticmethod
+    def sign_packet(ir_packet: IrPacket) -> IrPacket:
+        """
+        Sign the packet with the server's private key.
+        """
+        sig = ecc_sign(
+            msg=ir_packet.data[2:],
+            priv=CryptoAuth.server_key
+        )
+
+        ir_packet.data = ir_packet.data + sig.to_bytes()
+        return ir_packet
+
+
     # ===== APIs for GameLogic =====
     @staticmethod
     async def get_user_team(user: int) -> int:
