@@ -120,7 +120,7 @@ class TwoBadgeActivityEvent(Event):
     user2: int
     game_data: bytes
     signature: bytes
-    packet_from: Optional[int] = Field(0) # from user 1 or user 2
+    packet_from: Optional[int] = Field(0) # from user 1 or user 2, this would be set by CryptoAuth
 
 
 # Collected ActivityEvent from two users
