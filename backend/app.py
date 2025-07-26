@@ -130,8 +130,35 @@ async def receive_rectf_score(schema: ReCTFScoreSchema, credentials: HTTPAuthori
 
 
 ## ====== Badge Linking API Endpoints ======
+@app.get("/hitcon/link")
+async def get_hitcon_linkage(credentials: HTTPAuthorizationCredentials = Security(security)) -> BadgeLinkSchema:
+    """
+    Get the current badge linkage between the attendee.
+    """
+    # Validate attendee token
+    if not credentials.credentials:
+        raise HTTPException(status_code=400, detail="Missing token")
+
+    uid = await BadgeLinkController.get_uid_with_token(credentials.credentials)
+
+    if not uid:
+        raise HTTPException(status_code=401, detail="Invalid token")
+
+    # Get the badge user linked to the UID
+    badge_user = await BadgeLinkController.translate_uid_to_user(uid)
+
+    if badge_user is None:
+        raise HTTPException(status_code=404, detail="Badge not linked to any user")
+
+    # TODO: handle name
+    return BadgeLinkSchema(name="", badge_user=badge_user)
+
+
 @app.post("/hitcon/link")
 async def hitcon_link(schema: BadgeLinkSchema, credentials: HTTPAuthorizationCredentials = Security(security)):
+    """
+    Link the badge with the attendee.
+    """
     # Validate attendee token
     if not credentials.credentials:
         raise HTTPException(status_code=400, detail="Missing token")

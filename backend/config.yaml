@@ -16,3 +16,6 @@ redis:
 
 rectf:
   api_key: "reRErERe-C7F-4F7B-8A3B-1E2D3C4B5A6B"
+
+hitcon:
+  secret: secret
