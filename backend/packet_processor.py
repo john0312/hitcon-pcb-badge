@@ -79,9 +79,8 @@ class PacketProcessor:
             # Maybe a new field in IrPacket?
             user = await CryptoAuth.verify_packet(event, ir_packet)
 
-            if event is None:
-                # If the packet is not a valid event, we don't need to do anything else.
-                return
+            # If the packet is not a valid event, we don't need to do anything else.
+            if event is None: return
 
             db_packet = IrPacketObject(packet_id=ir_packet_schema.packet_id, data=Binary(bytes(ir_packet_schema.data)), hash=Binary(hv))
 
@@ -100,30 +99,24 @@ class PacketProcessor:
             if user is not None:
                 await self.set_user_last_station_id(user, station.station_id)
 
+                # retransmit packets in the user queue (move these packets to station tx)
+                # Dequeue packets for the user and add them to the station tx list.
+                await self.deque_user_packets(user, station)
+
             # handle the event
             await PacketProcessor.packet_handlers[event.__class__](event, self)
-
-            # retransmit packets in the user queue (move these packets to station tx)
-            if user is not None:
-                # Dequeue packets for the user and add them to the station tx list.
-                packet_ids = await self.deque_user_packets(user, station)
-                if packet_ids:
-                    await self.stations.update_one(
-                        {"station_id": station.station_id},
-                        {"$push": {"tx": {"$each": packet_ids}}}
-                    )
-
-            # remove processed packets from the database
-            await self.stations.update_one(
-                {"station_id": station.station_id},
-                {"$pull": {"rx": result.inserted_id}}
-            )
-            await self.packets.delete_one({"_id": result.inserted_id})
         except UnsignedPacketError as e:
             print(f"Invalid packet received: {e}")
         except AssertionError as e:
             print(f"Assertion error: {e}")
         finally:
+            # Always remove rx packets from the database, in case the packet is not processible.
+            await self.stations.update_one(
+                {"station_id": station.station_id},
+                {"$pull": {"rx": result.inserted_id}}
+            )
+            await self.packets.delete_one({"_id": result.inserted_id})
+
             # Always send an acknowledgment packet.
             await self.ack(ir_packet_schema, station)
 

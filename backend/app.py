@@ -26,6 +26,7 @@ async def get_station(credentials: HTTPAuthorizationCredentials = Security(secur
 
     return Station(**station)
 
+# TODO: process remaining rx packets before starting the backend
 
 @app.get("/")
 async def read_root():
