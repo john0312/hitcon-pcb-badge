@@ -45,7 +45,7 @@ class GameLogicController:
         nonce = (evt.event_data[1] >> 2) | (evt.event_data[2] << 6)
 
         # check nonce
-        nonce_key = f"single_badge:{evt.user.hex()}:{game_type.value}:{nonce}"
+        nonce_key = f"single_badge:{evt.user}:{game_type}:{nonce}"
         if redis_client.get(nonce_key) is not None:
             # Duplicate event, ignore it
             return
@@ -153,7 +153,7 @@ class GameLogicController:
         print(f"Game activity event: {evt.game_type_str}, {evt.user1} vs {evt.user2}, scores: {evt.score1} vs {evt.score2}, nonce: {evt.nonce}")
 
         # Check nonce
-        nonce_key = f"game_activity:{evt.user1.hex()}:{evt.user2.hex()}:{evt.game_type_str}:{evt.nonce}"
+        nonce_key = f"game_activity:{evt.user1}:{evt.user2}:{evt.game_type_str}:{evt.nonce}"
         if redis_client.get(nonce_key) is not None:
             # Duplicate event, ignore it
             return
