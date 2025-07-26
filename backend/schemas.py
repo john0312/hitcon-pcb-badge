@@ -192,6 +192,18 @@ class EccSignature(BaseModel):
     r: int
     s: int
 
+    @staticmethod
+    def from_bytes(raw_sig: bytes, pub: Optional[EccPublicKey] = None) -> 'EccSignature':
+        if len(raw_sig) != 14: # ECC_SIGNATURE_SIZE
+            raise ValueError(f"Invalid signature length: {len(raw_sig)}")
+        r = int.from_bytes(raw_sig[:7], 'little', signed=False)
+        s = int.from_bytes(raw_sig[7:], 'little', signed=False)
+
+        return EccSignature(r=r, s=s, pub=pub)
+
+    def to_bytes(self) -> bytes:
+        return self.r.to_bytes(7, 'little', signed=False) + self.s.to_bytes(7, 'little', signed=False)
+
 class EccPrivateKey(BaseModel):
     dA: int
 

@@ -63,23 +63,21 @@ class CryptoAuth:
         Returns username if the packet is valid.
         """
         if event.__class__ == TwoBadgeActivityEvent:
-            sig = CryptoAuth.parse_raw_signature(event.signature)
-
-            pub1 = await CryptoAuth.get_pubkey_by_username(event.user1)
-            pub2 = await CryptoAuth.get_pubkey_by_username(event.user2)
-
-            sig_user1 = EccSignature(**(sig.model_dump() | {"pub": pub1}))
-            sig_user2 = EccSignature(**(sig.model_dump() | {"pub": pub2}))
-
             if ecc_verify(
                 msg=ir_packet.data[2:-ECC_SIGNATURE_SIZE],
-                sig=sig_user1
+                sig=EccSignature.from_bytes(
+                    event.signature,
+                    pub=await CryptoAuth.get_pubkey_by_username(event.user1)
+                )
             ):
                 event.packet_from = 1
                 return event.user1
             elif ecc_verify(
                 msg=ir_packet.data[2:-ECC_SIGNATURE_SIZE],
-                sig=sig_user2
+                sig=EccSignature.from_bytes(
+                    event.signature,
+                    pub=await CryptoAuth.get_pubkey_by_username(event.user2)
+                )
             ):
                 event.packet_from = 2
                 return event.user2
@@ -89,29 +87,26 @@ class CryptoAuth:
             # SponsorActivityEvent, ScoreAnnounceEvent does not require signature verification
             pass
         elif event.__class__ == PubAnnounceEvent:
-            x = int.from_bytes(event.pubkey[:ECC_SIGNATURE_SIZE - 1], 'little', signed=False)
-            sign = bool(event.pubkey[-1])
-
-            p = ecc_get_point_by_x(x, sign)
-            # TODO: verify last byte of x, which should only be 0 or 1
-            pub = EccPublicKey(point=EccPoint(x=p.x, y=p.y))
-
-            sig = CryptoAuth.parse_raw_signature(event.signature)
-            sig = EccSignature(**(sig.model_dump() | {"pub": pub}))
+            # Validate the public key with server key (CA)
+            sig = EccSignature.from_bytes(event.signature, pub=CryptoAuth.server_pub)
             
             if not ecc_verify(
-                msg=ir_packet.data[2:-ECC_SIGNATURE_SIZE],
+                msg=event.pubkey,
                 sig=sig
             ):
                 raise UnsignedPacketError("Invalid signature for the public key")
 
+            x = int.from_bytes(event.pubkey[:ECC_SIGNATURE_SIZE - 1], 'little', signed=False)
+            sign = bool(event.pubkey[-1])
+
+            p = ecc_get_point_by_x(x, sign)
+            pub = EccPublicKey(point=EccPoint(x=p.x, y=p.y))
+
             user = await CryptoAuth.derive_user_by_pubkey(pub)
             return user
         else:
-            sig = CryptoAuth.parse_raw_signature(event.signature)
             pub = await CryptoAuth.get_pubkey_by_username(event.user)
-
-            sig = EccSignature(**(sig.model_dump() | {"pub": pub}))
+            sig = EccSignature.from_bytes(event.signature, pub=pub)
 
             if not ecc_verify(
                 msg=ir_packet.data[2:-ECC_SIGNATURE_SIZE],
@@ -120,21 +115,6 @@ class CryptoAuth:
                 raise UnsignedPacketError("Invalid signature for the packet")
 
         return event.user
-
-
-    @staticmethod
-    def parse_raw_signature(raw_sig: bytes) -> EccSignature:
-        """
-        Parse the raw signature bytes into EccSignature.
-        The raw signature is expected to be 14 bytes long.
-        """
-        if len(raw_sig) != 14:
-            raise ValueError("Raw signature must be 14 bytes long")
-
-        r = int.from_bytes(raw_sig[:7], 'little', signed=False)
-        s = int.from_bytes(raw_sig[7:14], 'little', signed=False)
-        
-        return EccSignature(r=r, s=s, pub=None)
 
 
     # ===== APIs for GameLogic =====
