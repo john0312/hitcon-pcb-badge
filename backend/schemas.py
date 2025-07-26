@@ -174,8 +174,6 @@ class User(BaseModel):
     id: Optional[PyObjectId] = Field(alias="_id", default=None)
     user: int
     pubkey: int
-    # Tracking the last station the user was seen
-    station_id: Optional[int] = Field(0)
 
 
 # Elliptic Curve Crytography related.
