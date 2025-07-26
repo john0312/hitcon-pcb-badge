@@ -487,7 +487,7 @@ void TamaApp::XbOnButton(button_t button) {
               .score = _qte_score,
               .nonce = _my_nounce,
           };
-          g_game_controller.GetUsername(result.user);
+          g_game_controller.SetBufferToUsername(result.user);
           g_xboard_logic.QueueDataForTx(reinterpret_cast<uint8_t*>(&result),
                                         sizeof(result), TAMA_RECV_ID);
           display_set_mode_scroll_text("Waiting for enemy...");

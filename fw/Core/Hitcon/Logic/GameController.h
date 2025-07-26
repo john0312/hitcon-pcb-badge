@@ -51,11 +51,20 @@ class GameController {
 
   void NotifyPubkeyAck();
   /**
+   * Returns a pointer to a buffer that holds the username, buffer holds
+   * IR_USERNAME_LEN in size.
+   *
+   * Note that the returned buffer may no longer be valid after the current
+   * task ends.
+   */
+  const uint8_t *GetUsername();
+
+  /**
    * Copy the username into the specified buffer. Buffer should be at least
    * IR_USERNAME_LEN in size. This function does not perform any size checks!
    * Caller is expected to do so.
    */
-  void GetUsername(uint8_t *buf);
+  bool SetBufferToUsername(uint8_t *ptr);
 
  private:
   /*

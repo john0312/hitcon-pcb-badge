@@ -478,13 +478,13 @@ void EcLogic::onPubkeyDone(EcPoint *p) {
   }
 }
 
-bool EcLogic::GetPublicKey(uint8_t *buffer) {
+const uint8_t *EcLogic::GetPublicKey() {
   if (publicKeyReady) {
-    memcpy(buffer, publicKey, hitcon::ECC_PUBKEY_SIZE);
-    return true;
+    return &publicKey[0];
   }
-  return false;
+  return nullptr;
 }
+
 EcLogic::EcLogic()
     : privateKey(0), publicKeyReady(0), busy(false),
       genRandTask(800, (callback_t)&EcLogic::genRand, this),

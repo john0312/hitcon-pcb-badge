@@ -29,7 +29,10 @@ void GameController::Init() {
 
 bool GameController::SendTwoBadgeActivity(const TwoBadgeActivity &data) {
   hitcon::ir::TwoBadgeActivityPacket packet;
-  GetUsername(packet.user1);
+  if (!SetBufferToUsername(packet.user1)) {
+    // Not ready.
+    return false;
+  }
   memcpy(packet.user2, data.otherUser, IR_USERNAME_LEN);
   // Game Type: byte 0 bits 0:4
   packet.game_data[0] = data.gameType & 0xf;
@@ -48,7 +51,10 @@ bool GameController::SendTwoBadgeActivity(const TwoBadgeActivity &data) {
 
 bool GameController::SendProximity(const Proximity &data) {
   hitcon::ir::ProximityPacket packet;
-  GetUsername(packet.user);
+  if (!SetBufferToUsername(packet.user)) {
+    // Not ready.
+    return false;
+  }
   packet.power = data.power;
   static_assert(sizeof(packet.nonce) == sizeof(data.nonce));
   memcpy(packet.nonce, &data.nonce, sizeof(packet.nonce));
@@ -59,7 +65,10 @@ bool GameController::SendProximity(const Proximity &data) {
 
 bool GameController::SendSingleBadgeActivity(const SingleBadgeActivity &data) {
   hitcon::ir::SingleBadgeActivityPacket packet;
-  GetUsername(packet.user);
+  if (!SetBufferToUsername(packet.user)) {
+    // Not ready.
+    return false;
+  }
   uint16_t myScore = data.myScore;
   if (myScore >= 1024) {
     myScore = 1023;
@@ -80,14 +89,25 @@ void GameController::NotifyPubkeyAck() {
   hitcon::service::sched::scheduler.DisablePeriodic(&pubAnnounceTask);
 }
 
-void GameController::GetUsername(uint8_t *buf) {
+const uint8_t *GameController::GetUsername() {
   // To guarantee maximum entropy, we use the last 4 bytes of the x-coordinate
   // of the public key, which is byte 3 - 6 inclusive.
-  uint8_t pubkey[ECC_PUBKEY_SIZE];
-  hitcon::ecc::g_ec_logic.GetPublicKey(pubkey);
-  memcpy(buf, pubkey + ECC_PUBKEY_SIZE - IR_USERNAME_LEN - 1, IR_USERNAME_LEN);
+  const uint8_t *ptr = hitcon::ecc::g_ec_logic.GetPublicKey();
+  if (!ptr) return ptr;
+  ptr += (ECC_PUBKEY_SIZE - IR_USERNAME_LEN - 1);
+  return ptr;
 }
 
+bool GameController::SetBufferToUsername(uint8_t *ptr) {
+  auto *username = GetUsername();
+  if (!ptr) {
+    // Not ready.
+    memset(ptr, 0, IR_USERNAME_LEN);
+    return false;
+  }
+  memcpy(ptr, username, IR_USERNAME_LEN);
+  return true;
+}
 void GameController::TrySendPubAnnounce() {
   pubAnnounceCnt++;
   if (pubAnnounceCnt >= kPubAnnounceCycleInterval) {
@@ -103,10 +123,9 @@ void GameController::TrySendPubAnnounce() {
   };
 
   // Get the public key
-  uint8_t pubkey[ECC_PUBKEY_SIZE];
-  bool success = hitcon::ecc::g_ec_logic.GetPublicKey(pubkey);
+  const uint8_t *pubkey = hitcon::ecc::g_ec_logic.GetPublicKey();
 
-  if (!success) {
+  if (!pubkey) {
     // Public key not ready yet, will try again later
     return;
   }
