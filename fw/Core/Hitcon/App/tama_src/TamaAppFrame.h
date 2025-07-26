@@ -97,7 +97,7 @@ void get_pet_happy_frame_after_feed(int pet_type, int frame, uint8_t* base);
 
 void get_scoring_frame(int ok_qty, int fail_qty, uint8_t* base);
 
-void get_end_frame(uint8_t* base);
+void get_action_frame(int action_type, uint8_t* base);
 
 void get_feeding_frame(int per_type, int frame_ID, uint8_t* frame_buff);
 

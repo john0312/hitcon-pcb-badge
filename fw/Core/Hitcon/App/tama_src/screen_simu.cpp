@@ -637,9 +637,9 @@ void scoring_then_end_demo(int repeat_count) {
 
   get_scoring_frame(5, 0, scoring_frame1);
   get_scoring_frame(0, 5, scoring_frame2);
-  get_end_frame(end_frame1);
+  get_action_frame(END, end_frame1);
   get_empty_frame(empty_frame1);
-  get_end_frame(end_frame2);
+  get_action_frame(END, end_frame2);
   get_empty_frame(empty_frame2);
 
   const uint8_t* frame_all[frame_count] = {scoring_frame1, scoring_frame2,
@@ -663,6 +663,24 @@ void qte_demo(int repeat_count) {
 
   const uint8_t* frame_all[frame_count] = {minimum_position, middle_position,
                                            maximum_position};
+
+  for (int i = 0; i < repeat_count; ++i) {
+    show_anime_with_delay(frame_all, frame_count, SLEEP_US);
+  }
+}
+
+void gd_ok_ng_demo(int repeat_count) {
+  const uint8_t frame_count = 3;
+
+  uint8_t gd_frame[DISPLAY_WIDTH * DISPLAY_HEIGHT] = {0};
+  uint8_t ok_frame[DISPLAY_WIDTH * DISPLAY_HEIGHT] = {0};
+  uint8_t ng_frame[DISPLAY_WIDTH * DISPLAY_HEIGHT] = {0};
+
+  get_action_frame(GOOD, gd_frame);
+  get_action_frame(OK, ok_frame);
+  get_action_frame(NG, ng_frame);
+
+  const uint8_t* frame_all[frame_count] = {gd_frame, ok_frame, ng_frame};
 
   for (int i = 0; i < repeat_count; ++i) {
     show_anime_with_delay(frame_all, frame_count, SLEEP_US);
@@ -787,11 +805,14 @@ void test_frames() {
   std::cout << "Scoring then end Demo:\n";
   scoring_then_end_demo(repeat_count);
 
-#endif  // TEST_ALL_FRAMES
-
   // qte frame demo
-  // std::cout << "QTE frame Demo:\n";
+  std::cout << "QTE frame Demo:\n";
   qte_demo(repeat_once);
+
+#endif  // TEST_ALL_FRAMES
+  // gd, ok, ng demo
+  std::cout << "GD, OK, NG Demo:\n";
+  gd_ok_ng_demo(repeat_once);
 }
 
 void test_compress_decompress() {

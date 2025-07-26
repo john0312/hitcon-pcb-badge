@@ -1732,7 +1732,7 @@ void get_scoring_frame(int ok_qty, int fail_qty, uint8_t* base) {
   }
 }
 
-void get_end_frame(uint8_t* base) {
+void get_action_frame(int action_type, uint8_t* base) {
   const component_info full_frame_component_info = {
       .x_len = 16,
       .y_len = 8,
@@ -1745,7 +1745,17 @@ void get_end_frame(uint8_t* base) {
       .height = 8,
   };
 
-  const CompressedImage* target = &m_battle_training_end_compressed;
+  const CompressedImage* target;
+  if (action_type == GOOD) {
+    target = &m_battle_training_GD_compressed;
+  } else if (action_type == OK) {
+    target = &m_battle_training_OK_compressed;
+  } else if (action_type == NG) {
+    target = &m_battle_training_NG_compressed;
+  } else if (action_type == END) {
+    target = &m_battle_training_end_compressed;
+  }
+
   uint8_t decompressed_buffer[target->width * target->height];
   memset(decompressed_buffer, 0, target->width * target->height);
   decompress_component(target, decompressed_buffer);

@@ -65,6 +65,9 @@ enum {
   ate_frame1,
 };
 
+// action types for one-page info
+enum { GOOD, OK, NG, END };
+
 // the structure of compressed data
 struct CompressedImage {
   uint8_t width;        // image width info
@@ -1604,6 +1607,87 @@ constexpr uint8_t m_score_icon_compressed_data[] = {
 };
 constexpr CompressedImage m_score_icon_compressed = {
     .width = 1, .height = 3, .data = m_score_icon_compressed_data};
+
+/**
+ * @brief The compressed data of m_battle_training_GD.
+ *
+ * The original data is:
+ *
+ *  ```
+ *  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  //
+ *  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  //
+ *  0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0,  //
+ *  0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0,  //
+ *  0, 0, 0, 1, 0, 1, 1, 0, 0, 1, 0, 0, 1, 0, 0, 0,  //
+ *  0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 0,  //
+ *  0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0,  //
+ *  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  //
+ *  ```
+ *
+ * Notice: the compressed data is not directly mapping to the original data.
+ * It packed the bits in a specific way.
+ *
+ */
+
+constexpr uint8_t m_battle_training_GD_compressed_data[] = {
+    0x00, 0x00, 0x00, 0x38, 0x44, 0x54, 0x30, 0x00,
+    0x00, 0x7C, 0x44, 0x44, 0x38, 0x00, 0x00, 0x00};
+constexpr CompressedImage m_battle_training_GD_compressed = {
+    .width = 16, .height = 8, .data = m_battle_training_GD_compressed_data};
+
+/**
+ * @brief The compressed data of m_battle_training_OK.
+ *
+ * The original data is:
+ *
+ *  ```
+ *  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  //
+ *  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  //
+ *  0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0,  //
+ *  0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 1, 0, 0, 0, 0,  //
+ *  0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0,  //
+ *  0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 1, 0, 0, 0, 0,  //
+ *  0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0,  //
+ *  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  //
+ *  ```
+ *
+ * Notice: the compressed data is not directly mapping to the original data.
+ * It packed the bits in a specific way.
+ *
+ */
+
+constexpr uint8_t m_battle_training_OK_compressed_data[] = {
+    0x00, 0x00, 0x00, 0x38, 0x44, 0x44, 0x38, 0x00,
+    0x00, 0x7C, 0x10, 0x28, 0x44, 0x00, 0x00, 0x00};
+constexpr CompressedImage m_battle_training_OK_compressed = {
+    .width = 16, .height = 8, .data = m_battle_training_OK_compressed_data};
+
+/**
+ * @brief The compressed data of m_battle_training_NG.
+ *
+ * The original data is:
+ *
+ *  ```
+ *  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  //
+ *  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  //
+ *  0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0,  //
+ *  0, 0, 0, 1, 1, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0,  //
+ *  0, 0, 0, 1, 1, 1, 1, 0, 0, 1, 0, 1, 1, 0, 0, 0,  //
+ *  0, 0, 0, 1, 0, 1, 1, 0, 0, 1, 0, 0, 1, 0, 0, 0,  //
+ *  0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0,  //
+ *  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  //
+ *  ```
+ *
+ * Notice: the compressed data is not directly mapping to the original data.
+ * It packed the bits in a specific way.
+ *
+ */
+
+constexpr uint8_t m_battle_training_NG_compressed_data[] = {
+    0x00, 0x00, 0x00, 0x7C, 0x18, 0x30, 0x7C, 0x00,
+    0x00, 0x38, 0x44, 0x54, 0x30, 0x00, 0x00, 0x00};
+constexpr CompressedImage m_battle_training_NG_compressed = {
+    .width = 16, .height = 8, .data = m_battle_training_NG_compressed_data};
 
 }  // namespace menu_icon
 
