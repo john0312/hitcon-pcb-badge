@@ -135,7 +135,7 @@ class GameLogicController:
                 timestamp=evt.timestamp,
                 signatures=signatures
             )
-            await GameLogicController.on_game_activity_event(game_event)
+            await GameLogicController.on_game_activity_event(game_event, packet_processor)
             await queue.delete_one({"_id": existing_game["_id"]})
         else:
             # Insert the game into the queue
@@ -171,6 +171,7 @@ class GameLogicController:
             score1=evt.score1,
             score2=evt.score2,
             game_type=GameType(evt.game_type_str),
+            timestamp=evt.timestamp
         )
 
 
