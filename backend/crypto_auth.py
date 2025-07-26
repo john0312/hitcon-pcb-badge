@@ -22,12 +22,12 @@ class CryptoAuth:
     # ===== Generic methods for any other layers =====
     @staticmethod
     async def get_pubkey_by_username(user: int) -> Optional[EccPublicKey]:
-        user = (await db["users"].find_one({"user": user}))
+        u = await db["users"].find_one({"user": user})
 
-        if user is None:
+        if u is None:
             return
 
-        pub_x = int(user["pubkey"])
+        pub_x = int(u["pubkey"])
 
         if pub_x is None:
             return
@@ -138,6 +138,9 @@ class CryptoAuth:
         Return team as sign.
         """
         key = await CryptoAuth.get_pubkey_by_username(user)
+
+        if key is None:
+            raise ValueError(f"User {user} not found")
 
         sign = key.point.y % 2
         if sign == 0:
