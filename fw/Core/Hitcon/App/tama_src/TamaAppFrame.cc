@@ -1790,4 +1790,37 @@ void get_feeding_frame(int pet_type, int frame_ID, uint8_t* frame_buff) {
   }
 }
 
+/**
+ * @brief Get the QTE frame object
+ *
+ * @param target_position Should >= 3 and <= 14
+ * @param current_position Can be 0 to 15
+ * @param base
+ */
+void get_QTE_frame(int target_position, int current_position, uint8_t* base) {
+  const base_info screen_info = {
+      .width = 16,
+      .height = 8,
+  };
+
+  // arrow down
+  base[target_position - 1] = 1;
+  base[target_position + 1] = 1;
+  base[target_position + screen_info.width] = 1;
+
+  // line at upper
+  for (int i = 0; i < target_position + 1; ++i) {
+    base[i + screen_info.width * 3] = 1;
+  }
+
+  // line at bottom
+  for (int i = 0; i < screen_info.width - target_position; ++i) {
+    base[i + target_position + screen_info.width * 4] = 1;
+  }
+
+  // player position
+  base[current_position + screen_info.width * 6] = 1;
+  base[current_position + screen_info.width * 7] = 1;
+}
+
 /** --- frame part end ---*/

@@ -651,6 +651,24 @@ void scoring_then_end_demo(int repeat_count) {
   }
 }
 
+void qte_demo(int repeat_count) {
+  const uint8_t frame_count = 3;
+
+  uint8_t minimum_position[DISPLAY_WIDTH * DISPLAY_HEIGHT] = {0};
+  uint8_t middle_position[DISPLAY_WIDTH * DISPLAY_HEIGHT] = {0};
+  uint8_t maximum_position[DISPLAY_WIDTH * DISPLAY_HEIGHT] = {0};
+  get_QTE_frame(3, 0, minimum_position);
+  get_QTE_frame(7, 7, middle_position);
+  get_QTE_frame(14, 15, maximum_position);
+
+  const uint8_t* frame_all[frame_count] = {minimum_position, middle_position,
+                                           maximum_position};
+
+  for (int i = 0; i < repeat_count; ++i) {
+    show_anime_with_delay(frame_all, frame_count, SLEEP_US);
+  }
+}
+
 void test_frames() {
   int repeat_count = 3;
   int repeat_once = 1;
@@ -765,11 +783,15 @@ void test_frames() {
   feed_pet_demo(PET_TYPE_DOG, repeat_once);
   feed_pet_demo(PET_TYPE_CAT, repeat_once);
 
-#endif  // TEST_ALL_FRAMES
-
   // scoring and end demo
   std::cout << "Scoring then end Demo:\n";
   scoring_then_end_demo(repeat_count);
+
+#endif  // TEST_ALL_FRAMES
+
+  // qte frame demo
+  // std::cout << "QTE frame Demo:\n";
+  qte_demo(repeat_once);
 }
 
 void test_compress_decompress() {
