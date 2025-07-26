@@ -46,11 +46,11 @@ class GameLogicController:
 
         # check nonce
         nonce_key = f"single_badge:{evt.user}:{game_type}:{nonce}"
-        if redis_client.get(nonce_key) is not None:
+        if (await redis_client.get(nonce_key)) is not None:
             # Duplicate event, ignore it
             return
 
-        redis_client.set(nonce_key, "1", ex=config.get("redis", {}).get("game_nonce_expire", 180)) # default 3 minutes
+        await redis_client.set(nonce_key, "1", ex=config.get("redis", {}).get("game_nonce_expire", 180)) # default 3 minutes
         await game.receive_game_score_single_player(
             player_id=evt.user,
             station_id=evt.station_id,
@@ -158,10 +158,10 @@ class GameLogicController:
 
         # Check nonce
         nonce_key = f"game_activity:{evt.user1}:{evt.user2}:{evt.game_type_str}:{evt.nonce}"
-        if redis_client.get(nonce_key) is not None:
+        if (await redis_client.get(nonce_key)) is not None:
             # Duplicate event, ignore it
             return
-        redis_client.set(nonce_key, "1", ex=config.get("redis", {}).get("game_nonce_expire", 180)) # default 3 minutes
+        await redis_client.set(nonce_key, "1", ex=config.get("redis", {}).get("game_nonce_expire", 180)) # default 3 minutes
 
         await game.receive_game_score_two_player(
             two_player_event_id=evt.event_id,
