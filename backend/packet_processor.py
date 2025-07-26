@@ -1,21 +1,20 @@
 from typing import Optional, AsyncIterator, Callable, Awaitable, Dict, ClassVar, Union
 from bson import Binary
 from crypto_auth import CryptoAuth, UnsignedPacketError
-from ecc_utils import ECC_SIGNATURE_SIZE, ECC_PUBKEY_SIZE
-from schemas import Event, ProximityEvent, PubAnnounceEvent, TwoBadgeActivityEvent, GameActivityEvent, ScoreAnnounceEvent, SingleBadgeActivityEvent, SponsorActivityEvent
-from schemas import IrPacket, IrPacketRequestSchema, IrPacketObject, Station, PacketType, PACKET_HASH_LEN, IR_USERNAME_LEN
+from schemas import Event
+from schemas import IrPacket, IrPacketRequestSchema, IrPacketObject, Station, PacketType, PACKET_HASH_LEN
 from config import Config
 from hashlib import sha3_256
 from database import db, redis_client
 import inspect
 import uuid
-from io import BytesIO
 import typing
 
 if typing.TYPE_CHECKING:
     import redis.asyncio as redis
 
 from game_logic_controller import GameLogicController
+from packet_parser import PacketParser
 
 class PacketProcessor:
     packet_handlers: ClassVar[Dict[type[Event], Callable[[Event, 'PacketProcessor'], Awaitable[None]]]] = dict()
@@ -69,7 +68,7 @@ class PacketProcessor:
             to_stn=False
         )
 
-        event = self.parse_packet(ir_packet)
+        event = PacketParser.parse_packet(ir_packet)
         hv = PacketProcessor.packet_hash(ir_packet)
 
         try:
@@ -214,65 +213,6 @@ class PacketProcessor:
 
 
     # ===== Internal methods =====
-    def parse_packet(self, ir_packet: IrPacket) -> Optional[Event]:
-        packet_type = self.get_packet_type(ir_packet)
-        packet_id = ir_packet.packet_id
-        station_id = ir_packet.station_id
-
-        buf = BytesIO(ir_packet.data)
-        buf.read(1)  # Skip TTL
-        buf.read(1)  # Skip the first byte (packet type)
-        b2i = lambda x: int.from_bytes(x, 'little', signed=False)
-
-        match packet_type:
-            case PacketType.kProximity:
-                # Proximity packet
-                user = b2i(buf.read(IR_USERNAME_LEN))
-                power = b2i(buf.read(1))
-                nonce = b2i(buf.read(2))
-                signature = buf.read(ECC_SIGNATURE_SIZE)
-                return ProximityEvent(packet_id=packet_id, station_id=station_id, user=user, power=power, nonce=nonce, signature=signature)
-
-            case PacketType.kPubAnnounce:
-                # Public announce packet
-                pubkey = buf.read(ECC_PUBKEY_SIZE)
-                signature = buf.read(ECC_SIGNATURE_SIZE)
-                return PubAnnounceEvent(packet_id=packet_id, station_id=station_id, pubkey=pubkey, signature=signature)
-
-            case PacketType.kTwoBadgeActivity:
-                # Two badge Activity packet
-                user1 = b2i(buf.read(IR_USERNAME_LEN))
-                user2 = b2i(buf.read(IR_USERNAME_LEN))
-                game_data = buf.read(5)
-                signature = buf.read(ECC_SIGNATURE_SIZE)
-                return TwoBadgeActivityEvent(packet_id=packet_id, station_id=station_id, user1=user1, user2=user2, game_data=game_data, signature=signature)
-
-            case PacketType.kScoreAnnounce:
-                # Score announce packet
-                user = b2i(buf.read(IR_USERNAME_LEN))
-                score = b2i(buf.read(4))
-                signature = buf.read(ECC_SIGNATURE_SIZE)
-                return ScoreAnnounceEvent(packet_id=packet_id, station_id=station_id, user=user, score=score, signature=signature)
-
-            case PacketType.kSingleBadgeActivity:
-                # Single badge activity packet
-                user = b2i(buf.read(IR_USERNAME_LEN))
-                event_type = b2i(buf.read(1))
-                event_data = buf.read(3)
-                signature = buf.read(ECC_SIGNATURE_SIZE)
-                return SingleBadgeActivityEvent(packet_id=packet_id, station_id=station_id, user=user, event_type=event_type, event_data=event_data, signature=signature)
-
-            case PacketType.kSponsorActivity:
-                # Sponsor activity packet
-                user = b2i(buf.read(IR_USERNAME_LEN))
-                sponsor_id = b2i(buf.read(1))
-                sponsor_data = buf.read(9)
-                return SponsorActivityEvent(packet_id=packet_id, station_id=station_id, user=user, sponsor_id=sponsor_id, sponsor_data=sponsor_data)
-
-            case _:
-                # Unknown packet type
-                return None
-
     @staticmethod
     def packet_hash(ir_packet: Union[IrPacket, IrPacketRequestSchema]) -> bytes:
         """
@@ -314,17 +254,6 @@ class PacketProcessor:
             to_stn=False
         )
         await self.send_packet_to_station(ack_packet)
-
-
-    def get_packet_type(self, ir_packet: Union[IrPacket, IrPacketRequestSchema]) -> Optional[PacketType]:
-        # Determine the type of packet based on its contents.
-        # This is a placeholder implementation and should be replaced with actual logic.
-        raw_type = ir_packet.data[1]
-        packet_type = PacketType(raw_type)
-        if packet_type in PacketType:
-            return packet_type
-        else:
-            return None
 
 
     async def set_user_last_station_id(self, user: int, station_id: int) -> None:
