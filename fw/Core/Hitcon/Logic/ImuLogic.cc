@@ -27,11 +27,13 @@ void ImuLogic::Init() {
   scheduler.EnablePeriodic(&_routine_task);
   scheduler.Queue(&_proximity_task, nullptr);
   scheduler.EnablePeriodic(&_proximity_task);
+  _start_time = SysTimer::GetTime();
 }
 
 void ImuLogic::Reset() {
   _state = RoutineState::INIT;
   _init_state = InitState::CHECK_ID;
+  _start_time = SysTimer::GetTime();
 }
 
 void ImuLogic::GyroSelfTest(callback_t cb, void* cb_arg1) {
@@ -53,7 +55,8 @@ void ImuLogic::AccSelfTest(callback_t cb, void* cb_arg1) {
 }
 
 void ImuLogic::Routine(void* arg1) {
-  if (_state == RoutineState::WAIT_15 && SysTimer::GetTime() >= 15) {
+  if (_state == RoutineState::WAIT_15 &&
+      SysTimer::GetTime() - _start_time >= 15) {
     _state = RoutineState::INIT;
   } else if (_state == RoutineState::INIT) {
     switch (_init_state) {

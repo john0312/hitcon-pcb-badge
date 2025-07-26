@@ -13,7 +13,7 @@ To identify your hardware version, check the back of your badge.
 - V1.1 (2024 CMT Attendee)
 - V2.0 (2025 first prototype)
 - V2.1 (2025 last prototype)
-- V2.2 (2025 CMT Attendee)
+- V2.2 (2025 Attendee)
 
 
 ## Timers and DMA Channels

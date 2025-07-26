@@ -36,42 +36,17 @@ ImuService g_imu_service;
 ImuService::ImuService()
     : _routine_task(417, (task_callback_t)&ImuService::Routine, this, 100),
       state(State::INIT), _rx_cb(nullptr), _rx_cb_arg1(nullptr),
-      _is_rx_done(true), _tx_cb(nullptr), _tx_cb_arg1(nullptr),
-      _is_tx_done(true) {}
+      _tx_cb(nullptr), _tx_cb_arg1(nullptr) {}
 
 void ImuService::Init() {
-  HAL_I2C_RegisterCallback(&hi2c1, HAL_I2C_MEM_RX_COMPLETE_CB_ID,
-                           I2CCallbackWrapper);
-  HAL_I2C_RegisterCallback(&hi2c1, HAL_I2C_MEM_TX_COMPLETE_CB_ID,
-                           I2CCallbackWrapper);
-  HAL_I2C_RegisterCallback(&hi2c1, HAL_I2C_MASTER_RX_COMPLETE_CB_ID,
-                           I2CCallbackWrapper);
-  HAL_I2C_RegisterCallback(&hi2c1, HAL_I2C_MASTER_TX_COMPLETE_CB_ID,
-                           I2CCallbackWrapper);
-  HAL_I2C_RegisterCallback(&hi2c1, HAL_I2C_ERROR_CB_ID, I2CErrorCallback);
-  HAL_GPIO_WritePin(IMU_PWR_GPIO_Port, IMU_PWR_Pin, GPIO_PIN_SET);
-
   state = State::INIT;
   scheduler.Queue(&_routine_task, nullptr);
   scheduler.EnablePeriodic(&_routine_task);
 }
 
 void ImuService::ResetI2C() {
-  _is_rx_done = true;
-  _is_tx_done = true;
   HAL_I2C_DeInit(I2C_HANDLE);
   HAL_I2C_Init(I2C_HANDLE);
-
-  HAL_I2C_RegisterCallback(&hi2c1, HAL_I2C_MEM_RX_COMPLETE_CB_ID,
-                           I2CCallbackWrapper);
-  HAL_I2C_RegisterCallback(&hi2c1, HAL_I2C_MEM_TX_COMPLETE_CB_ID,
-                           I2CCallbackWrapper);
-  HAL_I2C_RegisterCallback(&hi2c1, HAL_I2C_MASTER_RX_COMPLETE_CB_ID,
-                           I2CCallbackWrapper);
-  HAL_I2C_RegisterCallback(&hi2c1, HAL_I2C_MASTER_TX_COMPLETE_CB_ID,
-                           I2CCallbackWrapper);
-  HAL_I2C_RegisterCallback(&hi2c1, HAL_I2C_ERROR_CB_ID, I2CErrorCallback);
-  HAL_GPIO_WritePin(IMU_PWR_GPIO_Port, IMU_PWR_Pin, GPIO_PIN_SET);
   state = State::INIT;
 }
 
@@ -126,9 +101,38 @@ void ImuService::Routine(void* arg) {
 
   switch (state) {
     case State::INIT:
-      HAL_GPIO_WritePin(IMU_PWR_GPIO_Port, IMU_PWR_Pin, GPIO_PIN_RESET);
+      _is_rx_done = true;
+      _is_tx_done = true;
+
+      HAL_I2C_RegisterCallback(&hi2c1, HAL_I2C_MEM_RX_COMPLETE_CB_ID,
+                               I2CCallbackWrapper);
+      HAL_I2C_RegisterCallback(&hi2c1, HAL_I2C_MEM_TX_COMPLETE_CB_ID,
+                               I2CCallbackWrapper);
+      HAL_I2C_RegisterCallback(&hi2c1, HAL_I2C_MASTER_RX_COMPLETE_CB_ID,
+                               I2CCallbackWrapper);
+      HAL_I2C_RegisterCallback(&hi2c1, HAL_I2C_MASTER_TX_COMPLETE_CB_ID,
+                               I2CCallbackWrapper);
+      HAL_I2C_RegisterCallback(&hi2c1, HAL_I2C_ERROR_CB_ID, I2CErrorCallback);
+#ifdef V2_2
+      HAL_GPIO_WritePin(IMU_PWR_GPIO_Port, IMU_PWR_Pin, GPIO_PIN_SET);
+      op_start_tick = SysTimer::GetTime();
+      state = State::WAIT_200_1;
+#else
       state = State::IDLE;
+#endif
       break;
+#ifdef V2_2
+    case State::WAIT_200_1:
+      if (SysTimer::GetTime() - op_start_tick >= 200) {
+        state = State::WAIT_200_2;
+        op_start_tick = SysTimer::GetTime();
+        HAL_GPIO_WritePin(IMU_PWR_GPIO_Port, IMU_PWR_Pin, GPIO_PIN_RESET);
+      }
+      break;
+    case State::WAIT_200_2:
+      if (SysTimer::GetTime() - op_start_tick >= 200) state = State::IDLE;
+      break;
+#endif
     case State::READING:
     case State::WRITING:
       // check if I2C interrupt stucked
