@@ -70,7 +70,7 @@ class PacketProcessor:
         )
 
         event = self.parse_packet(ir_packet)
-        hv = self.packet_hash(ir_packet)
+        hv = PacketProcessor.packet_hash(ir_packet)
 
         try:
             # verify the packet
@@ -157,7 +157,7 @@ class PacketProcessor:
 
 
     async def send_packet_to_station(self, ir_packet: IrPacket) -> uuid.UUID:
-        hv = self.packet_hash(ir_packet)
+        hv = PacketProcessor.packet_hash(ir_packet)
 
         db_packet = IrPacketObject(packet_id=ir_packet.packet_id, data=Binary(ir_packet.data), hash=Binary(hv))
 
@@ -176,7 +176,7 @@ class PacketProcessor:
 
 
     async def queue_user_packet(self, ir_packet: IrPacket, user: int) -> uuid.UUID:
-        hv = self.packet_hash(ir_packet)
+        hv = PacketProcessor.packet_hash(ir_packet)
 
         db_packet = IrPacketObject(packet_id=ir_packet.packet_id, data=Binary(ir_packet.data), hash=Binary(hv))
 
@@ -273,8 +273,8 @@ class PacketProcessor:
                 # Unknown packet type
                 return None
 
-
-    def packet_hash(self, ir_packet: Union[IrPacket, IrPacketRequestSchema]) -> bytes:
+    @staticmethod
+    def packet_hash(ir_packet: Union[IrPacket, IrPacketRequestSchema]) -> bytes:
         """
         Get the packet hash. The function will exclude the ECC signature from the hash.
         """
@@ -286,7 +286,7 @@ class PacketProcessor:
     async def handle_acknowledgment(self, ir_packet: IrPacketRequestSchema, station: Station) -> bool:
         # Handle acknowledgment from the base station.
         # This is where we would update the database or perform any other necessary actions.
-        packet_type = self.get_packet_type(ir_packet)
+        packet_type = PacketParser.get_packet_type(ir_packet)
         if packet_type == PacketType.kAcknowledge:
             hv = ir_packet.data[1:1+PACKET_HASH_LEN]
 
@@ -309,7 +309,7 @@ class PacketProcessor:
         # Send an acknowledgment packet to the badge through the base station.
         ack_packet = IrPacket(
             packet_id=ir_packet.packet_id,
-            data=b"\x00" + PacketType.kAcknowledge.value.to_bytes(1, 'big') + self.packet_hash(ir_packet),
+            data=b"\x00" + PacketType.kAcknowledge.value.to_bytes(1, 'big') + PacketProcessor.packet_hash(ir_packet),
             station_id=station.station_id,
             to_stn=False
         )
