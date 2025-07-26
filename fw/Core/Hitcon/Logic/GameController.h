@@ -37,6 +37,8 @@ struct Proximity {
   uint16_t nonce;
 };
 
+constexpr size_t kPubAnnounceCycleInterval = 484;  // 1.49s * 484 ~= 12 minutes
+
 class GameController {
  public:
   GameController();
@@ -67,6 +69,7 @@ class GameController {
   */
   int state_;
 
+  int pubAnnounceCnt;
   hitcon::service::sched::PeriodicTask pubAnnounceTask;
 
   void TrySendPubAnnounce();

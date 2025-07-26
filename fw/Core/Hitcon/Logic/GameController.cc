@@ -17,7 +17,7 @@ hitcon::game::GameController g_game_controller;
 namespace game {
 
 GameController::GameController()
-    : state_(0),
+    : state_(0), pubAnnounceCnt(kPubAnnounceCycleInterval - 2),
       pubAnnounceTask(960, (callback_t)&GameController::TrySendPubAnnounce,
                       this, 1490) {}
 
@@ -89,6 +89,13 @@ void GameController::GetUsername(uint8_t *buf) {
 }
 
 void GameController::TrySendPubAnnounce() {
+  pubAnnounceCnt++;
+  if (pubAnnounceCnt >= kPubAnnounceCycleInterval) {
+    pubAnnounceCnt -= kPubAnnounceCycleInterval;
+  } else {
+    return;
+  }
+
   // Create a PubAnnouncePacket
   hitcon::ir::IrData irdata = {
       .ttl = 0,
