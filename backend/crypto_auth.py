@@ -3,7 +3,6 @@ from schemas import IrPacket, Event, TwoBadgeActivityEvent, ScoreAnnounceEvent, 
 from schemas import EccPoint, EccPublicKey, EccPrivateKey, EccSignature
 from database import db
 from ecc_utils import ECC_SIGNATURE_SIZE, ecc_sign, ecc_derive_pub, ecc_verify, ecc_get_point_by_x
-import bson.int64
 from config import Config
 
 config = Config("config.yaml")
@@ -42,7 +41,12 @@ class CryptoAuth:
 
     @staticmethod
     async def derive_user_by_pubkey(pub: EccPublicKey) -> Optional[int]:
-        pub_x = bson.int64.Int64(pub.point.x)
+        # Last byte of compact form of x is stored as sign in database.
+        pub_x = pub.point.x
+        sign = pub.point.y % 2
+        if sign:
+            pub_x = -pub_x
+
         user = await db["users"].find_one({"pubkey": pub_x})
 
         if user is None:
