@@ -3,7 +3,7 @@ from bson import Binary
 from crypto_auth import CryptoAuth, UnsignedPacketError
 from ecc_utils import ECC_SIGNATURE_SIZE, ECC_PUBKEY_SIZE
 from schemas import Event, ProximityEvent, PubAnnounceEvent, TwoBadgeActivityEvent, GameActivityEvent, ScoreAnnounceEvent, SingleBadgeActivityEvent, SponsorActivityEvent
-from schemas import IrPacket, IrPacketRequestSchema, IrPacketObject, Station, PacketType, PACKET_HASH_LEN, IR_USERNAME_LEN, PACKET_TYPE_WITHOUT_SIG
+from schemas import IrPacket, IrPacketRequestSchema, IrPacketObject, Station, PacketType, PACKET_HASH_LEN, IR_USERNAME_LEN
 from config import Config
 from hashlib import sha3_256
 from database import db, redis_client
@@ -282,15 +282,11 @@ class PacketProcessor:
                 return None
 
 
-    def packet_hash(self, ir_packet: Union[IrPacket, IrPacketRequestSchema], ack: bool = False) -> bytes:
+    def packet_hash(self, ir_packet: Union[IrPacket, IrPacketRequestSchema]) -> bytes:
         """
         Get the packet hash. The function will exclude the ECC signature from the hash.
         """
-        packet_type = self.get_packet_type(ir_packet)
-        if packet_type in PACKET_TYPE_WITHOUT_SIG or ack:
-            data = bytes(ir_packet.data)
-        else:
-            data = bytes(ir_packet.data[:-(ECC_SIGNATURE_SIZE)])
+        data = bytes(ir_packet.data)
 
         return sha3_256(data).digest()[:PACKET_HASH_LEN]
 
@@ -318,10 +314,10 @@ class PacketProcessor:
 
 
     async def ack(self, ir_packet: IrPacketRequestSchema, station: Station) -> None:
-        # Send an acknowledgment packet to the base station.
+        # Send an acknowledgment packet to the badge through the base station.
         ack_packet = IrPacket(
             packet_id=ir_packet.packet_id,
-            data=b"\x00" + PacketType.kAcknowledge.value.to_bytes(1, 'big') + self.packet_hash(ir_packet, ack=True),
+            data=b"\x00" + PacketType.kAcknowledge.value.to_bytes(1, 'big') + self.packet_hash(ir_packet),
             station_id=station.station_id,
             to_stn=False
         )

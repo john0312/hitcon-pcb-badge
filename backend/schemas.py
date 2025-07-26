@@ -50,7 +50,6 @@ class PacketType(Enum):
     kSingleBadgeActivity = 8
     kSponsorActivity = 9
 
-PACKET_TYPE_WITHOUT_SIG = { PacketType.kShow, PacketType.kTest, PacketType.kAcknowledge, PacketType.kSponsorActivity }
 
 class IrPacket(BaseModel):
     packet_id: Optional[uuid.UUID] = Field(default_factory=uuid.uuid4)
