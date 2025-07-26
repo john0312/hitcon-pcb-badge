@@ -339,7 +339,7 @@ class _GameLogic:
         return score
 
 
-    async def apply_player_buff(player_id: int, buff_a_count: int, buff_b_count: int, timestamp: datetime):
+    async def apply_player_buff(self, player_id: int, buff_a_count: int, buff_b_count: int, timestamp: datetime):
         """
         Apply a buff to the player.
         buff_a and buff_b has different parameter on the modifier.
