@@ -151,7 +151,8 @@ class SingleBadgeActivityEvent(Event):
 class SponsorActivityEvent(Event):
     user: int
     sponsor_id: int
-    sponsor_data: bytes
+    nonce: int
+    signature: bytes
 
 
 # For Mongo collections `stations`
