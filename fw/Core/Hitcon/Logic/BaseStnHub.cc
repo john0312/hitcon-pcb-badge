@@ -27,7 +27,7 @@ void BaseStationHub::Init() {
   scheduler.EnablePeriodic(&_routine_task);
   g_xboard_logic.SetOnPacketArrive(
       (callback_t)&BaseStationHub::OnXBoardPacketRecv, this,
-      RecvFnId::TO_BASE_STATION);
+      RecvFnId::IR_TO_BASE_STATION);
 }
 
 bool BaseStationHub::WriteBuffer(BufferType buffer_type, uint8_t* data,
@@ -147,7 +147,7 @@ void BaseStationHub::SendToXBoard() {
   }
   auto xdata = &buffer[idx * kBufferSize + 1];
   if (g_xboard_logic.GetConnectState() == hitcon::service::xboard::Connect) {
-    g_xboard_logic.QueueDataForTx(xdata, status.length, RecvFnId::TO_ATTENDEE);
+    g_xboard_logic.QueueDataForTx(xdata, status.length, RecvFnId::IR_TO_ATTENDEE);
     queue.PopFront();
     status.locked = 0;
   }
