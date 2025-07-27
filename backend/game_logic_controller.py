@@ -64,6 +64,15 @@ class GameLogicController:
             packet_processor=packet_processor
         )
 
+        # attack station
+        team = await CryptoAuth.get_user_team(evt.user)
+        await game.attack_station(
+            player_id=evt.user,
+            station_id=evt.station_id,
+            amount=team * score,
+            timestamp=evt.timestamp
+        )
+
 
     @staticmethod
     async def on_two_badge_activity_event(evt: TwoBadgeActivityEvent, packet_processor: 'PacketProcessor'):
@@ -188,6 +197,23 @@ class GameLogicController:
         await GameLogicController.score_announce(
             user=evt.user2,
             packet_processor=packet_processor
+        )
+
+        # attack station
+        team1 = await CryptoAuth.get_user_team(evt.user1)
+        await game.attack_station(
+            player_id=evt.user1,
+            station_id=evt.station_id,
+            amount=team1 * evt.score1,
+            timestamp=evt.timestamp
+        )
+
+        team2 = await CryptoAuth.get_user_team(evt.user2)
+        await game.attack_station(
+            player_id=evt.user2,
+            station_id=evt.station_id,
+            amount=team2 * evt.score2,
+            timestamp=evt.timestamp
         )
 
 
