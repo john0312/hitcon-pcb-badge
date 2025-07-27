@@ -47,7 +47,7 @@ void XBoardLogic::Init() {
   g_xboard_service.SetOnByteRx((callback_t)&XBoardLogic::OnByteArrive, this);
 }
 
-void XBoardLogic::QueueDataForTx(uint8_t *packet, uint8_t packet_len,
+void XBoardLogic::QueueDataForTx(const uint8_t *packet, uint8_t packet_len,
                                  RecvFnId handler_id) {
   my_assert(packet_len < PKT_PAYLOAD_LEN_MAX);
   uint8_t pkt[HEADER_SZ + PKT_PAYLOAD_LEN_MAX] = {0};
@@ -148,8 +148,7 @@ void XBoardLogic::SendPing() {
 
 void XBoardLogic::SendPeerPong() {
   uint8_t pkt[HEADER_SZ] = {0};
-  *reinterpret_cast<Frame *>(pkt) =
-      Frame{PREAMBLE, 0, 0, SELF_PONG_TYPE, 0};
+  *reinterpret_cast<Frame *>(pkt) = Frame{PREAMBLE, 0, 0, SELF_PONG_TYPE, 0};
   reinterpret_cast<Frame *>(pkt)->checksum = fast_crc32(pkt, HEADER_SZ);
   // for (int i = 0; i < sizeof(Frame); i++) {
   //   pkt[i] = (0x11+i)&0x0FF;

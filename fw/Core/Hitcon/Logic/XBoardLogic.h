@@ -50,7 +50,8 @@ class XBoardLogic {
   // - `data_len`: size of the data in bytes
   // - `handler_id`: defined in `fw/Core/Hitcon/Logic/XBoardRecvFn.h`, same as
   // `SetOnPacketArrive`
-  void QueueDataForTx(uint8_t *data, uint8_t data_len, RecvFnId handler_id);
+  void QueueDataForTx(const uint8_t *data, uint8_t data_len,
+                      RecvFnId handler_id);
 
   // On detected connection from a legacy remote board, this will be called.
   void SetOnConnectLegacy(callback_t callback, void *callback_arg1);

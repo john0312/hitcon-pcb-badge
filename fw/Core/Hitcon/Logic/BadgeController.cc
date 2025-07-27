@@ -6,6 +6,7 @@
 #include <App/MainMenuApp.h>
 #include <App/ShowNameApp.h>
 #include <Logic/IrController.h>
+#include <Logic/SponsorReq.h>
 #include <Logic/XBoardLogic.h>
 #include <Secret/secret.h>
 #include <Service/DisplayService.h>
@@ -15,6 +16,7 @@ using hitcon::ir::irController;
 using hitcon::service::sched::my_assert;
 using hitcon::service::xboard::g_xboard_logic;
 using hitcon::service::xboard::UsartConnectState;
+using hitcon::sponsor::g_sponsor_req;
 
 namespace hitcon {
 BadgeController badge_controller;
@@ -118,8 +120,10 @@ void BadgeController::OnButton(void *arg1) {
 }
 
 void BadgeController::OnXBoardConnect(void *unused) {
-  if (current_app != &hardware_test_app)
+  if (current_app != &hardware_test_app) {
+    g_sponsor_req.OnXBoardConnect();
     badge_controller.change_app(&connect_menu);
+  }
 }
 
 void BadgeController::OnXBoardLegacyConnect(void *unused) {

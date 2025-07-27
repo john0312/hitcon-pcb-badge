@@ -17,6 +17,8 @@ enum RecvFnId {
   IR_TO_BASE_STATION,                       // attendee -> base
   IR_TO_ATTENDEE,                           // base -> attendee
   TAMA_RECV_ID,
+  SPONSOR_REQ_ID,
+  SPONSOR_RESP_ID,
   // MAX is to express the length of callback function array
   MAX
 };

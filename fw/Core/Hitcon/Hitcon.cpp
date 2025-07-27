@@ -22,6 +22,8 @@
 #include <Logic/IrController.h>
 #include <Logic/IrLogic.h>
 #include <Logic/NvStorage.h>
+#include <Logic/SponsorReq.h>
+#include <Logic/SponsorResp.h>
 #include <Logic/UsbLogic.h>
 #include <Logic/XBoardLogic.h>
 #include <Service/ButtonService.h>
@@ -41,6 +43,10 @@ using namespace hitcon::hash;
 using namespace hitcon::service::sched;
 using namespace hitcon::service::xboard;
 using namespace hitcon::app::tama;
+
+#ifndef BADGE_ROLE
+#error "BADGE_ROLE not defined"
+#endif  // BADGE_ROLE
 
 void TestTaskFunc(void* unused1, void* unused2) {}
 void TestTask2Func(void* unused1, void* unused2) {}
@@ -75,6 +81,11 @@ void hitcon_run() {
 #ifndef V1_1
   g_imu_service.Init();
   g_imu_logic.Init();
+#endif
+#if BADGE_ROLE == BADGE_ROLE_ATTENDEE
+  hitcon::sponsor::g_sponsor_req.Init();
+#elif BADGE_ROLE == BADGE_ROLE_SPONSOR
+  hitcon::sponsor::g_sponsor_resp.Init();
 #endif
 
   g_button_logic.Init();

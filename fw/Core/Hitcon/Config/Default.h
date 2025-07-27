@@ -24,5 +24,4 @@ Example usage:
 #endif
 */
 
-
 #endif /* HITCON_CONFIG_DEFAULT_H_ */
