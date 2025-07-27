@@ -40,6 +40,7 @@ void TamaApp::Init() {
   _tama_data = {};
 #endif
   g_nv_storage.MarkDirty();
+  qte.Init();
 }
 
 void SetSingleplayer() {
@@ -62,7 +63,7 @@ void TamaApp::OnEntry() {
     g_xboard_logic.SetOnPacketArrive((callback_t)&TamaApp::OnXBoardRecv, this,
                                      TAMA_RECV_ID);
     _enemy_state = TAMA_XBOARD_STATE::XBOARD_INVITE;
-    _enemy_score = nullptr;
+    memcpy(&_enemy_score, 0, sizeof(_enemy_score));
     if (_tama_data.state != TAMA_APP_STATE::ALIVE) {
       xboard_state = TAMA_XBOARD_STATE::XBOARD_UNAVAILABLE;
       display_set_mode_scroll_text("Your pet is not ready yet");
@@ -508,21 +509,19 @@ void TamaApp::XbOnButton(button_t button) {
     case TAMA_XBOARD_STATE::XBOARD_BATTLE_ENCOUNTER:
       break;
     case TAMA_XBOARD_STATE::XBOARD_BATTLE_QTE:
-      if (button & BUTTON_VALUE_MASK == BUTTON_OK) {
-        // TODO: get score
-        _qte_count++;
-        if (_qte_count == 5) {
-          _my_nounce = g_fast_random_pool.GetRandom();
-          tama_xboard_result_t result = {
-              .packet_type = TAMA_XBOARD_PACKET_TYPE::PACKET_SCORE,
-              .score = _qte_score,
-              .nonce = _my_nounce,
-          };
-          g_game_controller.SetBufferToUsername(result.user);
-          g_xboard_logic.QueueDataForTx(reinterpret_cast<uint8_t*>(&result),
-                                        sizeof(result), TAMA_RECV_ID);
-          display_set_mode_scroll_text("Waiting for enemy...");
-        }
+      qte.OnButton(button);
+      if (qte.IsDone()) {
+        _my_nounce = g_fast_random_pool.GetRandom();
+        tama_xboard_result_t result = {
+            .packet_type = TAMA_XBOARD_PACKET_TYPE::PACKET_SCORE,
+            .score = qte.GetScore(),
+            .nonce = _my_nounce,
+        };
+        g_game_controller.SetBufferToUsername(result.user);
+        g_xboard_logic.QueueDataForTx(reinterpret_cast<uint8_t*>(&result),
+                                      sizeof(result), TAMA_RECV_ID);
+        display_set_mode_scroll_text("Waiting for enemy...");
+        xboard_state = TAMA_XBOARD_STATE::XBOARD_BATTLE_SENT_SCORE;
       }
       break;
     case TAMA_XBOARD_STATE::XBOARD_UNAVAILABLE:
@@ -546,7 +545,6 @@ void TamaApp::XbUpdateFrameBuffer() {
       break;
     case TAMA_XBOARD_STATE::XBOARD_BATTLE_SENT_SCORE:
       // TODO: Draw frame buffer for sent score
-      my_assert(_enemy_score);
       break;
     default:
       my_assert(false);
@@ -562,7 +560,8 @@ void TamaApp::OnXBoardRecv(void* arg) {
       _enemy_state = TAMA_XBOARD_STATE::XBOARD_BATTLE_ENCOUNTER;
       break;
     case TAMA_XBOARD_PACKET_TYPE::PACKET_SCORE:
-      _enemy_score = reinterpret_cast<tama_xboard_result_t*>(packet->data);
+      if (packet->len == sizeof(_enemy_score))
+        memcpy(&_enemy_score, packet->data, sizeof(_enemy_score));
       break;
     case TAMA_XBOARD_PACKET_TYPE::PACKET_END:
       // TODO: End game
@@ -595,12 +594,13 @@ void TamaApp::XbRoutine(void* unused) {
   if (xboard_state == TAMA_XBOARD_STATE::XBOARD_BATTLE_ENCOUNTER &&
       _frame_count >= 8) {
     xboard_state = TAMA_XBOARD_STATE::XBOARD_BATTLE_QTE;
-    _qte_count = 0;
-    _qte_score = 0;
+    qte.Entry();
     UpdateFrameBuffer();
   }
   if (xboard_state == TAMA_XBOARD_STATE::XBOARD_BATTLE_QTE) {
-    // TODO: implement QTE game logic here
+    // Do nothing. The routine / rendering logic is handled by QTE
+    // Return early to prevent rendering.
+    return;
   }
   if (xboard_state == TAMA_XBOARD_STATE::XBOARD_BATTLE_SENT_SCORE) {
     if (_enemy_state != TAMA_XBOARD_STATE::XBOARD_BATTLE_SENT_SCORE) {
@@ -608,17 +608,16 @@ void TamaApp::XbRoutine(void* unused) {
     }
     // We need to know enemy score to update our frames
     UpdateFrameBuffer();
-    my_assert(_enemy_score);
-    my_assert(_enemy_score->packet_type ==
+    my_assert(_enemy_score.packet_type ==
               TAMA_XBOARD_PACKET_TYPE::PACKET_SCORE);
     // Send result with TwoBadgeActivity
     hitcon::game::TwoBadgeActivity activity = {
         .gameType = hitcon::game::EventType::kTama,
-        .myScore = _qte_score,
-        .otherScore = _enemy_score->score,
-        .nonce = _my_nounce + _enemy_score->nonce,
+        .myScore = qte.GetScore(),
+        .otherScore = _enemy_score.score,
+        .nonce = _my_nounce + _enemy_score.nonce,
     };
-    memcpy(activity.otherUser, _enemy_score->user, sizeof(_enemy_score->user));
+    memcpy(activity.otherUser, _enemy_score.user, sizeof(_enemy_score.user));
     g_game_controller.SendTwoBadgeActivity(activity);
   }
 
@@ -658,6 +657,133 @@ void TamaApp::ConcateAnimtaions(uint8_t count, tama_ani_t** animations) {
     TAMA_COPY_FB(_fb, (*animations[i]), offset);
     offset += animations[i]->length;
   }
+}
+
+void TamaQte::Routine() {
+  if (state == kInGame) {
+    if (game.IsDone()) {
+      if (++currentRound == 5) {
+        Exit();
+      } else {
+        state = TamaQteState::kBetweenGame;
+        nextGameStart = SysTimer::GetTime() + PAUSE_BETWEEN_QTE_GAMES;
+      }
+    }
+    game.Update();
+  } else if (state == kBetweenGame) {
+    if (SysTimer::GetTime() - nextGameStart >= 0) {
+      game.Init();
+      state = TamaQteState::kInGame;
+    }
+  } else {
+    return;
+  }
+
+  Render();
+}
+
+void TamaQte::Entry() {
+  state = TamaQteState::kInGame;
+  game.Init();
+  currentRound = 0;
+  scheduler.EnablePeriodic(&routineTask);
+}
+
+void TamaQte::Exit() {
+  state = TamaQteState::kDone;
+  scheduler.DisablePeriodic(&routineTask);
+}
+
+void TamaQte::Init() {
+  state = TamaQteState::kDone;
+  scheduler.Queue(&routineTask, nullptr);
+}
+
+bool TamaQte::IsDone() { return state == TamaQteState::kDone; }
+
+uint8_t TamaQte::GetScore() { return success * success; }
+
+TamaQte::TamaQte()
+    : routineTask(650, (callback_t)&TamaQte::Routine, this, QTE_REFRESH_RATE) {}
+
+void TamaQte::OnButton(button_t button) {
+  if (state != kInGame) return;
+  if (game.IsDone()) return;
+  if (button & BUTTON_VALUE_MASK != BUTTON_OK) return;
+  game.OnButton();
+}
+
+void TamaQte::Render() {
+  display_buf_t fb[DISPLAY_WIDTH] = {0};
+  game.Render(fb);
+  display_set_mode_fixed_packed(fb);
+}
+
+void TamaQteGame::Init() {
+  arrow.Init();
+  target.Init();
+  done = false;
+  success = false;
+}
+
+void TamaQteGame::Render(display_buf_t* buf) {
+  arrow.Render(buf);
+  target.Render(buf);
+}
+
+void TamaQteGame::Update() {
+  if (done) return;
+  arrow.Update();
+  if (arrow.IsDone()) {
+    done = true;
+  }
+}
+
+void TamaQteGame::OnButton() {
+  if (done) return;
+  if (arrow.IsDone()) return;
+  done = true;
+  success = arrow.GetLocation() == target.GetLocation();
+}
+
+bool TamaQteGame::IsSuccess() { return !done && success; }
+
+bool TamaQteGame::IsDone() { return done; }
+
+void TamaQteArrow::Init() {
+  location = 0;
+  direction = 1;
+  done = false;
+}
+
+void TamaQteArrow::Update() {
+  if (done) return;
+  location += direction;
+  if (location == DISPLAY_WIDTH - 1) direction *= -1;
+  if (location == -1 && direction == -1) {
+    location = 0;
+    done = true;
+  }
+}
+
+void TamaQteArrow::Render(display_buf_t* buf) {
+  buf[location] |= 0b11111100;
+  if (location - 1 >= 0) buf[location - 1] |= 0b00001000;
+  if (location - 2 >= 0) buf[location - 2] |= 0b00010000;
+  if (location < DISPLAY_WIDTH - 1) buf[location + 1] |= 0b00001000;
+  if (location < DISPLAY_WIDTH - 2) buf[location + 2] |= 0b00010000;
+}
+
+bool TamaQteArrow::IsDone() { return done; }
+
+uint8_t TamaQteArrow::GetLocation() { return location; }
+
+void TamaQteTarget::Render(display_buf_t* buf) { buf[location] |= 0b00001111; }
+
+uint8_t TamaQteTarget::GetLocation() { return location; }
+
+void TamaQteTarget::Init() {
+  location = g_fast_random_pool.GetRandom() % 15 + 1;
 }
 
 }  // namespace tama

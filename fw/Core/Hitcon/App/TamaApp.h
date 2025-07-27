@@ -119,7 +119,75 @@ typedef struct {
   uint8_t user[hitcon::ir::IR_USERNAME_LEN];
   uint8_t score;
   uint8_t nonce;
-} tama_xboard_result_t;
+} __attribute__((__packed__)) tama_xboard_result_t;
+
+#define QTE_REFRESH_RATE 50
+#define PAUSE_BETWEEN_QTE_GAMES 1000
+
+class TamaQteArrow {
+ private:
+  int8_t location;
+  int8_t direction;
+  bool done;
+
+ public:
+  void Init();
+  void Render(display_buf_t* buf);
+  void Update();
+  bool IsDone();
+  uint8_t GetLocation();
+};
+
+class TamaQteTarget {
+ private:
+  uint8_t location;
+
+ public:
+  void Init();
+  void Render(display_buf_t* buf);
+  uint8_t GetLocation();
+};
+
+class TamaQteGame {
+ private:
+  TamaQteArrow arrow;
+  TamaQteTarget target;
+  bool done;
+  bool success;
+
+ public:
+  void Init();
+  bool IsDone();
+  void Render(display_buf_t* buf);
+  void Update();
+  bool IsSuccess();
+  void OnButton();
+};
+
+enum TamaQteState { kDone = 0, kInGame, kBetweenGame };
+
+class TamaQte {
+ private:
+  TamaQteState state;
+  TamaQteGame game;
+  unsigned int nextGameStart;
+  hitcon::service::sched::PeriodicTask routineTask;
+  uint8_t currentRound;
+  uint8_t success;
+  void Routine();
+  void Render();
+  void Exit();
+
+ public:
+  TamaQte();
+  // Init the qte. This should be called only once on startup.
+  void Init();
+  // Start the qte game. This should be called every time QTE starts.
+  void Entry();
+  void OnButton(button_t button);
+  bool IsDone();
+  uint8_t GetScore();
+};
 
 typedef struct {
   TAMA_ANIMATION_TYPE type;
@@ -148,6 +216,7 @@ class TamaApp : public App {
   bool _is_selected = false;                 // For testing, use temp storage
   unsigned int _previous_hatching_step = 0;  // Will update every 100 steps
   bool _is_display_packed = true;
+  TamaQte qte;
 
   void Render();
   void Routine(void* unused);
@@ -157,10 +226,8 @@ class TamaApp : public App {
 
   // XBoard related
   TAMA_XBOARD_STATE _enemy_state;
-  uint8_t _qte_count;
-  uint8_t _qte_score;
   uint8_t _my_nounce;
-  tama_xboard_result_t* _enemy_score;
+  tama_xboard_result_t _enemy_score;
   void XbOnButton(button_t button);
   void XbUpdateFrameBuffer();
   void XbRoutine(void* unused);
