@@ -29,6 +29,7 @@ void MultiplayerGame::OnXboardRecv(void *arg) {
       break;
     case PACKET_GAME_OVER:
       SendGameOverAck(packet);
+      UploadMultiplayerScore(packet);
       GameOver();
       break;
     case PACKET_GAME_OVER_ACK:
