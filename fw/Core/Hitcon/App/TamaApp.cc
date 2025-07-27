@@ -662,6 +662,7 @@ void TamaApp::ConcateAnimtaions(uint8_t count, tama_ani_t** animations) {
 void TamaQte::Routine() {
   if (state == kInGame) {
     if (game.IsDone()) {
+      success += game.IsSuccess();
       if (++currentRound == 5) {
         Exit();
       } else {
