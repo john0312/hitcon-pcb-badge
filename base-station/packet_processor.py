@@ -61,6 +61,9 @@ class PacketProcessor:
             while True:
                 await asyncio.sleep(2.0)
                 score = await self.backend.get_station_score()
+                if score is None:
+                    # Restarting.
+                    continue
                 disp_data = self.map_score_to_disp_data(score)
                 await self.ir.show_graphic(disp_data)
         except:
