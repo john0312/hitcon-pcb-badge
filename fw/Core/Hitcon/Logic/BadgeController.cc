@@ -5,6 +5,7 @@
 #include <App/HardwareTestApp.h>
 #include <App/MainMenuApp.h>
 #include <App/ShowNameApp.h>
+#include <App/UsbMenuApp.h>
 #include <Hitcon.h>
 #include <Logic/IrController.h>
 #include <Logic/IrxbBridge.h>
@@ -167,4 +168,7 @@ void BadgeController::RestoreApp() {
   stored_app = nullptr;
 }
 
+void BadgeController::OnUsbPlugIn() {
+  badge_controller.change_app(&usb::usb_menu);
+}
 }  // namespace hitcon

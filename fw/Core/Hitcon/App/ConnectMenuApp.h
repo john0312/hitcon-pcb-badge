@@ -1,3 +1,6 @@
+#ifndef CONNECT_MENU_APP_H
+#define CONNECT_MENU_APP_H
+
 #include <App/ShowNameApp.h>
 #include <App/SnakeApp.h>
 #include <App/TamaApp.h>
@@ -81,3 +84,5 @@ class ConnectBasestnMenuApp : public MenuApp {
 extern ConnectBasestnMenuApp connect_basestn_menu;
 
 }  // namespace hitcon
+
+#endif

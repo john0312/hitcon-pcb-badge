@@ -10,6 +10,7 @@
 #include <App/ShowNameApp.h>
 #include <App/SnakeApp.h>
 #include <App/TamaApp.h>
+#include <App/UsbMenuApp.h>
 #include <Hitcon.h>
 #include <Logic/BadgeController.h>
 #include <Logic/ButtonLogic.h>
@@ -113,6 +114,8 @@ void hitcon_run() {
     // irController may override its callbacks.
     hardware_test_app.Init();
     badge_controller.change_app(&hardware_test_app);
+  } else if (HAL_GPIO_ReadPin(USB_DET_GPIO_Port, USB_DET_Pin) == GPIO_PIN_SET) {
+    badge_controller.change_app(&usb::usb_menu);
   }
 
   scheduler.Queue(&InitTask, nullptr);

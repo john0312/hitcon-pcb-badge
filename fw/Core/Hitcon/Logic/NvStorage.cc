@@ -57,6 +57,8 @@ void NvStorage::ForceFlushInternal() {
   write_buffer_.checksum =
       fast_crc32(reinterpret_cast<uint8_t*>(&write_buffer_) + sizeof(uint32_t),
                  sizeof(nv_storage_content) - sizeof(uint32_t));
+  // page 0 is reserved for badusb script
+  if (next_available_page == 0) next_available_page++;
   bool ret = g_flash_service.ProgramPage(
       next_available_page, reinterpret_cast<uint32_t*>(&write_buffer_),
       sizeof(nv_storage_content));
@@ -64,7 +66,6 @@ void NvStorage::ForceFlushInternal() {
     storage_dirty_ = false;
     next_available_page = (next_available_page + 1) %
                           FLASH_PAGE_COUNT;  // Increment for the next write
-    if (next_available_page == 0) next_available_page = 1;
     content_.version++;
     last_flush_cycle = current_cycle;  // Record the current cycle
   }

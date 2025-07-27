@@ -1,3 +1,6 @@
+#ifndef MAIN_MENU_APP_H
+#define MAIN_MENU_APP_H
+
 #include <App/BadUsbApp.h>
 #include <App/BouncingDVDApp.h>
 #include <App/DebugApp.h>
@@ -46,3 +49,4 @@ class MainMenuApp : public MenuApp {
 extern MainMenuApp main_menu;
 
 }  // namespace hitcon
+#endif

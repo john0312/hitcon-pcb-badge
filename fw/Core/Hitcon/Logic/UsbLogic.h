@@ -20,6 +20,7 @@ constexpr unsigned SCRIPT_FLASH_INDEX = 0;
 // storage size for script
 constexpr uint16_t MAX_SCRIPT_LEN = 2048 - 7;
 constexpr char EMPTY_SCRIPT_MSG[] = "No script";
+constexpr char CRC_FAIL_MSG[] = "Checksum fail";
 
 void RunScriptWrapper();
 
@@ -94,7 +95,6 @@ class UsbLogic {
   hitcon::service::sched::Task on_recv_task;
   UsbLogic();
   void OnDataRecv(void* arg);
-  // TODO: check connection status
   void RunScript(callback_t cb, void* arg1, callback_t err_cb, void* arg2,
                  bool check_crc);
   void StopScript();

@@ -11,7 +11,6 @@ using namespace hitcon::service::sched;
 
 /* TODO:
  * 1. add usb on connect
- * 2. impl read mem
  */
 
 namespace hitcon {
@@ -201,7 +200,8 @@ void UsbLogic::Routine(void* unused) {
       _script_crc_flag = true;
     else {
       StopScript();
-      _on_err_cb(_on_err_arg1, nullptr);
+      _on_err_cb(_on_err_arg1,
+                 reinterpret_cast<void*>(const_cast<char*>(CRC_FAIL_MSG)));
       return;
     }
   }
