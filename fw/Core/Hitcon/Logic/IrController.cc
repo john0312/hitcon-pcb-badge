@@ -71,7 +71,7 @@ void IrController::OnPacketReceived(void* arg) {
   } else if (data->type == packet_type::kAcknowledge) {
     OnAcknowledgePacket(&data->opaq.acknowledge);
   } else if (data->type == packet_type::kScoreAnnonce) {
-    if (memcpy(data->opaq.score_announce.user, g_game_controller.GetUsername(),
+    if (memcmp(data->opaq.score_announce.user, g_game_controller.GetUsername(),
                IR_USERNAME_LEN) == 0) {
       show_name_app.SetScore(
           *reinterpret_cast<uint32_t*>(data->opaq.score_announce.score));
