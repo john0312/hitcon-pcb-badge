@@ -9,8 +9,8 @@ mongo:
 redis:
   host: localhost
   port: 6379
-  game_nonce_expire: 180 # 3 minute
-  user_station_pair_expire: 180 # 3 minutes
+  game_nonce_expire: 3600 # 60 minute
+  user_station_pair_expire: 360 # 6 minutes
 
 rectf:
   api_key: "reRErERe-C7F-4F7B-8A3B-1E2D3C4B5A6B"
