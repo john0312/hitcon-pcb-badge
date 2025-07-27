@@ -8,6 +8,11 @@
 #ifndef HITCON_HITCON_H_
 #define HITCON_HITCON_H_
 
+#if __has_include("Config/Custom.h")
+#include "Config/Custom.h"
+#endif
+#include "Config/Default.h"
+
 // V1_1  - HITCON CMT 2024 attendee version
 // V2_0  - HITCON CMT 2025 first prototype
 // V2_1  - HITCON CMT 2025 last prototype

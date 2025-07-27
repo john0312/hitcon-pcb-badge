@@ -36,6 +36,8 @@ constexpr uint8_t PONG_LEGACY_TYPE = 209;
 constexpr uint8_t PONG_PEER2025_TYPE = 210;
 constexpr uint8_t PONG_BASESTN2025_TYPE = 211;
 
+constexpr uint8_t SELF_PONG_TYPE = PONG_PEER2025_TYPE;
+
 class XBoardLogic {
  public:
   XBoardLogic();

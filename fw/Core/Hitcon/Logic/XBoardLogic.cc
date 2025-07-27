@@ -149,7 +149,7 @@ void XBoardLogic::SendPing() {
 void XBoardLogic::SendPeerPong() {
   uint8_t pkt[HEADER_SZ] = {0};
   *reinterpret_cast<Frame *>(pkt) =
-      Frame{PREAMBLE, 0, 0, PONG_PEER2025_TYPE, 0};
+      Frame{PREAMBLE, 0, 0, SELF_PONG_TYPE, 0};
   reinterpret_cast<Frame *>(pkt)->checksum = fast_crc32(pkt, HEADER_SZ);
   // for (int i = 0; i < sizeof(Frame); i++) {
   //   pkt[i] = (0x11+i)&0x0FF;
