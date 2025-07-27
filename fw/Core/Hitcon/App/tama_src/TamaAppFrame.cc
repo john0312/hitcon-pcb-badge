@@ -1873,4 +1873,34 @@ void get_countdown_frame(int countdown, uint8_t* base) {
                   screen_info);
 }
 
+void get_tama_center_frame(int frame, uint8_t* base) {
+  const base_info screen_info = {
+      .width = 16,
+      .height = 8,
+  };
+
+  const component_info full_frame_component_info = {
+      .x_len = 16,
+      .y_len = 8,
+      .x_offset = 0,
+      .y_offset = 0,
+  };
+
+  const CompressedImage* target = &m_tama_center_compressed;
+  uint8_t decompressed_buffer[target->width * target->height];
+  memset(decompressed_buffer, 0, target->width * target->height);
+  decompress_component(target, decompressed_buffer);
+  stack_component(decompressed_buffer, base, full_frame_component_info,
+                  screen_info);
+
+  // add decoration
+  if (frame == FRAME_2) {
+    base[7] = 1;
+    base[6 + screen_info.width] = 1;
+    base[7 + screen_info.width] = 1;
+    base[8 + screen_info.width] = 1;
+    base[7 + screen_info.width * 2] = 1;
+  }
+}
+
 /** --- frame part end ---*/

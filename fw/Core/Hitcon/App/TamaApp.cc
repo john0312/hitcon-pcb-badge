@@ -76,7 +76,10 @@ void TamaApp::OnEntry() {
     return;
   }
   if (player_mode == TAMA_PLAYER_MODE::MODE_BASESTATION) {
+#ifndef TAMA_CENTER
+    // TamaHeal for player which is called from OnEntry.
     TamaHeal();
+#endif
     return;
   }
   my_assert(player_mode == TAMA_PLAYER_MODE::MODE_SINGLEPLAYER);
@@ -108,10 +111,12 @@ void TamaApp::OnExit() {
 }
 
 void TamaApp::Render() {
-  if (
-      // INTRO_TEXT handles render in display_set_mode_scroll_text
-      _tama_data.state == TAMA_APP_STATE::INTRO_TEXT) {
-    return;
+  if (player_mode == TAMA_PLAYER_MODE::MODE_SINGLEPLAYER) {
+    if (
+        // INTRO_TEXT handles render in display_set_mode_scroll_text
+        _tama_data.state == TAMA_APP_STATE::INTRO_TEXT) {
+      return;
+    }
   }
 
   // Ensure fb_size is valid to prevent division by zero.
@@ -374,8 +379,10 @@ void TamaApp::Routine(void* unused) {
     return;
   }
   if (player_mode == TAMA_PLAYER_MODE::MODE_BASESTATION) {
-    // Do not do anything for healing in routine. This is so simple so
-    // we just do it in TamaHeal which is called from OnEntry.
+#ifdef TAMA_CENTER
+    // For BASESTATION mode. Always show anime and heal pets if they are coming.
+    TamaCenter();
+#endif
     return;
   }
   my_assert(player_mode == TAMA_PLAYER_MODE::MODE_SINGLEPLAYER);
@@ -870,6 +877,17 @@ void TamaApp::XbRoutine(void* unused) {
 void TamaApp::TamaHeal() {
   // TODO: Display animation of restoring
   // self._tama_data.hp = ...
+
+void TamaApp::TamaCenter() {
+  _fb.fb_size = 1;
+  memset(_fb.fb[0], 0, sizeof(display_buf_t[DISPLAY_HEIGHT * DISPLAY_WIDTH]));
+  if (_anime_frame == 0) {
+    get_tama_center_frame(FRAME_1, _fb.fb[0]);
+    _anime_frame = 1;
+  } else {
+    get_tama_center_frame(FRAME_2, _fb.fb[0]);
+    _anime_frame = 0;
+  }
   Render();
 }
 

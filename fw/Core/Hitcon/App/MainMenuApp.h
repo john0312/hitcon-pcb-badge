@@ -20,8 +20,12 @@ using hitcon::app::tama::tama_app;
 using hitcon::app::tetris::tetris_app;
 
 constexpr menu_entry_t main_menu_entries[] = {
-    // TODO : change app
+// TODO : change app
+#ifdef TAMA_CENTER
+    {"Tama", &tama_app, &hitcon::app::tama::SetBaseStationConnect},
+#else
     {"Tama", &tama_app, &hitcon::app::tama::SetSingleplayer},
+#endif
     {"Snake", &snake_app, &hitcon::app::snake::SetSingleplayer},
     {"Tetris", &tetris_app, &hitcon::app::tetris::SetSingleplayer},
     {"Dino", &dino_app, nullptr},

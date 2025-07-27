@@ -707,6 +707,22 @@ void countdown_and_go(int repeat_count) {
   }
 }
 
+void tama_center_demo(int repeat_count) {
+  const uint8_t frame_count = 2;
+
+  uint8_t frame1[DISPLAY_WIDTH * DISPLAY_HEIGHT] = {0};
+  uint8_t frame2[DISPLAY_WIDTH * DISPLAY_HEIGHT] = {0};
+
+  get_tama_center_frame(FRAME_1, frame1);
+  get_tama_center_frame(FRAME_2, frame2);
+
+  const uint8_t* frame_all[frame_count] = {frame1, frame2};
+
+  for (int i = 0; i < repeat_count; ++i) {
+    show_anime_with_delay(frame_all, frame_count, SLEEP_US);
+  }
+}
+
 void test_frames() {
   int repeat_count = 3;
   int repeat_once = 1;
@@ -833,11 +849,15 @@ void test_frames() {
   std::cout << "GD, OK, NG Demo:\n";
   gd_ok_ng_demo(repeat_once);
 
-#endif  // TEST_ALL_FRAMES
-
   // countdown and start demo
   std::cout << "Countdown and start Demo:\n";
   countdown_and_go(repeat_once);
+
+#endif  // TEST_ALL_FRAMES
+
+  // test tama_center
+  std::cout << "Tama Center Demo:\n";
+  tama_center_demo(repeat_count);
 }
 
 void test_compress_decompress() {

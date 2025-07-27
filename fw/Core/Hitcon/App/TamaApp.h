@@ -25,6 +25,8 @@
     }                                                            \
   }
 
+// #define TAMA_CENTER
+
 #include <Logic/Display/display.h>
 #include <Logic/ImuLogic.h>
 #include <Logic/IrController.h>
@@ -273,6 +275,7 @@ class TamaApp : public App {
 
   // BaseStation
   void TamaHeal();
+  void TamaCenter();
 };
 
 void SetSingleplayer();

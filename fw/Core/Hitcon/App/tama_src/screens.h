@@ -1802,6 +1802,33 @@ constexpr uint8_t m_countdown_go_compressed_data[] = {
 constexpr CompressedImage m_countdown_go_compressed = {
     .width = 16, .height = 8, .data = m_countdown_go_compressed_data};
 
+/**
+ * @brief The compressed data of m_tama_center.
+ *
+ * The original data is:
+ *
+ *  ```
+ *  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  //
+ *  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  //
+ *  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  //
+ *  0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0,  //
+ *  0, 0, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 0, 0, 0,  //
+ *  0, 0, 1, 1, 1, 0, 0, 1, 0, 0, 1, 1, 1, 0, 0, 0,  //
+ *  0, 1, 1, 0, 1, 1, 0, 0, 0, 1, 1, 0, 1, 1, 0, 0,  //
+ *  1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 0,  //
+ *  ```
+ *
+ * Notice: the compressed data is not directly mapping to the original data.
+ * It packed the bits in a specific way.
+ *
+ */
+
+constexpr uint8_t m_tama_center_compressed_data[] = {
+    0x80, 0x40, 0x60, 0xB0, 0x60, 0x48, 0x10, 0xA0,
+    0x10, 0x48, 0x60, 0xB0, 0x60, 0x40, 0x80, 0x00};
+constexpr CompressedImage m_tama_center_compressed = {
+    .width = 16, .height = 8, .data = m_tama_center_compressed_data};
+
 }  // namespace menu_icon
 
 }  // namespace tama

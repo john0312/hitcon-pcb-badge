@@ -112,4 +112,6 @@ void get_QTE_frame(int target_position, int current_position, uint8_t* base);
 
 void get_countdown_frame(int countdown, uint8_t* base);
 
+void get_tama_center_frame(int frame, uint8_t* base);
+
 #endif  // TAMA_APP_FRAME_H
