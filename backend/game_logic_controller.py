@@ -153,7 +153,8 @@ class GameLogicController:
                 "score1": scores[0][1],
                 "score2": scores[1][1],
                 "nonce": nonce,
-                "signature": evt.signature
+                "signature": evt.signature,
+                "packet_from": evt.packet_from
             })
 
 
