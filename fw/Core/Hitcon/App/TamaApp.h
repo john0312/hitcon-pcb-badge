@@ -1,5 +1,22 @@
 #ifndef TAMA_APP_H
 #define TAMA_APP_H
+#define TAMA_APP_MAX_FB_LENGTH 12
+
+#define TAMA_PREPARE_FB(FB, FB_SIZE) \
+  FB.fb_size = FB_SIZE;              \
+  memset(FB.fb, 0, sizeof(DISPLAY_WIDTH) * FB_SIZE);
+#define TAMA_GET_ANIMATION_DATA(TYPE_NAME_STR) \
+  animation[static_cast<uint8_t>(TAMA_ANIMATION_TYPE::TYPE_NAME_STR)]
+#define TAMA_COPY_FB(FB, ANIMATION, OFFSET)                      \
+  FB.active_frame = 0;                                           \
+  FB.fb_size = ANIMATION.frame_count;                            \
+  for (int m = 0; m < (ANIMATION).frame_count; m++) {            \
+    for (int n = 0; n < (ANIMATION).length; n++) {               \
+      my_assert(n + OFFSET < DISPLAY_WIDTH);                     \
+      FB.fb[m][n + OFFSET] =                                     \
+          (ANIMATION).frames_data[((ANIMATION).length) * m + n]; \
+    }                                                            \
+  }
 
 #include <Logic/Display/display.h>
 #include <Logic/ImuLogic.h>
@@ -16,8 +33,11 @@ namespace tama {
 enum class TAMA_APP_STATE : uint8_t {
   INTRO_TEXT,   // Displaying introductory text
   CHOOSE_TYPE,  // Player is selecting a pet type
-  EGG,          // Pet is in egg state, waiting to hatch
-  HATCHING,
+  EGG_1,        // 0% hatching progress
+  EGG_2,        // 25% hatching progress
+  EGG_3,        // 50% hatching progress
+  EGG_4,        // 75% hatching progress
+  HATCHING,     // 100% animation
   IDLE,
   ALIVE,
   HP_DETAIL,
@@ -37,10 +57,6 @@ enum class TAMA_TYPE : uint8_t {
 typedef struct {
   TAMA_APP_STATE state;
   TAMA_TYPE type;
-  unsigned int state_enter_time_ms;  // Timestamp when the current state (e.g.,
-  // EGG) was entered
-  int hatching_start_shaking_count;
-  int latest_shaking_count;
   uint16_t level;
   uint8_t food;
   uint8_t hp;
@@ -53,7 +69,7 @@ typedef struct {
 } tama_storage_t;
 
 typedef struct {
-  display_buf_t fb[12][DISPLAY_WIDTH];
+  display_buf_t fb[TAMA_APP_MAX_FB_LENGTH][DISPLAY_WIDTH];
   uint8_t fb_size;
   uint8_t active_frame;
 } tama_display_fb_t;
@@ -87,12 +103,35 @@ enum class TAMA_XBOARD_BATTLE_INVITE {
   XBOARD_BATTLE_Y,
 };
 
+enum class TAMA_ANIMATION_TYPE : uint8_t {
+  DOG,
+  CAT,
+  EGG_1,
+  EGG_2,
+  EGG_3,
+  EGG_4,
+  HATCHING,
+  PET_SELECTION
+};
+
 typedef struct {
   TAMA_XBOARD_PACKET_TYPE packet_type;
   uint8_t user[hitcon::ir::IR_USERNAME_LEN];
   uint8_t score;
   uint8_t nonce;
 } tama_xboard_result_t;
+
+typedef struct {
+  TAMA_ANIMATION_TYPE type;
+  uint8_t frame_count;
+  uint8_t length;
+  const display_buf_t* frames_data;
+} tama_ani_t;
+
+typedef struct {
+  const display_buf_t* data;
+  uint8_t length;
+} tama_display_component_t;
 
 class TamaApp : public App {
  private:
@@ -106,11 +145,15 @@ class TamaApp : public App {
   int hatching_warning_frame_count = 10;  // How many times the egg has shined
   int _feeding_anime_frame = 0;
   int anime_frame = 0;
-  bool _is_selected = false;  // For testing, use temp storage
+  bool _is_selected = false;                 // For testing, use temp storage
+  unsigned int _previous_hatching_step = 0;  // Will update every 100 steps
+  bool _is_display_packed = true;
 
   void Render();
   void Routine(void* unused);
   void UpdateFrameBuffer();
+  void StackOnFrame(const tama_display_component_t* component, int offset);
+  void ConcateAnimtaions(uint8_t count, tama_ani_t** animations);
 
   // XBoard related
   TAMA_XBOARD_STATE _enemy_state;
@@ -130,7 +173,7 @@ class TamaApp : public App {
   void OnEntry() override;
   void OnExit() override;
   void OnButton(button_t button) override;
-  void OnEdgeButton(button_t button) override;
+  // void OnEdgeButton(button_t button) override;
 
   // XBoard related
   TAMA_XBOARD_STATE xboard_state;
@@ -149,132 +192,157 @@ extern TamaApp tama_app;
 
 // --- Animation Frame Data Definitions (for tama_ani_t and static asserts) ---
 // Each frame is 8 columns wide. Characters are 5 columns wide and centered.
-
-constexpr display_buf_t TAMA_DOG_FRAMES[2][8] = {
-    {
-        /*
-         * code=68, hex=0x44, ascii="D"
-         */
-        0xf0, /* 111100 */
-        0x88, /* 100010 */
-        0x88, /* 100010 */
-        0x88, /* 100010 */
-        0x88, /* 100010 */
-        0x88, /* 100010 */
-        0xf0, /* 111100 */
-        0x00, /* 000000 */
-    },
-    {
-        /*
-         * code=71, hex=0x47, ascii="G"
-         */
-        0x70, /* 011100 */
-        0x88, /* 100010 */
-        0x80, /* 100000 */
-        0x98, /* 100110 */
-        0x88, /* 100010 */
-        0x88, /* 100010 */
-        0x70, /* 011100 */
-        0x00, /* 000000 */
-    }};
-constexpr display_buf_t TAMA_CAT_FRAMES[2][8] = {
-    {
-        /*
-         * code=67, hex=0x43, ascii="C"
-         */
-        0x70, /* 011100 */
-        0x88, /* 100010 */
-        0x80, /* 100000 */
-        0x80, /* 100000 */
-        0x80, /* 100000 */
-        0x88, /* 100010 */
-        0x70, /* 011100 */
-        0x00, /* 000000 */
-    },
-    {
-        /*
-         * code=84, hex=0x54, ascii="T"
-         */
-        0xf8, /* 111110 */
-        0x20, /* 001000 */
-        0x20, /* 001000 */
-        0x20, /* 001000 */
-        0x20, /* 001000 */
-        0x20, /* 001000 */
-        0x20, /* 001000 */
-        0x00, /* 000000 */
-    }};
-constexpr display_buf_t TAMA_EGG_FRAMES[2][8] = {
-    {0x00, 0x3C, 0x7E, 0xFF, 0xFF, 0x7E, 0x3C, 0x00},
-    {0x00, 0x38, 0x7C, 0xFE, 0xFE, 0x7C, 0x38, 0x00}};
-constexpr display_buf_t TAMA_HEART_FRAMES[1][8] = {
-    {0b00000000, 0b01100110, 0b11111111, 0b11111111, 0b01111110, 0b00111100,
-     0b00011000, 0b00000000}};
+// clang-format off
+constexpr display_buf_t TAMA_DOG_FRAMES[] = {
+    // size 2*8
+    /*
+     * code=68, hex=0x44, ascii="D"
+     */
+    0xf0, /* 111100 */
+    0x88, /* 100010 */
+    0x88, /* 100010 */
+    0x88, /* 100010 */
+    0x88, /* 100010 */
+    0x88, /* 100010 */
+    0xf0, /* 111100 */
+    0x00, /* 000000 */
+    /*
+     * code=71, hex=0x47, ascii="G"
+     */
+    0x70, /* 011100 */
+    0x88, /* 100010 */
+    0x80, /* 100000 */
+    0x98, /* 100110 */
+    0x88, /* 100010 */
+    0x88, /* 100010 */
+    0x70, /* 011100 */
+    0x00, /* 000000 */
+};
+constexpr display_buf_t TAMA_CAT_FRAMES[] = {
+    // size 2*8
+    /*
+     * code=67, hex=0x43, ascii="C"
+     */
+    0x70, /* 011100 */
+    0x88, /* 100010 */
+    0x80, /* 100000 */
+    0x80, /* 100000 */
+    0x80, /* 100000 */
+    0x88, /* 100010 */
+    0x70, /* 011100 */
+    0x00, /* 000000 */
+    /*
+     * code=84, hex=0x54, ascii="T"
+     */
+    0xf8, /* 111110 */
+    0x20, /* 001000 */
+    0x20, /* 001000 */
+    0x20, /* 001000 */
+    0x20, /* 001000 */
+    0x20, /* 001000 */
+    0x20, /* 001000 */
+    0x00, /* 000000 */
+};
+constexpr display_buf_t TAMA_EGG_1_FRAMES[] = {
+    // size 2x16
+    0x00, 0x70, 0xF8, 0xFC, 0xFC, 0xF8, 0x70, 0x00, 0x00, 0b00111100, 0b00111100, 0b00111100, 0b00111100, 0b00111100, 0b00111100, 0x00,
+    0x00, 0x70, 0xF8, 0xFC, 0xFC, 0xF8, 0x70, 0x00, 0x00, 0b00111100, 0b00111100, 0b00111100, 0b00111100, 0b00100100, 0b00111100, 0x00,
+  };
+constexpr display_buf_t TAMA_EGG_2_FRAMES[] = {
+    // size 2x16
+    0x00, 0x70, 0xB8, 0xFC, 0xF4, 0x78, 0x70, 0x00, 0x00, 0b00111100, 0b00111100, 0b00111100, 0b00111100, 0b00100100, 0b00111100, 0x00,
+    0x00, 0x70, 0xB8, 0xFC, 0xF4, 0x78, 0x70, 0x00, 0x00, 0b00111100, 0b00111100, 0b00111100, 0b00100100, 0b00100100, 0b00111100, 0x00,
+  };
+constexpr display_buf_t TAMA_EGG_3_FRAMES[] = {
+    // size 2x16
+    0x00, 0x70, 0xA8, 0xFC, 0xE4, 0x58, 0x70, 0x00, 0x00, 0b00111100, 0b00111100, 0b00111100, 0b00100100, 0b00100100, 0b00111100, 0x00,
+    0x00, 0x70, 0xA8, 0xFC, 0xE4, 0x58, 0x70, 0x00, 0x00, 0b00111100, 0b00111100, 0b00100100, 0b00100100, 0b00100100, 0b00111100, 0x00,
+  };
+constexpr display_buf_t TAMA_EGG_4_FRAMES[] = {
+    // size 2x16
+    0x00, 0x70, 0x28, 0x0C, 0xA0, 0x98, 0x70, 0x00, 0x00, 0b00111100, 0b00111100, 0b00100100, 0b00100100, 0b00100100, 0b00111100, 0x00,
+    0x00, 0x70, 0x28, 0x0C, 0xA0, 0x98, 0x70, 0x00, 0x00, 0b00111100, 0b00100100, 0b00100100, 0b00100100, 0b00100100, 0b00111100, 0x00,
+  };
+constexpr display_buf_t TAMA_HATCHING_FRAMES[] = {
+    // size 2x16
+    0x10, 0x54, 0x00, 0xC6, 0x00, 0x54, 0x10, 0x00, 0x00, 0x00, 0b01011110, 0x00, 0b01011110, 0x00, 0b01011110, 0x00,
+    0x00, 0x10, 0x28, 0x44, 0x28, 0x10, 0x00, 0x00, 0x00, 0x00, 0b01011110, 0x00, 0b01011110, 0x00, 0b01011110, 0x00,
+};
+constexpr display_buf_t TAMA_PET_SELECTION_FRAMES[] = {
+    // size 1x16
+    0x00, 0x18, 0x60, 0x30, 0x7C, 0x38, 0x7C, 0x00, 0x18, 0x70, 0x38, 0x7E, 0x3C, 0x7E, 0x3C, 0x08
+  };
+// clang-format on
 
 // --- Animation Definition Structure --
-
-enum class TAMA_ANIMATION_TYPE : uint8_t { DOG, CAT, EGG, HEART };
-typedef struct {
-  TAMA_ANIMATION_TYPE type;
-  int frame_count;
-  const display_buf_t (*frames_data)[8];
-} tama_ani_t;
 
 constexpr tama_ani_t animation[] = {
     {.type = TAMA_ANIMATION_TYPE::DOG,
      .frame_count = 2,
+     .length = 8,
      .frames_data = TAMA_DOG_FRAMES},
     {.type = TAMA_ANIMATION_TYPE::CAT,
      .frame_count = 2,
+     .length = 8,
      .frames_data = TAMA_CAT_FRAMES},
-    {.type = TAMA_ANIMATION_TYPE::EGG,
+    {.type = TAMA_ANIMATION_TYPE::EGG_1,
      .frame_count = 2,
-     .frames_data = TAMA_EGG_FRAMES},
-    {.type = TAMA_ANIMATION_TYPE::HEART,
+     .length = 16,
+     .frames_data = TAMA_EGG_1_FRAMES},
+    {.type = TAMA_ANIMATION_TYPE::EGG_2,
+     .frame_count = 2,
+     .length = 16,
+     .frames_data = TAMA_EGG_2_FRAMES},
+    {.type = TAMA_ANIMATION_TYPE::EGG_3,
+     .frame_count = 2,
+     .length = 16,
+     .frames_data = TAMA_EGG_3_FRAMES},
+    {.type = TAMA_ANIMATION_TYPE::EGG_4,
+     .frame_count = 2,
+     .length = 16,
+     .frames_data = TAMA_EGG_4_FRAMES},
+    {.type = TAMA_ANIMATION_TYPE::HATCHING,
+     .frame_count = 2,
+     .length = 16,
+     .frames_data = TAMA_HATCHING_FRAMES},
+    {.type = TAMA_ANIMATION_TYPE::PET_SELECTION,
      .frame_count = 1,
-     .frames_data = TAMA_HEART_FRAMES},
+     .length = 16,
+     .frames_data = TAMA_PET_SELECTION_FRAMES},
 };
 
 // Macro to check animation properties
-#define ASSERT_ANIMATION_PROPERTIES(TYPE_NAME_STR)                            \
-  static_assert(                                                              \
-      animation[static_cast<uint8_t>(TAMA_ANIMATION_TYPE::TYPE_NAME_STR)]     \
-              .type == TAMA_ANIMATION_TYPE::TYPE_NAME_STR,                    \
-      #TYPE_NAME_STR " Animation type mismatch");                             \
-  static_assert(                                                              \
-      animation[static_cast<uint8_t>(TAMA_ANIMATION_TYPE::TYPE_NAME_STR)]     \
-              .frame_count ==                                                 \
-          (sizeof(TAMA_##TYPE_NAME_STR##_FRAMES) / sizeof(display_buf_t[8])), \
+#define ASSERT_ANIMATION_PROPERTIES(TYPE_NAME_STR)                        \
+  static_assert(                                                          \
+      animation[static_cast<uint8_t>(TAMA_ANIMATION_TYPE::TYPE_NAME_STR)] \
+              .type == TAMA_ANIMATION_TYPE::TYPE_NAME_STR,                \
+      #TYPE_NAME_STR " Animation type mismatch");                         \
+  static_assert(                                                          \
+      animation[static_cast<uint8_t>(TAMA_ANIMATION_TYPE::TYPE_NAME_STR)] \
+              .frame_count ==                                             \
+          (sizeof(TAMA_##TYPE_NAME_STR##_FRAMES) /                        \
+           sizeof(display_buf_t                                           \
+                      [animation[static_cast<uint8_t>(                    \
+                                     TAMA_ANIMATION_TYPE::TYPE_NAME_STR)] \
+                           .length])),                                    \
       #TYPE_NAME_STR " Frame count mismatch")
 
 // Using the macro for static asserts
 ASSERT_ANIMATION_PROPERTIES(DOG);
 ASSERT_ANIMATION_PROPERTIES(CAT);
-ASSERT_ANIMATION_PROPERTIES(EGG);
-ASSERT_ANIMATION_PROPERTIES(HEART);
+ASSERT_ANIMATION_PROPERTIES(EGG_1);
+ASSERT_ANIMATION_PROPERTIES(EGG_2);
+ASSERT_ANIMATION_PROPERTIES(EGG_3);
+ASSERT_ANIMATION_PROPERTIES(EGG_4);
+ASSERT_ANIMATION_PROPERTIES(PET_SELECTION);
 
-// Left Arrow '<' (2 columns wide, 3 pixels high: rows 3,4,5)
-/* Visualized (Row-major, '.' is off, 'X' is on, for the arrow part):
-..X. (col 0, row 4)
-.X.. (col 1, row 3)
-.X.. (col 1, row 5)
-*/
-constexpr int BITMAP_LEFT_ARROW_WIDTH = 2;
-constexpr display_buf_t bitmap_left_arrow_cols[BITMAP_LEFT_ARROW_WIDTH] = {
-    0b00010000,  // Column 0: pixel at row 4
-    0b00101000   // Column 1: pixels at row 3 and 5
-};
-
-// Right Arrow '>' (2 columns wide, 3 pixels high: rows 3,4,5)
-/* Visualized (Row-major, '.' is off, 'X' is on, for the arrow part):
-.X.. (col 0, row 3)
-.X.. (col 0, row 5)
-..X. (col 1, row 4)
-*/
-constexpr int BITMAP_RIGHT_ARROW_WIDTH = 2;
-constexpr display_buf_t bitmap_right_arrow_cols[BITMAP_RIGHT_ARROW_WIDTH] = {
-    0b00101000,  // Column 0: pixels at row 3 and 5
-    0b00010000   // Column 1: pixel at row 4
+// --- Display Component ---
+// The data here is used to stack upon existing frames
+constexpr display_buf_t TAMA_PET_SELECTION_CURSOR[8] = {0x82, 0x81, 0x81, 0x81,
+                                                        0x81, 0x81, 0x81, 0x82};
+constexpr tama_display_component_t TAMA_COMPONENT_PET_SELECTION_CURSOR = {
+    .data = TAMA_PET_SELECTION_CURSOR,
+    .length = 8,
 };
 
 }  // namespace tama

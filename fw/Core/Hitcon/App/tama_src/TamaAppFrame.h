@@ -47,10 +47,6 @@ void stack_const_component(const uint8_t* component, uint8_t* base,
 
 void get_number_component(int target_num, uint8_t* base);
 
-void get_warning_component(uint8_t* base);
-
-void get_egg_component(int percentage, uint8_t* base);
-
 void get_heart_overview_component(int heart_count, uint8_t* base);
 
 void get_food_overview_component(int food_count, uint8_t* base);
@@ -58,10 +54,6 @@ void get_food_overview_component(int food_count, uint8_t* base);
 void get_fd_icons_component(int food_count, uint8_t* base);
 
 void get_hp_icons_component(int hp_count, uint8_t* base);
-
-void get_hatch_status_frame(int remaining_count, uint8_t* base);
-
-void get_hatch_born_warning_frame(int frame, uint8_t* base);
 
 void get_dog_idle_frame_with_status_overview(int frame, int heart_count,
                                              int food_count, uint8_t* base);
@@ -73,8 +65,6 @@ void get_pet_healing_frame(int pet_type, int frame, uint8_t* base);
 
 void get_activity_selection_frame(int activity_type, int selection,
                                   uint8_t* base);
-
-void get_select_character_frame(int frame, uint8_t* base);
 
 void get_battle_result_frame(int pet, int result, int frame, uint8_t* base);
 

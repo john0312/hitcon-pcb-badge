@@ -107,8 +107,12 @@ void TamaApp::Render() {
   }
 
   display_buf_t* current_screen_buffer = _fb.fb[_fb.active_frame];
-  // render non-compressed data
-  display_set_mode_fixed(current_screen_buffer);
+  if (_is_display_packed) {
+    display_set_mode_fixed_packed(current_screen_buffer);
+  } else {
+    // render non-compressed data
+    display_set_mode_fixed(current_screen_buffer);
+  }
   _fb.active_frame = (_fb.active_frame + 1) % _fb.fb_size;
   _frame_count++;
 }
@@ -134,15 +138,29 @@ void TamaApp::OnButton(button_t button) {
           break;
         case TAMA_APP_STATE::CHOOSE_TYPE:
           _tama_data.type = _current_selection_in_choose_mode;
-          _tama_data.state = TAMA_APP_STATE::EGG;
-          _tama_data.hatching_start_shaking_count = g_imu_logic.GetStep();
+          _tama_data.state = TAMA_APP_STATE::EGG_1;
+          _previous_hatching_step = g_imu_logic.GetStep();
           needs_update_fb = true;
           needs_save = true;
           break;
 #ifdef DEBUG
-        case TAMA_APP_STATE::EGG:
-          // Hatch egg for debug use
-          hatching_warning_frame_count = 0;
+        case TAMA_APP_STATE::EGG_1:
+          _tama_data.state = TAMA_APP_STATE::EGG_2;
+          needs_update_fb = true;
+          break;
+        case TAMA_APP_STATE::EGG_2:
+          _tama_data.state = TAMA_APP_STATE::EGG_3;
+          needs_update_fb = true;
+          break;
+        case TAMA_APP_STATE::EGG_3:
+          _tama_data.state = TAMA_APP_STATE::EGG_4;
+          needs_update_fb = true;
+          break;
+        case TAMA_APP_STATE::EGG_4:
+          _tama_data.state = TAMA_APP_STATE::HATCHING;
+          _frame_count = 0;
+          needs_update_fb = true;
+          break;
 #endif
         case TAMA_APP_STATE::FEED_CONFIRM:
           if (_is_selected) {
@@ -199,13 +217,6 @@ void TamaApp::OnButton(button_t button) {
           }
           break;
           // TODO: Handle other states for BUTTON_LEFT if necessary
-#ifdef FOR_TAMA_TEST
-        case TAMA_APP_STATE::EGG:
-          _tama_data.latest_shaking_count += 50;
-          needs_save = true;
-          needs_update_fb = true;
-          break;
-#endif
         case TAMA_APP_STATE::FEED_CONFIRM:
           if (_is_selected == false) {
             _is_selected = true;
@@ -276,7 +287,7 @@ void TamaApp::OnButton(button_t button) {
   }
 }
 
-void TamaApp::OnEdgeButton(button_t button) {}
+// void TamaApp::OnEdgeButton(button_t button) {}
 
 void TamaApp::Routine(void* unused) {
   if (player_mode == TAMA_PLAYER_MODE::MODE_MULTIPLAYER) {
@@ -307,25 +318,38 @@ void TamaApp::Routine(void* unused) {
         UpdateFrameBuffer();
       }
       break;
-    case TAMA_APP_STATE::EGG:
-      int latest_shaking_count;
-      latest_shaking_count = g_imu_logic.GetStep();
-
-      if (_tama_data.latest_shaking_count < latest_shaking_count) {
-        _tama_data.latest_shaking_count = latest_shaking_count;
+    case TAMA_APP_STATE::EGG_1:
+    case TAMA_APP_STATE::EGG_2:
+    case TAMA_APP_STATE::EGG_3:
+    case TAMA_APP_STATE::EGG_4: {
+      unsigned int latest_shaking_count = g_imu_logic.GetStep();
+      while (latest_shaking_count - _previous_hatching_step >= 100) {
+        _previous_hatching_step += 100;
+        if (_tama_data.state == TAMA_APP_STATE::EGG_1) {
+          _tama_data.state = TAMA_APP_STATE::EGG_2;
+        } else if (_tama_data.state == TAMA_APP_STATE::EGG_2) {
+          _tama_data.state = TAMA_APP_STATE::EGG_3;
+        } else if (_tama_data.state == TAMA_APP_STATE::EGG_3) {
+          _tama_data.state = TAMA_APP_STATE::EGG_4;
+        } else if (_tama_data.state == TAMA_APP_STATE::EGG_4) {
+          _tama_data.state = TAMA_APP_STATE::HATCHING;
+          _frame_count = 0;
+        }
         needs_save = true;
-        needs_render = true;
         UpdateFrameBuffer();
       }
-      break;
-    case TAMA_APP_STATE::HATCHING:
-      if (hatching_warning_frame_count < 0) {
-        _tama_data.state = TAMA_APP_STATE::IDLE;
-        needs_save = true;
-      }
-      hatching_warning_frame_count--;
       needs_render = true;
-      UpdateFrameBuffer();
+      break;
+    }
+    case TAMA_APP_STATE::HATCHING:
+      if (_frame_count >= 10) {
+        _tama_data.state = TAMA_APP_STATE::IDLE;
+        _frame_count = 0;
+        // The states following does not properly use fb machanism, so setting
+        // fb size to 1
+        _fb.fb_size = 1;
+      }
+      needs_render = true;
       break;
     case TAMA_APP_STATE::IDLE:
       if (anime_frame == 0) {
@@ -357,12 +381,7 @@ void TamaApp::Routine(void* unused) {
   }
 
   if (needs_render) {
-    // Only render if this app is currently active.
-    // This check might be redundant if BadgeController ensures OnEntry/OnExit
-    // are paired correctly with task enabling/disabling, but it's a safe check.
-    if (hitcon::badge_controller.GetCurrentApp() == this) {
-      Render();
-    }
+    Render();
   }
 }
 void TamaApp::UpdateFrameBuffer() {
@@ -371,34 +390,41 @@ void TamaApp::UpdateFrameBuffer() {
     return;
   }
 
-  _fb.fb_size = 1;
-  memset(_fb.fb[0], 0, sizeof(display_buf_t[DISPLAY_HEIGHT * DISPLAY_WIDTH]));
-
   switch (_tama_data.state) {
     case TAMA_APP_STATE::CHOOSE_TYPE:
-      if (_current_selection_in_choose_mode == TAMA_TYPE::DOG) {
-        get_select_character_frame(RIGHT, _fb.fb[0]);
-      } else if (_current_selection_in_choose_mode == TAMA_TYPE::CAT) {
-        get_select_character_frame(LEFT, _fb.fb[0]);
+      TAMA_PREPARE_FB(_fb, TAMA_GET_ANIMATION_DATA(PET_SELECTION).frame_count);
+      TAMA_COPY_FB(_fb, TAMA_GET_ANIMATION_DATA(PET_SELECTION), 0);
+      if (_current_selection_in_choose_mode == TAMA_TYPE::CAT) {
+        StackOnFrame(&TAMA_COMPONENT_PET_SELECTION_CURSOR, 0);
+      } else if (_current_selection_in_choose_mode == TAMA_TYPE::DOG) {
+        StackOnFrame(&TAMA_COMPONENT_PET_SELECTION_CURSOR, 8);
       } else {
         my_assert(false);  // Should not happen if state is CHOOSE_TYPE
       }
       break;
-    case TAMA_APP_STATE::EGG:
-      int remaining_count;
-      remaining_count =
-          HATCH_START_COUNT - (_tama_data.latest_shaking_count -
-                               _tama_data.hatching_start_shaking_count);
-      if (remaining_count < 0) {
-        _tama_data.state = TAMA_APP_STATE::HATCHING;
-      } else {
-        get_hatch_status_frame(remaining_count, _fb.fb[0]);
-      }
+    case TAMA_APP_STATE::EGG_1:
+      TAMA_PREPARE_FB(_fb, TAMA_GET_ANIMATION_DATA(EGG_1).frame_count);
+      TAMA_COPY_FB(_fb, TAMA_GET_ANIMATION_DATA(EGG_1), 0);
       break;
+    case TAMA_APP_STATE::EGG_2:
+      TAMA_PREPARE_FB(_fb, TAMA_GET_ANIMATION_DATA(EGG_2).frame_count);
+      TAMA_COPY_FB(_fb, TAMA_GET_ANIMATION_DATA(EGG_2), 0);
+      break;
+    case TAMA_APP_STATE::EGG_3:
+      TAMA_PREPARE_FB(_fb, TAMA_GET_ANIMATION_DATA(EGG_3).frame_count);
+      TAMA_COPY_FB(_fb, TAMA_GET_ANIMATION_DATA(EGG_3), 0);
+      break;
+    case TAMA_APP_STATE::EGG_4: {
+      TAMA_PREPARE_FB(_fb, TAMA_GET_ANIMATION_DATA(EGG_4).frame_count);
+      TAMA_COPY_FB(_fb, TAMA_GET_ANIMATION_DATA(EGG_4), 0);
+      break;
+    }
     case TAMA_APP_STATE::HATCHING:
-      get_hatch_born_warning_frame(hatching_warning_frame_count % 2, _fb.fb[0]);
+      TAMA_PREPARE_FB(_fb, TAMA_GET_ANIMATION_DATA(HATCHING).frame_count);
+      TAMA_COPY_FB(_fb, TAMA_GET_ANIMATION_DATA(HATCHING), 0);
       break;
     case TAMA_APP_STATE::IDLE:
+      _is_display_packed = false;
       if (_tama_data.type == TAMA_TYPE::DOG) {
         get_dog_idle_frame_with_status_overview(anime_frame, _tama_data.hp,
                                                 _tama_data.food, _fb.fb[0]);
@@ -410,15 +436,19 @@ void TamaApp::UpdateFrameBuffer() {
       }
       break;
     case TAMA_APP_STATE::HP_DETAIL:
+      _is_display_packed = false;
       get_HP_status_frame(_tama_data.hp, _fb.fb[0]);
       break;
     case TAMA_APP_STATE::LV_DETAIL:
+      _is_display_packed = false;
       get_LV_status_frame(_tama_data.level, _fb.fb[0]);
       break;
     case TAMA_APP_STATE::FD_DETAIL:
+      _is_display_packed = false;
       get_FD_status_frame(_tama_data.food, _fb.fb[0]);
       break;
     case TAMA_APP_STATE::FEED_CONFIRM:
+      _is_display_packed = false;
       if (_is_selected) {
         get_feed_confirm_frame(RIGHT, _fb.fb[0]);
       } else {
@@ -426,6 +456,7 @@ void TamaApp::UpdateFrameBuffer() {
       }
       break;
     case TAMA_APP_STATE::FEED_ANIME:
+      _is_display_packed = false;
       if (_tama_data.type == TAMA_TYPE::DOG) {
         get_feeding_frame(PET_TYPE_DOG, _feeding_anime_frame, _fb.fb[0]);
       } else if (_tama_data.type == TAMA_TYPE::CAT) {
@@ -598,6 +629,35 @@ void TamaApp::TamaHeal() {
   // TODO: Display animation of restoring
   // self._tama_data.hp = ...
   Render();
+}
+
+void TamaApp::StackOnFrame(const tama_display_component_t* component,
+                           int offset) {
+  for (int i = 0; i < _fb.fb_size; i++) {
+    for (int j = offset; (j < component->length + offset && j < DISPLAY_WIDTH);
+         j++) {
+      _fb.fb[i][j] |= (component->data)[j - offset];
+    }
+  }
+}
+
+void TamaApp::ConcateAnimtaions(uint8_t count, tama_ani_t** animations) {
+  // THe animations passed should have the same frame count and should not
+  // exceed the maxinum display length
+#ifdef DEBUG
+  uint8_t fb_size = animations[0]->frame_count;
+  uint8_t length = animations[0]->length;
+  for (int i = 1; i < count; i++) {
+    my_assert(animations[i]->frame_count == fb_size);
+    length += animations[i]->length;
+    my_assert(length <= DISPLAY_WIDTH);
+  }
+#endif
+  uint8_t offset = 0;
+  for (int i = 0; i < count; i++) {
+    TAMA_COPY_FB(_fb, (*animations[i]), offset);
+    offset += animations[i]->length;
+  }
 }
 
 }  // namespace tama
