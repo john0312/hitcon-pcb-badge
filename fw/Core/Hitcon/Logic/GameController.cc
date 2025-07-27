@@ -100,7 +100,7 @@ const uint8_t *GameController::GetUsername() {
 
 bool GameController::SetBufferToUsername(uint8_t *ptr) {
   auto *username = GetUsername();
-  if (!ptr) {
+  if (!username) {
     // Not ready.
     memset(ptr, 0, IR_USERNAME_LEN);
     return false;
