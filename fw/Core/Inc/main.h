@@ -59,6 +59,7 @@ void Error_Handler(void);
 /* Private defines -----------------------------------------------------------*/
 #define USB_DET_Pin GPIO_PIN_14
 #define USB_DET_GPIO_Port GPIOC
+#define USB_DET_EXTI_IRQn EXTI15_10_IRQn
 #define IMU_PWR_Pin GPIO_PIN_15
 #define IMU_PWR_GPIO_Port GPIOC
 #define IrRx_Pin GPIO_PIN_0
@@ -124,8 +125,10 @@ void Error_Handler(void);
 #if defined(V1_1)
 #undef USB_DET_Pin
 #undef USB_DET_GPIO_Port
+#undef USB_DET_EXTI_IRQn
 #define USB_DET_Pin GPIO_PIN_3
 #define USB_DET_GPIO_Port GPIOB
+#define USB_DET_EXTI_IRQn EXTI3_IRQn
 #define LedA0_Pin GPIO_PIN_6
 #define LedA1_Pin GPIO_PIN_7
 #define DEC_EN_Pin GPIO_PIN_5
