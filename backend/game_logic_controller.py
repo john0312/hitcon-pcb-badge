@@ -59,6 +59,11 @@ class GameLogicController:
             timestamp=evt.timestamp
         )
 
+        await GameLogicController.score_announce(
+            user=evt.user,
+            packet_processor=packet_processor
+        )
+
 
     @staticmethod
     async def on_two_badge_activity_event(evt: TwoBadgeActivityEvent, packet_processor: 'PacketProcessor'):
@@ -174,6 +179,16 @@ class GameLogicController:
             timestamp=evt.timestamp
         )
 
+        await GameLogicController.score_announce(
+            user=evt.user1,
+            packet_processor=packet_processor
+        )
+
+        await GameLogicController.score_announce(
+            user=evt.user2,
+            packet_processor=packet_processor
+        )
+
 
     @staticmethod
     async def on_sponsor_activity_event(evt: SponsorActivityEvent, packet_processor: 'PacketProcessor'):
@@ -200,20 +215,11 @@ class GameLogicController:
             timestamp=evt.timestamp
         )
 
-        user_score = await game.get_game_score(player_id=evt.user)
         # announce the score to the user
-        pkt = IrPacket(
-            data=b"".join([
-                b"\x00",                                    # TTL
-                bytes([PacketType.kScoreAnnounce.value]),   # PacketType
-                evt.user.to_bytes(4, 'little'),             # User
-                user_score.to_bytes(4, 'little'),           # Score
-            ]),
-            station_id=evt.station_id,
-            to_stn=True
+        await GameLogicController.score_announce(
+            user=evt.user,
+            packet_processor=packet_processor
         )
-        signed_pkt = CryptoAuth.sign_packet(pkt)
-        await packet_processor.send_packet_to_user(signed_pkt, evt.user)
 
 
     @staticmethod
@@ -254,3 +260,24 @@ class GameLogicController:
             buff_b=solves.b,
             timestamp=utcnow()
         )
+
+
+    @staticmethod
+    async def score_announce(user: int, packet_processor: 'PacketProcessor'):
+        """
+        Announce the score to the user.
+        This is used for the ReCTF score announcement.
+        """
+        user_score = await game.get_game_score(player_id=user)
+        # announce the score to the user
+        pkt = IrPacket(
+            data=b"".join([
+                b"\x00",                                    # TTL
+                bytes([PacketType.kScoreAnnounce.value]),   # PacketType
+                user.to_bytes(4, 'little'),             # User
+                user_score.to_bytes(4, 'little'),           # Score
+            ]),
+            to_stn=True
+        )
+        signed_pkt = CryptoAuth.sign_packet(pkt)
+        await packet_processor.send_packet_to_user(signed_pkt, user)
