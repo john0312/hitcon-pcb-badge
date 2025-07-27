@@ -187,6 +187,8 @@ class IrController {
   uint8_t GetSlotRetryCountForDebug(uint8_t slot_index) const;
   uint16_t GetSlotTimeToRetryForDebug(uint8_t slot_index) const;
 
+  void ForceRetransmitForDebug(uint8_t slot_index);
+
  private:
   bool send_lock;
   bool recv_lock;

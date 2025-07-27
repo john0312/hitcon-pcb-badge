@@ -313,5 +313,18 @@ uint16_t IrController::GetSlotTimeToRetryForDebug(uint8_t slot_index) const {
   return queued_packets_[slot_index].time_to_retry;
 }
 
+void IrController::ForceRetransmitForDebug(uint8_t slot_index) {
+  if (slot_index >= RETX_QUEUE_SIZE) return;
+  if ((queued_packets_[slot_index].status & kRetransmitStatusMask) ==
+      kRetransmitStatusWaitAck) {
+    uint8_t counts = queued_packets_[slot_index].status & kRetransmitLimitMask;
+    if (counts <= 5) {
+      counts++;
+    }
+    queued_packets_[slot_index].status =
+        kRetransmitStatusWaitTxSlot | (counts & kRetransmitLimitMask);
+  }
+}
+
 }  // namespace ir
 }  // namespace hitcon
