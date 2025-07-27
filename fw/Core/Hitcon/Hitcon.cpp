@@ -21,6 +21,7 @@
 #include <Logic/ImuLogic.h>
 #include <Logic/IrController.h>
 #include <Logic/IrLogic.h>
+#include <Logic/IrxbBridge.h>
 #include <Logic/NvStorage.h>
 #include <Logic/SponsorReq.h>
 #include <Logic/SponsorResp.h>
@@ -92,6 +93,7 @@ void hitcon_run() {
   g_button_service.Init();
   g_xboard_service.Init();
   g_xboard_logic.Init();
+  g_irxb_bridge.Init();
   show_name_app.Init();
 
   // this call shownameapp onentry

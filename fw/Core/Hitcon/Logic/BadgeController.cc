@@ -7,6 +7,7 @@
 #include <App/ShowNameApp.h>
 #include <Hitcon.h>
 #include <Logic/IrController.h>
+#include <Logic/IrxbBridge.h>
 #include <Logic/SponsorReq.h>
 #include <Logic/XBoardLogic.h>
 #include <Secret/secret.h>
@@ -48,7 +49,7 @@ void BadgeController::Init() {
   hitcon::service::xboard::g_xboard_logic.SetOnConnectBaseStn2025(
       (callback_t)&BadgeController::OnXBoardBasestnConnect, this);
   hitcon::service::xboard::g_xboard_logic.SetOnDisconnectBaseStn2025(
-      (callback_t)&BadgeController::OnXBoardDisconnect, this);
+      (callback_t)&BadgeController::OnXBoardBasestnDisconnect, this);
 }
 
 void BadgeController::SetCallback(callback_t callback, void *callback_arg1,
@@ -138,11 +139,18 @@ void BadgeController::OnXBoardLegacyConnect(void *unused) {
 }
 
 void BadgeController::OnXBoardBasestnConnect(void *unused) {
+  g_irxb_bridge.OnXBoardBasestnConnect();
   if (current_app != &hardware_test_app)
     badge_controller.change_app(&connect_basestn_menu);
 }
 
 void BadgeController::OnXBoardDisconnect(void *unused) {
+  if (current_app != &hardware_test_app)
+    badge_controller.change_app(&show_name_app);
+}
+
+void BadgeController::OnXBoardBasestnDisconnect(void *unused) {
+  g_irxb_bridge.OnXBoardBasestnDisconnect();
   if (current_app != &hardware_test_app)
     badge_controller.change_app(&show_name_app);
 }

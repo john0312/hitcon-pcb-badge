@@ -40,6 +40,9 @@ class BadgeController {
   // This is called whenever a base station board connects.
   void OnXBoardBasestnConnect(void *unused);
 
+  // This is called whenever a base station board disconnects.
+  void OnXBoardBasestnDisconnect(void *unused);
+
   // TODO: This is called by UsbService whenever we're plugged into a computer.
   // void OnUsbPlugIn();
 

@@ -10,6 +10,10 @@
 #include <stddef.h>
 #include <stdint.h>
 
+namespace hitcon {
+class IrxbBridge;
+}
+
 enum class packet_type : uint8_t {
   kGame = 0,  // disabled
   kShow = 1,
@@ -165,6 +169,8 @@ struct RetransmittableIrPacket {
 };
 
 class IrController {
+  friend class ::hitcon::IrxbBridge;
+
  public:
   IrController();
 
