@@ -631,6 +631,116 @@ constexpr CompressedImage m_hit_enemy_effect_compressed = {
 
 namespace egg_icon {
 
+#ifndef USE_NEW_HATCHING_ANIME  // TODO: Choose one
+/**
+ * @brief The compressed data of m_egg_75_percent_up.
+ *
+ * The original data is:
+ *
+ *  ```
+ *  0, 0, 0, 0, 0, 0, 0, 0,  //
+ *  0, 0, 0, 0, 0, 0, 0, 0,  //
+ *  0, 0, 0, 1, 1, 0, 0, 0,  //
+ *  0, 0, 1, 1, 1, 1, 0, 0,  //
+ *  0, 1, 1, 1, 1, 1, 1, 0,  //
+ *  0, 1, 1, 1, 1, 1, 1, 0,  //
+ *  0, 1, 1, 1, 1, 1, 1, 0,  //
+ *  0, 0, 1, 1, 1, 1, 0, 0,  //
+ *  ```
+ *
+ * Notice: the compressed data is not directly mapping to the original data.
+ * It packed the bits in a specific way.
+ *
+ */
+constexpr uint8_t m_egg_75_percent_up_compressed_data[] = {
+    0x00, 0x70, 0xF8, 0xFC, 0xFC, 0xF8, 0x70, 0x00};
+constexpr CompressedImage m_egg_75_percent_up_compressed = {
+    .width = EGG_WIDTH,
+    .height = COMMON_HEIGHT,
+    .data = m_egg_75_percent_up_compressed_data};
+
+/**
+ * @brief The compressed data of m_egg_50_percent_up.
+ *
+ * The original data is:
+ *
+ *  ```
+ *  0, 0, 0, 0, 0, 0, 0, 0,  //
+ *  0, 0, 0, 0, 0, 0, 0, 0,  //
+ *  0, 0, 0, 1, 1, 0, 0, 0,  //
+ *  0, 0, 1, 1, 0, 1, 0, 0,  //
+ *  0, 1, 1, 1, 1, 1, 1, 0,  //
+ *  0, 1, 1, 1, 1, 1, 1, 0,  //
+ *  0, 1, 0, 1, 1, 1, 1, 0,  //
+ *  0, 0, 1, 1, 1, 0, 0, 0,  //
+ *  ```
+ *
+ * Notice: the compressed data is not directly mapping to the original data.
+ * It packed the bits in a specific way.
+ *
+ */
+constexpr uint8_t m_egg_50_percent_up_compressed_data[] = {
+    0x00, 0x70, 0xB8, 0xFC, 0xF4, 0x78, 0x70, 0x00};
+constexpr CompressedImage m_egg_50_percent_up_compressed = {
+    .width = EGG_WIDTH,
+    .height = COMMON_HEIGHT,
+    .data = m_egg_50_percent_up_compressed_data};
+
+/**
+ * @brief The compressed data of m_egg_25_percent_up.
+ *
+ * The original data is:
+ *
+ *  ```
+ *  0, 0, 0, 0, 0, 0, 0, 0,  //
+ *  0, 0, 0, 0, 0, 0, 0, 0,  //
+ *  0, 0, 0, 1, 1, 0, 0, 0,  //
+ *  0, 0, 1, 1, 0, 1, 0, 0,  //
+ *  0, 1, 0, 1, 0, 1, 1, 0,  //
+ *  0, 1, 1, 1, 1, 0, 1, 0,  //
+ *  0, 1, 0, 1, 1, 1, 1, 0,  //
+ *  0, 0, 1, 1, 1, 0, 0, 0,  //
+ *  ```
+ *
+ * Notice: the compressed data is not directly mapping to the original data.
+ * It packed the bits in a specific way.
+ *
+ */
+constexpr uint8_t m_egg_25_percent_up_compressed_data[] = {
+    0x00, 0x70, 0xA8, 0xFC, 0xE4, 0x58, 0x70, 0x00};
+constexpr CompressedImage m_egg_25_percent_up_compressed = {
+    .width = EGG_WIDTH,
+    .height = COMMON_HEIGHT,
+    .data = m_egg_25_percent_up_compressed_data};
+
+/**
+ * @brief The compressed data of m_egg_0_percent_up.
+ *
+ * The original data is:
+ *
+ *  ```
+ *  0, 0, 0, 0, 0, 0, 0, 0,  //
+ *  0, 0, 0, 0, 0, 0, 0, 0,  //
+ *  0, 0, 0, 1, 0, 0, 0, 0,  //
+ *  0, 0, 1, 1, 0, 1, 0, 0,  //
+ *  0, 1, 0, 0, 0, 1, 1, 0,  //
+ *  0, 1, 1, 0, 1, 0, 1, 0,  //
+ *  0, 1, 0, 0, 0, 0, 1, 0,  //
+ *  0, 0, 0, 0, 1, 1, 0, 0,  //
+ *  ```
+ *
+ * Notice: the compressed data is not directly mapping to the original data.
+ * It packed the bits in a specific way.
+ *
+ */
+constexpr uint8_t m_egg_0_percent_up_compressed_data[] = {
+    0x00, 0x70, 0x28, 0x0C, 0xA0, 0x98, 0x70, 0x00};
+constexpr CompressedImage m_egg_0_percent_up_compressed = {
+    .width = EGG_WIDTH,
+    .height = COMMON_HEIGHT,
+    .data = m_egg_0_percent_up_compressed_data};
+
+#endif
 /**
  * @brief The compressed data of m_egg_hatch_shinning1.
  *
@@ -953,6 +1063,35 @@ constexpr CompressedImage m_num_icon_compressed[10] = {
     m_icon_three_compressed, m_icon_four_compressed,  m_icon_five_compressed,
     m_icon_six_compressed,   m_icon_seven_compressed, m_icon_eight_compressed,
     m_icon_nine_compressed};
+
+#ifndef USE_NEW_HATCHING_ANIME  // TODO: Choose one
+/**
+ * @brief The compressed data of m_icon_important.
+ *
+ * The original data is:
+ *
+ *  ```
+ *  0, 0,  //
+ *  0, 0,  //
+ *  0, 0,  //
+ *  0, 1,  //
+ *  0, 1,  //
+ *  0, 1,  //
+ *  0, 0,  //
+ *  0, 1,  //
+ *  ```
+ *
+ * Notice: the compressed data is not directly mapping to the original data.
+ * It packed the bits in a specific way.
+ *
+ */
+constexpr uint8_t m_icon_important_compressed_data[] = {0x00, 0xB8};
+constexpr CompressedImage m_icon_important_compressed = {
+    .width = NUM_WIDTH,
+    .height = COMMON_HEIGHT,
+    .data = m_icon_important_compressed_data};
+
+#endif
 
 /**
  * @brief The compressed data of m_icon_status_overview_heart.
@@ -1554,6 +1693,114 @@ constexpr uint8_t m_battle_training_NG_compressed_data[] = {
     0x00, 0x38, 0x44, 0x54, 0x30, 0x00, 0x00, 0x00};
 constexpr CompressedImage m_battle_training_NG_compressed = {
     .width = 16, .height = 8, .data = m_battle_training_NG_compressed_data};
+
+/**
+ * @brief The compressed data of m_countdown_3.
+ *
+ * The original data is:
+ *
+ *  ```
+ *  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  //
+ *  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  //
+ *  0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0,  //
+ *  0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0,  //
+ *  0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0,  //
+ *  0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0,  //
+ *  0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0,  //
+ *  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  //
+ *  ```
+ *
+ * Notice: the compressed data is not directly mapping to the original data.
+ * It packed the bits in a specific way.
+ *
+ */
+
+constexpr uint8_t m_countdown_3_compressed_data[] = {
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x54, 0x54,
+    0x54, 0x7C, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+constexpr CompressedImage m_countdown_3_compressed = {
+    .width = 16, .height = 8, .data = m_countdown_3_compressed_data};
+
+/**
+ * @brief The compressed data of m_countdown_2.
+ *
+ * The original data is:
+ *
+ *  ```
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  //
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  //
+    0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0,  //
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0,  //
+    0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0,  //
+    0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0,  //
+    0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0,  //
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  //
+ *  ```
+ *
+ * Notice: the compressed data is not directly mapping to the original data.
+ * It packed the bits in a specific way.
+ *
+ */
+
+constexpr uint8_t m_countdown_2_compressed_data[] = {
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x74, 0x54,
+    0x54, 0x5C, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+constexpr CompressedImage m_countdown_2_compressed = {
+    .width = 16, .height = 8, .data = m_countdown_2_compressed_data};
+
+/**
+ * @brief The compressed data of m_countdown_1.
+ *
+ * The original data is:
+ *
+ *  ```
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  //
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  //
+    0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0,  //
+    0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0,  //
+    0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0,  //
+    0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0,  //
+    0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0,  //
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  //
+ *  ```
+ *
+ * Notice: the compressed data is not directly mapping to the original data.
+ * It packed the bits in a specific way.
+ *
+ */
+
+constexpr uint8_t m_countdown_1_compressed_data[] = {
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x44,
+    0x7C, 0x40, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+constexpr CompressedImage m_countdown_1_compressed = {
+    .width = 16, .height = 8, .data = m_countdown_1_compressed_data};
+
+/**
+ * @brief The compressed data of m_countdown_go.
+ *
+ * The original data is:
+ *
+ *  ```
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  //
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  //
+    0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0,  //
+    0, 0, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 0, 0, 0,  //
+    0, 0, 1, 0, 1, 1, 0, 1, 0, 0, 1, 0, 1, 0, 0, 0,  //
+    0, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0,  //
+    0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 1, 0, 0, 0,  //
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  //
+ *  ```
+ *
+ * Notice: the compressed data is not directly mapping to the original data.
+ * It packed the bits in a specific way.
+ *
+ */
+
+constexpr uint8_t m_countdown_go_compressed_data[] = {
+    0x00, 0x00, 0x38, 0x44, 0x54, 0x30, 0x00, 0x30,
+    0x48, 0x48, 0x30, 0x00, 0x5C, 0x00, 0x00, 0x00};
+constexpr CompressedImage m_countdown_go_compressed = {
+    .width = 16, .height = 8, .data = m_countdown_go_compressed_data};
 
 }  // namespace menu_icon
 

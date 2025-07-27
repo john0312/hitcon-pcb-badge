@@ -189,6 +189,123 @@ void get_number_component(int target_num, uint8_t* base) {
   }
 }
 
+#ifndef USE_NEW_HATCHING_ANIME  // TODO: Choose one
+/**
+ * @brief Get the warning component, which is a stack of three warning icons.
+ *
+ * The warning component is used to indicate that the pet is born and needs
+ * attention.
+ *
+ * Must have to free the returned pointer after use.
+ *
+ * @return uint8_t* The address of the warning component.
+ */
+void get_warning_component(uint8_t* base) {
+  // similar to get_number_component, but only return a warning icon
+  constexpr base_info my_base_info = {
+      .width = 8,
+      .height = 8,
+  };
+  constexpr component_info warning_component_info_1 = {
+      .x_len = 2,
+      .y_len = 8,
+      .x_offset = 0,
+      .y_offset = 0,
+  };
+  constexpr component_info warning_component_info_2 = {
+      .x_len = 2,
+      .y_len = 8,
+      .x_offset = 3,
+      .y_offset = 0,
+  };
+  constexpr component_info warning_component_info_3 = {
+      .x_len = 2,
+      .y_len = 8,
+      .x_offset = 6,
+      .y_offset = 0,
+  };
+  // stack warning icon
+  const CompressedImage* target = &m_icon_important_compressed;
+
+  uint8_t decompressed_buffer[target->width * target->height];
+  memset(decompressed_buffer, 0, target->width * target->height);
+  decompress_component(target, decompressed_buffer);
+  stack_component(decompressed_buffer, base, warning_component_info_1,
+                  my_base_info);
+  stack_component(decompressed_buffer, base, warning_component_info_2,
+                  my_base_info);
+  stack_component(decompressed_buffer, base, warning_component_info_3,
+                  my_base_info);
+
+  // return the base with warning icon
+}
+
+/**
+ * @brief Get the egg component based on the hatching percentage.
+ *
+ * The egg component will be one of the four stages:
+ * 0% (egg), 25% (egg with cracks), 50% (egg with more cracks),
+ * 75% (egg with even more cracks).
+ *
+ * Must have to free the returned pointer after use.
+ *
+ * @param percentage The percentage of hatching, from 0 to 100.
+ * @return const uint8_t* The address of the egg component.
+ */
+void get_egg_component(int percentage, uint8_t* base) {
+  // check boundary of input
+  if (percentage > 100) {
+    percentage = 100;
+  }
+  if (percentage < 0) {
+    percentage = 0;
+  }
+
+  constexpr base_info my_base_info = {
+      .width = EGG_AREA_WIDTH,
+      .height = EGG_AREA_HEIGHT,
+  };
+
+  constexpr component_info egg_component_info = {
+      .x_len = EGG_AREA_WIDTH,
+      .y_len = EGG_AREA_HEIGHT,
+      .x_offset = 0,
+      .y_offset = 0,
+  };
+
+  if (percentage <= 25) {
+    const CompressedImage* target = &m_egg_0_percent_up_compressed;
+    uint8_t decompressed_buffer[target->width * target->height];
+    memset(decompressed_buffer, 0, target->width * target->height);
+    decompress_component(target, decompressed_buffer);
+    stack_component(decompressed_buffer, base, egg_component_info,
+                    my_base_info);
+  } else if (percentage <= 50) {
+    const CompressedImage* target = &m_egg_25_percent_up_compressed;
+    uint8_t decompressed_buffer[target->width * target->height];
+    memset(decompressed_buffer, 0, target->width * target->height);
+    decompress_component(target, decompressed_buffer);
+    stack_component(decompressed_buffer, base, egg_component_info,
+                    my_base_info);
+  } else if (percentage <= 75) {
+    const CompressedImage* target = &m_egg_50_percent_up_compressed;
+    uint8_t decompressed_buffer[target->width * target->height];
+    memset(decompressed_buffer, 0, target->width * target->height);
+    decompress_component(target, decompressed_buffer);
+    stack_component(decompressed_buffer, base, egg_component_info,
+                    my_base_info);
+  } else if (percentage <= 100) {
+    const CompressedImage* target = &m_egg_75_percent_up_compressed;
+    uint8_t decompressed_buffer[target->width * target->height];
+    memset(decompressed_buffer, 0, target->width * target->height);
+    decompress_component(target, decompressed_buffer);
+    stack_component(decompressed_buffer, base, egg_component_info,
+                    my_base_info);
+  }
+}
+
+#endif
+
 /**
  * @brief Get the heart overview component object.
  * The component will use at the idle page.
@@ -499,6 +616,127 @@ void get_hp_icons_component(int hp_count, uint8_t* base) {
 
 /** --- component part end---*/
 
+/** --- frame part start ---*/
+
+#ifndef USE_NEW_HATCHING_ANIME  // TODO: Choose one
+/**
+ * @brief Get a frame of hatch status, including egg component (reflect
+ * hatching status) and number component (reflect remaining count).
+ *
+ * Size is DISPLAY_WIDTH * DISPLAY_HEIGHT.
+ */
+void get_hatch_status_frame(int remaining_count, uint8_t* base) {
+  // check boundary of input
+  if (remaining_count > 999) {
+    remaining_count = 999;
+  }
+
+  constexpr base_info my_base_info = {
+      .width = DISPLAY_WIDTH,
+      .height = DISPLAY_HEIGHT,
+  };
+
+  constexpr component_info egg_component_info = {
+      .x_len = EGG_AREA_WIDTH,
+      .y_len = EGG_AREA_HEIGHT,
+      .x_offset = 0,
+      .y_offset = 0,
+  };
+
+  constexpr component_info num_component_info = {
+      .x_len = NUM_AREA_WIDTH,
+      .y_len = NUM_AREA_HEIGHT,
+      .x_offset = 8,
+      .y_offset = 0,
+  };
+
+  // percentage of egg hatching
+  int percentage = remaining_count * 100 / HATCH_START_COUNT;
+  if (percentage < 0) {
+    percentage = 0;
+  }
+  if (percentage > 100) {
+    percentage = 100;
+  }
+
+  /* combine hatch component with num component */
+  // stack egg icon
+  uint8_t egg_component[egg_component_info.x_len * egg_component_info.y_len];
+  memset(egg_component, 0, egg_component_info.x_len * egg_component_info.y_len);
+  get_egg_component(percentage, egg_component);
+  stack_component(egg_component, base, egg_component_info, my_base_info);
+  // stack number icon
+  uint8_t number_component[num_component_info.x_len * num_component_info.y_len];
+  memset(number_component, 0,
+         num_component_info.x_len * num_component_info.y_len);
+  get_number_component(remaining_count, number_component);
+  stack_component(number_component, base, num_component_info, my_base_info);
+}
+
+/**
+ * @brief Get the pet born warning frame
+ *
+ * The warning frame has stack m_icon_important component and shining icon.
+ *
+ * @param frame 0 or 1, to get different frame
+ * @return const uint8_t* The address of the frame
+ */
+void get_hatch_born_warning_frame(int frame, uint8_t* base) {
+  // check boundary of input
+  if (frame < 0 || frame > 1) {
+    frame = 0;
+  }
+
+  constexpr base_info my_base_info = {
+      .width = DISPLAY_WIDTH,
+      .height = DISPLAY_HEIGHT,
+  };
+
+  constexpr component_info egg_component_info = {
+      .x_len = EGG_AREA_WIDTH,
+      .y_len = EGG_AREA_HEIGHT,
+      .x_offset = 0,
+      .y_offset = 0,
+  };
+  constexpr component_info warning_component_info = {
+      .x_len = NUM_AREA_WIDTH,
+      .y_len = NUM_AREA_HEIGHT,
+      .x_offset = 8,
+      .y_offset = 0,
+  };
+
+  if (frame == 0) {
+    const CompressedImage* target = &m_egg_hatch_shinning1_compressed;
+    uint8_t decompressed_buffer[target->width * target->height];
+    memset(decompressed_buffer, 0, target->width * target->height);
+    decompress_component(target, decompressed_buffer);
+    stack_component(decompressed_buffer, base, egg_component_info,
+                    my_base_info);
+    uint8_t warning_component[warning_component_info.x_len *
+                              warning_component_info.y_len];
+    memset(warning_component, 0,
+           warning_component_info.x_len * warning_component_info.y_len);
+    get_warning_component(warning_component);
+    stack_component(warning_component, base, warning_component_info,
+                    my_base_info);
+  } else {
+    const CompressedImage* target = &m_egg_hatch_shinning2_compressed;
+    uint8_t decompressed_buffer[target->width * target->height];
+    memset(decompressed_buffer, 0, target->width * target->height);
+    decompress_component(target, decompressed_buffer);
+    stack_component(decompressed_buffer, base, egg_component_info,
+                    my_base_info);
+    uint8_t warning_component[warning_component_info.x_len *
+                              warning_component_info.y_len];
+    memset(warning_component, 0,
+           warning_component_info.x_len * warning_component_info.y_len);
+    get_warning_component(warning_component);
+    stack_component(warning_component, base, warning_component_info,
+                    my_base_info);
+  }
+}
+
+#endif
 /**
  * @brief Get the dog idle frame with status overview.
  *
@@ -876,6 +1114,62 @@ void get_activity_selection_frame(int activity_type, int selection,
                     screen_info);
   }
 }
+
+#ifndef USE_NEW_BATTLE_RESULT_ANIME  // TODO: Choose one
+void get_select_character_frame(int frame, uint8_t* base) {
+  component_info select_left_component_info = {
+      .x_len = 8,
+      .y_len = 8,
+      .x_offset = 0,
+      .y_offset = 0,
+  };
+  component_info select_right_component_info = {
+      .x_len = 8,
+      .y_len = 8,
+      .x_offset = 8,
+      .y_offset = 0,
+  };
+
+  component_info select_print_all_character_component_info = {
+      .x_len = 16,
+      .y_len = 8,
+      .x_offset = 0,
+      .y_offset = 0,
+  };
+  base_info screen_info = {
+      .width = 16,
+      .height = 8,
+  };
+
+  if (frame < 0 || frame > 1) {
+    frame = 0;
+  }
+
+  const CompressedImage* target = &m_select_print_all_character_compressed;
+  uint8_t decompressed_buffer[target->width * target->height];
+  memset(decompressed_buffer, 0, target->width * target->height);
+  decompress_component(target, decompressed_buffer);
+  stack_component(decompressed_buffer, base,
+                  select_print_all_character_component_info, screen_info);
+
+  if (frame == LEFT) {
+    const CompressedImage* target = &m_select_cursor_compressed;
+    uint8_t decompressed_buffer[target->width * target->height];
+    memset(decompressed_buffer, 0, target->width * target->height);
+    decompress_component(target, decompressed_buffer);
+    stack_component(decompressed_buffer, base, select_left_component_info,
+                    screen_info);
+  } else if (frame == RIGHT) {
+    const CompressedImage* target = &m_select_cursor_compressed;
+    uint8_t decompressed_buffer[target->width * target->height];
+    memset(decompressed_buffer, 0, target->width * target->height);
+    decompress_component(target, decompressed_buffer);
+    stack_component(decompressed_buffer, base, select_right_component_info,
+                    screen_info);
+  }
+}
+
+#endif
 
 void get_battle_result_frame(int pet, int result, int frame, uint8_t* base) {
   const component_info dog_component_info = {
@@ -1546,6 +1840,37 @@ void get_QTE_frame(int target_position, int current_position, uint8_t* base) {
   // player position
   base[current_position + screen_info.width * 6] = 1;
   base[current_position + screen_info.width * 7] = 1;
+}
+
+void get_countdown_frame(int countdown, uint8_t* base) {
+  const component_info full_frame_component_info = {
+      .x_len = 16,
+      .y_len = 8,
+      .x_offset = 0,
+      .y_offset = 0,
+  };
+
+  const base_info screen_info = {
+      .width = 16,
+      .height = 8,
+  };
+
+  const CompressedImage* target;
+  if (countdown == 3) {
+    target = &m_countdown_3_compressed;
+  } else if (countdown == 2) {
+    target = &m_countdown_2_compressed;
+  } else if (countdown == 1) {
+    target = &m_countdown_1_compressed;
+  } else if (countdown == 0) {
+    target = &m_countdown_go_compressed;
+  }
+
+  uint8_t decompressed_buffer[target->width * target->height];
+  memset(decompressed_buffer, 0, target->width * target->height);
+  decompress_component(target, decompressed_buffer);
+  stack_component(decompressed_buffer, base, full_frame_component_info,
+                  screen_info);
 }
 
 /** --- frame part end ---*/

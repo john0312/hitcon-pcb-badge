@@ -2,11 +2,18 @@
 #define TAMA_APP_H
 #define TAMA_APP_MAX_FB_LENGTH 12
 
+//#define FOR_TAMA_TEST
+//#define USE_NEW_HATCHING_ANIME
+
 #define TAMA_PREPARE_FB(FB, FB_SIZE) \
   FB.fb_size = FB_SIZE;              \
   memset(FB.fb, 0, sizeof(DISPLAY_WIDTH) * FB_SIZE);
+
+#ifdef USE_NEW_HATCHING_ANIME  // TODO: Choose one
 #define TAMA_GET_ANIMATION_DATA(TYPE_NAME_STR) \
   animation[static_cast<uint8_t>(TAMA_ANIMATION_TYPE::TYPE_NAME_STR)]
+#endif
+
 #define TAMA_COPY_FB(FB, ANIMATION, OFFSET)                      \
   FB.active_frame = 0;                                           \
   FB.fb_size = ANIMATION.frame_count;                            \
@@ -31,20 +38,33 @@ namespace app {
 namespace tama {
 
 enum class TAMA_APP_STATE : uint8_t {
-  INTRO_TEXT,   // Displaying introductory text
-  CHOOSE_TYPE,  // Player is selecting a pet type
-  EGG_1,        // 0% hatching progress
-  EGG_2,        // 25% hatching progress
-  EGG_3,        // 50% hatching progress
-  EGG_4,        // 75% hatching progress
-  HATCHING,     // 100% animation
+  INTRO_TEXT,                  // Displaying introductory text
+  CHOOSE_TYPE,                 // Player is selecting a pet type
+#ifdef USE_NEW_HATCHING_ANIME  // TODO: Choose one
+  EGG_1,                       // 0% hatching progress
+  EGG_2,                       // 25% hatching progress
+  EGG_3,                       // 50% hatching progress
+  EGG_4,                       // 75% hatching progress
+#else
+  EGG,  // Egg state, waiting for hatching
+#endif
+  HATCHING,  // 100% animation
   IDLE,
-  ALIVE,
   HP_DETAIL,
   FD_DETAIL,
   LV_DETAIL,
   FEED_CONFIRM,
   FEED_ANIME,
+  TRAINING_CONFIRM,
+  TRAINING_START_PAGE,
+  COUNTDOWN_3,
+  COUNTDOWN_2,
+  COUNTDOWN_1,
+  COUNTDOWN_GO,
+  QTE_PAGE,
+  QTE_JUDGE_PAGE,
+  QTE_RESULT_PAGE,
+  SCROLL_WARNING,  // Displaying warning text
   // TODO: Add states like DEAD, EVOLVING, etc.
 };
 
@@ -60,12 +80,8 @@ typedef struct {
   uint16_t level;
   uint8_t food;
   uint8_t hp;
-
-  // TODO: Add more stats for ALIVE state:
-  // uint32_t birth_time_ms; // Actual hatch time
-
-  // uint8_t happiness;
-  // uint32_t last_interaction_time_ms;
+  int hatching_start_shaking_count;
+  int latest_shaking_count;
 } tama_storage_t;
 
 typedef struct {
@@ -210,13 +226,21 @@ class TamaApp : public App {
   tama_storage_t& _tama_data;
   tama_display_fb_t _fb;
   int _frame_count = 0;
-  int hatching_warning_frame_count = 10;  // How many times the egg has shined
+  int _hatching_warning_frame_count = 10;  // How many times the egg has shined
   int _feeding_anime_frame = 0;
-  int anime_frame = 0;
-  bool _is_selected = false;                 // For testing, use temp storage
-  unsigned int _previous_hatching_step = 0;  // Will update every 100 steps
-  bool _is_display_packed = true;
   TamaQte qte;
+  unsigned int _previous_hatching_step = 0;  // Will update every 100 steps
+  int _anime_frame = 0;
+
+#ifdef USE_NEW_HATCHING_ANIME  // TODO: Choose one
+  int anime_frame = 0;
+  bool _is_selected = false;  // For testing, use temp storage
+  bool _is_display_packed = true;
+#else
+  bool _is_selected = false;  // For testing, use temp storage
+  int _hatching_skip_count = 0;
+  bool _is_display_packed = false;
+#endif
 
   void Render();
   void Routine(void* unused);
@@ -257,6 +281,7 @@ void SetBaseStationConnect();
 
 extern TamaApp tama_app;
 
+#ifdef USE_NEW_HATCHING_ANIME  // TODO: Choose one
 // --- Animation Frame Data Definitions (for tama_ani_t and static asserts) ---
 // Each frame is 8 columns wide. Characters are 5 columns wide and centered.
 // clang-format off
@@ -412,6 +437,7 @@ constexpr tama_display_component_t TAMA_COMPONENT_PET_SELECTION_CURSOR = {
     .length = 8,
 };
 
+#endif
 }  // namespace tama
 }  // namespace app
 }  // namespace hitcon

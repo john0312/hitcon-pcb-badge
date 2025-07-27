@@ -687,6 +687,26 @@ void gd_ok_ng_demo(int repeat_count) {
   }
 }
 
+void countdown_and_go(int repeat_count) {
+  const uint8_t frame_count = 4;
+
+  uint8_t frame1[DISPLAY_WIDTH * DISPLAY_HEIGHT] = {0};
+  uint8_t frame2[DISPLAY_WIDTH * DISPLAY_HEIGHT] = {0};
+  uint8_t frame3[DISPLAY_WIDTH * DISPLAY_HEIGHT] = {0};
+  uint8_t frame4[DISPLAY_WIDTH * DISPLAY_HEIGHT] = {0};
+
+  get_countdown_frame(3, frame1);
+  get_countdown_frame(2, frame2);
+  get_countdown_frame(1, frame3);
+  get_countdown_frame(0, frame4);  // go
+
+  const uint8_t* frame_all[frame_count] = {frame1, frame2, frame3, frame4};
+
+  for (int i = 0; i < repeat_count; ++i) {
+    show_anime_with_delay(frame_all, frame_count, SLEEP_US);
+  }
+}
+
 void test_frames() {
   int repeat_count = 3;
   int repeat_once = 1;
@@ -809,10 +829,15 @@ void test_frames() {
   std::cout << "QTE frame Demo:\n";
   qte_demo(repeat_once);
 
-#endif  // TEST_ALL_FRAMES
   // gd, ok, ng demo
   std::cout << "GD, OK, NG Demo:\n";
   gd_ok_ng_demo(repeat_once);
+
+#endif  // TEST_ALL_FRAMES
+
+  // countdown and start demo
+  std::cout << "Countdown and start Demo:\n";
+  countdown_and_go(repeat_once);
 }
 
 void test_compress_decompress() {

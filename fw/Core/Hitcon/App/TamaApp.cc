@@ -1,5 +1,3 @@
-// #define FOR_TAMA_TEST
-
 #include "TamaApp.h"
 
 #include <Logic/BadgeController.h>
@@ -63,8 +61,11 @@ void TamaApp::OnEntry() {
     g_xboard_logic.SetOnPacketArrive((callback_t)&TamaApp::OnXBoardRecv, this,
                                      TAMA_RECV_ID);
     _enemy_state = TAMA_XBOARD_STATE::XBOARD_INVITE;
+
     memcpy(&_enemy_score, 0, sizeof(_enemy_score));
-    if (_tama_data.state != TAMA_APP_STATE::ALIVE) {
+
+    if (_tama_data.state != TAMA_APP_STATE::IDLE || _tama_data.hp == 0 ||
+        _tama_data.food == 0) {
       xboard_state = TAMA_XBOARD_STATE::XBOARD_UNAVAILABLE;
       display_set_mode_scroll_text("Your pet is not ready yet");
       TAMA_XBOARD_PACKET_TYPE packet =
@@ -86,6 +87,18 @@ void TamaApp::OnEntry() {
     // If OnEntry is called while still in INTRO_TEXT, ensure scrolling text is
     // set.
     display_set_mode_scroll_text("Choose your pet");
+  }
+
+  // Go to main page if go out then go back to app.
+  // Exclude INTRO_TEXT, CHOOSE_TYPE and HATCHING states.
+  if (_tama_data.state != TAMA_APP_STATE::INTRO_TEXT &&
+      _tama_data.state != TAMA_APP_STATE::CHOOSE_TYPE
+#ifndef USE_NEW_HATCHING_ANIME  // TODO: Choose one
+      && _tama_data.state != TAMA_APP_STATE::EGG
+#endif
+  ) {
+    _tama_data.state = TAMA_APP_STATE::IDLE;
+    _is_selected = false;  // Reset selection state
   }
 }
 
@@ -128,6 +141,29 @@ void TamaApp::OnButton(button_t button) {
 
   switch (button & BUTTON_VALUE_MASK) {
     case BUTTON_BACK:
+      switch (_tama_data.state) {
+        // These cases go to tama main page.
+        // Some of the state need more actions.
+        case TAMA_APP_STATE::FEED_CONFIRM:
+          _is_selected = false;
+        case TAMA_APP_STATE::HP_DETAIL:
+        case TAMA_APP_STATE::FD_DETAIL:
+        case TAMA_APP_STATE::LV_DETAIL:
+          _tama_data.state = TAMA_APP_STATE::IDLE;
+          needs_update_fb = true;
+          needs_save = true;
+          break;
+        // These are status that can be exited directly.
+        case TAMA_APP_STATE::INTRO_TEXT:
+        case TAMA_APP_STATE::CHOOSE_TYPE:
+#ifndef USE_NEW_HATCHING_ANIME  // TODO: Choose one
+        case TAMA_APP_STATE::EGG:
+#endif
+        case TAMA_APP_STATE::IDLE:
+          badge_controller.BackToMenu(this);
+          return;  // Exit immediately
+      }
+      break;
     case BUTTON_LONG_BACK:
       badge_controller.BackToMenu(this);
       return;  // Exit immediately
@@ -139,32 +175,22 @@ void TamaApp::OnButton(button_t button) {
           break;
         case TAMA_APP_STATE::CHOOSE_TYPE:
           _tama_data.type = _current_selection_in_choose_mode;
+#ifdef USE_NEW_HATCHING_ANIME  // TODO: Choose one
           _tama_data.state = TAMA_APP_STATE::EGG_1;
+#else
+          _tama_data.state = TAMA_APP_STATE::EGG;
           _previous_hatching_step = g_imu_logic.GetStep();
+#endif
           needs_update_fb = true;
           needs_save = true;
           break;
-#ifdef DEBUG
-        case TAMA_APP_STATE::EGG_1:
-          _tama_data.state = TAMA_APP_STATE::EGG_2;
-          needs_update_fb = true;
-          break;
-        case TAMA_APP_STATE::EGG_2:
-          _tama_data.state = TAMA_APP_STATE::EGG_3;
-          needs_update_fb = true;
-          break;
-        case TAMA_APP_STATE::EGG_3:
-          _tama_data.state = TAMA_APP_STATE::EGG_4;
-          needs_update_fb = true;
-          break;
-        case TAMA_APP_STATE::EGG_4:
-          _tama_data.state = TAMA_APP_STATE::HATCHING;
-          _frame_count = 0;
-          needs_update_fb = true;
-          break;
-#endif
+
         case TAMA_APP_STATE::FEED_CONFIRM:
           if (_is_selected) {
+            _is_selected = false;
+            if (_tama_data.food < 4) {
+              _tama_data.food += 1;
+            }
             _tama_data.state = TAMA_APP_STATE::FEED_ANIME;
             needs_update_fb = true;
           } else {
@@ -173,6 +199,31 @@ void TamaApp::OnButton(button_t button) {
             needs_update_fb = true;
           }
           break;
+        case TAMA_APP_STATE::TRAINING_CONFIRM:
+          if (_is_selected) {
+            _is_selected = false;
+            // block going to the next state if weak
+            if (_tama_data.hp == 0) {
+              _tama_data.state = TAMA_APP_STATE::SCROLL_WARNING;
+              needs_save = true;
+              display_set_mode_scroll_text("Your pet is weak");
+              break;
+            }
+            if (_tama_data.food == 0) {
+              _tama_data.state = TAMA_APP_STATE::SCROLL_WARNING;
+              needs_save = true;
+              display_set_mode_scroll_text("Your pet is hungry");
+              break;
+            }
+            _tama_data.state = TAMA_APP_STATE::TRAINING_START_PAGE;
+            needs_update_fb = true;
+          } else {
+            _tama_data.state = TAMA_APP_STATE::IDLE;
+            needs_save = true;
+            needs_update_fb = true;
+          }
+          break;
+
         default:
           // No action for other states on OK press, or handle as needed
           break;
@@ -187,14 +238,12 @@ void TamaApp::OnButton(button_t button) {
           _current_selection_in_choose_mode = TAMA_TYPE::CAT;
           break;
         case TAMA_APP_STATE::IDLE:
-          if (_tama_data.hp == 0 || _tama_data.food == 0) {
-            break;
-          }
           _tama_data.state = TAMA_APP_STATE::FEED_CONFIRM;
           needs_update_fb = true;
           break;
         // TODO: Handle other states for BUTTON_LEFT if necessary
         case TAMA_APP_STATE::FEED_CONFIRM:
+        case TAMA_APP_STATE::TRAINING_CONFIRM:
           if (_is_selected == true) {
             _is_selected = false;
             needs_update_fb = true;
@@ -212,17 +261,46 @@ void TamaApp::OnButton(button_t button) {
           _current_selection_in_choose_mode = TAMA_TYPE::DOG;
           break;
         case TAMA_APP_STATE::IDLE:
-          // block going to the next state if weak
-          if (_tama_data.hp == 0 || _tama_data.food == 0) {
-            break;
-          }
+          _tama_data.state = TAMA_APP_STATE::TRAINING_CONFIRM;
+          needs_update_fb = true;
           break;
-          // TODO: Handle other states for BUTTON_LEFT if necessary
+
+#ifdef FOR_TAMA_TEST
+#ifndef USE_NEW_HATCHING_ANIME
+          // test case of speed up hatching
+        case TAMA_APP_STATE::EGG:
+          _tama_data.latest_shaking_count += 50;
+          _hatching_skip_count += 50;
+          needs_save = true;
+          needs_update_fb = true;
+          break;
+#endif
+#endif
         case TAMA_APP_STATE::FEED_CONFIRM:
+        case TAMA_APP_STATE::TRAINING_CONFIRM:
           if (_is_selected == false) {
             _is_selected = true;
             needs_update_fb = true;
           }
+          break;
+#ifdef FOR_TAMA_TEST
+          // test case of decreasing HP
+        case TAMA_APP_STATE::HP_DETAIL:
+          if (_tama_data.hp > 0) {
+            _tama_data.hp -= 1;
+            needs_save = true;
+            needs_update_fb = true;
+          }
+          break;
+          // test case of decreasing FOOD
+        case TAMA_APP_STATE::FD_DETAIL:
+          if (_tama_data.food > 0) {
+            _tama_data.food -= 1;
+            needs_save = true;
+            needs_update_fb = true;
+          }
+          break;
+#endif
         default:
           break;
       }
@@ -305,6 +383,16 @@ void TamaApp::Routine(void* unused) {
   bool needs_save = false;
 
   switch (_tama_data.state) {
+    case TAMA_APP_STATE::SCROLL_WARNING:
+      // This state is used to display warning text, so we don't need to render
+      // anything else.
+      needs_render = false;
+      if (display_get_scroll_count() >= 1) {
+        _tama_data.state = TAMA_APP_STATE::IDLE;
+        needs_save = true;
+        UpdateFrameBuffer();
+      }
+      break;
     case TAMA_APP_STATE::INTRO_TEXT:
       needs_render = false;
       if (display_get_scroll_count() >= 1) {
@@ -319,6 +407,8 @@ void TamaApp::Routine(void* unused) {
         UpdateFrameBuffer();
       }
       break;
+
+#ifdef USE_NEW_HATCHING_ANIME  // TODO: Choose one
     case TAMA_APP_STATE::EGG_1:
     case TAMA_APP_STATE::EGG_2:
     case TAMA_APP_STATE::EGG_3:
@@ -342,6 +432,21 @@ void TamaApp::Routine(void* unused) {
       needs_render = true;
       break;
     }
+
+#else
+    case TAMA_APP_STATE::EGG:
+      if (_tama_data.latest_shaking_count <
+          (g_imu_logic.GetStep() + _hatching_skip_count)) {
+        _tama_data.latest_shaking_count =
+            (g_imu_logic.GetStep() + _hatching_skip_count);
+        needs_save = true;
+        UpdateFrameBuffer();
+      }
+      needs_render = true;
+      break;
+#endif
+
+#ifdef USE_NEW_HATCHING_ANIME  // TODO: Choose one
     case TAMA_APP_STATE::HATCHING:
       if (_frame_count >= 10) {
         _tama_data.state = TAMA_APP_STATE::IDLE;
@@ -352,11 +457,23 @@ void TamaApp::Routine(void* unused) {
       }
       needs_render = true;
       break;
+#else
+    case TAMA_APP_STATE::HATCHING:
+      if (_hatching_warning_frame_count < 0) {
+        _tama_data.state = TAMA_APP_STATE::IDLE;
+        needs_save = true;
+      }
+      _hatching_warning_frame_count--;
+      needs_render = true;
+      UpdateFrameBuffer();
+      break;
+
+#endif
     case TAMA_APP_STATE::IDLE:
-      if (anime_frame == 0) {
-        anime_frame = 1;
-      } else if (anime_frame == 1) {
-        anime_frame = 0;
+      if (_anime_frame == 0) {
+        _anime_frame = 1;
+      } else if (_anime_frame == 1) {
+        _anime_frame = 0;
       }
       needs_render = true;
       UpdateFrameBuffer();
@@ -364,6 +481,66 @@ void TamaApp::Routine(void* unused) {
     case TAMA_APP_STATE::FEED_ANIME:
       if (_feeding_anime_frame == 10) {
         _tama_data.state = TAMA_APP_STATE::IDLE;
+        _feeding_anime_frame = 0;
+        needs_render = true;
+        UpdateFrameBuffer();
+        break;
+      }
+      _feeding_anime_frame += 1;
+      needs_render = true;
+      UpdateFrameBuffer();
+      break;
+    case TAMA_APP_STATE::TRAINING_START_PAGE:
+      if (_feeding_anime_frame >= 3) {
+        _tama_data.state = TAMA_APP_STATE::COUNTDOWN_3;
+        _feeding_anime_frame = 0;
+        needs_render = true;
+        UpdateFrameBuffer();
+        break;
+      }
+      _feeding_anime_frame += 1;
+      needs_render = true;
+      UpdateFrameBuffer();
+      break;
+    case TAMA_APP_STATE::COUNTDOWN_3:
+      if (_feeding_anime_frame >= 1) {
+        _tama_data.state = TAMA_APP_STATE::COUNTDOWN_2;
+        _feeding_anime_frame = 0;
+        needs_render = true;
+        UpdateFrameBuffer();
+        break;
+      }
+      _feeding_anime_frame += 1;
+      needs_render = true;
+      UpdateFrameBuffer();
+      break;
+    case TAMA_APP_STATE::COUNTDOWN_2:
+      if (_feeding_anime_frame >= 1) {
+        _tama_data.state = TAMA_APP_STATE::COUNTDOWN_1;
+        _feeding_anime_frame = 0;
+        needs_render = true;
+        UpdateFrameBuffer();
+        break;
+      }
+      _feeding_anime_frame += 1;
+      needs_render = true;
+      UpdateFrameBuffer();
+      break;
+    case TAMA_APP_STATE::COUNTDOWN_1:
+      if (_feeding_anime_frame >= 1) {
+        _tama_data.state = TAMA_APP_STATE::COUNTDOWN_GO;
+        _feeding_anime_frame = 0;
+        needs_render = true;
+        UpdateFrameBuffer();
+        break;
+      }
+      _feeding_anime_frame += 1;
+      needs_render = true;
+      UpdateFrameBuffer();
+      break;
+    case TAMA_APP_STATE::COUNTDOWN_GO:
+      if (_feeding_anime_frame >= 1) {
+        _tama_data.state = TAMA_APP_STATE::QTE_PAGE;
         _feeding_anime_frame = 0;
         needs_render = true;
         UpdateFrameBuffer();
@@ -385,14 +562,19 @@ void TamaApp::Routine(void* unused) {
     Render();
   }
 }
+
 void TamaApp::UpdateFrameBuffer() {
   if (player_mode == TAMA_PLAYER_MODE::MODE_MULTIPLAYER) {
     XbUpdateFrameBuffer();
     return;
   }
 
+  _fb.fb_size = 1;
+  memset(_fb.fb[0], 0, sizeof(display_buf_t[DISPLAY_HEIGHT * DISPLAY_WIDTH]));
+
   switch (_tama_data.state) {
     case TAMA_APP_STATE::CHOOSE_TYPE:
+#ifdef USE_NEW_HATCHING_ANIME  // TODO: Choose one
       TAMA_PREPARE_FB(_fb, TAMA_GET_ANIMATION_DATA(PET_SELECTION).frame_count);
       TAMA_COPY_FB(_fb, TAMA_GET_ANIMATION_DATA(PET_SELECTION), 0);
       if (_current_selection_in_choose_mode == TAMA_TYPE::CAT) {
@@ -402,7 +584,18 @@ void TamaApp::UpdateFrameBuffer() {
       } else {
         my_assert(false);  // Should not happen if state is CHOOSE_TYPE
       }
+#else
+      if (_current_selection_in_choose_mode == TAMA_TYPE::DOG) {
+        get_select_character_frame(RIGHT, _fb.fb[0]);
+      } else if (_current_selection_in_choose_mode == TAMA_TYPE::CAT) {
+        get_select_character_frame(LEFT, _fb.fb[0]);
+      } else {
+        my_assert(false);  // Should not happen if state is CHOOSE_TYPE
+      }
+#endif
       break;
+
+#ifdef USE_NEW_HATCHING_ANIME  // TODO: Choose one
     case TAMA_APP_STATE::EGG_1:
       TAMA_PREPARE_FB(_fb, TAMA_GET_ANIMATION_DATA(EGG_1).frame_count);
       TAMA_COPY_FB(_fb, TAMA_GET_ANIMATION_DATA(EGG_1), 0);
@@ -420,17 +613,36 @@ void TamaApp::UpdateFrameBuffer() {
       TAMA_COPY_FB(_fb, TAMA_GET_ANIMATION_DATA(EGG_4), 0);
       break;
     }
+#else
+    case TAMA_APP_STATE::EGG:
+      int remaining_count;
+      remaining_count =
+          HATCH_START_COUNT - (_tama_data.latest_shaking_count -
+                               _tama_data.hatching_start_shaking_count);
+      if (remaining_count < 0) {
+        _tama_data.state = TAMA_APP_STATE::HATCHING;
+      } else {
+        get_hatch_status_frame(remaining_count, _fb.fb[0]);
+      }
+      break;
+#endif
     case TAMA_APP_STATE::HATCHING:
+#ifdef USE_NEW_HATCHING_ANIME  // TODO: Choose one
       TAMA_PREPARE_FB(_fb, TAMA_GET_ANIMATION_DATA(HATCHING).frame_count);
       TAMA_COPY_FB(_fb, TAMA_GET_ANIMATION_DATA(HATCHING), 0);
+#else
+      get_hatch_born_warning_frame(_hatching_warning_frame_count % 2,
+                                   _fb.fb[0]);
+#endif
       break;
+
     case TAMA_APP_STATE::IDLE:
       _is_display_packed = false;
       if (_tama_data.type == TAMA_TYPE::DOG) {
-        get_dog_idle_frame_with_status_overview(anime_frame, _tama_data.hp,
+        get_dog_idle_frame_with_status_overview(_anime_frame, _tama_data.hp,
                                                 _tama_data.food, _fb.fb[0]);
       } else if (_tama_data.type == TAMA_TYPE::CAT) {
-        get_cat_idle_frame_with_status_overview(anime_frame, _tama_data.hp,
+        get_cat_idle_frame_with_status_overview(_anime_frame, _tama_data.hp,
                                                 _tama_data.food, _fb.fb[0]);
       } else {
         my_assert(false);  // Should not happen in ALIVE state
@@ -463,6 +675,37 @@ void TamaApp::UpdateFrameBuffer() {
       } else if (_tama_data.type == TAMA_TYPE::CAT) {
         get_feeding_frame(PET_TYPE_CAT, _feeding_anime_frame, _fb.fb[0]);
       }
+      break;
+    case TAMA_APP_STATE::TRAINING_CONFIRM:
+      if (_is_selected) {
+        get_activity_selection_frame(TRAINING, RIGHT, _fb.fb[0]);
+      } else {
+        get_activity_selection_frame(TRAINING, LEFT, _fb.fb[0]);
+      }
+      break;
+    case TAMA_APP_STATE::TRAINING_START_PAGE:
+      if (_tama_data.type == TAMA_TYPE::DOG) {
+        get_battle_frame(PET_TYPE_DOG, OTHER_TYPE_TRAINING_FACILITY, NONE,
+                         _fb.fb[0]);
+      } else if (_tama_data.type == TAMA_TYPE::CAT) {
+        get_battle_frame(PET_TYPE_CAT, OTHER_TYPE_TRAINING_FACILITY, NONE,
+                         _fb.fb[0]);
+      }
+      break;
+    case TAMA_APP_STATE::COUNTDOWN_3:
+      get_countdown_frame(3, _fb.fb[0]);
+      break;
+    case TAMA_APP_STATE::COUNTDOWN_2:
+      get_countdown_frame(2, _fb.fb[0]);
+      break;
+    case TAMA_APP_STATE::COUNTDOWN_1:
+      get_countdown_frame(1, _fb.fb[0]);
+      break;
+    case TAMA_APP_STATE::COUNTDOWN_GO:
+      get_countdown_frame(0, _fb.fb[0]);
+      break;
+    case TAMA_APP_STATE::QTE_PAGE:
+      get_QTE_frame(3, 3, _fb.fb[0]);
       break;
     default:
       // Should not happen in CHOOSE_TYPE state

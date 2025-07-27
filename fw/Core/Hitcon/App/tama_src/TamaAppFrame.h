@@ -47,6 +47,13 @@ void stack_const_component(const uint8_t* component, uint8_t* base,
 
 void get_number_component(int target_num, uint8_t* base);
 
+#ifndef USE_NEW_HATCHING_ANIME  // TODO: Choose one
+
+void get_warning_component(uint8_t* base);
+
+void get_egg_component(int percentage, uint8_t* base);
+#endif
+
 void get_heart_overview_component(int heart_count, uint8_t* base);
 
 void get_food_overview_component(int food_count, uint8_t* base);
@@ -54,6 +61,12 @@ void get_food_overview_component(int food_count, uint8_t* base);
 void get_fd_icons_component(int food_count, uint8_t* base);
 
 void get_hp_icons_component(int hp_count, uint8_t* base);
+
+#ifndef USE_NEW_HATCHING_ANIME  // TODO: Choose one
+void get_hatch_status_frame(int remaining_count, uint8_t* base);
+
+void get_hatch_born_warning_frame(int frame, uint8_t* base);
+#endif
 
 void get_dog_idle_frame_with_status_overview(int frame, int heart_count,
                                              int food_count, uint8_t* base);
@@ -65,6 +78,10 @@ void get_pet_healing_frame(int pet_type, int frame, uint8_t* base);
 
 void get_activity_selection_frame(int activity_type, int selection,
                                   uint8_t* base);
+
+#ifndef USE_NEW_HATCHING_ANIME  // TODO: Choose one
+void get_select_character_frame(int frame, uint8_t* base);
+#endif
 
 void get_battle_result_frame(int pet, int result, int frame, uint8_t* base);
 
@@ -92,5 +109,7 @@ void get_action_frame(int action_type, uint8_t* base);
 void get_feeding_frame(int per_type, int frame_ID, uint8_t* frame_buff);
 
 void get_QTE_frame(int target_position, int current_position, uint8_t* base);
+
+void get_countdown_frame(int countdown, uint8_t* base);
 
 #endif  // TAMA_APP_FRAME_H
