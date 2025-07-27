@@ -121,7 +121,7 @@ void Error_Handler(void);
 #undef LedA1_Pin
 #undef DEC_EN_Pin
 
-#ifdef V1_1
+#if defined(V1_1)
 #undef USB_DET_Pin
 #undef USB_DET_GPIO_Port
 #define USB_DET_Pin GPIO_PIN_3
@@ -129,11 +129,11 @@ void Error_Handler(void);
 #define LedA0_Pin GPIO_PIN_6
 #define LedA1_Pin GPIO_PIN_7
 #define DEC_EN_Pin GPIO_PIN_5
-#elifdef V2_0
+#elif defined(V2_0)
 #define LedA0_Pin GPIO_PIN_3
 #define LedA1_Pin GPIO_PIN_4
 #define DEC_EN_Pin GPIO_PIN_5
-#else defined(V2_1) || defined(V2_2)
+#elif defined(V2_1) || defined(V2_2)
 #define LedA0_Pin GPIO_PIN_3
 #define LedA1_Pin GPIO_PIN_5
 #define DEC_EN_Pin GPIO_PIN_4
