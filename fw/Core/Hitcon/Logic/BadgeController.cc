@@ -5,6 +5,7 @@
 #include <App/HardwareTestApp.h>
 #include <App/MainMenuApp.h>
 #include <App/ShowNameApp.h>
+#include <Hitcon.h>
 #include <Logic/IrController.h>
 #include <Logic/SponsorReq.h>
 #include <Logic/XBoardLogic.h>
@@ -12,11 +13,14 @@
 #include <Service/DisplayService.h>
 #include <Service/Sched/Checks.h>
 
+#ifndef BADGE_ROLE
+#error "BADGE_ROLE not defined"
+#endif  // BADGE_ROLE
+
 using hitcon::ir::irController;
 using hitcon::service::sched::my_assert;
 using hitcon::service::xboard::g_xboard_logic;
 using hitcon::service::xboard::UsartConnectState;
-using hitcon::sponsor::g_sponsor_req;
 
 namespace hitcon {
 BadgeController badge_controller;
@@ -121,7 +125,9 @@ void BadgeController::OnButton(void *arg1) {
 
 void BadgeController::OnXBoardConnect(void *unused) {
   if (current_app != &hardware_test_app) {
-    g_sponsor_req.OnXBoardConnect();
+#if BADGE_ROLE == BADGE_ROLE_ATTENDEE
+    hitcon::sponsor::g_sponsor_req.OnXBoardConnect();
+#endif  // BADGE_ROLE == BADGE_ROLE_ATTENDEE
     badge_controller.change_app(&connect_menu);
   }
 }

@@ -8,6 +8,12 @@ using namespace hitcon::game;
 using namespace hitcon::service::xboard;
 using namespace hitcon::ir;
 
+#ifndef BADGE_ROLE
+#error "BADGE_ROLE not defined"
+#endif  // BADGE_ROLE
+
+#if BADGE_ROLE == BADGE_ROLE_ATTENDEE
+
 namespace hitcon {
 namespace sponsor {
 
@@ -31,3 +37,5 @@ SponsorReq g_sponsor_req;
 
 }  // namespace sponsor
 }  // namespace hitcon
+
+#endif  // BADGE_ROLE == BADGE_ROLE_ATTENDEE

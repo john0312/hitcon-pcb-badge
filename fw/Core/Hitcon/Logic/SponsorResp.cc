@@ -5,6 +5,12 @@
 
 using namespace hitcon::service::xboard;
 
+#ifndef BADGE_ROLE
+#error "BADGE_ROLE not defined"
+#endif  // BADGE_ROLE
+
+#if BADGE_ROLE == BADGE_ROLE_SPONSOR
+
 namespace hitcon {
 namespace sponsor {
 
@@ -23,3 +29,5 @@ SponsorResp g_sponsor_resp;
 
 }  // namespace sponsor
 }  // namespace hitcon
+
+#endif  // BADGE_ROLE == BADGE_ROLE_SPONSOR
