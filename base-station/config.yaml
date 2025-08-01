@@ -1,5 +1,5 @@
-
-station_id: 1234
+station_key_ir: 10.ir.keyA
+station_key_xb: 10.xb.keyB
 usb_port: /dev/ttyACM0
 usb_baudrate: 115200
 usb_timeout: 1

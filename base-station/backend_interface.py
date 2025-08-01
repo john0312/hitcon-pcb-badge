@@ -9,9 +9,7 @@ from typing import Tuple, Optional
 class BackendInterface:
     REQUEST_TIMEOUT = 15  # seconds
     def __init__(self, config: Config):
-        self.station_id = config.get("station_id")
         self.backend_url = config.get("backend_url")
-        self.station_key = config.get("station_key")
         self.session = None
         self.retry_delay = 2
 
@@ -23,14 +21,13 @@ class BackendInterface:
         if self.session:
             await self.session.close()
 
-    async def send_received_packet(self, data: bytes, packet_id: uuid.UUID) -> bool:
+    async def send_received_packet(self, data: bytes, packet_id: uuid.UUID, station_key: str) -> bool:
         payload = {
-            "station_id": self.station_id,
             "packet_id": str(packet_id),
             "data": list(data)
         }
         url = f"{self.backend_url}/rx"
-        headers = {"Authorization": f"Bearer {self.station_key}"}
+        headers = {"Authorization": f"Bearer {station_key}"}
         try:
             assert self.session is not None, "Session not initialized"
             timeout = aiohttp.ClientTimeout(total=self.REQUEST_TIMEOUT)
@@ -52,9 +49,9 @@ class BackendInterface:
             print(f"[RX] Send failed: {e}")
             raise
 
-    async def get_next_tx_packet(self) -> Optional[Tuple[bytes, uuid.UUID]]:
+    async def get_next_tx_packet(self, station_key: str) -> Optional[Tuple[bytes, uuid.UUID]]:
         url = f"{self.backend_url}/tx"
-        headers = {"Authorization": f"Bearer {self.station_key}"}
+        headers = {"Authorization": f"Bearer {station_key}"}
         try:
             assert self.session is not None, "Session not initialized"
             timeout = aiohttp.ClientTimeout(total=self.REQUEST_TIMEOUT)
@@ -81,9 +78,9 @@ class BackendInterface:
             print(f"[TX] Polling failed: {e}")
             raise
 
-    async def get_station_score(self) -> Optional[int]:
+    async def get_station_score(self, station_key: str) -> Optional[int]:
         url = f"{self.backend_url}/station-score"
-        headers = {"Authorization": f"Bearer {self.station_key}"}
+        headers = {"Authorization": f"Bearer {station_key}"}
         try:
             assert self.session is not None, "Session not initialized for getting station score"
             timeout = aiohttp.ClientTimeout(total=self.REQUEST_TIMEOUT)
