@@ -121,8 +121,8 @@ typedef struct {
   uint8_t nonce;
 } __attribute__((__packed__)) tama_xboard_result_t;
 
-#define QTE_REFRESH_RATE 50
-#define PAUSE_BETWEEN_QTE_GAMES 1000
+constexpr uint8_t QTE_REFRESH_RATE = 50;
+constexpr uint16_t PAUSE_BETWEEN_QTE_GAMES = 1000;
 
 class TamaQteArrow {
  private:
