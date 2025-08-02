@@ -147,9 +147,6 @@ async def get_hitcon_linkage(credentials: HTTPAuthorizationCredentials = Securit
     # Get the badge user linked to the UID
     badge_user = await BadgeLinkController.translate_uid_to_user(uid)
 
-    if badge_user is None:
-        raise HTTPException(status_code=404, detail="Badge not linked to any user")
-
     # TODO: handle name
     return BadgeLinkSchema(name="", badge_user=badge_user)
 
@@ -167,9 +164,12 @@ async def hitcon_link(schema: BadgeLinkSchema, credentials: HTTPAuthorizationCre
 
     if not uid:
         raise HTTPException(status_code=401, detail="Invalid token")
+    
+    if not schema.badge_user:
+        raise HTTPException(status_code=422, detail="badge_user is required")
 
     # Link the badge with the attendee
-    await BadgeLinkController.link_badge_with_attendee(uid, schema.badge_user)
+    old_badge_user, _ = await BadgeLinkController.link_badge_with_attendee(uid, schema.badge_user)
 
     # TODO: apply rectf buff if the user has not link with the badge
 
