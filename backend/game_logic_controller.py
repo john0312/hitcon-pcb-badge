@@ -275,20 +275,44 @@ class GameLogicController:
 
 
     @staticmethod
-    async def apply_rectf_score(uid: str, solves: ReCTFSolves):
+    async def apply_rectf_score(uid: str, user: int = None, solves: typing.Optional[ReCTFSolves] = None):
         """
         Apply ReCTF score as buff to the user.
+        If user is None (aka not linked with a badge), it will store the score in the database for later application.
+        If solves is None, it will try to fetch the previous known ReCTF score from the database.
         """
-        user = await BadgeLinkController.translate_uid_to_user(uid)
 
-        # TODO: postpone if the user has not bind the badge username
+        # postpone if the user has not bind the badge username
+        if user is None and solves is not None:
+            await db["unapplied_rectf_scores"].insert_one({
+                "uid": uid,
+                "solves": solves.model_dump(),
+                "timestamp": utcnow()
+            })
 
-        return await game.apply_player_buff(
-            player_id=user,
-            buff_a=solves.a,
-            buff_b=solves.b,
-            timestamp=utcnow()
-        )
+        if user is not None:
+            if solves is not None:
+                # apply the buff with received ReCTF score
+                await game.apply_player_buff(
+                    player_id=user,
+                    buff_a=solves.a,
+                    buff_b=solves.b,
+                    timestamp=utcnow()
+                )
+            else:
+                # apply the previous known ReCTF score
+                result = await db["unapplied_rectf_scores"].find_one({"uid": uid})
+                if result:
+                    solves = ReCTFSolves(**result["solves"])
+                    await game.apply_player_buff(
+                        player_id=user,
+                        buff_a=solves.a,
+                        buff_b=solves.b,
+                        timestamp=result["timestamp"]
+                    )
+                    await db["unapplied_rectf_scores"].delete_one({"uid": uid})
+                else:
+                    print(f"No ReCTF score has received for UID: {uid}, user: {user}")
 
 
     @staticmethod

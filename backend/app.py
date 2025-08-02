@@ -5,7 +5,7 @@ from badge_link_controller import BadgeLinkController
 from game_logic_controller import GameLogicController
 from config import Config
 from database import db
-from schemas import Station, IrPacketRequestSchema, Display, ScoreEntry, ReCTFScoreSchema, BadgeLinkSchema
+from schemas import Station, IrPacketRequestSchema, Display, ScoreEntry, ReCTFSolves, ReCTFScoreSchema, BadgeLinkSchema
 
 config = Config("config.yaml")
 
@@ -122,9 +122,11 @@ async def receive_rectf_score(schema: ReCTFScoreSchema, credentials: HTTPAuthori
     # Validate ReCTF key
     if credentials.credentials != config.get('rectf', {}).get('api_key'):
         raise HTTPException(status_code=403, detail="Invalid key")
+    
+    user = await BadgeLinkController.translate_uid_to_user(schema.uid)
 
     # Process the ReCTF score for the user
-    await GameLogicController.apply_rectf_score(schema.uid, schema.solves)
+    await GameLogicController.apply_rectf_score(schema.uid, user, schema.solves)
 
     return {"status": "ok"}
 
@@ -171,7 +173,12 @@ async def hitcon_link(schema: BadgeLinkSchema, credentials: HTTPAuthorizationCre
     # Link the badge with the attendee
     old_badge_user, _ = await BadgeLinkController.link_badge_with_attendee(uid, schema.badge_user)
 
-    # TODO: apply rectf buff if the user has not link with the badge
+    if old_badge_user is not None:
+        # remove old badge buff
+        await GameLogicController.apply_rectf_score(uid, old_badge_user, ReCTFSolves(a=0, b=0))
+
+    # apply rectf buff to the new badge
+    await GameLogicController.apply_rectf_score(uid, schema.badge_user)
 
     return {"status": "ok"}
 
