@@ -3,6 +3,9 @@
 #define TAMA_APP_MAX_FB_LENGTH 12
 
 // #define TAMA_CENTER
+
+// you can use this to speed up hatching or manually decrease HP/FOOD
+// how? right button at hatching, hp or food detail page
 // #define FOR_TAMA_TEST
 // #define USE_NEW_HATCHING_ANIME
 

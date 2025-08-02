@@ -671,6 +671,12 @@ void get_hatch_status_frame(int remaining_count, uint8_t* base) {
          num_component_info.x_len * num_component_info.y_len);
   get_number_component(remaining_count, number_component);
   stack_component(number_component, base, num_component_info, my_base_info);
+
+  // stack progress bar (16 width & target 400 > 25 a pixel)
+  // TODO: if no need progress bar, can delete this part
+  for (int i = 0; i < remaining_count / 25; ++i) {
+    base[i] = 1;
+  }
 }
 
 /**

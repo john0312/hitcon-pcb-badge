@@ -745,10 +745,6 @@ void test_frames() {
   // std::cout << "Number Icon Demo:\n";
   // num_test(repeat_once);
 
-  // egg hatch demo
-  std::cout << "Egg Hatch Demo:\n";
-  egg_hatch(repeat_once);
-
   // cat idle demo with status
   std::cout << "Cat Idle Demo with status:\n";
   cat_idle_with_status(repeat_count);
@@ -853,11 +849,15 @@ void test_frames() {
   std::cout << "Countdown and start Demo:\n";
   countdown_and_go(repeat_once);
 
-#endif  // TEST_ALL_FRAMES
-
   // test tama_center
   std::cout << "Tama Center Demo:\n";
   tama_center_demo(repeat_count);
+
+#endif  // TEST_ALL_FRAMES
+
+  // egg hatch demo
+  std::cout << "Egg Hatch Demo:\n";
+  egg_hatch(repeat_once);
 }
 
 void test_compress_decompress() {
@@ -875,9 +875,9 @@ void test_compress_decompress() {
 }
 
 int main() {
-  // test_frames();
+  test_frames();
 
-  test_compress_decompress();  // open it if needed
+  // test_compress_decompress();  // open it if needed
   return 0;
 }
 
