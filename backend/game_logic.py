@@ -213,6 +213,7 @@ class _GameLogic:
 
             case GameType.CONNECT_SPONSOR:
                 # TODO: validate the score and timestamp
+                # TODO: collect all sponsor bonus
                 pass
 
 

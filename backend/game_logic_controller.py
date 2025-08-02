@@ -221,8 +221,28 @@ class GameLogicController:
 
     @staticmethod
     async def on_sponsor_activity_event(evt: SponsorActivityEvent, packet_processor: 'PacketProcessor'):
-        # TODO: pre-generate sponsor random hash
-        pass
+        print(f"Sponsor activity event: {evt.sponsor_id}, user: {evt.user}, nonce: {evt.nonce}")
+
+        # Check nonce
+        nonce_key = f"sponsor_activity:{evt.user}:{evt.sponsor_id}:{evt.nonce}"
+        if (await redis_client.get(nonce_key)) is not None:
+            # Duplicate event, ignore it
+            return
+        await redis_client.set(nonce_key, "1", ex=config.get("redis", {}).get("game_nonce_expire", 180))
+        # TODO: do not add score from one sponsor twice
+
+        await game.receive_game_score_single_player(
+            player_id=evt.user,
+            station_id=evt.station_id // 10,
+            score=evt.sponsor_id, # TODO: Offload the parameter to GameLogic
+            game_type=GameType.CONNECT_SPONSOR,
+            timestamp=evt.timestamp
+        )
+
+        await GameLogicController.score_announce(
+            user=evt.user,
+            packet_processor=packet_processor
+        )
 
 
     @staticmethod
