@@ -133,7 +133,7 @@ async def receive_rectf_score(schema: ReCTFScoreSchema, credentials: HTTPAuthori
 
 ## ====== Badge Linking API Endpoints ======
 @app.get("/hitcon/link")
-async def get_hitcon_linkage(credentials: HTTPAuthorizationCredentials = Security(security)) -> BadgeLinkSchema:
+async def get_hitcon_linkage(credentials: HTTPAuthorizationCredentials = Security(security)):
     """
     Get the current badge linkage between the attendee.
     """
@@ -150,7 +150,7 @@ async def get_hitcon_linkage(credentials: HTTPAuthorizationCredentials = Securit
     badge_user = await BadgeLinkController.translate_uid_to_user(uid)
 
     # TODO: handle name
-    return BadgeLinkSchema(name="", badge_user=badge_user)
+    return {"badge_user": badge_user, "name": ""}
 
 
 @app.post("/hitcon/link")
