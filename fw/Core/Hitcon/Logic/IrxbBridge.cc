@@ -1,14 +1,26 @@
+#include <App/ConnectMenuApp.h>
+#include <Logic/Display/display.h>
 #include <Logic/IrLogic.h>
 #include <Logic/IrxbBridge.h>
 #include <Service/Sched/Scheduler.h>
 #include <Service/Sched/SysTimer.h>
-#include <string.h>
+#include <Util/uint_to_str.h>
+
+#include <algorithm>
 
 using hitcon::service::sched::SysTimer;
 
 namespace hitcon {
 
-constexpr uint32_t kIrxbDelayTime = 100;
+namespace {
+constexpr unsigned kIrxbDelayTime = 100;
+constexpr int kIrxbShowCyclesStart = 60;
+constexpr int kIrxbShowCyclesExtra = 50;
+constexpr unsigned kStateBase = 32;
+constexpr unsigned kStateTxEnd = kStateBase + 16 * ir::RETX_QUEUE_SIZE;
+constexpr unsigned kStateMenu = 2;
+constexpr unsigned kStateInit = 1;
+}  // namespace
 
 IrxbBridge g_irxb_bridge;
 
@@ -25,6 +37,9 @@ void IrxbBridge::Init() {
 
 void IrxbBridge::OnXBoardBasestnConnect() {
   state_ = 1;
+  show_cycles_ = kIrxbShowCyclesStart;
+  tx_cnt_ = rx_cnt_ = 0;
+
   routine_task_.SetWakeTime(SysTimer::GetTime() + kIrxbDelayTime);
   service::sched::scheduler.Queue(&routine_task_, nullptr);
 }
@@ -32,14 +47,31 @@ void IrxbBridge::OnXBoardBasestnConnect() {
 void IrxbBridge::OnXBoardBasestnDisconnect() { state_ = 0; }
 
 void IrxbBridge::RoutineTask() {
-  if (state_ == 0) return;
+  bool ret = RoutineInternal();
+  if (!ret) return;
+  routine_task_.SetWakeTime(SysTimer::GetTime() + kIrxbDelayTime);
+  service::sched::scheduler.Queue(&routine_task_, nullptr);
+}
 
-  if (state_ == 1) {
+bool IrxbBridge::RoutineInternal() {
+  if (state_ == 0) return false;
+
+  if (state_ == kStateMenu) return true;
+
+  bool show_text = false;
+  bool set_txrx_text = false;
+  if (state_ == kStateInit) {
     // Start of the loop
-    state_ = 128;
-  } else if (state_ >= 128 && state_ < 128 + 16 * ir::RETX_QUEUE_SIZE) {
-    int slot = (state_ - 128) / 16;
-    int sub_state = (state_ - 128) % 16;
+    state_ = kStateBase;
+    disp_txt_[0] = 'B';
+    disp_txt_[1] = '-';
+    disp_txt_[2] = '-';
+    disp_txt_[3] = 0;
+    show_text = true;
+  } else if (state_ >= kStateBase &&
+             state_ < kStateBase + 16 * ir::RETX_QUEUE_SIZE) {
+    int slot = (state_ - kStateBase) / 16;
+    int sub_state = (state_ - kStateBase) % 16;
 
     uint8_t status = ir::irController.GetSlotStatusForDebug(slot);
 
@@ -51,37 +83,61 @@ void IrxbBridge::RoutineTask() {
         service::xboard::g_xboard_logic.SendIRPacket(
             &(ir::irController.queued_packets_[slot].data[0]),
             ir::irController.queued_packets_[slot].size);
+        tx_cnt_++;
+        show_cycles_ = std::max(show_cycles_, kIrxbShowCyclesExtra);
         state_++;
       } else {
         // This slot is not waiting for an ACK, move to the next slot.
-        state_ = 128 + (slot + 1) * 16;
+        state_ = kStateBase + (slot + 1) * 16;
       }
-    } else if (sub_state < 2) {
-      // Wait for 2 cycles (200ms)
+    } else if (sub_state < 5) {
+      // Wait for 5 cycles (500ms)
       state_++;
-    } else {  // sub_state is 2
+    } else {  // sub_state is 5+
       // Done waiting, move to the next slot.
-      state_ = 128 + (slot + 1) * 16;
+      state_ = kStateBase + (slot + 1) * 16;
     }
-  } else if (state_ == 128 + 16 * ir::RETX_QUEUE_SIZE) {
-    // End state, let's leave it here.
+    set_txrx_text = true;
+    show_text = true;
+  } else if (state_ == kStateTxEnd) {
+    // End of tx state, we'll check the cycles left/time out later.
+    set_txrx_text = true;
+    show_text = true;
   } else {
     // All slots checked, or invalid state, restart loop.
-    state_ = 1;
+    state_ = kStateInit;
   }
 
-  if (state_ != 0) {
-    routine_task_.SetWakeTime(SysTimer::GetTime() + kIrxbDelayTime);
-    service::sched::scheduler.Queue(&routine_task_, nullptr);
+  if (set_txrx_text) {
+    tx_cnt_ = std::min(tx_cnt_, 15);
+    rx_cnt_ = std::min(rx_cnt_, 15);
+    disp_txt_[0] = 'B';
+    disp_txt_[1] = hitcon::uint_to_chr_hex_nibble(tx_cnt_);
+    disp_txt_[2] = hitcon::uint_to_chr_hex_nibble(rx_cnt_);
+    disp_txt_[3] = 0;
   }
+  if (show_text) {
+    display_set_mode_text(disp_txt_);
+  }
+  if (show_cycles_ > 0) {
+    show_cycles_--;
+    if (show_cycles_ == 0) {
+      state_ = kStateMenu;
+      connect_basestn_menu.NotifyIrXbFinished();
+    }
+  }
+  return true;
 }
 
 void IrxbBridge::OnPacketReceived(void* arg) {
   service::xboard::PacketCallbackArg* packet_arg =
       reinterpret_cast<service::xboard::PacketCallbackArg*>(arg);
 
+  rx_cnt_++;
+  show_cycles_ = std::max(show_cycles_, kIrxbShowCyclesExtra);
 
-  hitcon::service::sched::my_assert(packet_arg->len <= hitcon::ir::MAX_PACKET_PAYLOAD_BYTES);
+  hitcon::service::sched::my_assert(packet_arg->len <=
+                                    hitcon::ir::MAX_PACKET_PAYLOAD_BYTES);
 
   hitcon::ir::IrPacket pkt;
   pkt.data_[0] = 0;

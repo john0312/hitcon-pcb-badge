@@ -19,13 +19,18 @@ class IrxbBridge {
 
  private:
   void RoutineTask();
+  bool RoutineInternal();
   void OnPacketReceived(void* arg);
 
   hitcon::service::sched::DelayedTask routine_task_;
   int state_;
 
-  // Buffer for constructing an IrPacket from XBoard payload.
-  ir::IrPacket received_packet_buffer_;
+  int tx_cnt_;
+  int rx_cnt_;
+
+  char disp_txt_[4];
+
+  int show_cycles_;
 };
 
 extern IrxbBridge g_irxb_bridge;

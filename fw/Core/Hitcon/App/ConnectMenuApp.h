@@ -63,9 +63,19 @@ class ConnectBasestnMenuApp : public MenuApp {
   ConnectBasestnMenuApp()
       : MenuApp(connect_basestn_menu_entries,
                 connect_basestn_menu_entries_len) {}
+
+  void OnEntry() override;
+  void OnButton(button_t button) override;
+
   void OnButtonMode() override {}
   void OnButtonBack() override {}
   void OnButtonLongBack() override {}
+
+  void NotifyIrXbFinished();
+
+ private:
+  // False if IR-XB Bridge is working.
+  bool basestn_available_;
 };
 
 extern ConnectBasestnMenuApp connect_basestn_menu;
