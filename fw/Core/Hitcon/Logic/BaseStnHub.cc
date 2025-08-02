@@ -208,6 +208,7 @@ void BaseStationHub::SendXbToBaseStation() {
 void BaseStationHub::Routine(void*) {
   // to control plane
   SendToBaseStation();
+  SendXbToBaseStation();
 
   // to peripheral
   SendToIr();
