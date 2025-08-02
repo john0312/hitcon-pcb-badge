@@ -99,6 +99,8 @@ class GameLogicController:
                 game_type = GameType.TETRIS
             case 0x03:
                 game_type = GameType.DINO
+            case 0x4:
+                game_type = GameType.TAMA
             case _:
                 raise ValueError(f"TwoBadgeGameActivity: Unknown game type: {raw_game_type}")
 

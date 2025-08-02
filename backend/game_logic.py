@@ -23,6 +23,7 @@ class GameType(StrEnum):
     DINO = "dino"
     SNAKE = "snake"
     TETRIS = "tetris"
+    TAMA = "tama"
     CONNECT_SPONSOR = "connect_sponsor"
     RECTF = "rectf"
 
@@ -236,6 +237,10 @@ class _GameLogic:
             case GameType.TETRIS:
                 # TODO: validate the score and timestamp
                 pass
+
+            case GameType.TAMA:
+                # TODO: TAMA does not affect station score now
+                return 
 
         await self.score_history.insert_many([
             {
