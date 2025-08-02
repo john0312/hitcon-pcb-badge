@@ -83,8 +83,11 @@ class CryptoAuth:
                 return event.user2
             else:
                 raise UnsignedPacketError("Invalid signature for the packet")
-        elif event.__class__ == SponsorActivityEvent or event.__class__ == ScoreAnnounceEvent:
-            # SponsorActivityEvent, ScoreAnnounceEvent does not require signature verification
+        elif event.__class__ == SponsorActivityEvent:
+            # TODO: Verify SponsorActivityEvent with Sponsor's public key according to the sponsor_id
+            pass
+        elif event.__class__ == ScoreAnnounceEvent:
+            # ScoreAnnounceEvent does not require signature verification
             pass
         elif event.__class__ == PubAnnounceEvent:
             # Validate the public key with server key (CA)
