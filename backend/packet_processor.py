@@ -126,6 +126,7 @@ class PacketProcessor:
         async for packet in packets:
             # Convert the packet to IrPacketRequestSchema and yield it.
             yield IrPacketRequestSchema(
+                station_id=station.station_id,
                 packet_id=packet["packet_id"],
                 data=list(packet["data"])
             )
