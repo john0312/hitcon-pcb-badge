@@ -47,6 +47,16 @@ class CryptoAuth:
 
 
     @staticmethod
+    async def get_pubkeys_by_sponsor_id(sponsor_id: int) -> list[EccPublicKey]:
+        """
+        Get the public keys of the sponsor by sponsor_id.
+        """
+        sponsors = db["users"].find({"sponsor_id": sponsor_id})
+
+        return [CryptoAuth.parse_pubkey(s["pubkey"]) async for s in sponsors]
+
+
+    @staticmethod
     async def derive_user_by_pubkey(pub: EccPublicKey) -> Optional[int]:
         # Last byte of compact form of x is stored as sign in database.
         pub_x = CryptoAuth.encode_pubkey(pub)
@@ -88,8 +98,16 @@ class CryptoAuth:
             else:
                 raise UnsignedPacketError("Invalid signature for the packet")
         elif event.__class__ == SponsorActivityEvent:
-            # TODO: Verify SponsorActivityEvent with Sponsor's public key according to the sponsor_id
-            pass
+            # Verify SponsorActivityEvent with Sponsor's public key according to the sponsor_id
+            for pub in await CryptoAuth.get_pubkeys_by_sponsor_id(event.sponsor_id):
+                if ecc_verify(
+                    msg=ir_packet.data[2:-ECC_SIGNATURE_SIZE],
+                    sig=EccSignature.from_bytes(
+                        event.signature,
+                        pub=pub
+                    )
+                ):
+                    return event.user
         elif event.__class__ == ScoreAnnounceEvent:
             # ScoreAnnounceEvent does not require signature verification
             pass
