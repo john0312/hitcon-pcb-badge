@@ -5,6 +5,7 @@
 #include <App/HardwareTestApp.h>
 #include <App/MainMenuApp.h>
 #include <App/ShowNameApp.h>
+#include <App/TamaApp.h>
 #include <Hitcon.h>
 #include <Logic/IrController.h>
 #include <Logic/IrxbBridge.h>
@@ -126,6 +127,16 @@ void BadgeController::OnButton(void *arg1) {
 
 void BadgeController::OnXBoardConnect(void *unused) {
   if (current_app != &hardware_test_app) {
+    // if current is tama app，direct jump to tama app and run SetMultiplayer
+    if (current_app == &hitcon::app::tama::tama_app) {
+#ifdef TAMA_CENTER
+      hitcon::app::tama::SetBaseStationConnect();
+#else
+      hitcon::app::tama::SetMultiplayer();
+#endif
+      badge_controller.change_app(&hitcon::app::tama::tama_app);
+      return;
+    }
 #if BADGE_ROLE == BADGE_ROLE_ATTENDEE
     hitcon::sponsor::g_sponsor_req.OnXBoardConnect();
 #endif  // BADGE_ROLE == BADGE_ROLE_ATTENDEE
@@ -145,6 +156,16 @@ void BadgeController::OnXBoardBasestnConnect(void *unused) {
 }
 
 void BadgeController::OnXBoardDisconnect(void *unused) {
+  if (current_app == &hitcon::app::tama::tama_app) {
+#ifdef TAMA_CENTER
+    return;
+#else
+    tama_app.is_tama_scrolling_healing_finish_text = false;
+    hitcon::app::tama::SetSingleplayer();
+    badge_controller.change_app(&hitcon::app::tama::tama_app);
+    return;
+#endif
+  }
   if (current_app != &hardware_test_app)
     badge_controller.change_app(&show_name_app);
 }

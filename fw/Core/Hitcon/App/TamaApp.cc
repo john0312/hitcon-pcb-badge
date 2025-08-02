@@ -42,6 +42,10 @@ void TamaApp::Init() {
 }
 
 void SetSingleplayer() {
+  // XBoardLogic::PingRoutine will routine call SendPing(), then do CheckPing()
+  // and CheckPong() This will cause the TamaApp retry to enter single player
+  // mode. This is the preventing flag
+  if (tama_app.is_tama_scrolling_healing_finish_text) return;
   tama_app.player_mode = TAMA_PLAYER_MODE::MODE_SINGLEPLAYER;
   tama_app.xboard_state = TAMA_XBOARD_STATE::XBOARD_INVITE;
   tama_app.xboard_battle_invite = TAMA_XBOARD_BATTLE_INVITE::XBOARD_BATTLE_N;
@@ -56,10 +60,14 @@ void SetBaseStationConnect() {
 }
 
 void TamaApp::OnEntry() {
+  _anime_frame = 0;
   hitcon::service::sched::scheduler.EnablePeriodic(&_routine_task);
   if (player_mode == TAMA_PLAYER_MODE::MODE_MULTIPLAYER) {
+    // we can catch base station packet at here
     g_xboard_logic.SetOnPacketArrive((callback_t)&TamaApp::OnXBoardRecv, this,
                                      TAMA_RECV_ID);
+
+    // if not base station packet, we will keep going to at here
     _enemy_state = TAMA_XBOARD_STATE::XBOARD_INVITE;
 
     memcpy(&_enemy_score, 0, sizeof(_enemy_score));
@@ -76,11 +84,19 @@ void TamaApp::OnEntry() {
     return;
   }
   if (player_mode == TAMA_PLAYER_MODE::MODE_BASESTATION) {
-#ifndef TAMA_CENTER
-    // TamaHeal for player which is called from OnEntry.
-    TamaHeal();
-#endif
+#ifdef TAMA_CENTER
+    TAMA_XBOARD_PACKET_TYPE packet =
+        TAMA_XBOARD_PACKET_TYPE::PACKET_TAMA_CENTER;
+    g_xboard_logic.QueueDataForTx(reinterpret_cast<uint8_t*>(&packet),
+                                  sizeof(packet), TAMA_RECV_ID);
     return;
+#else
+    // TODO things to do when entering base station mode & is player
+    _tama_data.hp = 3;
+    _tama_data.food = 4;
+    _healing_status_showed = false;
+    return;
+#endif
   }
   my_assert(player_mode == TAMA_PLAYER_MODE::MODE_SINGLEPLAYER);
   if (_tama_data.state == TAMA_APP_STATE::CHOOSE_TYPE) {
@@ -374,191 +390,212 @@ void TamaApp::OnButton(button_t button) {
 // void TamaApp::OnEdgeButton(button_t button) {}
 
 void TamaApp::Routine(void* unused) {
+  bool needs_render = true;
+  bool needs_save = false;
+
   if (player_mode == TAMA_PLAYER_MODE::MODE_MULTIPLAYER) {
     XbRoutine(unused);
     return;
   }
   if (player_mode == TAMA_PLAYER_MODE::MODE_BASESTATION) {
 #ifdef TAMA_CENTER
-    // For BASESTATION mode. Always show anime and heal pets if they are coming.
-    TamaCenter();
-#endif
-    return;
-  }
-  my_assert(player_mode == TAMA_PLAYER_MODE::MODE_SINGLEPLAYER);
-  bool needs_render = true;
-  bool needs_save = false;
+    TAMA_XBOARD_PACKET_TYPE packet =
+        TAMA_XBOARD_PACKET_TYPE::PACKET_TAMA_CENTER;
+    g_xboard_logic.QueueDataForTx(reinterpret_cast<uint8_t*>(&packet),
+                                  sizeof(packet), TAMA_RECV_ID);
+    // For BASESTATION. Always show anime and heal pets if they are coming.
+    UpdateFrameBuffer();
+    needs_render = true;
+#else
 
-  switch (_tama_data.state) {
-    case TAMA_APP_STATE::SCROLL_WARNING:
-      // This state is used to display warning text, so we don't need to render
-      // anything else.
-      needs_render = false;
-      if (display_get_scroll_count() >= 1) {
-        _tama_data.state = TAMA_APP_STATE::IDLE;
-        needs_save = true;
-        UpdateFrameBuffer();
-      }
-      break;
-    case TAMA_APP_STATE::INTRO_TEXT:
-      needs_render = false;
-      if (display_get_scroll_count() >= 1) {
-        // update some system value
-        _tama_data.level = 1;
-        _tama_data.food = 4;
-        _tama_data.hp = 3;
-        // change type
-        _tama_data.state = TAMA_APP_STATE::CHOOSE_TYPE;
-        needs_render = true;
-        needs_save = true;
-        UpdateFrameBuffer();
-      }
-      break;
-
-#ifdef USE_NEW_HATCHING_ANIME  // TODO: Choose one
-    case TAMA_APP_STATE::EGG_1:
-    case TAMA_APP_STATE::EGG_2:
-    case TAMA_APP_STATE::EGG_3:
-    case TAMA_APP_STATE::EGG_4: {
-      unsigned int latest_shaking_count = g_imu_logic.GetStep();
-      while (latest_shaking_count - _previous_hatching_step >= 100) {
-        _previous_hatching_step += 100;
-        if (_tama_data.state == TAMA_APP_STATE::EGG_1) {
-          _tama_data.state = TAMA_APP_STATE::EGG_2;
-        } else if (_tama_data.state == TAMA_APP_STATE::EGG_2) {
-          _tama_data.state = TAMA_APP_STATE::EGG_3;
-        } else if (_tama_data.state == TAMA_APP_STATE::EGG_3) {
-          _tama_data.state = TAMA_APP_STATE::EGG_4;
-        } else if (_tama_data.state == TAMA_APP_STATE::EGG_4) {
-          _tama_data.state = TAMA_APP_STATE::HATCHING;
-          _frame_count = 0;
-        }
-        needs_save = true;
-        UpdateFrameBuffer();
-      }
+    if (_anime_frame < 6) {
+      _anime_frame++;
+      UpdateFrameBuffer();
       needs_render = true;
-      break;
+    } else {
+      // show msg until leave
+      needs_render = false;
+      if (!_healing_status_showed) {
+        _healing_status_showed = true;
+        is_tama_scrolling_healing_finish_text = true;
+        display_set_mode_scroll_text("Healing complete!");
+      }
     }
+#endif
+  }
+
+  if (player_mode == TAMA_PLAYER_MODE::MODE_SINGLEPLAYER) {
+    switch (_tama_data.state) {
+      case TAMA_APP_STATE::SCROLL_WARNING:
+        // This state is used to display warning text, so we don't need to
+        // render anything else.
+        needs_render = false;
+        if (display_get_scroll_count() >= 1) {
+          _tama_data.state = TAMA_APP_STATE::IDLE;
+          needs_save = true;
+          UpdateFrameBuffer();
+        }
+        break;
+      case TAMA_APP_STATE::INTRO_TEXT:
+        needs_render = false;
+        if (display_get_scroll_count() >= 1) {
+          // update some system value
+          _tama_data.level = 1;
+          _tama_data.food = 4;
+          _tama_data.hp = 3;
+          // change type
+          _tama_data.state = TAMA_APP_STATE::CHOOSE_TYPE;
+          needs_render = true;
+          needs_save = true;
+          UpdateFrameBuffer();
+        }
+        break;
+
+#ifdef USE_NEW_HATCHING_ANIME  // TODO: Choose one
+      case TAMA_APP_STATE::EGG_1:
+      case TAMA_APP_STATE::EGG_2:
+      case TAMA_APP_STATE::EGG_3:
+      case TAMA_APP_STATE::EGG_4: {
+        unsigned int latest_shaking_count = g_imu_logic.GetStep();
+        while (latest_shaking_count - _previous_hatching_step >= 100) {
+          _previous_hatching_step += 100;
+          if (_tama_data.state == TAMA_APP_STATE::EGG_1) {
+            _tama_data.state = TAMA_APP_STATE::EGG_2;
+          } else if (_tama_data.state == TAMA_APP_STATE::EGG_2) {
+            _tama_data.state = TAMA_APP_STATE::EGG_3;
+          } else if (_tama_data.state == TAMA_APP_STATE::EGG_3) {
+            _tama_data.state = TAMA_APP_STATE::EGG_4;
+          } else if (_tama_data.state == TAMA_APP_STATE::EGG_4) {
+            _tama_data.state = TAMA_APP_STATE::HATCHING;
+            _frame_count = 0;
+          }
+          needs_save = true;
+          UpdateFrameBuffer();
+        }
+        needs_render = true;
+        break;
+      }
 
 #else
-    case TAMA_APP_STATE::EGG:
-      if (_tama_data.latest_shaking_count <
-          (g_imu_logic.GetStep() + _hatching_skip_count)) {
-        _tama_data.latest_shaking_count =
-            (g_imu_logic.GetStep() + _hatching_skip_count);
-        needs_save = true;
-        UpdateFrameBuffer();
-      }
-      needs_render = true;
-      break;
+      case TAMA_APP_STATE::EGG:
+        if (_tama_data.latest_shaking_count <
+            (g_imu_logic.GetStep() + _hatching_skip_count)) {
+          _tama_data.latest_shaking_count =
+              (g_imu_logic.GetStep() + _hatching_skip_count);
+          needs_save = true;
+          UpdateFrameBuffer();
+        }
+        needs_render = true;
+        break;
 #endif
 
 #ifdef USE_NEW_HATCHING_ANIME  // TODO: Choose one
-    case TAMA_APP_STATE::HATCHING:
-      if (_frame_count >= 10) {
-        _tama_data.state = TAMA_APP_STATE::IDLE;
-        _frame_count = 0;
-        // The states following does not properly use fb machanism, so setting
-        // fb size to 1
-        _fb.fb_size = 1;
-      }
-      needs_render = true;
-      break;
+      case TAMA_APP_STATE::HATCHING:
+        if (_frame_count >= 10) {
+          _tama_data.state = TAMA_APP_STATE::IDLE;
+          _frame_count = 0;
+          // The states following does not properly use fb machanism, so setting
+          // fb size to 1
+          _fb.fb_size = 1;
+        }
+        needs_render = true;
+        break;
 #else
-    case TAMA_APP_STATE::HATCHING:
-      if (_hatching_warning_frame_count < 0) {
-        _tama_data.state = TAMA_APP_STATE::IDLE;
-        needs_save = true;
-      }
-      _hatching_warning_frame_count--;
-      needs_render = true;
-      UpdateFrameBuffer();
-      break;
+      case TAMA_APP_STATE::HATCHING:
+        if (_hatching_warning_frame_count < 0) {
+          _tama_data.state = TAMA_APP_STATE::IDLE;
+          needs_save = true;
+        }
+        _hatching_warning_frame_count--;
+        needs_render = true;
+        UpdateFrameBuffer();
+        break;
 
 #endif
-    case TAMA_APP_STATE::IDLE:
-      if (_anime_frame == 0) {
-        _anime_frame = 1;
-      } else if (_anime_frame == 1) {
-        _anime_frame = 0;
-      }
-      needs_render = true;
-      UpdateFrameBuffer();
-      break;
-    case TAMA_APP_STATE::FEED_ANIME:
-      if (_feeding_anime_frame == 10) {
-        _tama_data.state = TAMA_APP_STATE::IDLE;
-        _feeding_anime_frame = 0;
+      case TAMA_APP_STATE::IDLE:
+        if (_anime_frame == 0) {
+          _anime_frame = 1;
+        } else if (_anime_frame == 1) {
+          _anime_frame = 0;
+        }
         needs_render = true;
         UpdateFrameBuffer();
         break;
-      }
-      _feeding_anime_frame += 1;
-      needs_render = true;
-      UpdateFrameBuffer();
-      break;
-    case TAMA_APP_STATE::TRAINING_START_PAGE:
-      if (_feeding_anime_frame >= 3) {
-        _tama_data.state = TAMA_APP_STATE::COUNTDOWN_3;
-        _feeding_anime_frame = 0;
+      case TAMA_APP_STATE::FEED_ANIME:
+        if (_feeding_anime_frame == 10) {
+          _tama_data.state = TAMA_APP_STATE::IDLE;
+          _feeding_anime_frame = 0;
+          needs_render = true;
+          UpdateFrameBuffer();
+          break;
+        }
+        _feeding_anime_frame += 1;
         needs_render = true;
         UpdateFrameBuffer();
         break;
-      }
-      _feeding_anime_frame += 1;
-      needs_render = true;
-      UpdateFrameBuffer();
-      break;
-    case TAMA_APP_STATE::COUNTDOWN_3:
-      if (_feeding_anime_frame >= 1) {
-        _tama_data.state = TAMA_APP_STATE::COUNTDOWN_2;
-        _feeding_anime_frame = 0;
+      case TAMA_APP_STATE::TRAINING_START_PAGE:
+        if (_feeding_anime_frame >= 3) {
+          _tama_data.state = TAMA_APP_STATE::COUNTDOWN_3;
+          _feeding_anime_frame = 0;
+          needs_render = true;
+          UpdateFrameBuffer();
+          break;
+        }
+        _feeding_anime_frame += 1;
         needs_render = true;
         UpdateFrameBuffer();
         break;
-      }
-      _feeding_anime_frame += 1;
-      needs_render = true;
-      UpdateFrameBuffer();
-      break;
-    case TAMA_APP_STATE::COUNTDOWN_2:
-      if (_feeding_anime_frame >= 1) {
-        _tama_data.state = TAMA_APP_STATE::COUNTDOWN_1;
-        _feeding_anime_frame = 0;
+      case TAMA_APP_STATE::COUNTDOWN_3:
+        if (_feeding_anime_frame >= 1) {
+          _tama_data.state = TAMA_APP_STATE::COUNTDOWN_2;
+          _feeding_anime_frame = 0;
+          needs_render = true;
+          UpdateFrameBuffer();
+          break;
+        }
+        _feeding_anime_frame += 1;
         needs_render = true;
         UpdateFrameBuffer();
         break;
-      }
-      _feeding_anime_frame += 1;
-      needs_render = true;
-      UpdateFrameBuffer();
-      break;
-    case TAMA_APP_STATE::COUNTDOWN_1:
-      if (_feeding_anime_frame >= 1) {
-        _tama_data.state = TAMA_APP_STATE::COUNTDOWN_GO;
-        _feeding_anime_frame = 0;
+      case TAMA_APP_STATE::COUNTDOWN_2:
+        if (_feeding_anime_frame >= 1) {
+          _tama_data.state = TAMA_APP_STATE::COUNTDOWN_1;
+          _feeding_anime_frame = 0;
+          needs_render = true;
+          UpdateFrameBuffer();
+          break;
+        }
+        _feeding_anime_frame += 1;
         needs_render = true;
         UpdateFrameBuffer();
         break;
-      }
-      _feeding_anime_frame += 1;
-      needs_render = true;
-      UpdateFrameBuffer();
-      break;
-    case TAMA_APP_STATE::COUNTDOWN_GO:
-      if (_feeding_anime_frame >= 1) {
-        _tama_data.state = TAMA_APP_STATE::QTE_PAGE;
-        _feeding_anime_frame = 0;
+      case TAMA_APP_STATE::COUNTDOWN_1:
+        if (_feeding_anime_frame >= 1) {
+          _tama_data.state = TAMA_APP_STATE::COUNTDOWN_GO;
+          _feeding_anime_frame = 0;
+          needs_render = true;
+          UpdateFrameBuffer();
+          break;
+        }
+        _feeding_anime_frame += 1;
         needs_render = true;
         UpdateFrameBuffer();
         break;
-      }
-      _feeding_anime_frame += 1;
-      needs_render = true;
-      UpdateFrameBuffer();
-      break;
-    default:
-      break;
+      case TAMA_APP_STATE::COUNTDOWN_GO:
+        if (_feeding_anime_frame >= 1) {
+          _tama_data.state = TAMA_APP_STATE::QTE_PAGE;
+          _feeding_anime_frame = 0;
+          needs_render = true;
+          UpdateFrameBuffer();
+          break;
+        }
+        _feeding_anime_frame += 1;
+        needs_render = true;
+        UpdateFrameBuffer();
+        break;
+      default:
+        break;
+    }
   }
 
   if (needs_save) {
@@ -578,6 +615,28 @@ void TamaApp::UpdateFrameBuffer() {
 
   _fb.fb_size = 1;
   memset(_fb.fb[0], 0, sizeof(display_buf_t[DISPLAY_HEIGHT * DISPLAY_WIDTH]));
+
+  if (player_mode == TAMA_PLAYER_MODE::MODE_BASESTATION) {
+#ifdef TAMA_CENTER
+    if (_anime_frame == 0) {
+      get_tama_center_frame(FRAME_1, _fb.fb[0]);
+      _anime_frame = 1;
+    } else {
+      get_tama_center_frame(FRAME_2, _fb.fb[0]);
+      _anime_frame = 0;
+    }
+    return;
+#else
+
+    uint8_t healing_frame = _anime_frame % 2;
+    if (_tama_data.type == TAMA_TYPE::DOG) {
+      get_pet_healing_frame(PET_TYPE_DOG, healing_frame, _fb.fb[0]);
+    } else if (_tama_data.type == TAMA_TYPE::CAT) {
+      get_pet_healing_frame(PET_TYPE_CAT, healing_frame, _fb.fb[0]);
+    }
+    return;
+#endif
+  }
 
   switch (_tama_data.state) {
     case TAMA_APP_STATE::CHOOSE_TYPE:
@@ -823,6 +882,13 @@ void TamaApp::OnXBoardRecv(void* arg) {
       _enemy_state = TAMA_XBOARD_STATE::XBOARD_UNAVAILABLE;
       display_set_mode_scroll_text("Enemy unavailable");
       break;
+    case TAMA_XBOARD_PACKET_TYPE::PACKET_TAMA_CENTER:
+      // jump out from current app, change the base station mode then back
+      if (tama_app.player_mode != TAMA_PLAYER_MODE::MODE_BASESTATION) {
+        SetBaseStationConnect();
+        badge_controller.change_app(&tama_app);
+      }
+      return;
     default:
       my_assert(false);
       break;
@@ -830,6 +896,10 @@ void TamaApp::OnXBoardRecv(void* arg) {
 }
 
 void TamaApp::XbRoutine(void* unused) {
+  if (xboard_state == TAMA_XBOARD_STATE::XBOARD_TAMA_CENTER) {
+    return;
+  }
+
   // TODO: Handle all XBoard routine here
   if (xboard_state == TAMA_XBOARD_STATE::XBOARD_UNAVAILABLE ||
       _enemy_state == TAMA_XBOARD_STATE::XBOARD_UNAVAILABLE) {
@@ -871,23 +941,6 @@ void TamaApp::XbRoutine(void* unused) {
     g_game_controller.SendTwoBadgeActivity(activity);
   }
 
-  Render();
-}
-
-void TamaApp::TamaHeal() {
-  // TODO: Display animation of restoring
-  // self._tama_data.hp = ...
-
-void TamaApp::TamaCenter() {
-  _fb.fb_size = 1;
-  memset(_fb.fb[0], 0, sizeof(display_buf_t[DISPLAY_HEIGHT * DISPLAY_WIDTH]));
-  if (_anime_frame == 0) {
-    get_tama_center_frame(FRAME_1, _fb.fb[0]);
-    _anime_frame = 1;
-  } else {
-    get_tama_center_frame(FRAME_2, _fb.fb[0]);
-    _anime_frame = 0;
-  }
   Render();
 }
 

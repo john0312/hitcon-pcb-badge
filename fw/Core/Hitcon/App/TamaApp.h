@@ -2,8 +2,9 @@
 #define TAMA_APP_H
 #define TAMA_APP_MAX_FB_LENGTH 12
 
-//#define FOR_TAMA_TEST
-//#define USE_NEW_HATCHING_ANIME
+// #define TAMA_CENTER
+// #define FOR_TAMA_TEST
+// #define USE_NEW_HATCHING_ANIME
 
 #define TAMA_PREPARE_FB(FB, FB_SIZE) \
   FB.fb_size = FB_SIZE;              \
@@ -24,8 +25,6 @@
           (ANIMATION).frames_data[((ANIMATION).length) * m + n]; \
     }                                                            \
   }
-
-// #define TAMA_CENTER
 
 #include <Logic/Display/display.h>
 #include <Logic/ImuLogic.h>
@@ -100,6 +99,7 @@ enum class TAMA_PLAYER_MODE : uint8_t {
 
 enum class TAMA_XBOARD_PACKET_TYPE {
   // TODO: Add all packet type
+  PACKET_TAMA_CENTER,
   PACKET_CONFIRM,
   PACKET_ENIMY_INFO,
   PACKET_SCORE,
@@ -109,6 +109,7 @@ enum class TAMA_XBOARD_PACKET_TYPE {
 };
 
 enum class TAMA_XBOARD_STATE {
+  XBOARD_TAMA_CENTER,
   XBOARD_INVITE,
   XBOARD_BATTLE_ENCOUNTER,
   XBOARD_BATTLE_QTE,
@@ -244,6 +245,8 @@ class TamaApp : public App {
   bool _is_display_packed = false;
 #endif
 
+  bool _healing_status_showed = false;
+
   void Render();
   void Routine(void* unused);
   void UpdateFrameBuffer();
@@ -259,6 +262,7 @@ class TamaApp : public App {
   void XbRoutine(void* unused);
 
  public:
+  bool is_tama_scrolling_healing_finish_text = false;
   TAMA_PLAYER_MODE player_mode;
   TamaApp();
   virtual ~TamaApp() = default;
@@ -272,10 +276,6 @@ class TamaApp : public App {
   TAMA_XBOARD_STATE xboard_state;
   TAMA_XBOARD_BATTLE_INVITE xboard_battle_invite;
   void OnXBoardRecv(void* arg);
-
-  // BaseStation
-  void TamaHeal();
-  void TamaCenter();
 };
 
 void SetSingleplayer();
