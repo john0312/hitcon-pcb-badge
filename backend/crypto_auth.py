@@ -21,31 +21,35 @@ class CryptoAuth:
 
     # ===== Generic methods for any other layers =====
     @staticmethod
+    def parse_pubkey(pub_x: int) -> EccPublicKey:
+        pub = abs(pub_x)
+        sign = pub_x < 0
+        return EccPublicKey(point=ecc_get_point_by_x(pub, sign))
+
+
+    @staticmethod
+    def encode_pubkey(pub: EccPublicKey) -> int:
+        x = pub.point.x
+        sign = pub.point.y % 2
+        if sign:
+            x = -x
+        return x
+
+
+    @staticmethod
     async def get_pubkey_by_username(user: int) -> Optional[EccPublicKey]:
         u = await db["users"].find_one({"user": user})
 
         if u is None:
             return
-
-        pub_x = int(u["pubkey"])
-
-        if pub_x is None:
-            return
-
-        pub = abs(pub_x)
-        sign = pub_x < 0
-
-        pub = ecc_get_point_by_x(pub, sign)
-        return EccPublicKey(point=EccPoint(x=pub.x, y=pub.y))
+        
+        return CryptoAuth.parse_pubkey(u["pubkey"])
 
 
     @staticmethod
     async def derive_user_by_pubkey(pub: EccPublicKey) -> Optional[int]:
         # Last byte of compact form of x is stored as sign in database.
-        pub_x = pub.point.x
-        sign = pub.point.y % 2
-        if sign:
-            pub_x = -pub_x
+        pub_x = CryptoAuth.encode_pubkey(pub)
 
         user = await db["users"].find_one({"pubkey": pub_x})
 
