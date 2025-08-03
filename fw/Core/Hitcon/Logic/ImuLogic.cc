@@ -325,7 +325,8 @@ void ImuLogic::OnRxDone(void* arg1) {
     } else {
       increment = (val - _last_step_reg);
     }
-    _step += increment;
+    // increment must be reasonable
+    if (increment <= SHAKING_THRESHOLD * 2) _step += increment;
     _last_step_reg = val;
     _is_shaking = (increment >= SHAKING_THRESHOLD);
     _state = RoutineState::GET_STEP;
