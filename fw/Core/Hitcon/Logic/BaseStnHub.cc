@@ -82,8 +82,10 @@ void BaseStationHub::OnIrPacketRecv(uint8_t* data, size_t cnt) {
   WriteBuffer(BufferType::RX, data, cnt);
 }
 
-void BaseStationHub::OnXBoardPacketRecv(uint8_t* data, size_t cnt) {
-  WriteBuffer(BufferType::XBRX, data, cnt);
+
+void BaseStationHub::OnXBoardPacketRecv(void* arg1) {
+  auto* packet = reinterpret_cast<hitcon::service::xboard::PacketCallbackArg*>(arg1);
+  WriteBuffer(BufferType::XBRX, packet->data, packet->len);
 }
 
 void BaseStationHub::QueueTxHandler(PacketCallbackArg* arg) {

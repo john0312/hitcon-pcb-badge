@@ -62,7 +62,7 @@ class BaseStationHub {
   bool ReadBuffer(BufferType buffer_type, uint8_t* data, size_t& cnt);
 
   void OnIrPacketRecv(uint8_t* data, size_t cnt);
-  void OnXBoardPacketRecv(uint8_t* data, size_t cnt);
+  void OnXBoardPacketRecv(void* arg1);
 
  private:
   // 4 rx buffers and 4 tx buffers.
