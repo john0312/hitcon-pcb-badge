@@ -704,8 +704,10 @@ void TamaApp::ConcateAnimtaions(uint8_t count, ...) {
     tama_ani_t* next = va_arg(args, tama_ani_t*);
     my_assert(next->frame_count == _fb.fb_size);
     my_assert(offset + next->length <= DISPLAY_WIDTH);
+    TAMA_COPY_FB(_fb, *next, offset);
     offset += next->length;
   }
+  va_end(args);
 }
 
 void TamaQte::Routine() {
