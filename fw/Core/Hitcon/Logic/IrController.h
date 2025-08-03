@@ -145,6 +145,8 @@ struct IrData {
     struct ScoreAnnouncePacket score_announce;
     struct SingleBadgeActivityPacket single_activity;
     struct SponsorActivityPacket sponsor_activity;
+    struct ShowMsgPacket show_msg;
+    struct RequestScorePacket request_score;
   } opaq;
 };
 
