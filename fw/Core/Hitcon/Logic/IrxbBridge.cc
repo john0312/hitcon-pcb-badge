@@ -63,7 +63,7 @@ bool IrxbBridge::RoutineInternal() {
   if (state_ == kStateInit) {
     // Start of the loop
     state_ = kStateBase;
-    disp_txt_[0] = 'B';
+    disp_txt_[0] = '-';
     disp_txt_[1] = '-';
     disp_txt_[2] = '-';
     disp_txt_[3] = 0;
@@ -111,7 +111,11 @@ bool IrxbBridge::RoutineInternal() {
   if (set_txrx_text) {
     tx_cnt_ = std::min(tx_cnt_, 15);
     rx_cnt_ = std::min(rx_cnt_, 15);
-    disp_txt_[0] = 'B';
+    if (hitcon::service::xboard::g_xboard_service.IsTxBusy()) {
+      disp_txt_[0] = '\\';
+    } else {
+      disp_txt_[0] = '/';
+    }
     disp_txt_[1] = hitcon::uint_to_chr_hex_nibble(tx_cnt_);
     disp_txt_[2] = hitcon::uint_to_chr_hex_nibble(rx_cnt_);
     disp_txt_[3] = 0;
