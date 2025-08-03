@@ -116,6 +116,7 @@ enum class TAMA_ANIMATION_TYPE : uint8_t {
   HEART_3,
   HEART_2,
   HEART_1,
+  NEED_HEAL,
   LV,
   XB_BATTLE_INVITE,
   XB_PLAYER_DOG,
@@ -225,8 +226,7 @@ class TamaApp : public App {
   hitcon::service::sched::DelayedTask _hatching_task;
   tama_storage_t& _tama_data;
   tama_display_fb_t _fb;
-  int _frame_count = 0;
-  int _feeding_anime_frame = 0;
+  unsigned int _frame_count = 0;
   bool _is_selected = false;
   unsigned int _previous_hatching_step = 0;
   unsigned int _total_hatchin_steps = 0;
@@ -237,8 +237,8 @@ class TamaApp : public App {
   void Routine(void* unused);
   void UpdateFrameBuffer();
   void StackOnFrame(const tama_display_component_t* component, int offset);
-  void StackOnFrame(const tama_display_component_t* component,
-                    display_buf_t mask, int offset);
+  void StackOnFrameBlinking(const tama_display_component_t* component,
+                            int offset);
   void ConcateAnimtaions(uint8_t count, ...);
   void HatchingRoutine(void* unused);
 
@@ -329,11 +329,12 @@ constexpr display_buf_t TAMA_PET_SELECTION_FRAMES[] = {
   0x00, 0x18, 0x60, 0x30, 0x7C, 0x38, 0x7C, 0x00, 0x18, 0x70, 0x38, 0x7E, 0x3C, 0x7E, 0x3C, 0x08
 };
 constexpr display_buf_t TAMA_FEEDING_FRAMES[] = {
-  // size 4x7
-  0x38, 0x5C, 0xF6, 0xBE, 0xFA, 0x6C, 0x38,
-  0x38, 0x54, 0xF0, 0xAA, 0xF0, 0x68, 0x30,
-  0x20, 0x50, 0xA0, 0x48, 0x80, 0x50, 0x00,
-  0, 0, 0, 0, 0, 0, 0,
+  // size 5x8
+  0b00111000, 0b01000100, 0b01110010, 0b01110001, 0b01110001, 0b01110010, 0b01000100, 0b00111000,
+  0b00111000, 0b01000100, 0b01110010, 0b01110001, 0b01110111, 0b01111000, 0b01001000, 0b00111000,
+  0b00110000, 0b01010000, 0b01110000, 0b01110000, 0b01111000, 0b01111000, 0b01001000, 0b00111000,
+  0, 0b01100000, 0b01110000, 0b01100000, 0, 0b010000, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0
 };
 constexpr display_buf_t TAMA_DOG_FED_HEALING_FRAMES[] = {
   // size 2x8
@@ -346,8 +347,8 @@ constexpr display_buf_t TAMA_CAT_FED_HEALING_FRAMES[] = {
   0x10, 0x50, 0xA0, 0xC2, 0xF4, 0xE2, 0xF0, 0x00,
 };
 constexpr display_buf_t TAMA_FEED_CONFIRM_FRAMES[] = {
-  // size 1x16
-  0x3C, 0x08, 0x10, 0x3C, 0x00, 0x38, 0x5C, 0xF6, 0xBE, 0xFA, 0x6C, 0x38, 0x00, 0x1C, 0x30, 0x1C
+  // size 1x8
+  0b00111000, 0b001000100, 0b01110010, 0b01110001, 0b01110001, 0b01110010, 0b01000100, 0b00111000
 };
 constexpr display_buf_t TAMA_HEART_3_FRAMES[] = {
   // size 2x8
@@ -364,14 +365,19 @@ constexpr display_buf_t TAMA_HEART_1_FRAMES[] = {
   0x0, 0x0, 0x0, 0b1100, 0b11000, 0b1100, 0x0, 0x0,
   0x0, 0x0, 0x0, 0b11000, 0b110000, 0b11000, 0x0, 0x0,
 };
+constexpr display_buf_t TAMA_NEED_HEAL_FRAMES[] = {
+  // size 2x8
+  0, 0x60, 0xf0, 0xf8, 0x74, 0x22, 0x12, 0x0C,
+  0, 0x30, 0x78, 0x7c, 0x3a, 0x11, 0x09, 0x06,
+};
 constexpr display_buf_t TAMA_LV_FRAMES[] = {
   // size 2x4
   0b00001110, 0b01101000, 0b10000000, 0b01100000,
   0b00000111, 0b00110100, 0b01000000, 0b00110000,
 };
 constexpr display_buf_t TAMA_XB_BATTLE_INVITE_FRAMES[] = {
-  // size 1x16
-  0x3C, 0x08, 0x10, 0x3C, 0x00, 0x80, 0x58, 0x30, 0x68, 0x54, 0x0A, 0x06, 0x00, 0x1C, 0x30, 0x1C
+  // size 1x8
+  0x80, 0x58, 0x30, 0x68, 0x54, 0x0A, 0x05, 0x03
 };
 constexpr display_buf_t TAMA_XB_PLAYER_DOG_FRAMES[] = {
   // size 2x8
@@ -439,8 +445,8 @@ constexpr tama_ani_t animation[] = {
      .length = 16,
      .frames_data = TAMA_PET_SELECTION_FRAMES},
     {.type = TAMA_ANIMATION_TYPE::FEEDING,
-     .frame_count = 4,
-     .length = 7,
+     .frame_count = 5,
+     .length = 8,
      .frames_data = TAMA_FEEDING_FRAMES},
     {.type = TAMA_ANIMATION_TYPE::DOG_FED_HEALING,
      .frame_count = 2,
@@ -452,7 +458,7 @@ constexpr tama_ani_t animation[] = {
      .frames_data = TAMA_CAT_FED_HEALING_FRAMES},
     {.type = TAMA_ANIMATION_TYPE::FEED_CONFIRM,
      .frame_count = 1,
-     .length = 16,
+     .length = 8,
      .frames_data = TAMA_FEED_CONFIRM_FRAMES},
     {.type = TAMA_ANIMATION_TYPE::HEART_3,
      .frame_count = 2,
@@ -466,13 +472,17 @@ constexpr tama_ani_t animation[] = {
      .frame_count = 2,
      .length = 8,
      .frames_data = TAMA_HEART_1_FRAMES},
+    {.type = TAMA_ANIMATION_TYPE::NEED_HEAL,
+     .frame_count = 2,
+     .length = 8,
+     .frames_data = TAMA_NEED_HEAL_FRAMES},
     {.type = TAMA_ANIMATION_TYPE::LV,
      .frame_count = 2,
      .length = 4,
      .frames_data = TAMA_LV_FRAMES},
     {.type = TAMA_ANIMATION_TYPE::XB_BATTLE_INVITE,
      .frame_count = 1,
-     .length = 16,
+     .length = 8,
      .frames_data = TAMA_XB_BATTLE_INVITE_FRAMES},
     {.type = TAMA_ANIMATION_TYPE::XB_PLAYER_DOG,
      .frame_count = 2,
@@ -538,12 +548,11 @@ ASSERT_ANIMATION_PROPERTIES(XB_ENEMY_CAT);
 // clang-format off
 constexpr display_buf_t TAMA_PET_SELECTION_CURSOR[8] = {
   0x82, 0x81, 0x81, 0x81, 0x81, 0x81, 0x81, 0x82};
-constexpr display_buf_t TAMA_HP_FOOD_ICONS[3] = {0b01000110, 0b10101100,
-                                                 0b01000110};
+constexpr display_buf_t TAMA_N_FONT[3] = { 0b00111100, 0b00000100, 0b00111000 };
+constexpr display_buf_t TAMA_Y_FONT[3] = { 0b01011100, 0b01010000, 0b00111100 };
 constexpr display_buf_t TAMA_HOSPITAL_ICONS[8] = {
   0x00, 0x18, 0x18, 0x7E, 0x7E, 0x18, 0x18, 0x00};
-constexpr display_buf_t TAMA_N_SELECTION_CURSOR[4] = {0x80, 0x80, 0x80, 0x80};
-constexpr display_buf_t TAMA_Y_SELECTION_CURSOR[3] = {0x80, 0x80, 0x80};
+constexpr display_buf_t TAMA_SELECTION_CURSOR[3] = {0x80, 0x80, 0x80};
 constexpr display_buf_t TAMA_NUM_ONE[3] = {0, 0, 0b11111000};
 constexpr display_buf_t TAMA_NUM_TWO[3] = {0b11101000, 0b10101000, 0b10111000};
 constexpr display_buf_t TAMA_NUM_THREE[3] = {0b10101000, 0b10101000, 0b11111000};
@@ -560,21 +569,21 @@ constexpr tama_display_component_t TAMA_COMPONENT_PET_SELECTION_CURSOR = {
     .data = TAMA_PET_SELECTION_CURSOR,
     .length = 8,
 };
-constexpr tama_display_component_t TAMA_COMPONENT_HP_FOOD_ICONS = {
-    .data = TAMA_HP_FOOD_ICONS,
+constexpr tama_display_component_t TAMA_COMPONENT_N_FONT = {
+    .data = TAMA_N_FONT,
+    .length = 3,
+};
+constexpr tama_display_component_t TAMA_COMPONENT_Y_FONT = {
+    .data = TAMA_Y_FONT,
+    .length = 3,
+};
+constexpr tama_display_component_t TAMA_COMPONENT_SELECTION_CURSOR = {
+    .data = TAMA_SELECTION_CURSOR,
     .length = 3,
 };
 constexpr tama_display_component_t TAMA_COMPONENT_HOSPITAL_ICONS = {
     .data = TAMA_HOSPITAL_ICONS,
     .length = 8,
-};
-constexpr tama_display_component_t TAMA_COMPONENT_N_SELECTION_CURSOR = {
-    .data = TAMA_N_SELECTION_CURSOR,
-    .length = 4,
-};
-constexpr tama_display_component_t TAMA_COMPONENT_Y_SELECTION_CURSOR = {
-    .data = TAMA_Y_SELECTION_CURSOR,
-    .length = 3,
 };
 constexpr tama_display_component_t TAMA_COMPONENT_NUM_ONE = {
     .data = TAMA_NUM_ONE,
@@ -625,10 +634,10 @@ constexpr tama_display_component_t TAMA_COMPONENT_NUM_ZERO = {
                 #TYPE_NAME_STR " Data mismatch");
 
 ASSERT_COMPONENT_PROPERTIES(PET_SELECTION_CURSOR);
-ASSERT_COMPONENT_PROPERTIES(HP_FOOD_ICONS);
+ASSERT_COMPONENT_PROPERTIES(N_FONT);
+ASSERT_COMPONENT_PROPERTIES(Y_FONT);
+ASSERT_COMPONENT_PROPERTIES(SELECTION_CURSOR);
 ASSERT_COMPONENT_PROPERTIES(HOSPITAL_ICONS);
-ASSERT_COMPONENT_PROPERTIES(N_SELECTION_CURSOR);
-ASSERT_COMPONENT_PROPERTIES(Y_SELECTION_CURSOR);
 ASSERT_COMPONENT_PROPERTIES(NUM_ONE);
 ASSERT_COMPONENT_PROPERTIES(NUM_TWO);
 ASSERT_COMPONENT_PROPERTIES(NUM_THREE);

@@ -152,6 +152,8 @@ void TamaApp::OnButton(button_t button) {
       switch (_tama_data.state) {
         case TAMA_APP_STATE::INTRO_TEXT:
           // just wait for the text to scroll finished
+          _tama_data.state = TAMA_APP_STATE::CHOOSE_TYPE;
+          needs_update_fb = true;
           break;
         case TAMA_APP_STATE::CHOOSE_TYPE:
           _tama_data.type = _current_selection_in_choose_mode;
@@ -184,15 +186,15 @@ void TamaApp::OnButton(button_t button) {
           _frame_count = 0;
           needs_update_fb = true;
           break;
+        case TAMA_APP_STATE::IDLE:
+          _tama_data.hp = _tama_data.hp ? _tama_data.hp - 1 : 3;
+          needs_update_fb = true;
+          break;
 #endif
         case TAMA_APP_STATE::FEED_CONFIRM:
-          if (_is_selected) {
-            _tama_data.state = TAMA_APP_STATE::FEED_ANIME;
-            needs_update_fb = true;
-          } else {
-            _tama_data.state = TAMA_APP_STATE::IDLE;
-            needs_update_fb = true;
-          }
+          _tama_data.state =
+              _is_selected ? TAMA_APP_STATE::FEED_ANIME : TAMA_APP_STATE::IDLE;
+          needs_update_fb = true;
           break;
         default:
           // No action for other states on OK press, or handle as needed
@@ -309,9 +311,6 @@ void TamaApp::Routine(void* unused) {
     case TAMA_APP_STATE::INTRO_TEXT:
       needs_render = false;
       if (display_get_scroll_count() >= 1) {
-        // update some system value
-        _tama_data.level = 1;
-        _tama_data.hp = 3;
         // change type
         _tama_data.state = TAMA_APP_STATE::CHOOSE_TYPE;
         needs_render = true;
@@ -326,9 +325,11 @@ void TamaApp::Routine(void* unused) {
       needs_render = true;
       break;
     case TAMA_APP_STATE::HATCHING:
-      if (_frame_count >= 10) {
+      if (_frame_count >= 8) {
         _tama_data.state = TAMA_APP_STATE::IDLE;
         _tama_data.hatched = true;
+        _tama_data.level = 1;
+        _tama_data.hp = 3;
         needs_save = true;
         UpdateFrameBuffer();
       }
@@ -338,7 +339,7 @@ void TamaApp::Routine(void* unused) {
       needs_render = true;
       break;
     case TAMA_APP_STATE::FEED_ANIME:
-      if (_frame_count == 4) {
+      if (_frame_count == TAMA_GET_ANIMATION_DATA(FEEDING).frame_count) {
         _tama_data.state = TAMA_APP_STATE::PET_FED;
         UpdateFrameBuffer();
         break;
@@ -423,6 +424,7 @@ void TamaApp::UpdateFrameBuffer() {
           ConcateAnimtaions(2, pet, &TAMA_GET_ANIMATION_DATA(HEART_1));
           break;
         case 0:
+          ConcateAnimtaions(2, pet, &TAMA_GET_ANIMATION_DATA(NEED_HEAL));
           break;
         default:
           my_assert(false);
@@ -440,16 +442,15 @@ void TamaApp::UpdateFrameBuffer() {
       break;
     case TAMA_APP_STATE::FEED_CONFIRM:
       TAMA_PREPARE_FB(_fb, TAMA_GET_ANIMATION_DATA(FEED_CONFIRM).frame_count);
-      TAMA_COPY_FB(_fb, TAMA_GET_ANIMATION_DATA(FEED_CONFIRM), 0);
-      if (_is_selected) {
-        StackOnFrame(&TAMA_COMPONENT_Y_SELECTION_CURSOR, 13);
-      } else {
-        StackOnFrame(&TAMA_COMPONENT_N_SELECTION_CURSOR, 0);
-      }
+      TAMA_COPY_FB(_fb, TAMA_GET_ANIMATION_DATA(FEED_CONFIRM), 4);
+      StackOnFrame(&TAMA_COMPONENT_N_FONT, 0);
+      StackOnFrame(&TAMA_COMPONENT_Y_FONT, 13);
+      StackOnFrameBlinking(&TAMA_COMPONENT_SELECTION_CURSOR,
+                           _is_selected ? 13 : 0);
       break;
     case TAMA_APP_STATE::FEED_ANIME:
       TAMA_PREPARE_FB(_fb, TAMA_GET_ANIMATION_DATA(FEEDING).frame_count);
-      TAMA_COPY_FB(_fb, TAMA_GET_ANIMATION_DATA(FEEDING), 5);
+      TAMA_COPY_FB(_fb, TAMA_GET_ANIMATION_DATA(FEEDING), 4);
       break;
     case TAMA_APP_STATE::PET_FED: {
       const tama_ani_t* pet = nullptr;
@@ -543,15 +544,14 @@ void TamaApp::XbUpdateFrameBuffer() {
     case TAMA_XBOARD_STATE::XBOARD_INVITE:
       TAMA_PREPARE_FB(_fb,
                       TAMA_GET_ANIMATION_DATA(XB_BATTLE_INVITE).frame_count);
-      TAMA_COPY_FB(_fb, TAMA_GET_ANIMATION_DATA(XB_BATTLE_INVITE), 0);
-      if (xboard_battle_invite == TAMA_XBOARD_BATTLE_INVITE::XBOARD_BATTLE_N) {
-        StackOnFrame(&TAMA_COMPONENT_N_SELECTION_CURSOR, 0);
-      } else if (xboard_battle_invite ==
-                 TAMA_XBOARD_BATTLE_INVITE::XBOARD_BATTLE_Y) {
-        StackOnFrame(&TAMA_COMPONENT_Y_SELECTION_CURSOR, 13);
-      } else {
-        my_assert(false);
-      }
+      TAMA_COPY_FB(_fb, TAMA_GET_ANIMATION_DATA(XB_BATTLE_INVITE), 4);
+      StackOnFrame(&TAMA_COMPONENT_N_FONT, 0);
+      StackOnFrame(&TAMA_COMPONENT_Y_FONT, 13);
+      StackOnFrameBlinking(
+          &TAMA_COMPONENT_SELECTION_CURSOR,
+          xboard_battle_invite == TAMA_XBOARD_BATTLE_INVITE::XBOARD_BATTLE_N
+              ? 0
+              : 13);
       break;
     case TAMA_XBOARD_STATE::XBOARD_BATTLE_ENCOUNTER:
       if (_enemy_state == TAMA_XBOARD_STATE::XBOARD_BATTLE_ENCOUNTER) {
@@ -594,7 +594,8 @@ void TamaApp::OnXBoardRecv(void* arg) {
     case TAMA_XBOARD_PACKET_TYPE::PACKET_CONFIRM:
       _enemy_state = TAMA_XBOARD_STATE::XBOARD_BATTLE_ENCOUNTER;
       memcpy(&_enemy_info, packet->data, sizeof(_enemy_info));
-      my_assert(_enemy_info.type == TAMA_TYPE::DOG || _enemy_info.type == TAMA_TYPE::CAT);
+      my_assert(_enemy_info.type == TAMA_TYPE::DOG ||
+                _enemy_info.type == TAMA_TYPE::CAT);
       UpdateFrameBuffer();
       break;
     case TAMA_XBOARD_PACKET_TYPE::PACKET_SCORE:
@@ -685,15 +686,27 @@ void TamaApp::TamaHeal() {
 
 void TamaApp::StackOnFrame(const tama_display_component_t* component,
                            int offset) {
-  StackOnFrame(component, 0xff, offset);
-}
-
-void TamaApp::StackOnFrame(const tama_display_component_t* component,
-                           display_buf_t mask, int offset) {
   for (int i = 0; i < _fb.fb_size; i++) {
     for (int j = offset; (j < component->length + offset && j < DISPLAY_WIDTH);
          j++) {
-      _fb.fb[i][j] |= ((component->data)[j - offset] & mask);
+      _fb.fb[i][j] |= (component->data)[j - offset];
+    }
+  }
+}
+
+void TamaApp::StackOnFrameBlinking(const tama_display_component_t* component,
+                                   int offset) {
+  if (_fb.fb_size % 2) {
+    // Double the frames for blinking effects
+    for (int i = 0; i < _fb.fb_size; i++) {
+      memcpy(_fb.fb[_fb.fb_size + i], _fb.fb[i], sizeof(_fb.fb[i]));
+    }
+    _fb.fb_size *= 2;
+  }
+  for (int i = 0; i < _fb.fb_size; i += 2) {
+    for (int j = offset; (j < component->length + offset && j < DISPLAY_WIDTH);
+         j++) {
+      _fb.fb[i][j] |= (component->data)[j - offset];
     }
   }
 }
