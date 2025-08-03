@@ -141,7 +141,7 @@ async def get_hitcon_linkage(credentials: HTTPAuthorizationCredentials = Securit
     if not credentials.credentials:
         raise HTTPException(status_code=400, detail="Missing token")
 
-    uid = await BadgeLinkController.get_uid_with_token(credentials.credentials)
+    uid, name = await BadgeLinkController.parse_badge_token(credentials.credentials)
 
     if not uid:
         raise HTTPException(status_code=401, detail="Invalid token")
@@ -149,8 +149,7 @@ async def get_hitcon_linkage(credentials: HTTPAuthorizationCredentials = Securit
     # Get the badge user linked to the UID
     badge_user = await BadgeLinkController.translate_uid_to_user(uid)
 
-    # TODO: handle name
-    return {"badge_user": badge_user, "name": ""}
+    return {"badge_user": badge_user, "name": name}
 
 
 @app.post("/hitcon/link")
@@ -162,7 +161,7 @@ async def hitcon_link(schema: BadgeLinkSchema, credentials: HTTPAuthorizationCre
     if not credentials.credentials:
         raise HTTPException(status_code=400, detail="Missing token")
 
-    uid = await BadgeLinkController.get_uid_with_token(credentials.credentials)
+    uid, name = await BadgeLinkController.parse_badge_token(credentials.credentials)
 
     if not uid:
         raise HTTPException(status_code=401, detail="Invalid token")
@@ -171,7 +170,7 @@ async def hitcon_link(schema: BadgeLinkSchema, credentials: HTTPAuthorizationCre
         raise HTTPException(status_code=422, detail="badge_user is required")
 
     # Link the badge with the attendee
-    old_badge_user, _ = await BadgeLinkController.link_badge_with_attendee(uid, schema.badge_user)
+    old_badge_user, _ = await BadgeLinkController.link_badge_with_attendee(uid, schema.badge_user, name)
 
     if old_badge_user is not None:
         # remove old badge buff

@@ -19,19 +19,21 @@ class BadgeLinkController:
 
 
     @staticmethod
-    async def get_uid_with_token(token: str) -> Optional[str]:
-        # Implement the logic for retrieving UID with HITCON token
-        # return None if the token is invalid
+    async def parse_badge_token(token: str) -> Optional[str]:
+        """
+        Retrieve UID and Name from badge token (JWT).
+        Return None if the token is invalid.
+        """
         # TODO: Verify jwt signature
         user = jwt.decode(token, options={"verify_signature": False})
 
         if "scope" not in user or "badge" not in user["scope"]: return
 
-        return user.get("sub")
+        return user.get("sub"), user.get("nick")
 
 
     @staticmethod
-    async def link_badge_with_attendee(uid: str, badge_user: int) -> tuple[Union[None, int], int]:
+    async def link_badge_with_attendee(uid: str, badge_user: int, name: str) -> tuple[Union[None, int], int]:
         """
         Link an attendee to a badge.
         Raise exception if the badge is already linked to another attendee.
@@ -53,5 +55,5 @@ class BadgeLinkController:
         if old_badge_user == badge_user:
             return None, badge_user
 
-        await db[BadgeLinkController.DB_NAME].insert_one({"uid": uid, "badge_user": badge_user})
+        await db[BadgeLinkController.DB_NAME].insert_one({"uid": uid, "badge_user": badge_user, "name": name})
         return old_badge_user, badge_user  # Return None for the previous badge user, and the new badge user ID
