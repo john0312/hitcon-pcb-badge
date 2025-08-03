@@ -649,10 +649,12 @@ void TamaApp::StackOnFrame(const tama_display_component_t* component,
 }
 
 void TamaApp::HatchingRoutine(void* unused) {
-  my_assert(_tama_data.state == TAMA_APP_STATE::EGG_1 ||
-            _tama_data.state == TAMA_APP_STATE::EGG_2 ||
-            _tama_data.state == TAMA_APP_STATE::EGG_3 ||
-            _tama_data.state == TAMA_APP_STATE::EGG_4);
+  if (_tama_data.state != TAMA_APP_STATE::EGG_1 ||
+      _tama_data.state != TAMA_APP_STATE::EGG_2 ||
+      _tama_data.state != TAMA_APP_STATE::EGG_3 ||
+      _tama_data.state != TAMA_APP_STATE::EGG_4) {
+    return;
+  }
   unsigned int step = g_imu_logic.GetStep();
   constexpr int hatching_delta = TAMA_HATCHING_STEPS / 4;
   if (step > _previous_hatching_step) {
