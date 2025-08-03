@@ -20,7 +20,7 @@ void BadUsbApp::OnExit() { g_usb_logic.StopScript(); }
 void BadUsbApp::OnButton(button_t button) {
   switch (button & BUTTON_VALUE_MASK) {
     case BUTTON_BACK:
-      badge_controller.change_app(&usb_menu);
+      badge_controller.BackToMenu(this);
       break;
     case BUTTON_OK:
       if (_skip_crc) {

@@ -6,6 +6,7 @@
 #include <App/DebugApp.h>
 #include <App/DinoApp.h>
 #include <App/ScoreHistApp.h>
+#include <App/ShowIdApp.h>
 #include <App/ShowNameApp.h>
 #include <App/SnakeApp.h>
 #include <App/TamaApp.h>
@@ -28,6 +29,7 @@ constexpr menu_entry_t main_menu_entries[] = {
     {"Snake", &snake_app, &hitcon::app::snake::SetSingleplayer},
     {"Tetris", &tetris_app, &hitcon::app::tetris::SetSingleplayer},
     {"Dino", &dino_app, nullptr},
+    {"Show ID", &show_id_app, nullptr},
     {"Show Scores", &score_hist::g_score_hist, nullptr},
     {"Bouncing DVD", &bouncing_dvd_app, nullptr},
     {"BadUSB", &hitcon::usb::bad_usb_app, nullptr},

@@ -3,6 +3,7 @@
 
 #include <App/BadUsbApp.h>
 #include <App/MenuApp.h>
+#include <App/ShowIdApp.h>
 
 namespace hitcon {
 namespace usb {
@@ -11,7 +12,7 @@ extern void SendBadgeID();
 
 constexpr menu_entry_t usb_menu_entries[] = {
     {"BadUSB", &bad_usb_app, nullptr},
-    {"Badge ID", nullptr, &SendBadgeID},
+    {"Badge ID", &show_id_app, nullptr},
 };
 
 constexpr int usb_menu_entries_len =

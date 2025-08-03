@@ -83,6 +83,8 @@ void BadgeController::BackToMenu(App *ending_app) {
     change_app(&connect_legacy_menu);
   } else if (conn_state == UsartConnectState::ConnectBaseStn2025) {
     change_app(&connect_basestn_menu);
+  } else if (usb::g_usb_service.IsConnected()) {
+    change_app(&usb::usb_menu);
   } else {
     change_app(&main_menu);
   }
@@ -180,11 +182,9 @@ void BadgeController::OnUsbPlugIn(void *unused) {
 }
 
 void BadgeController::OnUsbPlugOut(void *unused) {
-  if (GetCurrentApp() == &usb::usb_menu) {
+  if (GetCurrentApp() == &usb::usb_menu ||
+      GetCurrentApp() == &usb::bad_usb_app) {
     change_app(&show_name_app);
-  } else if (GetCurrentApp() == &usb::bad_usb_app) {
-    change_app(&show_name_app);
-    usb::g_usb_logic.StopScript();
   }
 }
 }  // namespace hitcon

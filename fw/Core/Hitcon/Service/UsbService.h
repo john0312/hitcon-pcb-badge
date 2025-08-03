@@ -20,6 +20,12 @@ constexpr unsigned REPORT_LEN = USBD_CUSTOMHID_OUTREPORT_BUF_SIZE;
 constexpr unsigned KEYBOARD_REPORT_ID = 1;
 constexpr unsigned CUSTOM_REPORT_ID = 2;
 
+constexpr uint8_t KEYCODE_A = 0x04;
+constexpr uint8_t KEYCODE_1 = 0x1E;
+constexpr uint8_t KEYCODE_0 = 0x27;
+constexpr uint8_t KEYCODE_SPACE = 0x2c;
+constexpr uint8_t MODIFIER_LSHIFT = 0x02;
+
 struct Report {
   uint8_t report_id;
   union {
@@ -62,6 +68,7 @@ class UsbService {
   // The data should be REPORT_LEN bytes long.
   void SendCustomReport(uint8_t* data);
   bool IsBusy() { return _retrying; }
+  bool IsConnected() { return _connected; }
 
   // Handle USB_DET rising/falling external interrupt
   void InterruptHandler(GPIO_PinState state);
@@ -69,9 +76,14 @@ class UsbService {
   // Handle report received from host
   void OnRecvReport(uint8_t* data);
 
+  // translate char (A-Za-z0-9) to keycode
+  // return keycode (first) and modifier (second)
+  static std::pair<uint8_t, uint8_t> GetKeyCode(char c);
+
  private:
   service::sched::DelayedTask _retry_task;
   bool _retrying = false;
+  bool _connected = false;
   Report _report;
 
   std::pair<callback_t, void*> on_recv_cb = {nullptr, nullptr};

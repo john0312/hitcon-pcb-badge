@@ -1,4 +1,5 @@
 #include <Logic/Display/display.h>
+#include <Service/Sched/Checks.h>
 #include <Service/Sched/Scheduler.h>
 #include <Service/Sched/SysTimer.h>
 #include <Service/UsbService.h>
@@ -17,7 +18,6 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 
 namespace hitcon {
 namespace usb {
-void SendBadgeID() { display_set_mode_scroll_text("Tuzki"); }
 
 UsbService g_usb_service;
 
@@ -26,10 +26,12 @@ void UsbService::InterruptHandler(GPIO_PinState state) {
     if (on_plug_in_cb.first) {
       on_plug_in_cb.first(on_plug_in_cb.second, nullptr);
     }
+    _connected = true;
   } else {
     if (on_plug_out_cb.first) {
       on_plug_out_cb.first(on_plug_out_cb.second, nullptr);
     }
+    _connected = false;
   }
 }
 
@@ -75,6 +77,27 @@ void UsbService::RetryHandler(void* unused) {
     _retrying = true;
   } else
     _retrying = false;
+}
+
+std::pair<uint8_t, uint8_t> UsbService::GetKeyCode(char c) {
+  // keycode, modifier
+  std::pair<uint8_t, uint8_t> key = {0, 0};
+  if ('0' <= c && c <= '9') {
+    if (c == '0')
+      key.first = KEYCODE_0;
+    else
+      key.first = KEYCODE_1 + c - '1';
+  } else if ('a' <= c && c <= 'z') {
+    key.first = KEYCODE_A + c - 'a';
+  } else if ('A' <= c && c <= 'Z') {
+    key.first = KEYCODE_A + c - 'A';
+    key.second = MODIFIER_LSHIFT;
+  } else if (c == ' ') {
+    key.first = KEYCODE_SPACE;
+  } else {
+    service::sched::my_assert(false);
+  }
+  return key;
 }
 
 }  // namespace usb

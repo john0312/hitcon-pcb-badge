@@ -7,6 +7,7 @@
 
 #include <App/DinoApp.h>
 #include <App/HardwareTestApp.h>
+#include <App/ShowIdApp.h>
 #include <App/ShowNameApp.h>
 #include <App/SnakeApp.h>
 #include <App/TamaApp.h>
@@ -106,6 +107,7 @@ void hitcon_run() {
   hitcon::app::dino::dino_app.Init();
   hitcon::app::tama::tama_app.Init();
   hitcon::usb::g_usb_logic.Init();
+  show_id_app.Init();
 
   // run hardware test mode if MODE/SETTINGS Button is pressed during
   // initializing
