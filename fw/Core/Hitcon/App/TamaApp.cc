@@ -664,6 +664,7 @@ void TamaApp::HatchingRoutine(void* unused) {
       case 0:
         _tama_data.state = TAMA_APP_STATE::EGG_1;
         break;
+      case 1:
         _tama_data.state = TAMA_APP_STATE::EGG_2;
         break;
       case 2:
