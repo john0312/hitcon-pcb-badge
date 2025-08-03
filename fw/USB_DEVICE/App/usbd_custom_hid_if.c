@@ -133,7 +133,7 @@ __ALIGN_BEGIN static uint8_t CUSTOM_HID_ReportDesc_FS[USBD_CUSTOM_HID_REPORT_DES
   0x15, 0x00,        //   Logical Minimum (0)
   0x26, 0xFF, 0x00,  //   Logical Maximum (255)
   0x75, 0x08,        //   Report Size (8)
-  0x95, 0x06,        //   Report Count (6)
+  0x95, 0x08,        //   Report Count (8)
   0x91, 0x02,        //   Output (Data,Var,Abs,No Wrap,Linear,Preferred State,No Null Position,Non-volatile)
   /* USER CODE END 0 */
   0xC0    /*     END_COLLECTION	             */
