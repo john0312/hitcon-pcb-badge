@@ -111,9 +111,9 @@ struct SingleBadgeActivityPacket {
 
 // This packet is from the badge to the base station.
 struct SponsorActivityPacket {
-  uint8_t user[IR_USERNAME_LEN];
   uint8_t sponsor_id;
   uint8_t nonce;
+  uint8_t user[IR_USERNAME_LEN];
   uint8_t sig[ECC_SIGNATURE_SIZE];
 };
 

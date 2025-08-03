@@ -9,6 +9,7 @@
 #include <App/HardwareTestApp.h>
 #include <App/ShowNameApp.h>
 #include <App/SnakeApp.h>
+#include <App/SponsorResp.h>
 #include <App/TamaApp.h>
 #include <Hitcon.h>
 #include <Logic/BadgeController.h>
@@ -24,7 +25,6 @@
 #include <Logic/IrxbBridge.h>
 #include <Logic/NvStorage.h>
 #include <Logic/SponsorReq.h>
-#include <Logic/SponsorResp.h>
 #include <Logic/UsbLogic.h>
 #include <Logic/XBoardLogic.h>
 #include <Service/ButtonService.h>

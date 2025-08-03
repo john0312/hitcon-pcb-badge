@@ -19,6 +19,7 @@ enum RecvFnId {
   TAMA_RECV_ID,
   SPONSOR_REQ_ID,
   SPONSOR_RESP_ID,
+  SPONSOR_RESP_ACK,
   DINO_RECV_ID,  // Unused
   // MAX is to express the length of callback function array
   MAX
