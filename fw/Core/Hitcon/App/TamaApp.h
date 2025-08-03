@@ -117,6 +117,11 @@ enum class TAMA_ANIMATION_TYPE : uint8_t {
   HEART_2,
   HEART_1,
   LV,
+  XB_BATTLE_INVITE,
+  XB_PLAYER_DOG,
+  XB_PLAYER_CAT,
+  XB_ENEMY_DOG,
+  XB_ENEMY_CAT,
 };
 
 typedef struct {
@@ -125,6 +130,11 @@ typedef struct {
   uint8_t score;
   uint8_t nonce;
 } __attribute__((__packed__)) tama_xboard_result_t;
+
+typedef struct {
+  TAMA_XBOARD_PACKET_TYPE packet_type;
+  TAMA_TYPE type;
+} tama_xboard_enemy_info_t;
 
 constexpr uint8_t QTE_REFRESH_RATE = 50;
 constexpr uint16_t PAUSE_BETWEEN_QTE_GAMES = 1000;
@@ -235,6 +245,7 @@ class TamaApp : public App {
   // XBoard related
   TAMA_XBOARD_STATE _enemy_state;
   uint8_t _my_nounce;
+  tama_xboard_enemy_info_t _enemy_info;
   tama_xboard_result_t _enemy_score;
   void XbOnButton(button_t button);
   void XbUpdateFrameBuffer();
@@ -358,6 +369,30 @@ constexpr display_buf_t TAMA_LV_FRAMES[] = {
   0b00001110, 0b01101000, 0b10000000, 0b01100000,
   0b00000111, 0b00110100, 0b01000000, 0b00110000,
 };
+constexpr display_buf_t TAMA_XB_BATTLE_INVITE_FRAMES[] = {
+  // size 1x16
+  0x3C, 0x08, 0x10, 0x3C, 0x00, 0x80, 0x58, 0x30, 0x68, 0x54, 0x0A, 0x06, 0x00, 0x1C, 0x30, 0x1C
+};
+constexpr display_buf_t TAMA_XB_PLAYER_DOG_FRAMES[] = {
+  // size 2x8
+  0x20, 0xE0, 0xC0, 0xF0, 0xE0, 0xF0, 0x40, 0,
+  0, 0x20, 0xE0, 0xC0, 0xF0, 0xE0, 0xF0, 0x40,
+};
+constexpr display_buf_t TAMA_XB_PLAYER_CAT_FRAMES[] = {
+  // size 2x8
+  0x10, 0x50, 0xA0, 0xC0, 0xF0, 0xE0, 0xF0, 0,
+  0, 0x10, 0x50, 0xA0, 0xC0, 0xF0, 0xE0, 0xF0,
+};
+constexpr display_buf_t TAMA_XB_ENEMY_DOG_FRAMES[] = {
+  // size 2x8
+  0, 0x04, 0x1F, 0x0E, 0x1F, 0x0C, 0x1C, 0x06,
+  0x04, 0x1F, 0x0E, 0x1F, 0x0C, 0x1C, 0x06, 0,
+};
+constexpr display_buf_t TAMA_XB_ENEMY_CAT_FRAMES[] = {
+  // size 2x8
+  0, 0x3E, 0x1C, 0x3E, 0x18, 0x34, 0x0A, 0x02,
+  0x3E, 0x1C, 0x3E, 0x18, 0x34, 0x0A, 0x02, 0,
+};
 // clang-format on
 
 // --- Animation Definition Structure --
@@ -434,7 +469,28 @@ constexpr tama_ani_t animation[] = {
     {.type = TAMA_ANIMATION_TYPE::LV,
      .frame_count = 2,
      .length = 4,
-     .frames_data = TAMA_LV_FRAMES}};
+     .frames_data = TAMA_LV_FRAMES},
+    {.type = TAMA_ANIMATION_TYPE::XB_BATTLE_INVITE,
+     .frame_count = 1,
+     .length = 16,
+     .frames_data = TAMA_XB_BATTLE_INVITE_FRAMES},
+    {.type = TAMA_ANIMATION_TYPE::XB_PLAYER_DOG,
+     .frame_count = 2,
+     .length = 8,
+     .frames_data = TAMA_XB_PLAYER_DOG_FRAMES},
+    {.type = TAMA_ANIMATION_TYPE::XB_PLAYER_CAT,
+     .frame_count = 2,
+     .length = 8,
+     .frames_data = TAMA_XB_PLAYER_CAT_FRAMES},
+    {.type = TAMA_ANIMATION_TYPE::XB_ENEMY_DOG,
+     .frame_count = 2,
+     .length = 8,
+     .frames_data = TAMA_XB_ENEMY_DOG_FRAMES},
+    {.type = TAMA_ANIMATION_TYPE::XB_ENEMY_CAT,
+     .frame_count = 2,
+     .length = 8,
+     .frames_data = TAMA_XB_ENEMY_CAT_FRAMES},
+};
 
 // Macro to check animation properties
 #define ASSERT_ANIMATION_PROPERTIES(TYPE_NAME_STR)                        \
@@ -471,6 +527,11 @@ ASSERT_ANIMATION_PROPERTIES(HEART_3);
 ASSERT_ANIMATION_PROPERTIES(HEART_2);
 ASSERT_ANIMATION_PROPERTIES(HEART_1);
 ASSERT_ANIMATION_PROPERTIES(LV);
+ASSERT_ANIMATION_PROPERTIES(XB_BATTLE_INVITE);
+ASSERT_ANIMATION_PROPERTIES(XB_PLAYER_DOG);
+ASSERT_ANIMATION_PROPERTIES(XB_PLAYER_CAT);
+ASSERT_ANIMATION_PROPERTIES(XB_ENEMY_DOG);
+ASSERT_ANIMATION_PROPERTIES(XB_ENEMY_CAT);
 
 // --- Display Component ---
 // The data here is used to stack upon existing frames
