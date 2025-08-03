@@ -44,7 +44,10 @@ class BadgeController {
   void OnXBoardBasestnDisconnect(void *unused);
 
   // This is called when usb power supply is available.
-  void OnUsbPlugIn();
+  void OnUsbPlugIn(void *unused);
+
+  // This is called when usb power supply is not available.
+  void OnUsbPlugOut(void *unused);
 
   // for surprice use
   void SetCallback(callback_t callback, void *callback_arg1,

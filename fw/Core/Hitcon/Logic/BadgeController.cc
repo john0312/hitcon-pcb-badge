@@ -10,10 +10,12 @@
 #include <Logic/IrController.h>
 #include <Logic/IrxbBridge.h>
 #include <Logic/SponsorReq.h>
+#include <Logic/UsbLogic.h>
 #include <Logic/XBoardLogic.h>
 #include <Secret/secret.h>
 #include <Service/DisplayService.h>
 #include <Service/Sched/Checks.h>
+#include <Service/UsbService.h>
 
 #ifndef BADGE_ROLE
 #error "BADGE_ROLE not defined"
@@ -51,6 +53,11 @@ void BadgeController::Init() {
       (callback_t)&BadgeController::OnXBoardBasestnConnect, this);
   hitcon::service::xboard::g_xboard_logic.SetOnDisconnectBaseStn2025(
       (callback_t)&BadgeController::OnXBoardBasestnDisconnect, this);
+
+  usb::g_usb_service.SetOnUsbPlugIn((callback_t)&BadgeController::OnUsbPlugIn,
+                                    this);
+  usb::g_usb_service.SetOnUsbPlugOut((callback_t)&BadgeController::OnUsbPlugOut,
+                                     this);
 }
 
 void BadgeController::SetCallback(callback_t callback, void *callback_arg1,
@@ -168,7 +175,16 @@ void BadgeController::RestoreApp() {
   stored_app = nullptr;
 }
 
-void BadgeController::OnUsbPlugIn() {
+void BadgeController::OnUsbPlugIn(void *unused) {
   badge_controller.change_app(&usb::usb_menu);
+}
+
+void BadgeController::OnUsbPlugOut(void *unused) {
+  if (GetCurrentApp() == &usb::usb_menu) {
+    change_app(&show_name_app);
+  } else if (GetCurrentApp() == &usb::bad_usb_app) {
+    change_app(&show_name_app);
+    usb::g_usb_logic.StopScript();
+  }
 }
 }  // namespace hitcon

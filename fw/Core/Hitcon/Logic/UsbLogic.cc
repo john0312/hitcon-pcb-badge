@@ -4,10 +4,8 @@
 #include <Logic/crc32.h>
 #include <Service/FlashService.h>
 #include <Service/Sched/Scheduler.h>
-#include <Util/uint_to_str.h>
+#include <Service/UsbService.h>
 #include <main.h>
-#include <usb_device.h>
-#include <usbd_custom_hid_if.h>
 #include <usbd_def.h>
 using namespace hitcon::service::sched;
 
@@ -26,15 +24,14 @@ void UsbLogic::Init() {
   _state = USB_STATE_IDLE;
   scheduler.Queue(&_routine_task, nullptr);
   scheduler.Queue(&_write_routine_task, nullptr);
+  g_usb_service.SetOnDataRecv((callback_t)&UsbLogic::OnDataRecv, this);
 }
 
 // first byte of the report must be CUSTOM_REPORT_ID
-void UsbLogic::OnDataRecv(uint8_t* data) {
-  if (_state == USB_STATE_IDLE) {
-    if (data[0] != CUSTOM_REPORT_ID) return;
-
-    if (data[1]) _state = static_cast<usb_state_t>(data[1]);
-  }
+void UsbLogic::OnDataRecv(void* arg2) {
+  uint8_t* data = reinterpret_cast<uint8_t*>(arg2);
+  if (data[1] && _state == USB_STATE_IDLE)
+    _state = static_cast<usb_state_t>(data[1]);
 
   switch (_state) {
     case USB_STATE_SET_NAME: {
@@ -114,7 +111,7 @@ void UsbLogic::OnDataRecv(uint8_t* data) {
               *reinterpret_cast<uint32_t*>(packet.addr);
           break;
       }
-      SendCustomReport(report);
+      g_usb_service.SendCustomReport(report);
       _state = USB_STATE_IDLE;
       break;
     }
@@ -136,12 +133,12 @@ void UsbLogic::WriteRoutine(void* unused) {
       _state = USB_STATE_IDLE;
       scheduler.DisablePeriodic(&_write_routine_task);
       uint8_t data[] = {CODE_ACTION_DONE, 0, 0, 0, 0, 0, 0, 0};
-      SendCustomReport(data);
+      g_usb_service.SendCustomReport(data);
     }
   } else if (_state == USB_STATE_WRITING) {
     if (!g_flash_service.IsBusy() && _new_data) {
       uint8_t data[] = {CODE_ACTION_DONE, 0, 0, 0, 0, 0, 0, 0};
-      SendCustomReport(data);
+      g_usb_service.SendCustomReport(data);
       g_flash_service.ProgramOnly(SCRIPT_FLASH_INDEX, _program_index,
                                   reinterpret_cast<uint32_t*>(_script_temp),
                                   sizeof(_script_temp));
@@ -170,7 +167,7 @@ void UsbLogic::RunScript(callback_t cb, void* arg1, callback_t err_cb,
     uint16_t crc_len = _script_len + 4 - _script_len % 4;
     uint32_t value =
         fast_crc32(reinterpret_cast<uint8_t*>(SCRIPT_BEGIN_ADDR), crc_len);
-    if (value == *reinterpret_cast<uint32_t*>(CRC32_ADDR)) {
+    if (value != *reinterpret_cast<uint32_t*>(CRC32_ADDR)) {
       StopScript();
       _on_err_cb(_on_err_arg1,
                  reinterpret_cast<void*>(const_cast<char*>(CRC_FAIL_MSG)));
@@ -183,6 +180,7 @@ void UsbLogic::RunScript(callback_t cb, void* arg1, callback_t err_cb,
                reinterpret_cast<void*>(const_cast<char*>(EMPTY_SCRIPT_MSG)));
     return;
   }
+  g_usb_service.SendKeyCode(0, 0);
 }
 
 void UsbLogic::StopScript() {
@@ -190,23 +188,22 @@ void UsbLogic::StopScript() {
   if (_write_routine_task.IsEnabled())
     scheduler.DisablePeriodic(&_write_routine_task);
   _state = USB_STATE_IDLE;
-  SendKeyCode(0, 0);
+  g_usb_service.SendKeyCode(0, 0);
 }
 
 // run every 20ms, handle run script
 void UsbLogic::Routine(void* unused) {
   static uint8_t delay_count = 0;
   static bool send_release_flag = false;
-  if (_state == USB_STATE_RETRY) {
-    auto ret = USBD_CUSTOM_HID_SendReport(
-        &hUsbDeviceFS, reinterpret_cast<uint8_t*>(&_report), REPORT_LEN);
-    _state = (ret != USBD_OK) ? USB_STATE_IDLE : _state;
+  if (g_usb_service.IsBusy()) {
+    if (delay_count != 0) delay_count--;
     return;
   }
+
   // After sending each Keycode, send a Release
   if (send_release_flag) {
     send_release_flag = false;
-    SendKeyCode(0, 0);
+    g_usb_service.SendKeyCode(0, 0);
     if (delay_count != 0) delay_count--;
     return;
   }
@@ -236,14 +233,14 @@ void UsbLogic::Routine(void* unused) {
         delay_count = *(addr + 1) - 1;
         break;
       case CODE_RELEASE:
-        SendKeyCode(0, 0);
+        g_usb_service.SendKeyCode(0, 0);
         break;
       case CODE_MODIFIER:
         _script_index += 2;
-        SendKeyCode(*(addr + 2), *(addr + 1));
+        g_usb_service.SendKeyCode(*(addr + 2), *(addr + 1));
         break;
       default:
-        SendKeyCode(*addr, 0);
+        g_usb_service.SendKeyCode(*addr, 0);
         break;
     }
     send_release_flag = true;
@@ -251,27 +248,5 @@ void UsbLogic::Routine(void* unused) {
   _script_index++;
 }
 
-void UsbLogic::SendKeyCode(uint8_t keycode, uint8_t modifier) {
-  _report.report_id = KEYBOARD_REPORT_ID;
-  memset(_report.u8, 0, 8);
-  _report.keyboard_report.keycode[0] = keycode;
-  _report.keyboard_report.modifier = modifier;
-  auto ret = USBD_CUSTOM_HID_SendReport(
-      &hUsbDeviceFS, reinterpret_cast<uint8_t*>(&_report), REPORT_LEN);
-  _state = (ret != USBD_OK) ? USB_STATE_IDLE : _state;
-}
-
-// TODO: add retry
-void UsbLogic::SendCustomReport(uint8_t* data) {
-  _report.report_id = CUSTOM_REPORT_ID;
-  memcpy(_report.u8, data, REPORT_LEN - 1);
-  USBD_CUSTOM_HID_SendReport(&hUsbDeviceFS,
-                             reinterpret_cast<uint8_t*>(&_report), REPORT_LEN);
-}
-
 }  // namespace usb
 }  // namespace hitcon
-
-void UsbServiceOnDataReceived(uint8_t* data) {
-  hitcon::usb::g_usb_logic.OnDataRecv(data);
-}

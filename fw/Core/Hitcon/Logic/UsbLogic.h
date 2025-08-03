@@ -4,42 +4,22 @@
 #include <Logic/NvStorage.h>
 #include <Service/FlashService.h>
 #include <Service/Sched/PeriodicTask.h>
-#include <usbd_conf.h>
-
-extern "C" {
-void UsbServiceOnDataReceived(uint8_t* data);
-}
+#include <Service/UsbService.h>
 
 namespace hitcon {
 namespace usb {
-
-constexpr unsigned REPORT_LEN = USBD_CUSTOMHID_OUTREPORT_BUF_SIZE;
-constexpr unsigned KEYBOARD_REPORT_ID = 1;
-constexpr unsigned CUSTOM_REPORT_ID = 2;
 
 constexpr unsigned SCRIPT_FLASH_INDEX = 0;
 // USB_STATE_START_WRITE + script length (2 Bytes) + crc32 (4 Bytes)
 constexpr unsigned SCRIPT_BEGIN_ADDR =
     FLASH_END_ADDR - FLASH_PAGE_COUNT * MY_FLASH_PAGE_SIZE + 1 + 7;
 constexpr unsigned SCRIPT_LEN_ADDR = SCRIPT_BEGIN_ADDR - 6;
-constexpr unsigned CRC32_ADDR = SCRIPT_BEGIN_ADDR - 2;
+constexpr unsigned CRC32_ADDR = SCRIPT_BEGIN_ADDR - 4;
 
 // storage size for script
 constexpr uint16_t MAX_SCRIPT_LEN = MY_FLASH_PAGE_SIZE - 7;
 constexpr char EMPTY_SCRIPT_MSG[] = "No script";
 constexpr char CRC_FAIL_MSG[] = "Checksum fail";
-
-struct Report {
-  uint8_t report_id;
-  union {
-    uint8_t u8[REPORT_LEN - 1];
-    struct {
-      uint8_t modifier;
-      uint8_t reserved;
-      uint8_t keycode[6];
-    } keyboard_report;
-  };
-};
 
 struct WriteMemPacket {
   union {
@@ -67,7 +47,6 @@ enum usb_state_t {
   USB_STATE_WRITING,
   USB_STATE_WAITING,     // waiting flash service done program
   USB_STATE_WAIT_ERASE,  // waiting erase done
-  USB_STATE_RETRY,       // if SendKeyCode failed, retry
 };
 
 enum {  // script code definition
@@ -101,7 +80,6 @@ class UsbLogic {
   bool _script_crc_flag;
   // store script data used in writeRoutine
   uint8_t _script_temp[REPORT_LEN - 1];
-  Report _report;
 
   hitcon::service::sched::PeriodicTask _routine_task;
   hitcon::service::sched::PeriodicTask _write_routine_task;
@@ -112,16 +90,10 @@ class UsbLogic {
   callback_t _on_err_cb;
   void* _on_err_arg1;
 
-  // Send a keyboard report
-  void SendKeyCode(uint8_t keycode, uint8_t modifier);
-
-  // The data should be REPORT_LEN bytes long.
-  void SendCustomReport(uint8_t* data);
-
  public:
   UsbLogic();
-  void OnDataRecv(uint8_t* data);
-  void RunScript(callback_t cb, void* arg1, callback_t err_cb, void* arg2,
+  void OnDataRecv(void* arg2);
+  void RunScript(callback_t cb, void* arg1, callback_t err_cb, void* err_arg1,
                  bool check_crc);
   void StopScript();
   void Init();
