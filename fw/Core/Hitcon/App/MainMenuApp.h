@@ -27,7 +27,6 @@ constexpr menu_entry_t main_menu_entries[] = {
     {"Dino", &dino_app, nullptr},
     {"Show Scores", &score_hist::g_score_hist, nullptr},
     {"Bouncing DVD", &bouncing_dvd_app, nullptr},
-    {"Tama", &tama_app, &hitcon::app::tama::SetSingleplayer},
     {"BadUSB", &hitcon::usb::bad_usb_app, nullptr},
     {"Debug", &g_debug_app, nullptr}};
 
