@@ -119,12 +119,7 @@ void TamaApp::Render() {
   }
 
   display_buf_t* current_screen_buffer = _fb.fb[_fb.active_frame];
-  if (_is_display_packed) {
-    display_set_mode_fixed_packed(current_screen_buffer);
-  } else {
-    // render non-compressed data
-    display_set_mode_fixed(current_screen_buffer);
-  }
+  display_set_mode_fixed_packed(current_screen_buffer);
   _fb.active_frame = (_fb.active_frame + 1) % _fb.fb_size;
   _frame_count++;
 }
@@ -246,11 +241,6 @@ void TamaApp::OnButton(button_t button) {
     case BUTTON_UP:
       switch (_tama_data.state) {
         case TAMA_APP_STATE::IDLE:
-          _tama_data.state = TAMA_APP_STATE::HP_DETAIL;
-          // needs_save = true;
-          needs_update_fb = true;
-          break;
-        case TAMA_APP_STATE::HP_DETAIL:
           _tama_data.state = TAMA_APP_STATE::LV_DETAIL;
           // needs_save = true;
           needs_update_fb = true;
@@ -270,11 +260,6 @@ void TamaApp::OnButton(button_t button) {
           needs_update_fb = true;
           break;
         case TAMA_APP_STATE::LV_DETAIL:
-          _tama_data.state = TAMA_APP_STATE::HP_DETAIL;
-          // needs_save = true;
-          needs_update_fb = true;
-          break;
-        case TAMA_APP_STATE::HP_DETAIL:
           _tama_data.state = TAMA_APP_STATE::IDLE;
           // needs_save = true;
           needs_update_fb = true;
@@ -435,13 +420,13 @@ void TamaApp::UpdateFrameBuffer() {
       }
       break;
     }
-    case TAMA_APP_STATE::HP_DETAIL:
-      _is_display_packed = false;
-      get_HP_status_frame(_tama_data.hp, _fb.fb[0]);
-      break;
     case TAMA_APP_STATE::LV_DETAIL:
-      _is_display_packed = false;
-      get_LV_status_frame(_tama_data.level, _fb.fb[0]);
+      TAMA_PREPARE_FB(_fb, TAMA_GET_ANIMATION_DATA(LV).frame_count);
+      TAMA_COPY_FB(_fb, TAMA_GET_ANIMATION_DATA(LV), 0);
+      StackOnFrame(&TAMA_NUM_FONT[_tama_data.level / 100], 5);
+      StackOnFrame(&TAMA_NUM_FONT[(_tama_data.level % 100) / 10], 9);
+      StackOnFrame(&TAMA_NUM_FONT[_tama_data.level % 10], 13);
+      // TODO: Add indicator for bonus level
       break;
     case TAMA_APP_STATE::FEED_CONFIRM:
       TAMA_PREPARE_FB(_fb, TAMA_GET_ANIMATION_DATA(FEED_CONFIRM).frame_count);
@@ -456,23 +441,35 @@ void TamaApp::UpdateFrameBuffer() {
       TAMA_PREPARE_FB(_fb, TAMA_GET_ANIMATION_DATA(FEEDING).frame_count);
       TAMA_COPY_FB(_fb, TAMA_GET_ANIMATION_DATA(FEEDING), 5);
       break;
-    case TAMA_APP_STATE::PET_FED:
+    case TAMA_APP_STATE::PET_FED: {
+      const tama_ani_t* pet = nullptr;
       if (_tama_data.type == TAMA_TYPE::DOG) {
-        TAMA_PREPARE_FB(_fb,
-                        TAMA_GET_ANIMATION_DATA(DOG_FED_HEALING).frame_count);
-        TAMA_COPY_FB(_fb, TAMA_GET_ANIMATION_DATA(DOG_FED_HEALING), 4);
+        pet = &TAMA_GET_ANIMATION_DATA(DOG_FED_HEALING);
       } else if (_tama_data.type == TAMA_TYPE::CAT) {
-        TAMA_PREPARE_FB(_fb,
-                        TAMA_GET_ANIMATION_DATA(CAT_FED_HEALING).frame_count);
-        TAMA_COPY_FB(_fb, TAMA_GET_ANIMATION_DATA(CAT_FED_HEALING), 4);
+        pet = &TAMA_GET_ANIMATION_DATA(CAT_FED_HEALING);
       } else {
         my_assert(false);  // Should not happen if state is CHOOSE_TYPE
       }
+      TAMA_PREPARE_FB(_fb, pet->frame_count);
+      TAMA_COPY_FB(_fb, *pet, 4);
+      break;
+    }
+    case TAMA_APP_STATE::PET_HEALING: {
+      const tama_ani_t* pet = nullptr;
+      if (_tama_data.type == TAMA_TYPE::DOG) {
+        pet = &TAMA_GET_ANIMATION_DATA(DOG_FED_HEALING);
+      } else if (_tama_data.type == TAMA_TYPE::CAT) {
+        pet = &TAMA_GET_ANIMATION_DATA(CAT_FED_HEALING);
+      }
+      TAMA_PREPARE_FB(_fb, pet->frame_count);
+      TAMA_COPY_FB(_fb, *pet, 0);
+      StackOnFrame(&TAMA_COMPONENT_HOSPITAL_ICONS, 8);
+      break;
+    }
     default:
       // Should not happen in CHOOSE_TYPE state
       my_assert(false);
       break;
-      _frame_count = 0;
   }
 }
 

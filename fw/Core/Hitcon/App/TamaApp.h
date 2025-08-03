@@ -5,7 +5,7 @@
 
 #define TAMA_PREPARE_FB(FB, FB_SIZE) \
   FB.fb_size = FB_SIZE;              \
-  memset(FB.fb, 0, sizeof(DISPLAY_WIDTH) * FB_SIZE);
+  memset(FB.fb, 0, sizeof(FB.fb[0]) * FB_SIZE);
 #define TAMA_GET_ANIMATION_DATA(TYPE_NAME_STR) \
   animation[static_cast<uint8_t>(TAMA_ANIMATION_TYPE::TYPE_NAME_STR)]
 #define TAMA_COPY_FB(FB, ANIMATION, OFFSET)                      \
@@ -42,14 +42,11 @@ enum class TAMA_APP_STATE : uint8_t {
   EGG_4,        // 75% hatching progress
   HATCHING,     // 100% animation
   IDLE,
-  HP_DETAIL,
-  FD_DETAIL,
   LV_DETAIL,
   FEED_CONFIRM,
   FEED_ANIME,
   PET_FED,
-  DOG_HEALING,
-  CAT_HEALING,
+  PET_HEALING,
 };
 
 enum class TAMA_TYPE : uint8_t {
@@ -119,6 +116,7 @@ enum class TAMA_ANIMATION_TYPE : uint8_t {
   HEART_3,
   HEART_2,
   HEART_1,
+  LV,
 };
 
 typedef struct {
@@ -223,7 +221,6 @@ class TamaApp : public App {
   unsigned int _previous_hatching_step = 0;
   unsigned int _total_hatchin_steps = 0;
 
-  bool _is_display_packed = true;
   TamaQte qte;
 
   void Render();
@@ -356,6 +353,11 @@ constexpr display_buf_t TAMA_HEART_1_FRAMES[] = {
   0x0, 0x0, 0x0, 0b1100, 0b11000, 0b1100, 0x0, 0x0,
   0x0, 0x0, 0x0, 0b11000, 0b110000, 0b11000, 0x0, 0x0,
 };
+constexpr display_buf_t TAMA_LV_FRAMES[] = {
+  // size 2x4
+  0b00001110, 0b01101000, 0b10000000, 0b01100000,
+  0b00000111, 0b00110100, 0b01000000, 0b00110000,
+};
 // clang-format on
 
 // --- Animation Definition Structure --
@@ -429,7 +431,10 @@ constexpr tama_ani_t animation[] = {
      .frame_count = 2,
      .length = 8,
      .frames_data = TAMA_HEART_1_FRAMES},
-};
+    {.type = TAMA_ANIMATION_TYPE::LV,
+     .frame_count = 2,
+     .length = 4,
+     .frames_data = TAMA_LV_FRAMES}};
 
 // Macro to check animation properties
 #define ASSERT_ANIMATION_PROPERTIES(TYPE_NAME_STR)                        \
@@ -465,6 +470,7 @@ ASSERT_ANIMATION_PROPERTIES(FEED_CONFIRM);
 ASSERT_ANIMATION_PROPERTIES(HEART_3);
 ASSERT_ANIMATION_PROPERTIES(HEART_2);
 ASSERT_ANIMATION_PROPERTIES(HEART_1);
+ASSERT_ANIMATION_PROPERTIES(LV);
 
 // --- Display Component ---
 // The data here is used to stack upon existing frames
@@ -477,6 +483,16 @@ constexpr display_buf_t TAMA_HOSPITAL_ICONS[8] = {
   0x00, 0x18, 0x18, 0x7E, 0x7E, 0x18, 0x18, 0x00};
 constexpr display_buf_t TAMA_N_SELECTION_CURSOR[4] = {0x80, 0x80, 0x80, 0x80};
 constexpr display_buf_t TAMA_Y_SELECTION_CURSOR[3] = {0x80, 0x80, 0x80};
+constexpr display_buf_t TAMA_NUM_ONE[3] = {0, 0, 0b11111000};
+constexpr display_buf_t TAMA_NUM_TWO[3] = {0b11101000, 0b10101000, 0b10111000};
+constexpr display_buf_t TAMA_NUM_THREE[3] = {0b10101000, 0b10101000, 0b11111000};
+constexpr display_buf_t TAMA_NUM_FOUR[3] = {0b00111000, 0b00100000, 0b11111000};
+constexpr display_buf_t TAMA_NUM_FIVE[3] = {0b10111000, 0b10101000, 0b11101000};
+constexpr display_buf_t TAMA_NUM_SIX[3] = {0b11111000, 0b10101000, 0b11101000};
+constexpr display_buf_t TAMA_NUM_SEVEN[3] = {0b00001000, 0b00001000, 0b11111000};
+constexpr display_buf_t TAMA_NUM_EIGHT[3] = {0b11111000, 0b10101000, 0b11111000};
+constexpr display_buf_t TAMA_NUM_NINE[3] = {0b10111000, 0b10101000, 0b11111000};
+constexpr display_buf_t TAMA_NUM_ZERO[3] = {0b11111000, 0b10001000, 0b11111000};
 // clang-format on
 
 constexpr tama_display_component_t TAMA_COMPONENT_PET_SELECTION_CURSOR = {
@@ -499,6 +515,46 @@ constexpr tama_display_component_t TAMA_COMPONENT_Y_SELECTION_CURSOR = {
     .data = TAMA_Y_SELECTION_CURSOR,
     .length = 3,
 };
+constexpr tama_display_component_t TAMA_COMPONENT_NUM_ONE = {
+    .data = TAMA_NUM_ONE,
+    .length = 3,
+};
+constexpr tama_display_component_t TAMA_COMPONENT_NUM_TWO = {
+    .data = TAMA_NUM_TWO,
+    .length = 3,
+};
+constexpr tama_display_component_t TAMA_COMPONENT_NUM_THREE = {
+    .data = TAMA_NUM_THREE,
+    .length = 3,
+};
+constexpr tama_display_component_t TAMA_COMPONENT_NUM_FOUR = {
+    .data = TAMA_NUM_FOUR,
+    .length = 3,
+};
+constexpr tama_display_component_t TAMA_COMPONENT_NUM_FIVE = {
+    .data = TAMA_NUM_FIVE,
+    .length = 3,
+};
+constexpr tama_display_component_t TAMA_COMPONENT_NUM_SIX = {
+    .data = TAMA_NUM_SIX,
+    .length = 3,
+};
+constexpr tama_display_component_t TAMA_COMPONENT_NUM_SEVEN = {
+    .data = TAMA_NUM_SEVEN,
+    .length = 3,
+};
+constexpr tama_display_component_t TAMA_COMPONENT_NUM_EIGHT = {
+    .data = TAMA_NUM_EIGHT,
+    .length = 3,
+};
+constexpr tama_display_component_t TAMA_COMPONENT_NUM_NINE = {
+    .data = TAMA_NUM_NINE,
+    .length = 3,
+};
+constexpr tama_display_component_t TAMA_COMPONENT_NUM_ZERO = {
+    .data = TAMA_NUM_ZERO,
+    .length = 3,
+};
 
 #define ASSERT_COMPONENT_PROPERTIES(TYPE_NAME_STR)                             \
   static_assert(TAMA_COMPONENT_##TYPE_NAME_STR.length ==                       \
@@ -512,6 +568,24 @@ ASSERT_COMPONENT_PROPERTIES(HP_FOOD_ICONS);
 ASSERT_COMPONENT_PROPERTIES(HOSPITAL_ICONS);
 ASSERT_COMPONENT_PROPERTIES(N_SELECTION_CURSOR);
 ASSERT_COMPONENT_PROPERTIES(Y_SELECTION_CURSOR);
+ASSERT_COMPONENT_PROPERTIES(NUM_ONE);
+ASSERT_COMPONENT_PROPERTIES(NUM_TWO);
+ASSERT_COMPONENT_PROPERTIES(NUM_THREE);
+ASSERT_COMPONENT_PROPERTIES(NUM_FOUR);
+ASSERT_COMPONENT_PROPERTIES(NUM_FIVE);
+ASSERT_COMPONENT_PROPERTIES(NUM_SIX);
+ASSERT_COMPONENT_PROPERTIES(NUM_SEVEN);
+ASSERT_COMPONENT_PROPERTIES(NUM_EIGHT);
+ASSERT_COMPONENT_PROPERTIES(NUM_NINE);
+ASSERT_COMPONENT_PROPERTIES(NUM_ZERO);
+
+constexpr tama_display_component_t TAMA_NUM_FONT[10] = {
+    TAMA_COMPONENT_NUM_ZERO,  TAMA_COMPONENT_NUM_ONE,
+    TAMA_COMPONENT_NUM_TWO,   TAMA_COMPONENT_NUM_THREE,
+    TAMA_COMPONENT_NUM_FOUR,  TAMA_COMPONENT_NUM_FIVE,
+    TAMA_COMPONENT_NUM_SIX,   TAMA_COMPONENT_NUM_SEVEN,
+    TAMA_COMPONENT_NUM_EIGHT, TAMA_COMPONENT_NUM_NINE,
+};
 
 }  // namespace tama
 }  // namespace app
