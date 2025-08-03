@@ -36,6 +36,14 @@ TamaApp::TamaApp()
       _current_selection_in_choose_mode(TAMA_TYPE::CAT), _fb() {}
 
 void TamaApp::Init() {
+#ifdef DEBUG
+  // _tama_data is loaded from NvStorage.
+  // If it's a fresh start (e.g., NvStorage is zeroed), _tama_data.type will be
+  // 0 (NONE_TYPE).
+  // use new data always for debugging
+  _tama_data = {};
+  g_nv_storage.MarkDirty();
+#endif
   hitcon::service::sched::scheduler.Queue(&_routine_task, nullptr);
   // If the egg is hatching, enable background tasks for updating steps
   if (_tama_data.state == TAMA_APP_STATE::EGG_1 ||
@@ -45,14 +53,6 @@ void TamaApp::Init() {
     _hatching_task.SetWakeTime(SysTimer::GetTime() + 5000);
     hitcon::service::sched::scheduler.Queue(&_hatching_task, nullptr);
   }
-// _tama_data is loaded from NvStorage.
-// If it's a fresh start (e.g., NvStorage is zeroed), _tama_data.type will be
-// 0 (NONE_TYPE).
-// use new data always for debugging
-#ifdef DEBUG
-  _tama_data = {};
-#endif
-  g_nv_storage.MarkDirty();
   qte.Init();
 }
 
@@ -94,8 +94,10 @@ void TamaApp::OnEntry() {
   my_assert(player_mode == TAMA_PLAYER_MODE::MODE_SINGLEPLAYER);
   if (_tama_data.state == TAMA_APP_STATE::INTRO_TEXT) {
     display_set_mode_scroll_text("Choose your pet");
-  } else if (_tama_data.hatched) {
-    _tama_data.state = TAMA_APP_STATE::IDLE;
+  } else {
+    if (_tama_data.hatched) {
+      _tama_data.state = TAMA_APP_STATE::IDLE;
+    }
     UpdateFrameBuffer();
   }
 }
