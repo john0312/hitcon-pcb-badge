@@ -27,11 +27,23 @@ TamaApp::TamaApp()
     : _routine_task(930,  // Task priority
                     (hitcon::service::sched::task_callback_t)&TamaApp::Routine,
                     (void*)this, ROUTINE_INTERVAL_MS),
+      _hatching_task(
+          1000,
+          (hitcon::service::sched::task_callback_t)&TamaApp::HatchingRoutine,
+          this, 0),
       _tama_data(g_nv_storage.GetCurrentStorage().tama_storage),
       _current_selection_in_choose_mode(TAMA_TYPE::CAT), _fb() {}
 
 void TamaApp::Init() {
   hitcon::service::sched::scheduler.Queue(&_routine_task, nullptr);
+  // If the egg is hatching, enable background tasks for updating steps
+  if (_tama_data.state == TAMA_APP_STATE::EGG_1 ||
+      _tama_data.state == TAMA_APP_STATE::EGG_2 ||
+      _tama_data.state == TAMA_APP_STATE::EGG_3 ||
+      _tama_data.state == TAMA_APP_STATE::EGG_4) {
+    _hatching_task.SetWakeTime(SysTimer::GetTime() + 5000);
+    hitcon::service::sched::scheduler.Queue(&_hatching_task, nullptr);
+  }
 // _tama_data is loaded from NvStorage.
 // If it's a fresh start (e.g., NvStorage is zeroed), _tama_data.type will be
 // 0 (NONE_TYPE).
@@ -141,24 +153,30 @@ void TamaApp::OnButton(button_t button) {
           _tama_data.type = _current_selection_in_choose_mode;
           _tama_data.state = TAMA_APP_STATE::EGG_1;
           _previous_hatching_step = g_imu_logic.GetStep();
+          _hatching_task.SetWakeTime(SysTimer::GetTime() + 5000);
+          scheduler.Queue(&_hatching_task, nullptr);
           needs_update_fb = true;
           needs_save = true;
           break;
 #ifdef DEBUG
         case TAMA_APP_STATE::EGG_1:
           _tama_data.state = TAMA_APP_STATE::EGG_2;
+          _total_hatchin_steps += 100;
           needs_update_fb = true;
           break;
         case TAMA_APP_STATE::EGG_2:
           _tama_data.state = TAMA_APP_STATE::EGG_3;
+          _total_hatchin_steps += 100;
           needs_update_fb = true;
           break;
         case TAMA_APP_STATE::EGG_3:
           _tama_data.state = TAMA_APP_STATE::EGG_4;
+          _total_hatchin_steps += 100;
           needs_update_fb = true;
           break;
         case TAMA_APP_STATE::EGG_4:
           _tama_data.state = TAMA_APP_STATE::HATCHING;
+          _total_hatchin_steps = 400;
           _frame_count = 0;
           needs_update_fb = true;
           break;
@@ -322,26 +340,9 @@ void TamaApp::Routine(void* unused) {
     case TAMA_APP_STATE::EGG_1:
     case TAMA_APP_STATE::EGG_2:
     case TAMA_APP_STATE::EGG_3:
-    case TAMA_APP_STATE::EGG_4: {
-      unsigned int latest_shaking_count = g_imu_logic.GetStep();
-      while (latest_shaking_count - _previous_hatching_step >= 100) {
-        _previous_hatching_step += 100;
-        if (_tama_data.state == TAMA_APP_STATE::EGG_1) {
-          _tama_data.state = TAMA_APP_STATE::EGG_2;
-        } else if (_tama_data.state == TAMA_APP_STATE::EGG_2) {
-          _tama_data.state = TAMA_APP_STATE::EGG_3;
-        } else if (_tama_data.state == TAMA_APP_STATE::EGG_3) {
-          _tama_data.state = TAMA_APP_STATE::EGG_4;
-        } else if (_tama_data.state == TAMA_APP_STATE::EGG_4) {
-          _tama_data.state = TAMA_APP_STATE::HATCHING;
-          _frame_count = 0;
-        }
-        needs_save = true;
-        UpdateFrameBuffer();
-      }
+    case TAMA_APP_STATE::EGG_4:
       needs_render = true;
       break;
-    }
     case TAMA_APP_STATE::HATCHING:
       if (_frame_count >= 10) {
         _tama_data.state = TAMA_APP_STATE::IDLE;
@@ -638,6 +639,43 @@ void TamaApp::StackOnFrame(const tama_display_component_t* component,
       _fb.fb[i][j] |= (component->data)[j - offset];
     }
   }
+}
+
+void TamaApp::HatchingRoutine(void* unused) {
+  my_assert(_tama_data.state == TAMA_APP_STATE::EGG_1 ||
+            _tama_data.state == TAMA_APP_STATE::EGG_2 ||
+            _tama_data.state == TAMA_APP_STATE::EGG_3 ||
+            _tama_data.state == TAMA_APP_STATE::EGG_4);
+  unsigned int step = g_imu_logic.GetStep();
+  constexpr int hatching_delta = TAMA_HATCHING_STEPS / 4;
+  if (step > _previous_hatching_step) {
+    _total_hatchin_steps += step - _previous_hatching_step;
+    if (_total_hatchin_steps >= TAMA_HATCHING_STEPS) {
+      _total_hatchin_steps = TAMA_HATCHING_STEPS;
+      _tama_data.state = TAMA_APP_STATE::HATCHING;
+      return;
+    }
+    switch (_total_hatchin_steps / hatching_delta) {
+      case 0:
+        _tama_data.state = TAMA_APP_STATE::EGG_1;
+        break;
+      case 1:
+        _tama_data.state = TAMA_APP_STATE::EGG_2;
+        break;
+      case 2:
+        _tama_data.state = TAMA_APP_STATE::EGG_3;
+        break;
+      case 3:
+        _tama_data.state = TAMA_APP_STATE::EGG_4;
+        break;
+      default:
+        my_assert(false);
+        break;
+    }
+  }
+  _previous_hatching_step = step;
+  _hatching_task.SetWakeTime(SysTimer::GetTime() + 5000);
+  scheduler.Queue(&_hatching_task, nullptr);
 }
 
 void TamaApp::ConcateAnimtaions(uint8_t count, tama_ani_t** animations) {

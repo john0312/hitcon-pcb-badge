@@ -1,6 +1,7 @@
 #ifndef TAMA_APP_H
 #define TAMA_APP_H
 #define TAMA_APP_MAX_FB_LENGTH 12
+#define TAMA_HATCHING_STEPS 400
 
 #define TAMA_PREPARE_FB(FB, FB_SIZE) \
   FB.fb_size = FB_SIZE;              \
@@ -207,14 +208,16 @@ class TamaApp : public App {
       500;  // How often the Routine function runs
   TAMA_TYPE _current_selection_in_choose_mode;
   hitcon::service::sched::PeriodicTask _routine_task;
+  hitcon::service::sched::DelayedTask _hatching_task;
   tama_storage_t& _tama_data;
   tama_display_fb_t _fb;
   int _frame_count = 0;
-  int hatching_warning_frame_count = 10;  // How many times the egg has shined
   int _feeding_anime_frame = 0;
   int anime_frame = 0;
-  bool _is_selected = false;                 // For testing, use temp storage
-  unsigned int _previous_hatching_step = 0;  // Will update every 100 steps
+  bool _is_selected = false;
+  unsigned int _previous_hatching_step = 0;
+  unsigned int _total_hatchin_steps = 0;
+
   bool _is_display_packed = true;
   TamaQte qte;
 
@@ -223,6 +226,7 @@ class TamaApp : public App {
   void UpdateFrameBuffer();
   void StackOnFrame(const tama_display_component_t* component, int offset);
   void ConcateAnimtaions(uint8_t count, tama_ani_t** animations);
+  void HatchingRoutine(void* unused);
 
   // XBoard related
   TAMA_XBOARD_STATE _enemy_state;
