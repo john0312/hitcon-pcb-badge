@@ -25,7 +25,9 @@ enum class packet_type : uint8_t {
   kTwoBadgeActivity = 6,
   kScoreAnnonce = 7,
   kSingleBadgeActivity = 8,
-  kSponsorActivity = 9
+  kSponsorActivity = 9,
+  kShowMsg = 10,
+  kRequestScore = 11,
 };
 
 namespace hitcon {
@@ -113,6 +115,17 @@ struct SponsorActivityPacket {
   uint8_t sponsor_id;
   uint8_t nonce;
   uint8_t sig[ECC_SIGNATURE_SIZE];
+};
+
+// This packet is from base station to badge.
+struct ShowMsgPacket {
+  uint8_t user[IR_USERNAME_LEN];
+  uint8_t msg[24];
+};
+
+// This packet is from badge to base station.
+struct RequestScorePacket {
+  uint8_t user[IR_USERNAME_LEN];
 };
 
 /*Definition of IR content.*/
