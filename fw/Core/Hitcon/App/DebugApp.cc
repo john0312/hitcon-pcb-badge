@@ -3,6 +3,7 @@
 #include <Logic/ImuLogic.h>
 #include <Logic/IrController.h>
 #include <Service/Sched/Scheduler.h>
+#include <Service/Sched/SysTimer.h>
 #include <Service/Sched/Task.h>
 #include <Util/uint_to_str.h>
 
@@ -42,6 +43,7 @@ void DebugAccelApp::OnButton(button_t button) {
 
 void DebugAccelApp::EnsureQueued() {
   if (!main_task_scheduled_ && running_) {
+    main_task_.SetWakeTime(SysTimer::GetTime() + 800);
     scheduler.Queue(&main_task_, nullptr);
     main_task_scheduled_ = true;
   }
