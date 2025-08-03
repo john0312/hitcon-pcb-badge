@@ -10,7 +10,8 @@
 #include <Logic/XBoardLogic.h>
 #include <Service/Sched/Scheduler.h>
 
-#include <cstring>  // For memset if needed, though direct assignment is used
+#include <cstdarg>
+#include <cstring>
 
 #include "tama_src/TamaAppFrame.h"
 
@@ -76,7 +77,7 @@ void TamaApp::OnEntry() {
                                      TAMA_RECV_ID);
     _enemy_state = TAMA_XBOARD_STATE::XBOARD_INVITE;
     memcpy(&_enemy_score, 0, sizeof(_enemy_score));
-    if (_tama_data.state != TAMA_APP_STATE::ALIVE) {
+    if (_tama_data.hatched == false || _tama_data.hp == 0) {
       xboard_state = TAMA_XBOARD_STATE::XBOARD_UNAVAILABLE;
       display_set_mode_scroll_text("Your pet is not ready yet");
       TAMA_XBOARD_PACKET_TYPE packet =
@@ -91,13 +92,11 @@ void TamaApp::OnEntry() {
     return;
   }
   my_assert(player_mode == TAMA_PLAYER_MODE::MODE_SINGLEPLAYER);
-  if (_tama_data.state == TAMA_APP_STATE::CHOOSE_TYPE) {
-    // Ensure _current_selection_in_choose_mode is valid. Default to DOG if type
-    // is NONE.
-  } else if (_tama_data.state == TAMA_APP_STATE::INTRO_TEXT) {
-    // If OnEntry is called while still in INTRO_TEXT, ensure scrolling text is
-    // set.
+  if (_tama_data.state == TAMA_APP_STATE::INTRO_TEXT) {
     display_set_mode_scroll_text("Choose your pet");
+  } else if (_tama_data.hatched) {
+    _tama_data.state = TAMA_APP_STATE::IDLE;
+    UpdateFrameBuffer();
   }
 }
 
@@ -187,7 +186,6 @@ void TamaApp::OnButton(button_t button) {
             needs_update_fb = true;
           } else {
             _tama_data.state = TAMA_APP_STATE::IDLE;
-            needs_save = true;
             needs_update_fb = true;
           }
           break;
@@ -205,7 +203,7 @@ void TamaApp::OnButton(button_t button) {
           _current_selection_in_choose_mode = TAMA_TYPE::CAT;
           break;
         case TAMA_APP_STATE::IDLE:
-          if (_tama_data.hp == 0 || _tama_data.food == 0) {
+          if (_tama_data.hp == 0) {
             break;
           }
           _tama_data.state = TAMA_APP_STATE::FEED_CONFIRM;
@@ -231,7 +229,7 @@ void TamaApp::OnButton(button_t button) {
           break;
         case TAMA_APP_STATE::IDLE:
           // block going to the next state if weak
-          if (_tama_data.hp == 0 || _tama_data.food == 0) {
+          if (_tama_data.hp == 0) {
             break;
           }
           break;
@@ -253,11 +251,6 @@ void TamaApp::OnButton(button_t button) {
           needs_update_fb = true;
           break;
         case TAMA_APP_STATE::HP_DETAIL:
-          _tama_data.state = TAMA_APP_STATE::FD_DETAIL;
-          // needs_save = true;
-          needs_update_fb = true;
-          break;
-        case TAMA_APP_STATE::FD_DETAIL:
           _tama_data.state = TAMA_APP_STATE::LV_DETAIL;
           // needs_save = true;
           needs_update_fb = true;
@@ -277,11 +270,6 @@ void TamaApp::OnButton(button_t button) {
           needs_update_fb = true;
           break;
         case TAMA_APP_STATE::LV_DETAIL:
-          _tama_data.state = TAMA_APP_STATE::FD_DETAIL;
-          // needs_save = true;
-          needs_update_fb = true;
-          break;
-        case TAMA_APP_STATE::FD_DETAIL:
           _tama_data.state = TAMA_APP_STATE::HP_DETAIL;
           // needs_save = true;
           needs_update_fb = true;
@@ -328,7 +316,6 @@ void TamaApp::Routine(void* unused) {
       if (display_get_scroll_count() >= 1) {
         // update some system value
         _tama_data.level = 1;
-        _tama_data.food = 4;
         _tama_data.hp = 3;
         // change type
         _tama_data.state = TAMA_APP_STATE::CHOOSE_TYPE;
@@ -346,34 +333,28 @@ void TamaApp::Routine(void* unused) {
     case TAMA_APP_STATE::HATCHING:
       if (_frame_count >= 10) {
         _tama_data.state = TAMA_APP_STATE::IDLE;
-        _frame_count = 0;
-        // The states following does not properly use fb machanism, so setting
-        // fb size to 1
-        _fb.fb_size = 1;
+        _tama_data.hatched = true;
+        needs_save = true;
+        UpdateFrameBuffer();
       }
       needs_render = true;
       break;
     case TAMA_APP_STATE::IDLE:
-      if (anime_frame == 0) {
-        anime_frame = 1;
-      } else if (anime_frame == 1) {
-        anime_frame = 0;
-      }
       needs_render = true;
-      UpdateFrameBuffer();
       break;
     case TAMA_APP_STATE::FEED_ANIME:
-      if (_feeding_anime_frame == 10) {
-        _tama_data.state = TAMA_APP_STATE::IDLE;
-        _feeding_anime_frame = 0;
-        needs_render = true;
+      if (_frame_count == 4) {
+        _tama_data.state = TAMA_APP_STATE::PET_FED;
         UpdateFrameBuffer();
         break;
       }
-      _feeding_anime_frame += 1;
       needs_render = true;
-      UpdateFrameBuffer();
       break;
+    case TAMA_APP_STATE::PET_FED:
+      if (_frame_count == 6) {
+        _tama_data.state = TAMA_APP_STATE::IDLE;
+        UpdateFrameBuffer();
+      }
     default:
       break;
   }
@@ -391,7 +372,7 @@ void TamaApp::UpdateFrameBuffer() {
     XbUpdateFrameBuffer();
     return;
   }
-
+  _frame_count = 0;
   switch (_tama_data.state) {
     case TAMA_APP_STATE::CHOOSE_TYPE:
       TAMA_PREPARE_FB(_fb, TAMA_GET_ANIMATION_DATA(PET_SELECTION).frame_count);
@@ -416,27 +397,44 @@ void TamaApp::UpdateFrameBuffer() {
       TAMA_PREPARE_FB(_fb, TAMA_GET_ANIMATION_DATA(EGG_3).frame_count);
       TAMA_COPY_FB(_fb, TAMA_GET_ANIMATION_DATA(EGG_3), 0);
       break;
-    case TAMA_APP_STATE::EGG_4: {
+    case TAMA_APP_STATE::EGG_4:
       TAMA_PREPARE_FB(_fb, TAMA_GET_ANIMATION_DATA(EGG_4).frame_count);
       TAMA_COPY_FB(_fb, TAMA_GET_ANIMATION_DATA(EGG_4), 0);
       break;
-    }
     case TAMA_APP_STATE::HATCHING:
       TAMA_PREPARE_FB(_fb, TAMA_GET_ANIMATION_DATA(HATCHING).frame_count);
       TAMA_COPY_FB(_fb, TAMA_GET_ANIMATION_DATA(HATCHING), 0);
       break;
-    case TAMA_APP_STATE::IDLE:
-      _is_display_packed = false;
+    case TAMA_APP_STATE::IDLE: {
+      const tama_ani_t* pet = nullptr;
       if (_tama_data.type == TAMA_TYPE::DOG) {
-        get_dog_idle_frame_with_status_overview(anime_frame, _tama_data.hp,
-                                                _tama_data.food, _fb.fb[0]);
+        pet = _tama_data.hp ? &TAMA_GET_ANIMATION_DATA(DOG_IDLE)
+                            : &TAMA_GET_ANIMATION_DATA(DOG_WEAK);
       } else if (_tama_data.type == TAMA_TYPE::CAT) {
-        get_cat_idle_frame_with_status_overview(anime_frame, _tama_data.hp,
-                                                _tama_data.food, _fb.fb[0]);
+        pet = _tama_data.hp ? &TAMA_GET_ANIMATION_DATA(CAT_IDLE)
+                            : &TAMA_GET_ANIMATION_DATA(CAT_WEAK);
       } else {
-        my_assert(false);  // Should not happen in ALIVE state
+        my_assert(false);
+      }
+      my_assert(pet);
+      switch (_tama_data.hp) {
+        case 3:
+          ConcateAnimtaions(2, pet, &TAMA_GET_ANIMATION_DATA(HEART_3));
+          break;
+        case 2:
+          ConcateAnimtaions(2, pet, &TAMA_GET_ANIMATION_DATA(HEART_2));
+          break;
+        case 1:
+          ConcateAnimtaions(2, pet, &TAMA_GET_ANIMATION_DATA(HEART_1));
+          break;
+        case 0:
+          break;
+        default:
+          my_assert(false);
+          break;
       }
       break;
+    }
     case TAMA_APP_STATE::HP_DETAIL:
       _is_display_packed = false;
       get_HP_status_frame(_tama_data.hp, _fb.fb[0]);
@@ -445,26 +443,31 @@ void TamaApp::UpdateFrameBuffer() {
       _is_display_packed = false;
       get_LV_status_frame(_tama_data.level, _fb.fb[0]);
       break;
-    case TAMA_APP_STATE::FD_DETAIL:
-      _is_display_packed = false;
-      get_FD_status_frame(_tama_data.food, _fb.fb[0]);
-      break;
     case TAMA_APP_STATE::FEED_CONFIRM:
-      _is_display_packed = false;
+      TAMA_PREPARE_FB(_fb, TAMA_GET_ANIMATION_DATA(FEED_CONFIRM).frame_count);
+      TAMA_COPY_FB(_fb, TAMA_GET_ANIMATION_DATA(FEED_CONFIRM), 0);
       if (_is_selected) {
-        get_feed_confirm_frame(RIGHT, _fb.fb[0]);
+        StackOnFrame(&TAMA_COMPONENT_Y_SELECTION_CURSOR, 13);
       } else {
-        get_feed_confirm_frame(LEFT, _fb.fb[0]);
+        StackOnFrame(&TAMA_COMPONENT_N_SELECTION_CURSOR, 0);
       }
       break;
     case TAMA_APP_STATE::FEED_ANIME:
-      _is_display_packed = false;
-      if (_tama_data.type == TAMA_TYPE::DOG) {
-        get_feeding_frame(PET_TYPE_DOG, _feeding_anime_frame, _fb.fb[0]);
-      } else if (_tama_data.type == TAMA_TYPE::CAT) {
-        get_feeding_frame(PET_TYPE_CAT, _feeding_anime_frame, _fb.fb[0]);
-      }
+      TAMA_PREPARE_FB(_fb, TAMA_GET_ANIMATION_DATA(FEEDING).frame_count);
+      TAMA_COPY_FB(_fb, TAMA_GET_ANIMATION_DATA(FEEDING), 5);
       break;
+    case TAMA_APP_STATE::PET_FED:
+      if (_tama_data.type == TAMA_TYPE::DOG) {
+        TAMA_PREPARE_FB(_fb,
+                        TAMA_GET_ANIMATION_DATA(DOG_FED_HEALING).frame_count);
+        TAMA_COPY_FB(_fb, TAMA_GET_ANIMATION_DATA(DOG_FED_HEALING), 4);
+      } else if (_tama_data.type == TAMA_TYPE::CAT) {
+        TAMA_PREPARE_FB(_fb,
+                        TAMA_GET_ANIMATION_DATA(CAT_FED_HEALING).frame_count);
+        TAMA_COPY_FB(_fb, TAMA_GET_ANIMATION_DATA(CAT_FED_HEALING), 4);
+      } else {
+        my_assert(false);  // Should not happen if state is CHOOSE_TYPE
+      }
     default:
       // Should not happen in CHOOSE_TYPE state
       my_assert(false);
@@ -633,10 +636,15 @@ void TamaApp::TamaHeal() {
 
 void TamaApp::StackOnFrame(const tama_display_component_t* component,
                            int offset) {
+  StackOnFrame(component, 0xff, offset);
+}
+
+void TamaApp::StackOnFrame(const tama_display_component_t* component,
+                           display_buf_t mask, int offset) {
   for (int i = 0; i < _fb.fb_size; i++) {
     for (int j = offset; (j < component->length + offset && j < DISPLAY_WIDTH);
          j++) {
-      _fb.fb[i][j] |= (component->data)[j - offset];
+      _fb.fb[i][j] |= ((component->data)[j - offset] & mask);
     }
   }
 }
@@ -659,7 +667,6 @@ void TamaApp::HatchingRoutine(void* unused) {
       case 0:
         _tama_data.state = TAMA_APP_STATE::EGG_1;
         break;
-      case 1:
         _tama_data.state = TAMA_APP_STATE::EGG_2;
         break;
       case 2:
@@ -678,22 +685,24 @@ void TamaApp::HatchingRoutine(void* unused) {
   scheduler.Queue(&_hatching_task, nullptr);
 }
 
-void TamaApp::ConcateAnimtaions(uint8_t count, tama_ani_t** animations) {
-  // THe animations passed should have the same frame count and should not
+void TamaApp::ConcateAnimtaions(uint8_t count, ...) {
+  // The animations passed should have the same frame count and should not
   // exceed the maxinum display length
-#ifdef DEBUG
-  uint8_t fb_size = animations[0]->frame_count;
-  uint8_t length = animations[0]->length;
-  for (int i = 1; i < count; i++) {
-    my_assert(animations[i]->frame_count == fb_size);
-    length += animations[i]->length;
-    my_assert(length <= DISPLAY_WIDTH);
-  }
-#endif
+  va_list args;
+  va_start(args, count);
   uint8_t offset = 0;
-  for (int i = 0; i < count; i++) {
-    TAMA_COPY_FB(_fb, (*animations[i]), offset);
-    offset += animations[i]->length;
+  // The first animation is handled outside the loop to initialize _fb
+  tama_ani_t* first = va_arg(args, tama_ani_t*);
+  TAMA_PREPARE_FB(_fb,
+                  first->frame_count);  // Initialize with the first
+                                        // animation's frame count
+  TAMA_COPY_FB(_fb, *first, 0);         // Copy the first animation
+  offset += first->length;
+  for (int i = 1; i < count; i++) {  // Start from the second animation
+    tama_ani_t* next = va_arg(args, tama_ani_t*);
+    my_assert(next->frame_count == _fb.fb_size);
+    my_assert(offset + next->length <= DISPLAY_WIDTH);
+    offset += next->length;
   }
 }
 

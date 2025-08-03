@@ -6,7 +6,6 @@
 #define NEW_SCREEN NULL
 
 using namespace hitcon::app::tama::components;
-using namespace hitcon::app::tama::egg_icon;
 using namespace hitcon::app::tama::menu_icon;
 
 // Constants
@@ -77,17 +76,7 @@ void get_FD_status_frame(int food_count, uint8_t* base);
 
 void get_HP_status_frame(int hp_count, uint8_t* base);
 
-void get_feed_confirm_frame(int selection, uint8_t* base);
-
-void get_empty_frame(uint8_t* base);
-
-void get_feed_pet_frame(int cookie_percent, uint8_t* base);
-
-void get_pet_happy_frame_after_feed(int pet_type, int frame, uint8_t* base);
-
 void get_scoring_frame(int ok_qty, int fail_qty, uint8_t* base);
 
 void get_end_frame(uint8_t* base);
-
-void get_feeding_frame(int per_type, int frame_ID, uint8_t* frame_buff);
 #endif  // TAMA_APP_FRAME_H
