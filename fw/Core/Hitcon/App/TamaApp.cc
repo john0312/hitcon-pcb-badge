@@ -649,9 +649,9 @@ void TamaApp::StackOnFrame(const tama_display_component_t* component,
 }
 
 void TamaApp::HatchingRoutine(void* unused) {
-  if (_tama_data.state != TAMA_APP_STATE::EGG_1 ||
-      _tama_data.state != TAMA_APP_STATE::EGG_2 ||
-      _tama_data.state != TAMA_APP_STATE::EGG_3 ||
+  if (_tama_data.state != TAMA_APP_STATE::EGG_1 &&
+      _tama_data.state != TAMA_APP_STATE::EGG_2 &&
+      _tama_data.state != TAMA_APP_STATE::EGG_3 &&
       _tama_data.state != TAMA_APP_STATE::EGG_4) {
     return;
   }
