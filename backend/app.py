@@ -40,7 +40,7 @@ async def get_scoreboard():
         {
             "name": "tony",
             "uid": 101,
-            "scores": {  
+            "scores": {
                 "shake_badge": 100,
                 "dino": 200,
                 "snake": 300,
@@ -80,6 +80,18 @@ async def get_scoreboard():
             "connected_sponsors": ["G2", "P1"]
         }
     ]
+
+
+@app.get("/api/stations")
+async def get_stations_scores():
+    return {
+        "1": 10,
+        "2": 20,
+        "3": -30,
+        "4": 40,
+        "5": -50,
+        "6": 60
+    }
 
 
 ## ====== Station API Endpoints ======
@@ -125,7 +137,7 @@ async def receive_rectf_score(schema: ReCTFScoreSchema, credentials: HTTPAuthori
     # Validate ReCTF key
     if credentials.credentials != config.get('rectf', {}).get('api_key'):
         raise HTTPException(status_code=403, detail="Invalid key")
-    
+
     user = await BadgeLinkController.translate_uid_to_user(schema.uid)
 
     # Process the ReCTF score for the user
@@ -168,7 +180,7 @@ async def hitcon_link(schema: BadgeLinkSchema, credentials: HTTPAuthorizationCre
 
     if not uid:
         raise HTTPException(status_code=401, detail="Invalid token")
-    
+
     if not schema.badge_user:
         raise HTTPException(status_code=422, detail="badge_user is required")
 
