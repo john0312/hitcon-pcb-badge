@@ -337,7 +337,7 @@ class GameLogicController:
         if user is not None:
             if solves is not None:
                 # apply the buff with received ReCTF score
-                await game.apply_player_buff(
+                await game.update_player_buff(
                     player_id=user,
                     buff_a=solves.a,
                     buff_b=solves.b,
@@ -348,7 +348,7 @@ class GameLogicController:
                 result = await db["unapplied_rectf_scores"].find_one({"uid": uid})
                 if result:
                     solves = ReCTFSolves(**result["solves"])
-                    await game.apply_player_buff(
+                    await game.update_player_buff(
                         player_id=user,
                         buff_a=solves.a,
                         buff_b=solves.b,
