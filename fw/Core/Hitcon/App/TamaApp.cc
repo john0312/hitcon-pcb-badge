@@ -58,12 +58,12 @@ void TamaApp::Init() {
 
 void SetSingleplayer() {
   tama_app.player_mode = TAMA_PLAYER_MODE::MODE_SINGLEPLAYER;
-  tama_app.xboard_state = TAMA_XBOARD_STATE::XBOARD_INVITE;
-  tama_app.xboard_battle_invite = TAMA_XBOARD_BATTLE_INVITE::XBOARD_BATTLE_N;
 }
 
 void SetMultiplayer() {
   tama_app.player_mode = TAMA_PLAYER_MODE::MODE_MULTIPLAYER;
+  tama_app.xboard_state = TAMA_XBOARD_STATE::XBOARD_INVITE;
+  tama_app.xboard_battle_invite = TAMA_XBOARD_BATTLE_INVITE::XBOARD_BATTLE_N;
 }
 
 void SetBaseStationConnect() {
