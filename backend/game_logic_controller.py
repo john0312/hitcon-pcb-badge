@@ -108,7 +108,7 @@ class GameLogicController:
             scores = [(evt.user2, player2_score), (evt.user1, player1_score)]
             # user1 and user2 inversed, should adjust packet_from
             evt.packet_from = 2 if evt.packet_from == 1 else 1
-        elif evt.user1 < evt.user2: 
+        elif evt.user1 < evt.user2:
             scores = [(evt.user1, player1_score), (evt.user2, player2_score)]
         else:
             # the equal case should not happen
@@ -292,8 +292,30 @@ class GameLogicController:
 
 
     @staticmethod
+    async def get_user_score_history(user: int):
+        return await game.get_game_history(player_id=user)
+
+
+    @staticmethod
+    async def get_user_scoreboard():
+        # TODO: fetching scoreboard from GameLogic
+        pass
+
+
+    @staticmethod
     async def get_station_score(station_id: int):
         return await game.get_station_score(station_id=station_id // 10)
+
+
+    @staticmethod
+    async def get_station_score_history(station_id: int):
+        return await game.get_station_score_history(station_id=station_id // 10)
+
+
+    @staticmethod
+    async def get_stations_scores():
+        # TODO: fetching stations scores from GameLogic
+        pass
 
 
     @staticmethod
