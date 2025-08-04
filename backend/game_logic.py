@@ -225,7 +225,7 @@ class _GameLogic:
             "timestamp": timestamp,
         })
 
-    async def receive_game_score_two_player(self, two_player_event_id: uuid.UUID, player1_id: int, player2_id: int, station_id: int, score1: int, score2: int, game_type: GameType, timestamp: datetime):
+    async def receive_game_score_two_player(self, two_player_event_id: uuid.UUID, player1_id: int, player2_id: int, station_id: int, score1: int, score2: int, game_type: GameType, timestamp: datetime, log_only: bool = False):
         match game_type:
             case GameType.DINO:
                 # TODO: validate the score and timestamp
@@ -240,8 +240,8 @@ class _GameLogic:
                 pass
 
             case GameType.TAMA:
-                # TODO: TAMA does not affect station score now
-                return
+                # TODO: validate the score and timestamp
+                log_only = True
 
         await self.score_history.insert_many([
             {
@@ -251,6 +251,7 @@ class _GameLogic:
                 "game_type": game_type,
                 "timestamp": timestamp,
                 "two_player_event_id": two_player_event_id,
+                "log_only": log_only,
             },
             {
                 "player_id": player2_id,
@@ -259,10 +260,12 @@ class _GameLogic:
                 "game_type": game_type,
                 "timestamp": timestamp,
                 "two_player_event_id": two_player_event_id,
+                "log_only": log_only,
             },
         ])
 
     async def get_game_history(self, *, player_id: int = None, station_id: int = None, game_type: GameType = None, num_of_player: GameNumOfPlayerType = None, start: datetime = None, before: datetime = None):
+        # TODO: support "log_only" field to filter out log-only events
         if before is None:
             before = datetime.now()
 
@@ -291,6 +294,7 @@ class _GameLogic:
             yield record
 
     async def get_game_score(self, *, player_id: int = None, station_id: int = None, game_type: GameType = None, num_of_player: GameNumOfPlayerType = None, before: datetime = None) -> int:
+        # TODO: support "log_only" field to filter out log-only events
         if before is None:
             before = datetime.now()
 
