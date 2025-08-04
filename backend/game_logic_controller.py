@@ -108,7 +108,7 @@ class GameLogicController:
             scores = [(evt.user2, player2_score), (evt.user1, player1_score)]
             # user1 and user2 inversed, should adjust packet_from
             evt.packet_from = 2 if evt.packet_from == 1 else 1
-        elif evt.user1 < evt.user2: 
+        elif evt.user1 < evt.user2:
             scores = [(evt.user1, player1_score), (evt.user2, player2_score)]
         else:
             # the equal case should not happen
@@ -315,7 +315,7 @@ class GameLogicController:
         if user is not None:
             if solves is not None:
                 # apply the buff with received ReCTF score
-                await game.apply_player_buff(
+                await game.update_player_buff(
                     player_id=user,
                     buff_a=solves.a,
                     buff_b=solves.b,
@@ -326,7 +326,7 @@ class GameLogicController:
                 result = await db["unapplied_rectf_scores"].find_one({"uid": uid})
                 if result:
                     solves = ReCTFSolves(**result["solves"])
-                    await game.apply_player_buff(
+                    await game.update_player_buff(
                         player_id=user,
                         buff_a=solves.a,
                         buff_b=solves.b,
