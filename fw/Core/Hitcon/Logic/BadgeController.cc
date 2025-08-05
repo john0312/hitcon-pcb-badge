@@ -1,6 +1,7 @@
 #include "BadgeController.h"
 
 #include <App/ConnectMenuApp.h>
+#include <App/ConnectScreenApp.h>
 #include <App/EditNameApp.h>
 #include <App/HardwareTestApp.h>
 #include <App/MainMenuApp.h>
@@ -11,6 +12,7 @@
 #include <Service/DisplayService.h>
 #include <Service/Sched/Checks.h>
 
+using hitcon::app::connect_screen::connect_screen;
 using hitcon::app::team_score::show_team_score_app;
 using hitcon::ir::irController;
 using hitcon::service::sched::my_assert;
@@ -57,7 +59,7 @@ void BadgeController::change_connect_menu_app() {
   } else if (peer == PeerType::BaseStn25) {
     change_app(&menu_25_base);
   } else {
-    change_app(&menu_25_peer);
+    change_app(&connect_screen);
   }
 }
 

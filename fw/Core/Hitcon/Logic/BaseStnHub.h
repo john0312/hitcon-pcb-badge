@@ -35,6 +35,12 @@ constexpr size_t kTotalBufferSize = kBufferSize * kBufferCount;
 static_assert(sizeof(BufferMeta) == 1,
               "SimpleBufferIndex must be exactly 1 byte");
 
+struct BufferMetric {
+  uint8_t put;
+  uint8_t taken;
+  uint8_t dropped;
+};
+
 // Forwards packet between usb and ir interface.
 // There are tx buffers and rx buffers, there are 4 buffers of each, so there
 // are 8 buffers in total.
@@ -63,6 +69,8 @@ class BaseStationHub {
 
   void OnIrPacketRecv(uint8_t* data, size_t cnt);
   void OnXBoardPacketRecv(void* arg1);
+  void OnXBoardConnect();
+  const BufferMetric& GetBufferMetric(BufferType buffer_type);
 
  private:
   // 4 rx buffers and 4 tx buffers.
@@ -71,16 +79,22 @@ class BaseStationHub {
   std::array<uint8_t, kTotalBufferSize> tx_buffer{};
   CircularQueue<uint8_t, kBufferCount> rxq;
   CircularQueue<uint8_t, kBufferCount> txq;
+  BufferMetric rx_metric{0, 0, 0};
+  BufferMetric tx_metric{0, 0, 0};
 
   std::array<uint8_t, kTotalBufferSize> xbrx_buffer{};
   std::array<uint8_t, kTotalBufferSize> xbtx_buffer{};
   CircularQueue<uint8_t, kBufferCount> xbrxq;
   CircularQueue<uint8_t, kBufferCount> xbtxq;
+  BufferMetric xbrx_metric{0, 0, 0};
+  BufferMetric xbtx_metric{0, 0, 0};
 
   std::array<std::array<uint8_t, kTotalBufferSize>*, 4> buffer_map = {
       &rx_buffer, &tx_buffer, &xbrx_buffer, &xbtx_buffer};
   std::array<CircularQueue<uint8_t, kBufferCount>*, 4> queue_map = {
       &rxq, &txq, &xbrxq, &xbtxq};
+  std::array<BufferMetric*, 4> metric_map = {&rx_metric, &tx_metric,
+                                             &xbrx_metric, &xbtx_metric};
 
   hitcon::service::sched::PeriodicTask _routine_task;
   void QueueTxHandler(hitcon::logic::cdc::PacketCallbackArg* arg);

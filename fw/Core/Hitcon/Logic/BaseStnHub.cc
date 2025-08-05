@@ -42,6 +42,7 @@ bool BaseStationHub::WriteBuffer(BufferType buffer_type, uint8_t* data,
     auto idx = queue.Front();
     buffer[idx * kBufferSize] = 0;
     queue.PopFront();
+    metric_map[static_cast<uint8_t>(buffer_type)]->dropped++;
   }
   for (uint8_t i = 0; i < kBufferCount; i++) {
     auto& status = reinterpret_cast<BufferMeta&>(buffer[i * kBufferSize]);
@@ -50,6 +51,7 @@ bool BaseStationHub::WriteBuffer(BufferType buffer_type, uint8_t* data,
     status.length = cnt;
     memcpy(&buffer[i * kBufferSize + 1], data, cnt);
     queue.PushBack(i);
+    metric_map[static_cast<uint8_t>(buffer_type)]->put++;
     return true;
   }
   return false;
@@ -69,12 +71,14 @@ bool BaseStationHub::ReadBuffer(BufferType buffer_type, uint8_t* data,
     cnt = 0;
     status.locked = 0;
     queue.PopFront();
+    metric_map[static_cast<uint8_t>(buffer_type)]->dropped++;
     return false;
   }
   memcpy(data, &buffer[idx * kBufferSize + 1], status.length);
   cnt = status.length;
   status.locked = 0;
   queue.PopFront();
+  metric_map[static_cast<uint8_t>(buffer_type)]->taken++;
   return true;
 }
 
@@ -82,11 +86,17 @@ void BaseStationHub::OnIrPacketRecv(uint8_t* data, size_t cnt) {
   WriteBuffer(BufferType::RX, data, cnt);
 }
 
-
 void BaseStationHub::OnXBoardPacketRecv(void* arg1) {
-  auto* packet = reinterpret_cast<hitcon::service::xboard::PacketCallbackArg*>(arg1);
+  auto* packet =
+      reinterpret_cast<hitcon::service::xboard::PacketCallbackArg*>(arg1);
   WriteBuffer(BufferType::XBRX, packet->data, packet->len);
 }
+
+const BufferMetric& BaseStationHub::GetBufferMetric(BufferType buffer_type) {
+  return *metric_map[static_cast<uint8_t>(buffer_type)];
+}
+
+// private methods
 
 void BaseStationHub::QueueTxHandler(PacketCallbackArg* arg) {
   bool success = WriteBuffer(BufferType::TX, arg->data, arg->len);
@@ -124,6 +134,7 @@ void BaseStationHub::SendToIr() {
   if (!status.locked) {
     // already released
     queue.PopFront();
+    tx_metric.dropped++;
     return;
   }
   auto irdata = &buffer[idx * kBufferSize + 1];
@@ -132,6 +143,7 @@ void BaseStationHub::SendToIr() {
   if (success) {
     queue.PopFront();
     status.locked = 0;
+    tx_metric.taken++;
   }
 }
 
@@ -145,13 +157,16 @@ void BaseStationHub::SendToXBoard() {
   if (!status.locked) {
     // already released
     queue.PopFront();
+    xbtx_metric.dropped++;
     return;
   }
   auto xdata = &buffer[idx * kBufferSize + 1];
   if (g_xboard_logic.GetConnectState() == hitcon::service::xboard::Connect) {
-    g_xboard_logic.QueueDataForTx(xdata, status.length, RecvFnId::IR_TO_ATTENDEE);
+    g_xboard_logic.QueueDataForTx(xdata, status.length,
+                                  RecvFnId::IR_TO_ATTENDEE);
     queue.PopFront();
     status.locked = 0;
+    xbtx_metric.taken++;
   }
 }
 
@@ -165,6 +180,7 @@ void BaseStationHub::SendToBaseStation() {
   if (!status.locked) {
     // already released
     queue.PopFront();
+    rx_metric.dropped++;
     return;
   }
   uint8_t cdc_pkt[HEADER_SZ + kBufferSize] = {0};
@@ -178,6 +194,7 @@ void BaseStationHub::SendToBaseStation() {
   if (sent) {
     status.locked = 0;
     queue.PopFront();
+    rx_metric.taken++;
   }
 }
 
@@ -191,6 +208,7 @@ void BaseStationHub::SendXbToBaseStation() {
   if (!status.locked) {
     // already released
     queue.PopFront();
+    xbrx_metric.dropped++;
     return;
   }
   uint8_t cdc_pkt[HEADER_SZ + kBufferSize] = {0};
@@ -204,7 +222,14 @@ void BaseStationHub::SendXbToBaseStation() {
   if (sent) {
     status.locked = 0;
     queue.PopFront();
+    xbrx_metric.taken++;
   }
+}
+
+void BaseStationHub::OnXBoardConnect() {
+  // Clear XBoard metrics when XBoard connects
+  xbrx_metric = {0, 0, 0};
+  xbtx_metric = {0, 0, 0};
 }
 
 void BaseStationHub::Routine(void*) {

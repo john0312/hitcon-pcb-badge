@@ -5,15 +5,10 @@
 
 #include <cstring>
 
+#include "XBoardLogicCbs.h"
+
 using namespace hitcon::service::sched;
 using namespace hitcon::service::xboard;
-
-// register external calls for connect/disconnect events here
-namespace {
-inline void OnConnectHandler() {}
-
-inline void OnDisconnectHandler() {}
-}  // namespace
 
 namespace hitcon {
 namespace service {
