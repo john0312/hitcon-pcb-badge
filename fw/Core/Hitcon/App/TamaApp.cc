@@ -761,7 +761,7 @@ TamaQte::TamaQte()
 void TamaQte::OnButton(button_t button) {
   if (state != kInGame) return;
   if (game.IsDone()) return;
-  if (button & BUTTON_VALUE_MASK != BUTTON_OK) return;
+  if (button != BUTTON_OK) return;
   game.OnButton();
 }
 
