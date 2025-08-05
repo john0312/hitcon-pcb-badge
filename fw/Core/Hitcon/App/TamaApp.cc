@@ -95,7 +95,7 @@ void TamaApp::OnEntry() {
   }
   my_assert(player_mode == TAMA_PLAYER_MODE::MODE_SINGLEPLAYER);
   if (_tama_data.state == TAMA_APP_STATE::INTRO_TEXT) {
-    // display_set_mode_scroll_text("Choose your pet");
+    display_set_mode_scroll_text("Choose your pet");
   } else {
     if (_tama_data.hatched) {
       _tama_data.state = TAMA_APP_STATE::IDLE;
@@ -306,7 +306,7 @@ void TamaApp::Routine(void* unused) {
   switch (_tama_data.state) {
     case TAMA_APP_STATE::INTRO_TEXT:
       needs_render = false;
-      if (true) {
+      if (display_get_scroll_count() >= 1) {
         // update some system value
         _tama_data.level = 1;
         _tama_data.hp = 3;
@@ -663,9 +663,9 @@ void TamaApp::HatchingRoutine(void* unused) {
   }
   unsigned int step = g_imu_logic.GetStep();
   constexpr int hatching_delta = TAMA_HATCHING_STEPS / 4;
-  if (true) {
+  if (step > _previous_hatching_step) {
     _total_hatchin_steps += step - _previous_hatching_step;
-    if (true) {
+    if (_total_hatchin_steps >= TAMA_HATCHING_STEPS) {
       _total_hatchin_steps = TAMA_HATCHING_STEPS;
       _tama_data.state = TAMA_APP_STATE::HATCHING;
       return;
