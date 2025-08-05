@@ -181,14 +181,13 @@ class TamaQte {
   uint8_t success;
   void Routine();
   void Render();
-  void Exit();
-
  public:
   TamaQte();
   // Init the qte. This should be called only once on startup.
   void Init();
   // Start the qte game. This should be called every time QTE starts.
   void Entry();
+  void Exit();
   void OnButton(button_t button);
   bool IsDone();
   uint8_t GetScore();

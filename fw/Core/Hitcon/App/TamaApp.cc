@@ -85,6 +85,9 @@ void TamaApp::OnEntry() {
       g_xboard_logic.QueueDataForTx(reinterpret_cast<uint8_t*>(&packet),
                                     sizeof(packet), TAMA_RECV_ID);
     }
+    else {
+      xboard_state = TAMA_XBOARD_STATE::XBOARD_INVITE;
+    }
     return;
   }
   if (player_mode == TAMA_PLAYER_MODE::MODE_BASESTATION) {
@@ -104,6 +107,10 @@ void TamaApp::OnEntry() {
 
 void TamaApp::OnExit() {
   hitcon::service::sched::scheduler.DisablePeriodic(&_routine_task);
+  if (xboard_state == TAMA_XBOARD_STATE::XBOARD_BATTLE_QTE) {
+    // We are aborting the app during QTE battle. Abort the QTE.
+    qte.Exit();
+  }
   // NvStorage will be flushed by the system if MarkDirty was called.
 }
 
