@@ -84,8 +84,7 @@ void TamaApp::OnEntry() {
           TAMA_XBOARD_PACKET_TYPE::PACKET_UNAVAILABLE;
       g_xboard_logic.QueueDataForTx(reinterpret_cast<uint8_t*>(&packet),
                                     sizeof(packet), TAMA_RECV_ID);
-    }
-    else {
+    } else {
       xboard_state = TAMA_XBOARD_STATE::XBOARD_INVITE;
     }
     return;

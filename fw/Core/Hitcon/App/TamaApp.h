@@ -181,6 +181,7 @@ class TamaQte {
   uint8_t success;
   void Routine();
   void Render();
+
  public:
   TamaQte();
   // Init the qte. This should be called only once on startup.
