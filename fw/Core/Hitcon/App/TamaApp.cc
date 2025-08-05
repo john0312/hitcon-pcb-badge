@@ -513,19 +513,6 @@ void TamaApp::XbOnButton(button_t button) {
       break;
     case TAMA_XBOARD_STATE::XBOARD_BATTLE_QTE:
       qte.OnButton(button);
-      if (qte.IsDone()) {
-        _my_nounce = g_fast_random_pool.GetRandom();
-        tama_xboard_result_t result = {
-            .packet_type = TAMA_XBOARD_PACKET_TYPE::PACKET_SCORE,
-            .score = qte.GetScore(),
-            .nonce = _my_nounce,
-        };
-        g_game_controller.SetBufferToUsername(result.user);
-        g_xboard_logic.QueueDataForTx(reinterpret_cast<uint8_t*>(&result),
-                                      sizeof(result), TAMA_RECV_ID);
-        display_set_mode_scroll_text("Waiting for enemy...");
-        xboard_state = TAMA_XBOARD_STATE::XBOARD_BATTLE_SENT_SCORE;
-      }
       break;
     case TAMA_XBOARD_STATE::XBOARD_UNAVAILABLE:
       break;
@@ -563,8 +550,10 @@ void TamaApp::OnXBoardRecv(void* arg) {
       _enemy_state = TAMA_XBOARD_STATE::XBOARD_BATTLE_ENCOUNTER;
       break;
     case TAMA_XBOARD_PACKET_TYPE::PACKET_SCORE:
-      if (packet->len == sizeof(_enemy_score))
+      if (packet->len == sizeof(_enemy_score)) {
+        _enemy_state = TAMA_XBOARD_STATE::XBOARD_BATTLE_SENT_SCORE;
         memcpy(&_enemy_score, packet->data, sizeof(_enemy_score));
+      }
       break;
     case TAMA_XBOARD_PACKET_TYPE::PACKET_END:
       // TODO: End game
@@ -601,8 +590,19 @@ void TamaApp::XbRoutine(void* unused) {
     UpdateFrameBuffer();
   }
   if (xboard_state == TAMA_XBOARD_STATE::XBOARD_BATTLE_QTE) {
-    // Do nothing. The routine / rendering logic is handled by QTE
-    // Return early to prevent rendering.
+    if (qte.IsDone()) {
+      _my_nounce = g_fast_random_pool.GetRandom();
+      tama_xboard_result_t result = {
+          .packet_type = TAMA_XBOARD_PACKET_TYPE::PACKET_SCORE,
+          .score = qte.GetScore(),
+          .nonce = _my_nounce,
+      };
+      g_game_controller.SetBufferToUsername(result.user);
+      g_xboard_logic.QueueDataForTx(reinterpret_cast<uint8_t*>(&result),
+                                    sizeof(result), TAMA_RECV_ID);
+      display_set_mode_scroll_text("Waiting for enemy...");
+      xboard_state = TAMA_XBOARD_STATE::XBOARD_BATTLE_SENT_SCORE;
+    }
     return;
   }
   if (xboard_state == TAMA_XBOARD_STATE::XBOARD_BATTLE_SENT_SCORE) {
