@@ -723,7 +723,7 @@ void TamaQte::Routine() {
     }
     game.Update();
   } else if (state == kBetweenGame) {
-    if (SysTimer::GetTime() - nextGameStart >= 0) {
+    if (SysTimer::GetTime() >= nextGameStart) {
       game.Init();
       state = TamaQteState::kInGame;
     }
