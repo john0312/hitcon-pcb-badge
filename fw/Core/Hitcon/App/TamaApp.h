@@ -90,6 +90,8 @@ enum class TAMA_XBOARD_STATE {
   XBOARD_BATTLE_ENCOUNTER,
   XBOARD_BATTLE_QTE,
   XBOARD_BATTLE_SENT_SCORE,
+  XBOARD_BATTLE_RESULT,
+  XBOARD_BATTLE_END,
   XBOARD_UNAVAILABLE,
 };
 
@@ -123,12 +125,18 @@ enum class TAMA_ANIMATION_TYPE : uint8_t {
   XB_PLAYER_CAT,
   XB_ENEMY_DOG,
   XB_ENEMY_CAT,
+  XB_PLAYER_DOG_HURT,
+  XB_PLAYER_CAT_HURT,
+  XB_ENEMY_DOG_HURT,
+  XB_ENEMY_CAT_HURT,
+  XB_DOG_RESULT,
+  XB_CAT_RESULT,
 };
 
 typedef struct {
   TAMA_XBOARD_PACKET_TYPE packet_type;
   uint8_t user[hitcon::ir::IR_USERNAME_LEN];
-  uint8_t score;
+  uint16_t score;
   uint8_t nonce;
 } __attribute__((__packed__)) tama_xboard_result_t;
 
@@ -202,7 +210,7 @@ class TamaQte {
   void Exit();
   void OnButton(button_t button);
   bool IsDone();
-  uint8_t GetScore();
+  uint16_t GetScore(uint16_t level);
 };
 
 typedef struct {
@@ -230,6 +238,8 @@ class TamaApp : public App {
   bool _is_selected = false;
   unsigned int _previous_hatching_step = 0;
   unsigned int _total_hatchin_steps = 0;
+  bool _xb_qte_me_winning = false;
+  bool _xb_qte_enemy_winning = false;
 
   TamaQte qte;
 
@@ -239,6 +249,8 @@ class TamaApp : public App {
   void StackOnFrame(const tama_display_component_t* component, int offset);
   void StackOnFrameBlinking(const tama_display_component_t* component,
                             int offset);
+  void StackOnFrameShifing(const tama_display_component_t* component,
+                           int offset);
   void ConcateAnimtaions(uint8_t count, ...);
   void HatchingRoutine(void* unused);
 
@@ -396,8 +408,28 @@ constexpr display_buf_t TAMA_XB_ENEMY_DOG_FRAMES[] = {
 };
 constexpr display_buf_t TAMA_XB_ENEMY_CAT_FRAMES[] = {
   // size 2x8
-  0, 0x3E, 0x1C, 0x3E, 0x18, 0x34, 0x0A, 0x02,
-  0x3E, 0x1C, 0x3E, 0x18, 0x34, 0x0A, 0x02, 0,
+  0, 0x1f, 0x0e, 0x1f, 0x0c, 0x1a, 0x05, 0x01,
+  0x1f, 0x0e, 0x1f, 0x0c, 0x1a, 0x05, 0x01, 0,
+};
+constexpr display_buf_t TAMA_XB_PLAYER_DOG_HURT_FRAMES[] = {
+  // size 2x8
+  0x20, 0xE0, 0xC0, 0xF0, 0xE0, 0xF0, 0x40, 0,
+  0x28, 0xF0, 0xC0, 0xF8, 0xF0, 0xF0, 0x40, 0x80,
+};
+constexpr display_buf_t TAMA_XB_PLAYER_CAT_HURT_FRAMES[] = {
+  // size 2x8
+  0x10, 0x50, 0xA0, 0xC0, 0xF0, 0xE0, 0xF0, 0,
+  0x18, 0x50, 0xa0, 0xc8, 0xf0, 0xe0, 0xf0, 0x80,
+};
+constexpr display_buf_t TAMA_XB_ENEMY_DOG_HURT_FRAMES[] = {
+  0, 0x04, 0x1F, 0x0E, 0x1F, 0x0C, 0x1C, 0x06,
+  0x01, 0x06, 0x1f, 0x1f, 0x1f, 0x0c, 0x1c, 0x16
+  // size 2x8
+};
+constexpr display_buf_t TAMA_XB_ENEMY_CAT_HURT_FRAMES[] = {
+  // size 2x8
+  0, 0x1f, 0x0e, 0x1f, 0x0c, 0x1a, 0x05, 0x01,
+  0x01, 0x1f, 0x0e, 0x1f, 0x1e, 0x1e, 0x0d, 0x11
 };
 // clang-format on
 
@@ -500,6 +532,22 @@ constexpr tama_ani_t animation[] = {
      .frame_count = 2,
      .length = 8,
      .frames_data = TAMA_XB_ENEMY_CAT_FRAMES},
+    {.type = TAMA_ANIMATION_TYPE::XB_PLAYER_DOG_HURT,
+     .frame_count = 2,
+     .length = 8,
+     .frames_data = TAMA_XB_PLAYER_DOG_HURT_FRAMES},
+    {.type = TAMA_ANIMATION_TYPE::XB_PLAYER_CAT_HURT,
+     .frame_count = 2,
+     .length = 8,
+     .frames_data = TAMA_XB_PLAYER_CAT_HURT_FRAMES},
+    {.type = TAMA_ANIMATION_TYPE::XB_ENEMY_DOG_HURT,
+     .frame_count = 2,
+     .length = 8,
+     .frames_data = TAMA_XB_ENEMY_DOG_HURT_FRAMES},
+    {.type = TAMA_ANIMATION_TYPE::XB_ENEMY_CAT_HURT,
+     .frame_count = 2,
+     .length = 8,
+     .frames_data = TAMA_XB_ENEMY_CAT_HURT_FRAMES},
 };
 
 // Macro to check animation properties
@@ -536,12 +584,17 @@ ASSERT_ANIMATION_PROPERTIES(FEED_CONFIRM);
 ASSERT_ANIMATION_PROPERTIES(HEART_3);
 ASSERT_ANIMATION_PROPERTIES(HEART_2);
 ASSERT_ANIMATION_PROPERTIES(HEART_1);
+ASSERT_ANIMATION_PROPERTIES(NEED_HEAL);
 ASSERT_ANIMATION_PROPERTIES(LV);
 ASSERT_ANIMATION_PROPERTIES(XB_BATTLE_INVITE);
 ASSERT_ANIMATION_PROPERTIES(XB_PLAYER_DOG);
 ASSERT_ANIMATION_PROPERTIES(XB_PLAYER_CAT);
 ASSERT_ANIMATION_PROPERTIES(XB_ENEMY_DOG);
 ASSERT_ANIMATION_PROPERTIES(XB_ENEMY_CAT);
+ASSERT_ANIMATION_PROPERTIES(XB_PLAYER_DOG_HURT);
+ASSERT_ANIMATION_PROPERTIES(XB_PLAYER_CAT_HURT);
+ASSERT_ANIMATION_PROPERTIES(XB_ENEMY_DOG_HURT);
+ASSERT_ANIMATION_PROPERTIES(XB_ENEMY_CAT_HURT);
 
 // --- Display Component ---
 // The data here is used to stack upon existing frames
@@ -563,6 +616,8 @@ constexpr display_buf_t TAMA_NUM_SEVEN[3] = {0b00001000, 0b00001000, 0b11111000}
 constexpr display_buf_t TAMA_NUM_EIGHT[3] = {0b11111000, 0b10101000, 0b11111000};
 constexpr display_buf_t TAMA_NUM_NINE[3] = {0b10111000, 0b10101000, 0b11111000};
 constexpr display_buf_t TAMA_NUM_ZERO[3] = {0b11111000, 0b10001000, 0b11111000};
+constexpr display_buf_t TAMA_QTE_WINNING_EFFECT[15] = {0x02, 0x04, 0x08, 0x01, 0x02, 0x04, 0x00, 0x03, 0x00, 0x04, 0x02, 0x01, 0x08, 0x04, 0x02};
+constexpr display_buf_t TAMA_QTE_LOSING_EFFECT[11] = {0x04, 0x00, 0x04, 0x00, 0x04, 0x00, 0x04, 0x00, 0x04, 0x00, 0x04};
 // clang-format on
 
 constexpr tama_display_component_t TAMA_COMPONENT_PET_SELECTION_CURSOR = {
@@ -625,6 +680,14 @@ constexpr tama_display_component_t TAMA_COMPONENT_NUM_ZERO = {
     .data = TAMA_NUM_ZERO,
     .length = 3,
 };
+constexpr tama_display_component_t TAMA_COMPONENT_QTE_WINNING_EFFECT = {
+    .data = TAMA_QTE_WINNING_EFFECT,
+    .length = 15,
+};
+constexpr tama_display_component_t TAMA_COMPONENT_QTE_LOSING_EFFECT = {
+    .data = TAMA_QTE_LOSING_EFFECT,
+    .length = 11,
+};
 
 #define ASSERT_COMPONENT_PROPERTIES(TYPE_NAME_STR)                             \
   static_assert(TAMA_COMPONENT_##TYPE_NAME_STR.length ==                       \
@@ -648,6 +711,8 @@ ASSERT_COMPONENT_PROPERTIES(NUM_SEVEN);
 ASSERT_COMPONENT_PROPERTIES(NUM_EIGHT);
 ASSERT_COMPONENT_PROPERTIES(NUM_NINE);
 ASSERT_COMPONENT_PROPERTIES(NUM_ZERO);
+ASSERT_COMPONENT_PROPERTIES(QTE_WINNING_EFFECT);
+ASSERT_COMPONENT_PROPERTIES(QTE_LOSING_EFFECT)
 
 constexpr tama_display_component_t TAMA_NUM_FONT[10] = {
     TAMA_COMPONENT_NUM_ZERO,  TAMA_COMPONENT_NUM_ONE,

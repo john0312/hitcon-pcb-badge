@@ -13,8 +13,6 @@
 #include <cstdarg>
 #include <cstring>
 
-#include "tama_src/TamaAppFrame.h"
-
 using namespace hitcon::service::xboard;
 using hitcon::service::sched::my_assert;
 
@@ -553,32 +551,68 @@ void TamaApp::XbUpdateFrameBuffer() {
               ? 0
               : 13);
       break;
-    case TAMA_XBOARD_STATE::XBOARD_BATTLE_ENCOUNTER:
-      if (_enemy_state == TAMA_XBOARD_STATE::XBOARD_BATTLE_ENCOUNTER) {
-        const tama_ani_t *me = nullptr, *enemy = nullptr;
-        if (_tama_data.type == TAMA_TYPE::DOG) {
-          me = &TAMA_GET_ANIMATION_DATA(XB_PLAYER_DOG);
-        } else if (_tama_data.type == TAMA_TYPE::CAT) {
-          me = &TAMA_GET_ANIMATION_DATA(XB_PLAYER_CAT);
-        } else {
-          my_assert(false);
-        }
-        if (_enemy_info.type == TAMA_TYPE::DOG) {
-          enemy = &TAMA_GET_ANIMATION_DATA(XB_ENEMY_DOG);
-        } else if (_enemy_info.type == TAMA_TYPE::CAT) {
-          enemy = &TAMA_GET_ANIMATION_DATA(XB_ENEMY_CAT);
-        } else {
-          my_assert(false);
-        }
-        ConcateAnimtaions(2, me, enemy);
+    case TAMA_XBOARD_STATE::XBOARD_BATTLE_ENCOUNTER: {
+      if (_enemy_state != TAMA_XBOARD_STATE::XBOARD_BATTLE_ENCOUNTER) {
+        return;
+      }
+      const tama_ani_t *me = nullptr, *enemy = nullptr;
+      if (_tama_data.type == TAMA_TYPE::DOG) {
+        me = &TAMA_GET_ANIMATION_DATA(XB_PLAYER_DOG);
+      } else if (_tama_data.type == TAMA_TYPE::CAT) {
+        me = &TAMA_GET_ANIMATION_DATA(XB_PLAYER_CAT);
+      } else {
+        my_assert(false);
+      }
+      if (_enemy_info.type == TAMA_TYPE::DOG) {
+        enemy = &TAMA_GET_ANIMATION_DATA(XB_ENEMY_DOG);
+      } else if (_enemy_info.type == TAMA_TYPE::CAT) {
+        enemy = &TAMA_GET_ANIMATION_DATA(XB_ENEMY_CAT);
+      } else {
+        my_assert(false);
+      }
+      ConcateAnimtaions(2, me, enemy);
+      break;
+    }
+    case TAMA_XBOARD_STATE::XBOARD_BATTLE_RESULT: {
+      const tama_ani_t *me = nullptr, *enemy = nullptr;
+      if (_xb_qte_me_winning) {
+        me = _tama_data.type == TAMA_TYPE::DOG
+                 ? &TAMA_GET_ANIMATION_DATA(XB_PLAYER_DOG)
+                 : &TAMA_GET_ANIMATION_DATA(XB_PLAYER_CAT);
+      } else {
+        me = _tama_data.type == TAMA_TYPE::DOG
+                 ? &TAMA_GET_ANIMATION_DATA(XB_PLAYER_DOG_HURT)
+                 : &TAMA_GET_ANIMATION_DATA(XB_PLAYER_CAT_HURT);
+      }
+      if (_xb_qte_enemy_winning) {
+        enemy = _tama_data.type == TAMA_TYPE::DOG
+                    ? &TAMA_GET_ANIMATION_DATA(XB_ENEMY_DOG)
+                    : &TAMA_GET_ANIMATION_DATA(XB_ENEMY_CAT);
+      } else {
+        enemy = _tama_data.type == TAMA_TYPE::DOG
+                    ? &TAMA_GET_ANIMATION_DATA(XB_ENEMY_DOG_HURT)
+                    : &TAMA_GET_ANIMATION_DATA(XB_ENEMY_CAT_HURT);
+      }
+      ConcateAnimtaions(2, me, enemy);
+      break;
+    }
+    case TAMA_XBOARD_STATE::XBOARD_BATTLE_END: {
+      const tama_ani_t* me = _tama_data.type == TAMA_TYPE::DOG
+                                 ? &TAMA_GET_ANIMATION_DATA(XB_PLAYER_DOG)
+                                 : &TAMA_GET_ANIMATION_DATA(XB_PLAYER_CAT);
+      TAMA_PREPARE_FB(_fb, me->frame_count);
+      TAMA_COPY_FB(_fb, *me, 4);
+      if (_xb_qte_me_winning) {
+        StackOnFrameShifing(&TAMA_COMPONENT_QTE_WINNING_EFFECT, 0);
+      } else {
+        StackOnFrameBlinking(&TAMA_COMPONENT_QTE_LOSING_EFFECT, 2);
       }
       break;
-    case TAMA_XBOARD_STATE::XBOARD_BATTLE_QTE:
-      // TODO: Draw frame buffer for QTE
-      break;
+    }
     case TAMA_XBOARD_STATE::XBOARD_BATTLE_SENT_SCORE:
-      // TODO: Draw frame buffer for sent score
-      break;
+      // Waiting score packet
+    case TAMA_XBOARD_STATE::XBOARD_BATTLE_QTE:
+      // handled by QTE class
     case TAMA_XBOARD_STATE::XBOARD_UNAVAILABLE:
       break;
     default:
@@ -593,16 +627,17 @@ void TamaApp::OnXBoardRecv(void* arg) {
     // TODO: Handle XB game logic here
     case TAMA_XBOARD_PACKET_TYPE::PACKET_CONFIRM:
       _enemy_state = TAMA_XBOARD_STATE::XBOARD_BATTLE_ENCOUNTER;
+      my_assert(packet->len == sizeof(_enemy_info));
       memcpy(&_enemy_info, packet->data, sizeof(_enemy_info));
       my_assert(_enemy_info.type == TAMA_TYPE::DOG ||
                 _enemy_info.type == TAMA_TYPE::CAT);
       UpdateFrameBuffer();
       break;
     case TAMA_XBOARD_PACKET_TYPE::PACKET_SCORE:
-      if (packet->len == sizeof(_enemy_score)) {
-        _enemy_state = TAMA_XBOARD_STATE::XBOARD_BATTLE_SENT_SCORE;
-        memcpy(&_enemy_score, packet->data, sizeof(_enemy_score));
-      }
+      my_assert(packet->len == sizeof(_enemy_score));
+      _enemy_state = TAMA_XBOARD_STATE::XBOARD_BATTLE_SENT_SCORE;
+      memcpy(&_enemy_score, packet->data, sizeof(_enemy_score));
+      UpdateFrameBuffer();
       break;
     case TAMA_XBOARD_PACKET_TYPE::PACKET_END:
       // TODO: End game
@@ -622,7 +657,6 @@ void TamaApp::OnXBoardRecv(void* arg) {
 }
 
 void TamaApp::XbRoutine(void* unused) {
-  // TODO: Handle all XBoard routine here
   if (xboard_state == TAMA_XBOARD_STATE::XBOARD_UNAVAILABLE ||
       _enemy_state == TAMA_XBOARD_STATE::XBOARD_UNAVAILABLE) {
     // We can not battle now. Do nothing to let the display scroll
@@ -631,6 +665,7 @@ void TamaApp::XbRoutine(void* unused) {
 
   if (xboard_state == TAMA_XBOARD_STATE::XBOARD_BATTLE_ENCOUNTER &&
       !(_enemy_state == TAMA_XBOARD_STATE::XBOARD_BATTLE_ENCOUNTER)) {
+    // Let waiting scrolls
     return;
   }
   if (xboard_state == TAMA_XBOARD_STATE::XBOARD_BATTLE_ENCOUNTER &&
@@ -645,7 +680,7 @@ void TamaApp::XbRoutine(void* unused) {
       _my_nounce = g_fast_random_pool.GetRandom();
       tama_xboard_result_t result = {
           .packet_type = TAMA_XBOARD_PACKET_TYPE::PACKET_SCORE,
-          .score = qte.GetScore(),
+          .score = qte.GetScore(_tama_data.level),
           .nonce = _my_nounce,
       };
       g_game_controller.SetBufferToUsername(result.user);
@@ -653,6 +688,7 @@ void TamaApp::XbRoutine(void* unused) {
                                     sizeof(result), TAMA_RECV_ID);
       display_set_mode_scroll_text("Waiting for enemy...");
       xboard_state = TAMA_XBOARD_STATE::XBOARD_BATTLE_SENT_SCORE;
+      UpdateFrameBuffer();
     }
     return;
   }
@@ -660,19 +696,39 @@ void TamaApp::XbRoutine(void* unused) {
     if (_enemy_state != TAMA_XBOARD_STATE::XBOARD_BATTLE_SENT_SCORE) {
       return;
     }
+    xboard_state = TAMA_XBOARD_STATE::XBOARD_BATTLE_RESULT;
     // We need to know enemy score to update our frames
-    UpdateFrameBuffer();
     my_assert(_enemy_score.packet_type ==
               TAMA_XBOARD_PACKET_TYPE::PACKET_SCORE);
     // Send result with TwoBadgeActivity
     hitcon::game::TwoBadgeActivity activity = {
         .gameType = hitcon::game::EventType::kTama,
-        .myScore = qte.GetScore(),
+        .myScore = qte.GetScore(_tama_data.level),
         .otherScore = _enemy_score.score,
         .nonce = _my_nounce + _enemy_score.nonce,
     };
+    if (activity.myScore > activity.otherScore)
+      _xb_qte_me_winning = true;
+    else
+      _xb_qte_me_winning = false;
+    if (activity.otherScore > activity.myScore)
+      _xb_qte_enemy_winning = true;
+    else
+      _xb_qte_enemy_winning = false;
     memcpy(activity.otherUser, _enemy_score.user, sizeof(_enemy_score.user));
     g_game_controller.SendTwoBadgeActivity(activity);
+    UpdateFrameBuffer();
+  }
+  if (xboard_state == TAMA_XBOARD_STATE::XBOARD_BATTLE_RESULT) {
+    if (_frame_count >= 8) {
+      xboard_state = TAMA_XBOARD_STATE::XBOARD_BATTLE_END;
+      UpdateFrameBuffer();
+    }
+  }
+  if (xboard_state == TAMA_XBOARD_STATE::XBOARD_BATTLE_END) {
+    if (_frame_count >= 8) {
+      badge_controller.BackToMenu(this);
+    }
   }
 
   Render();
@@ -707,6 +763,26 @@ void TamaApp::StackOnFrameBlinking(const tama_display_component_t* component,
     for (int j = offset; (j < component->length + offset && j < DISPLAY_WIDTH);
          j++) {
       _fb.fb[i][j] |= (component->data)[j - offset];
+    }
+  }
+}
+
+void TamaApp::StackOnFrameShifing(const tama_display_component_t* component,
+                                  int offset) {
+  if (_fb.fb_size % 2) {
+    // Double the frames for shifting effects
+    for (int i = 0; i < _fb.fb_size; i++) {
+      memcpy(_fb.fb[_fb.fb_size + i], _fb.fb[i], sizeof(_fb.fb[i]));
+    }
+    _fb.fb_size *= 2;
+  }
+  for (int i = 0; i < _fb.fb_size; i += 2) {
+    for (int j = offset; (j < component->length + offset && j < DISPLAY_WIDTH);
+         j++) {
+      _fb.fb[i][j] |= (component->data)[j - offset];
+      if (j + 1 < DISPLAY_WIDTH) {
+        _fb.fb[i + 1][j + 1] |= (component->data)[j - offset];
+      }
     }
   }
 }
@@ -816,7 +892,7 @@ void TamaQte::Init() {
 
 bool TamaQte::IsDone() { return state == TamaQteState::kDone; }
 
-uint8_t TamaQte::GetScore() { return success * success; }
+uint16_t TamaQte::GetScore(uint16_t level) { return success * success * level; }
 
 TamaQte::TamaQte()
     : routineTask(650, (callback_t)&TamaQte::Routine, this, QTE_REFRESH_RATE) {}
