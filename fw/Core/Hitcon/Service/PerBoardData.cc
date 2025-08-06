@@ -1,4 +1,5 @@
 #include <Service/PerBoardData.h>
+
 #include <cstring>
 
 namespace hitcon {
@@ -18,8 +19,7 @@ constexpr uint8_t kPubKeyCert[PerBoardData::kPubKeyCertSize] = {
     0xf6, 0xb4, 0xfa, 0xbe, 0x12, 0x6d, 0x41};
 
 constexpr uint8_t kPrivKey[PerBoardData::kPrivKeySize] = {
-    0x80, 0x02, 0xb6, 0x03, 0x60, 0xc6, 0x2f
-};
+    0x80, 0x02, 0xb6, 0x03, 0x60, 0xc6, 0x2f};
 
 }  // namespace
 
@@ -32,10 +32,9 @@ const uint8_t* PerBoardData::GetPerBoardSecret() { return kPerBoardSecret; }
 const uint8_t* PerBoardData::GetPubKeyCert() { return kPubKeyCert; }
 
 const uint64_t PerBoardData::GetPrivKey() {
-    uint64_t privkey = 0;
-    memcpy(&privkey, kPrivKey, PerBoardData::kPrivKeySize);
-    return privkey;
+  uint64_t privkey = 0;
+  memcpy(&privkey, kPrivKey, PerBoardData::kPrivKeySize);
+  return privkey;
 }
-
 
 }  // namespace hitcon
