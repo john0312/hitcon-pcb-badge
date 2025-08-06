@@ -504,14 +504,14 @@ void TamaApp::XbOnButton(button_t button) {
           } else {
             my_assert(xboard_battle_invite ==
                       TAMA_XBOARD_BATTLE_INVITE::XBOARD_BATTLE_Y);
+            xboard_state = TAMA_XBOARD_STATE::XBOARD_BATTLE_ENCOUNTER;
+            display_set_mode_scroll_text("Waiting for enemy...");
             tama_xboard_enemy_info_t invite = {
                 .packet_type = TAMA_XBOARD_PACKET_TYPE::PACKET_CONFIRM,
                 .type = _tama_data.type,
             };
             g_xboard_logic.QueueDataForTx(reinterpret_cast<uint8_t*>(&invite),
                                           sizeof(invite), TAMA_RECV_ID);
-            xboard_state = TAMA_XBOARD_STATE::XBOARD_BATTLE_ENCOUNTER;
-            display_set_mode_scroll_text("Waiting for enemy...");
           }
           UpdateFrameBuffer();
           break;
@@ -677,6 +677,8 @@ void TamaApp::XbRoutine(void* unused) {
   }
   if (xboard_state == TAMA_XBOARD_STATE::XBOARD_BATTLE_QTE) {
     if (qte.IsDone()) {
+      xboard_state = TAMA_XBOARD_STATE::XBOARD_BATTLE_SENT_SCORE;
+      display_set_mode_scroll_text("Waiting for enemy...");
       _my_nounce = g_fast_random_pool.GetRandom();
       tama_xboard_result_t result = {
           .packet_type = TAMA_XBOARD_PACKET_TYPE::PACKET_SCORE,
@@ -686,8 +688,6 @@ void TamaApp::XbRoutine(void* unused) {
       g_game_controller.SetBufferToUsername(result.user);
       g_xboard_logic.QueueDataForTx(reinterpret_cast<uint8_t*>(&result),
                                     sizeof(result), TAMA_RECV_ID);
-      display_set_mode_scroll_text("Waiting for enemy...");
-      xboard_state = TAMA_XBOARD_STATE::XBOARD_BATTLE_SENT_SCORE;
       UpdateFrameBuffer();
     }
     return;
