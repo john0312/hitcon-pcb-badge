@@ -1,6 +1,6 @@
 #ifndef TAMA_APP_H
 #define TAMA_APP_H
-#define TAMA_APP_MAX_FB_LENGTH 12
+#define TAMA_APP_MAX_FB_LENGTH 6
 #define TAMA_HATCHING_STEPS 400
 
 #define TAMA_PREPARE_FB(FB, FB_SIZE) \
