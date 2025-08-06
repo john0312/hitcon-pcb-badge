@@ -6,6 +6,7 @@ import requests
 import configparser
 import os
 import json
+import ecc
 
 original_elf_path = 'fw.elf'  # Original ELF file path
 MOD_elf_path = 'fwMOD.elf'  # New duplicated ELF file path
@@ -24,17 +25,31 @@ MAX_ST_QTY = config.getint('Settings', 'MAX_ST_QTY')
 CURSES_RESERVE_LINE = config.getint('Settings', 'CURSES_RESERVE_LINE')
 #STLINK_AUTO_DETECTION_INTERVAL = config.getint('Settings', 'STLINK_AUTO_DETECTION_INTERVAL')
 EN_PCB_LOG = config.getint('HTTP', 'EN_PCB_LOG')
+SERVER_PRIV_KEY = int(config.get('GAME', 'SERVER_PRIV_KEY'))
+TEAM = config.get('GAME', 'TEAM')
+
+if TEAM not in ['BLUE', 'RED']:
+    raise ValueError("Invalid TEAM value in config.ini. Must be 'BLUE' or 'RED'.")
 
 # Configure the array to find in ELF
 search_array_PerBoardRandom = [
         0xf1, 0xca, 0x4e, 0xa0, 0x48, 0x2f, 0x27, 0x4d,
         0x3d, 0xc2, 0x9c, 0x8c, 0xec, 0x36, 0x83, 0x49
     ]  # Array to find for PerBoardRandom
-    
+
 search_array_PerBoardSecret = [
         0x13, 0xac, 0x76, 0xfc, 0x1a, 0xa7, 0x0f, 0x92,
         0x05, 0x31, 0x1d, 0xa6, 0x28, 0x4c, 0x8e, 0x94
     ]  # Array to find for PerBoardSecret
+
+search_array_PubKeyCert = [
+    0x7d, 0xf0, 0xde, 0x4c, 0xe2, 0x23, 0x19,
+    0xf6, 0xb4, 0xfa, 0xbe, 0x12, 0x6d, 0x41
+]
+
+search_array_PrivKey = [
+    0x80, 0x02, 0xb6, 0x03, 0x60, 0xc6, 0x2f
+]
 
 def duplicate_elf_file(original_file_path, new_file_path):
     """Duplicate the ELF file."""
@@ -120,7 +135,7 @@ def search_and_reaplce_array(elf_file_path, search_array, replace_array):
     if array_offset is not None:
         print(f"Array found at offset: {hex(array_offset)}")
         #print_hex_around_target_array(elf_file_path, array_offset, search_array)
-        
+
         # Replace the array
         err = replace_array_in_elf(elf_file_path, search_array, replace_array)
 
@@ -138,48 +153,51 @@ def search_and_reaplce_array(elf_file_path, search_array, replace_array):
 def print_array_in_hex(array):
     hex_array = [f'0x{value:02x}' for value in array]
     print("Generated random uint8 array in HEX:", hex_array)
-    
-def http_post_uint8_array(url="https://pcb-log.hitcon2024.online/log_board", 
-                     uint8_array=search_array_PerBoardSecret):
-    datatosend = base64.b64encode(uint8_array).decode('utf-8')
+
+def http_post_data(url, per_board_secret, priv_key):
+    per_board_secret = base64.b64encode(per_board_secret).decode('utf-8')
+    priv_key = base64.b64encode(priv_key).decode('utf-8')
     data = {
-        "board_secret": datatosend
+        "board_secret": per_board_secret,
+        "priv_key": priv_key
     }
     data = json.dumps(data)
     response = requests.post(url, data)
 
     return response.status_code
 
-def modify_fw_elf(array_to_replace_PerBoardRandom = search_array_PerBoardRandom
-                  , array_to_replace_PerBoardSecret = search_array_PerBoardSecret
-                  ):
+def modify_fw_elf():
     replace_array_PerBoardRandom = np.random.randint(0, 256, size=16, dtype=np.uint8)
     replace_array_PerBoardSecret = np.random.randint(0, 256, size=16, dtype=np.uint8)
-    
+
+    replace_array_PrivKey, replace_array_PubKeyCert = ecc.gen_key(SERVER_PRIV_KEY, TEAM == 'RED')
+
     # Duplicate the ELF file
     duplicate_elf_file(original_elf_path, MOD_elf_path)
     # Modify array in ELF
     array_offset_PerBoardRandom = search_and_reaplce_array(MOD_elf_path, search_array_PerBoardRandom, replace_array_PerBoardRandom)
     array_offset_PerBoardSecret = search_and_reaplce_array(MOD_elf_path, search_array_PerBoardSecret, replace_array_PerBoardSecret)
+    array_offset_PubKeyCert = search_and_reaplce_array(MOD_elf_path, search_array_PubKeyCert, replace_array_PubKeyCert)
+    array_offset_PrivKey = search_and_reaplce_array(MOD_elf_path, search_array_PrivKey, replace_array_PrivKey)
 
-    return replace_array_PerBoardRandom, replace_array_PerBoardSecret, array_offset_PerBoardRandom, array_offset_PerBoardSecret
+    return replace_array_PerBoardSecret, replace_array_PrivKey
 
 if __name__ == "__main__":
 
     # Generate Random array
     replace_array_PerBoardRandom = np.random.randint(0, 256, size=16, dtype=np.uint8)
     replace_array_PerBoardSecret = np.random.randint(0, 256, size=16, dtype=np.uint8)
-    
+
     # Print random array
     print("\n Geerating PerBoardRandom... \n")
     print_array_in_hex(replace_array_PerBoardRandom)
     print("\n Geerating PerBoardSecret... \n")
     print_array_in_hex(replace_array_PerBoardSecret)
-    
+
     # TODO: Test posting PerBoardSecret to Cloud
     print("\n POST PerBoardSecret to https://pcb-log.hitcon2024.online/log_board \n")
-    
-    response = http_post_uint8_array(post_url, replace_array_PerBoardSecret)
+
+    response = http_post_data(post_url, replace_array_PerBoardSecret)
     if response == 200:
         print("HTTP POST Success!")
     else:
@@ -198,4 +216,4 @@ if __name__ == "__main__":
     search_and_reaplce_array(MOD_elf_path, search_array_PerBoardSecret, replace_array_PerBoardSecret)
     print("\n PerBoardSecret replacement verified \n")
 
-    print("\n Operation Done \n")    
+    print("\n Operation Done \n")
