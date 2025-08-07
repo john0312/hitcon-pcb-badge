@@ -11,7 +11,7 @@ namespace usb {
 extern void SendBadgeID();
 
 constexpr menu_entry_t usb_menu_entries[] = {
-    {"Badge ID", &show_id_app, nullptr},
+    {"Show ID", &show_id_app, nullptr},
     {"BadUSB", &bad_usb_app, nullptr},
 };
 

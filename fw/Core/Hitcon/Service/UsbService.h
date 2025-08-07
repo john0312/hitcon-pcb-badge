@@ -13,6 +13,8 @@ extern "C" {
 void UsbServiceOnDataReceived(uint8_t* data);
 }
 
+using namespace hitcon::service::sched;
+
 namespace hitcon {
 namespace usb {
 
@@ -41,8 +43,9 @@ struct Report {
 class UsbService {
  public:
   UsbService()
-      : _retry_task(809,
-                    (service::sched::task_callback_t)&UsbService::RetryHandler,
+      : interrupt_handler_task(
+            808, (task_callback_t)&UsbService::InterruptHandler, (void*)this),
+        _retry_task(809, (task_callback_t)&UsbService::RetryHandler,
                     (void*)this, 20) {}
 
   // set callback when report id 2 is received
@@ -70,9 +73,6 @@ class UsbService {
   bool IsBusy() { return _retrying; }
   bool IsConnected() { return _connected; }
 
-  // Handle USB_DET rising/falling external interrupt
-  void InterruptHandler(GPIO_PinState state);
-
   // Handle report received from host
   void OnRecvReport(uint8_t* data);
 
@@ -80,8 +80,10 @@ class UsbService {
   // return keycode (first) and modifier (second)
   static std::pair<uint8_t, uint8_t> GetKeyCode(char c);
 
+  Task interrupt_handler_task;
+
  private:
-  service::sched::DelayedTask _retry_task;
+  DelayedTask _retry_task;
   bool _retrying = false;
   bool _connected = false;
   Report _report;
@@ -91,6 +93,9 @@ class UsbService {
   std::pair<callback_t, void*> on_plug_out_cb = {nullptr, nullptr};
 
   void RetryHandler(void* unused);
+
+  // Handle USB_DET rising/falling external interrupt
+  void InterruptHandler(void* arg2);
 };
 
 extern UsbService g_usb_service;

@@ -11,8 +11,10 @@
 // handle USB_DET has power supply
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
   if (GPIO_Pin == USB_DET_Pin) {
-    hitcon::usb::g_usb_service.InterruptHandler(
-        HAL_GPIO_ReadPin(USB_DET_GPIO_Port, USB_DET_Pin));
+    bool state =
+        (HAL_GPIO_ReadPin(USB_DET_GPIO_Port, USB_DET_Pin) == GPIO_PIN_SET);
+    scheduler.Queue(&hitcon::usb::g_usb_service.interrupt_handler_task,
+                    reinterpret_cast<void*>(state));
   }
 }
 
@@ -21,8 +23,9 @@ namespace usb {
 
 UsbService g_usb_service;
 
-void UsbService::InterruptHandler(GPIO_PinState state) {
-  if (state == GPIO_PIN_SET) {
+void UsbService::InterruptHandler(void* arg2) {
+  bool state = static_cast<bool>(arg2);
+  if (state) {
     if (on_plug_in_cb.first) {
       on_plug_in_cb.first(on_plug_in_cb.second, nullptr);
     }

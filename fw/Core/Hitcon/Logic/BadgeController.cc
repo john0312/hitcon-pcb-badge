@@ -183,7 +183,7 @@ void BadgeController::OnUsbPlugIn(void *unused) {
 
 void BadgeController::OnUsbPlugOut(void *unused) {
   if (GetCurrentApp() == &usb::usb_menu ||
-      GetCurrentApp() == &usb::bad_usb_app) {
+      GetCurrentApp() == &usb::bad_usb_app || GetCurrentApp() == &show_id_app) {
     change_app(&show_name_app);
   }
 }
