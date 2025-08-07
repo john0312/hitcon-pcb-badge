@@ -47,6 +47,10 @@ enum class TAMA_APP_STATE : uint8_t {
   FEED_ANIME,
   PET_FED,
   PET_HEALING,
+  TRAINING_CONFIRM,
+  TRAINING,
+  TRAINING_QTE,
+  TRAINING_END
 };
 
 enum class TAMA_TYPE : uint8_t {
@@ -110,10 +114,11 @@ enum class TAMA_ANIMATION_TYPE : uint8_t {
   EGG_4,
   HATCHING,
   PET_SELECTION,
+  FEED_CONFIRM,
   FEEDING,
+  TRAINING_CONFIRM,
   DOG_FED_HEALING,
   CAT_FED_HEALING,
-  FEED_CONFIRM,
   HEART_3,
   HEART_2,
   HEART_1,
@@ -340,6 +345,10 @@ constexpr display_buf_t TAMA_PET_SELECTION_FRAMES[] = {
   // size 1x16
   0x00, 0x18, 0x60, 0x30, 0x7C, 0x38, 0x7C, 0x00, 0x18, 0x70, 0x38, 0x7E, 0x3C, 0x7E, 0x3C, 0x08
 };
+constexpr display_buf_t TAMA_FEED_CONFIRM_FRAMES[] = {
+  // size 1x8
+  0b00111000, 0b001000100, 0b01110010, 0b01110001, 0b01110001, 0b01110010, 0b01000100, 0b00111000
+};
 constexpr display_buf_t TAMA_FEEDING_FRAMES[] = {
   // size 5x8
   0b00111000, 0b01000100, 0b01110010, 0b01110001, 0b01110001, 0b01110010, 0b01000100, 0b00111000,
@@ -347,6 +356,10 @@ constexpr display_buf_t TAMA_FEEDING_FRAMES[] = {
   0b00110000, 0b01010000, 0b01110000, 0b01110000, 0b01111000, 0b01111000, 0b01001000, 0b00111000,
   0, 0b01100000, 0b01110000, 0b01100000, 0, 0b010000, 0, 0, 0,
   0, 0, 0, 0, 0, 0, 0, 0
+};
+constexpr display_buf_t TAMA_TRAINING_CONFIRM_FRAMES[] = {
+  // size 1x8
+  0x3c, 0x7e, 0x18, 0x18, 0x18, 0x18, 0x7e, 0x3c
 };
 constexpr display_buf_t TAMA_DOG_FED_HEALING_FRAMES[] = {
   // size 2x8
@@ -357,10 +370,6 @@ constexpr display_buf_t TAMA_CAT_FED_HEALING_FRAMES[] = {
   // size 2x8
   0x10, 0x50, 0xA0, 0xC0, 0xF0, 0xE0, 0xF0, 0x00,
   0x10, 0x50, 0xA0, 0xC2, 0xF4, 0xE2, 0xF0, 0x00,
-};
-constexpr display_buf_t TAMA_FEED_CONFIRM_FRAMES[] = {
-  // size 1x8
-  0b00111000, 0b001000100, 0b01110010, 0b01110001, 0b01110001, 0b01110010, 0b01000100, 0b00111000
 };
 constexpr display_buf_t TAMA_HEART_3_FRAMES[] = {
   // size 2x8
@@ -476,10 +485,18 @@ constexpr tama_ani_t animation[] = {
      .frame_count = 1,
      .length = 16,
      .frames_data = TAMA_PET_SELECTION_FRAMES},
+    {.type = TAMA_ANIMATION_TYPE::FEED_CONFIRM,
+     .frame_count = 1,
+     .length = 8,
+     .frames_data = TAMA_FEED_CONFIRM_FRAMES},
     {.type = TAMA_ANIMATION_TYPE::FEEDING,
      .frame_count = 5,
      .length = 8,
      .frames_data = TAMA_FEEDING_FRAMES},
+    {.type = TAMA_ANIMATION_TYPE::TRAINING_CONFIRM,
+     .frame_count = 1,
+     .length = 8,
+     .frames_data = TAMA_TRAINING_CONFIRM_FRAMES},
     {.type = TAMA_ANIMATION_TYPE::DOG_FED_HEALING,
      .frame_count = 2,
      .length = 8,
@@ -488,10 +505,7 @@ constexpr tama_ani_t animation[] = {
      .frame_count = 2,
      .length = 8,
      .frames_data = TAMA_CAT_FED_HEALING_FRAMES},
-    {.type = TAMA_ANIMATION_TYPE::FEED_CONFIRM,
-     .frame_count = 1,
-     .length = 8,
-     .frames_data = TAMA_FEED_CONFIRM_FRAMES},
+
     {.type = TAMA_ANIMATION_TYPE::HEART_3,
      .frame_count = 2,
      .length = 8,
@@ -577,10 +591,11 @@ ASSERT_ANIMATION_PROPERTIES(EGG_3);
 ASSERT_ANIMATION_PROPERTIES(EGG_4);
 ASSERT_ANIMATION_PROPERTIES(HATCHING);
 ASSERT_ANIMATION_PROPERTIES(PET_SELECTION);
+ASSERT_ANIMATION_PROPERTIES(FEED_CONFIRM);
 ASSERT_ANIMATION_PROPERTIES(FEEDING);
+ASSERT_ANIMATION_PROPERTIES(TRAINING_CONFIRM);
 ASSERT_ANIMATION_PROPERTIES(DOG_FED_HEALING);
 ASSERT_ANIMATION_PROPERTIES(CAT_FED_HEALING);
-ASSERT_ANIMATION_PROPERTIES(FEED_CONFIRM);
 ASSERT_ANIMATION_PROPERTIES(HEART_3);
 ASSERT_ANIMATION_PROPERTIES(HEART_2);
 ASSERT_ANIMATION_PROPERTIES(HEART_1);
@@ -618,6 +633,8 @@ constexpr display_buf_t TAMA_NUM_NINE[3] = {0b10111000, 0b10101000, 0b11111000};
 constexpr display_buf_t TAMA_NUM_ZERO[3] = {0b11111000, 0b10001000, 0b11111000};
 constexpr display_buf_t TAMA_QTE_WINNING_EFFECT[15] = {0x02, 0x04, 0x08, 0x01, 0x02, 0x04, 0x00, 0x03, 0x00, 0x04, 0x02, 0x01, 0x08, 0x04, 0x02};
 constexpr display_buf_t TAMA_QTE_LOSING_EFFECT[11] = {0x04, 0x00, 0x04, 0x00, 0x04, 0x00, 0x04, 0x00, 0x04, 0x00, 0x04};
+constexpr display_buf_t TAMA_TRAINING_FACILITY[6] = {0x26, 0x39, 0x26, 0x4C, 0x72, 0x4C};
+constexpr display_buf_t TAMA_TRAINING_LV_UP[12] = {0x7, 0x4, 0, 0x3, 0x4, 0x3, 0, 0x2, 0x7, 0x2, 0, 0x7};
 // clang-format on
 
 constexpr tama_display_component_t TAMA_COMPONENT_PET_SELECTION_CURSOR = {
@@ -688,6 +705,14 @@ constexpr tama_display_component_t TAMA_COMPONENT_QTE_LOSING_EFFECT = {
     .data = TAMA_QTE_LOSING_EFFECT,
     .length = 11,
 };
+constexpr tama_display_component_t TAMA_COMPONENT_TRAINING_FACILITY = {
+    .data = TAMA_TRAINING_FACILITY,
+    .length = 6,
+};
+constexpr tama_display_component_t TAMA_COMPONENT_TRAINING_LV_UP = {
+    .data = TAMA_TRAINING_LV_UP,
+    .length = 12,
+};
 
 #define ASSERT_COMPONENT_PROPERTIES(TYPE_NAME_STR)                             \
   static_assert(TAMA_COMPONENT_##TYPE_NAME_STR.length ==                       \
@@ -713,6 +738,8 @@ ASSERT_COMPONENT_PROPERTIES(NUM_NINE);
 ASSERT_COMPONENT_PROPERTIES(NUM_ZERO);
 ASSERT_COMPONENT_PROPERTIES(QTE_WINNING_EFFECT);
 ASSERT_COMPONENT_PROPERTIES(QTE_LOSING_EFFECT)
+ASSERT_COMPONENT_PROPERTIES(TRAINING_FACILITY);
+ASSERT_COMPONENT_PROPERTIES(TRAINING_LV_UP);
 
 constexpr tama_display_component_t TAMA_NUM_FONT[10] = {
     TAMA_COMPONENT_NUM_ZERO,  TAMA_COMPONENT_NUM_ONE,

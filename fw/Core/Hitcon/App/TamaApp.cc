@@ -45,10 +45,8 @@ void TamaApp::Init() {
 #endif
   hitcon::service::sched::scheduler.Queue(&_routine_task, nullptr);
   // If the egg is hatching, enable background tasks for updating steps
-  if (_state == TAMA_APP_STATE::EGG_1 ||
-      _state == TAMA_APP_STATE::EGG_2 ||
-      _state == TAMA_APP_STATE::EGG_3 ||
-      _state == TAMA_APP_STATE::EGG_4) {
+  if (_state == TAMA_APP_STATE::EGG_1 || _state == TAMA_APP_STATE::EGG_2 ||
+      _state == TAMA_APP_STATE::EGG_3 || _state == TAMA_APP_STATE::EGG_4) {
     _hatching_task.SetWakeTime(SysTimer::GetTime() + 5000);
     hitcon::service::sched::scheduler.Queue(&_hatching_task, nullptr);
   }
@@ -86,7 +84,6 @@ void TamaApp::OnEntry() {
     } else {
       xboard_state = TAMA_XBOARD_STATE::XBOARD_INVITE;
     }
-    xboard_state = TAMA_XBOARD_STATE::XBOARD_INVITE;
     UpdateFrameBuffer();
     return;
   }
@@ -95,6 +92,7 @@ void TamaApp::OnEntry() {
     return;
   }
   my_assert(player_mode == TAMA_PLAYER_MODE::MODE_SINGLEPLAYER);
+  _state = _tama_data.state;
   if (_state == TAMA_APP_STATE::INTRO_TEXT) {
     display_set_mode_scroll_text("Choose your pet");
   } else {
@@ -137,7 +135,10 @@ void TamaApp::OnButton(button_t button) {
   }
   bool needs_save = false;
   bool needs_update_fb = false;
-
+  if (_state == TAMA_APP_STATE::TRAINING_QTE) {
+    qte.OnButton(button);
+    return;
+  }
   switch (button & BUTTON_VALUE_MASK) {
     case BUTTON_BACK:
     case BUTTON_LONG_BACK:
@@ -192,6 +193,11 @@ void TamaApp::OnButton(button_t button) {
               _is_selected ? TAMA_APP_STATE::FEED_ANIME : TAMA_APP_STATE::IDLE;
           needs_update_fb = true;
           break;
+        case TAMA_APP_STATE::TRAINING_CONFIRM:
+          _state =
+              _is_selected ? TAMA_APP_STATE::TRAINING : TAMA_APP_STATE::IDLE;
+          needs_update_fb = true;
+          break;
         default:
           // No action for other states on OK press, or handle as needed
           break;
@@ -218,6 +224,13 @@ void TamaApp::OnButton(button_t button) {
             _is_selected = false;
             needs_update_fb = true;
           }
+          break;
+        case TAMA_APP_STATE::TRAINING_CONFIRM:
+          if (_is_selected == true) {
+            _is_selected = false;
+            needs_update_fb = true;
+          }
+          break;
         default:
           break;
       }
@@ -232,16 +245,23 @@ void TamaApp::OnButton(button_t button) {
           break;
         case TAMA_APP_STATE::IDLE:
           // block going to the next state if weak
-          if (_tama_data.hp == 0) {
-            break;
+          if (_tama_data.hp != 0) {
+            _state = TAMA_APP_STATE::TRAINING_CONFIRM;
+            needs_update_fb = true;
           }
           break;
-          // TODO: Handle other states for BUTTON_LEFT if necessary
         case TAMA_APP_STATE::FEED_CONFIRM:
           if (_is_selected == false) {
             _is_selected = true;
             needs_update_fb = true;
           }
+          break;
+        case TAMA_APP_STATE::TRAINING_CONFIRM:
+          if (_is_selected == false) {
+            _is_selected = true;
+            needs_update_fb = true;
+          }
+          break;
         default:
           break;
       }
@@ -297,7 +317,7 @@ void TamaApp::Routine(void* unused) {
     return;
   }
   my_assert(player_mode == TAMA_PLAYER_MODE::MODE_SINGLEPLAYER);
-  bool needs_render = true;
+  bool needs_render = false;
   bool needs_save = false;
 
   switch (_state) {
@@ -340,6 +360,35 @@ void TamaApp::Routine(void* unused) {
       break;
     case TAMA_APP_STATE::PET_FED:
       if (_frame_count == 6) {
+        _state = TAMA_APP_STATE::IDLE;
+        UpdateFrameBuffer();
+      }
+    case TAMA_APP_STATE::LV_DETAIL:
+    case TAMA_APP_STATE::FEED_CONFIRM:
+    case TAMA_APP_STATE::TRAINING_CONFIRM:
+      needs_render = true;
+      break;
+    case TAMA_APP_STATE::TRAINING:
+      if (_frame_count > 8) {
+        _state = TAMA_APP_STATE::TRAINING_QTE;
+        qte.Entry();
+        return;
+      }
+      needs_render = true;
+      break;
+    case TAMA_APP_STATE::TRAINING_QTE:
+      if (qte.IsDone()) {
+        _state = TAMA_APP_STATE::TRAINING_END;
+        if (qte.GetScore(1) == 25 && _tama_data.level < 999) {
+          _tama_data.level++;
+          needs_save = true;
+        }
+        UpdateFrameBuffer();
+      }
+      break;
+    case TAMA_APP_STATE::TRAINING_END:
+      needs_render = true;
+      if (_frame_count > 8) {
         _state = TAMA_APP_STATE::IDLE;
         UpdateFrameBuffer();
       }
@@ -468,6 +517,40 @@ void TamaApp::UpdateFrameBuffer() {
       TAMA_PREPARE_FB(_fb, pet->frame_count);
       TAMA_COPY_FB(_fb, *pet, 0);
       StackOnFrame(&TAMA_COMPONENT_HOSPITAL_ICONS, 8);
+      break;
+    }
+    case TAMA_APP_STATE::TRAINING_CONFIRM:
+      TAMA_PREPARE_FB(_fb,
+                      TAMA_GET_ANIMATION_DATA(TRAINING_CONFIRM).frame_count);
+      TAMA_COPY_FB(_fb, TAMA_GET_ANIMATION_DATA(TRAINING_CONFIRM), 4);
+      StackOnFrame(&TAMA_COMPONENT_N_FONT, 0);
+      StackOnFrame(&TAMA_COMPONENT_Y_FONT, 13);
+      StackOnFrameBlinking(&TAMA_COMPONENT_SELECTION_CURSOR,
+                           _is_selected ? 13 : 0);
+      break;
+    case TAMA_APP_STATE::TRAINING: {
+      const tama_ani_t* me = nullptr;
+      if (_tama_data.type == TAMA_TYPE::DOG) {
+        me = &TAMA_GET_ANIMATION_DATA(XB_PLAYER_DOG);
+      } else if (_tama_data.type == TAMA_TYPE::CAT) {
+        me = &TAMA_GET_ANIMATION_DATA(XB_PLAYER_CAT);
+      } else {
+        my_assert(false);
+      }
+      TAMA_PREPARE_FB(_fb, me->frame_count);
+      TAMA_COPY_FB(_fb, *me, 0);
+      StackOnFrame(&TAMA_COMPONENT_TRAINING_FACILITY, 9);
+      break;
+    }
+    case TAMA_APP_STATE::TRAINING_END: {
+      const tama_ani_t* me = _tama_data.type == TAMA_TYPE::DOG
+                                 ? &TAMA_GET_ANIMATION_DATA(XB_PLAYER_DOG)
+                                 : &TAMA_GET_ANIMATION_DATA(XB_PLAYER_CAT);
+      TAMA_PREPARE_FB(_fb, me->frame_count);
+      TAMA_COPY_FB(_fb, *me, 4);
+      if (qte.GetScore(1) == 25) {
+        StackOnFrameBlinking(&TAMA_COMPONENT_TRAINING_LV_UP, 2);
+      }
       break;
     }
     default:
@@ -668,7 +751,7 @@ void TamaApp::XbRoutine(void* unused) {
       _frame_count >= 8) {
     xboard_state = TAMA_XBOARD_STATE::XBOARD_BATTLE_QTE;
     qte.Entry();
-    UpdateFrameBuffer();
+    return;
   }
   if (xboard_state == TAMA_XBOARD_STATE::XBOARD_BATTLE_QTE) {
     if (qte.IsDone()) {
@@ -783,10 +866,8 @@ void TamaApp::StackOnFrameShifing(const tama_display_component_t* component,
 }
 
 void TamaApp::HatchingRoutine(void* unused) {
-  if (_state != TAMA_APP_STATE::EGG_1 &&
-      _state != TAMA_APP_STATE::EGG_2 &&
-      _state != TAMA_APP_STATE::EGG_3 &&
-      _state != TAMA_APP_STATE::EGG_4) {
+  if (_state != TAMA_APP_STATE::EGG_1 && _state != TAMA_APP_STATE::EGG_2 &&
+      _state != TAMA_APP_STATE::EGG_3 && _state != TAMA_APP_STATE::EGG_4) {
     return;
   }
   unsigned int step = g_imu_logic.GetStep();
