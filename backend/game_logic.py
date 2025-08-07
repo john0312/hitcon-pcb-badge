@@ -39,6 +39,7 @@ class Constants:
     DATABASE_NAME: str = "game_logic"
     ATTACK_HISTORY_COLLECTION: str = "attack_history"
     SCORE_HISTORY_COLLECTION: str = "score_history"
+    PLAYER_BUFF_COLLECTION: str = "player_buff"
 
     STATION_SCORE_LB: int = -1000
     STATION_SCORE_UB: int = 1000
@@ -51,6 +52,9 @@ class Constants:
     STATION_SCORE_CACHE_MIN_INTERVAL: int = 10 # seconds
 
     GAME_SCORE_GRANULARITY: int | None = 10  # seconds
+
+    BUFF_A_MODIFIER: float = 0.04
+    BUFF_B_MODIFIER: float = 0.04
 
     def reset(self):
         for field in fields(self):
@@ -85,7 +89,9 @@ class _GameLogic:
         self.db = mongo_client[const.DATABASE_NAME]
         self.attack_history = self.db[const.ATTACK_HISTORY_COLLECTION]
         self.score_history = self.db[const.SCORE_HISTORY_COLLECTION]
+        self.player_buff = self.db[const.PLAYER_BUFF_COLLECTION]
         self.redis_client = redis_client
+        # TODO: test if create index is necessary for performance
 
         if start_time is None:
             start_time = datetime.now()
@@ -94,6 +100,7 @@ class _GameLogic:
     async def clear_database(self):
         await self.attack_history.delete_many({})
         await self.score_history.delete_many({})
+        await self.player_buff.delete_many({})
 
     async def attack_station(self, player_id: int, station_id: int, amount: int, timestamp: datetime):
         """
@@ -102,12 +109,28 @@ class _GameLogic:
         based on the history of attacks.
         """
         # TODO: validate the player_id and the amount
-        # TODO: apply buff to amount (power)
+
+        buff = await self.player_buff.find_one({"player_id": player_id, "latest": True})
+        if buff is not None:
+            buff_a_count = buff.get("buff_a_count", 0)
+            buff_b_count = buff.get("buff_b_count", 0)
+        else:
+            buff_a_count = 0
+            buff_b_count = 0
+
+        # apply the buff
+        amount_after_buff = int(amount * (1 + const.BUFF_A_MODIFIER * buff_a_count + const.BUFF_B_MODIFIER * buff_b_count))
+
         await self.attack_history.insert_one({
             "player_id": player_id,
             "station_id": station_id,
-            "amount": amount,
+            "amount": amount_after_buff,
             "timestamp": timestamp,
+            "amount_before_buff": amount,
+            "buff_a_count": buff_a_count,
+            "buff_b_count": buff_b_count,
+            "buff_a_modifier": const.BUFF_A_MODIFIER,
+            "buff_b_modifier": const.BUFF_B_MODIFIER,
         })
 
     async def get_station_score_history(self, *, player_id: int = None, station_id: int = None, start: datetime = None, before: datetime = None):
@@ -348,14 +371,30 @@ class _GameLogic:
 
         return score
 
-
     async def update_player_buff(self, player_id: int, buff_a_count: int, buff_b_count: int, timestamp: datetime):
         """
-        Apply a buff to the player.
+        Update the player's buff (possibly a result of solving CTF challenges).
         buff_a and buff_b has different parameter on the modifier.
         The attack power = amount * modifier.
         """
-        # TODO: implement the buff logic
+        await self.player_buff.update_one(
+            {"player_id": player_id, "latest": True},
+            {
+                "$set": {
+                    "buff_a_count": buff_a_count,
+                    "buff_b_count": buff_b_count,
+                    "timestamp": timestamp,
+                }
+            },
+            upsert=True,
+        )
+        await self.player_buff.insert_one({
+            "player_id": player_id,
+            "buff_a_count": buff_a_count,
+            "buff_b_count": buff_b_count,
+            "timestamp": timestamp,
+            "latest": False,  # for retaining the history
+        })
 
 
 async def test_attack_station_score_history(with_redis = False, cache_min_interval = None):
@@ -433,6 +472,43 @@ async def test_attack_station_score_history(with_redis = False, cache_min_interv
         await redis_client.flushall()
     for timestamp, expected_score in ground_truth:
         assert expected_score == await gl.get_station_score(station_id=station_id, before=timestamp)
+
+
+async def test_attack_station_score_buff(buff_a_count, buff_b_count):
+    const.reset()
+    const.STATION_SCORE_DECAY_INTERVAL = 1
+    eps = 0.1
+
+    time_base = datetime.now()
+    gl = _GameLogic(pymongo.AsyncMongoClient("mongodb://localhost:27017?uuidRepresentation=standard"), None, time_base)
+    await gl.clear_database()
+
+    player_id = 1
+    station_id = 1
+
+    await gl.update_player_buff(player_id, buff_a_count=buff_a_count, buff_b_count=buff_b_count, timestamp=time_base)
+
+    # Simulate
+    scores = [100, 200, 300, -50, -100, -200, -300, -400, -500, -600, 400, 400, 400, 400, 400, 400, 400]
+    for i, score in enumerate(scores):
+        await gl.attack_station(player_id, station_id, score, time_base + timedelta(seconds=i + 0.5))
+
+    # Test
+    total_score = 0
+    for i in range(len(scores)):
+        # decay the score
+        if total_score > 0:
+            total_score = max(0, total_score - const.STATION_SCORE_DECAY_AMOUNT)
+        elif total_score < 0:
+            total_score = min(0, total_score + const.STATION_SCORE_DECAY_AMOUNT)
+
+        assert total_score == await gl.get_station_score(station_id=station_id, before=time_base + timedelta(seconds=i + eps))
+
+        # add the score
+        modifier = 1 + const.BUFF_A_MODIFIER * buff_a_count + const.BUFF_B_MODIFIER * buff_b_count
+        total_score = clamp(total_score + int(scores[i] * modifier), const.STATION_SCORE_LB, const.STATION_SCORE_UB)
+
+        assert total_score == await gl.get_station_score(station_id=station_id, before=time_base + timedelta(seconds=i + 0.5 + eps))
 
 
 async def test_game_score_history_single_player(with_redis = False, game_score_granularity = None):
@@ -551,4 +627,7 @@ if __name__ == "__main__":
     asyncio.run(test_game_score_history_two_player(with_redis=True, game_score_granularity=0.3))
     asyncio.run(test_game_score_history_two_player(with_redis=False, game_score_granularity=0.1))
     asyncio.run(test_game_score_history_two_player(with_redis=False, game_score_granularity=0.3))
+    asyncio.run(test_attack_station_score_buff(buff_a_count=2, buff_b_count=3))
+    asyncio.run(test_attack_station_score_buff(buff_a_count=0, buff_b_count=0))
+    asyncio.run(test_attack_station_score_buff(buff_a_count=10, buff_b_count=5))
     print("All tests passed!")
