@@ -79,7 +79,7 @@ class ScoreEntry(BaseModel):
     uid: int
     scores: Dict[str, int]
     total_score: int
-    connected_sponsors: List[str]
+    connected_sponsors: List[int]
 
 
 class ScoreBoard(BaseModel):

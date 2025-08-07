@@ -49,7 +49,7 @@ async def get_scoreboard():
                 "rectf": 600
             },
             "total_score": 2100,
-            "connected_sponsors": ["G1", "G2", "P1"]
+            "connected_sponsors": [1, 2, 3]
         },
         {
             "name": "chen",
@@ -63,7 +63,7 @@ async def get_scoreboard():
                 "rectf": 700
             },
             "total_score": 2700,
-            "connected_sponsors": ["G1", "P1"]
+            "connected_sponsors": [1, 3]
         },
         {
             "name": "sherry",
@@ -77,7 +77,7 @@ async def get_scoreboard():
                 "rectf": 800
             },
             "total_score": 3300,
-            "connected_sponsors": ["G2", "P1"]
+            "connected_sponsors": [2, 3]
         }
     ]
 
