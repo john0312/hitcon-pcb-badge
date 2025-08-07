@@ -216,7 +216,7 @@ class _GameLogic:
 
         return total_score
 
-    async def receive_game_score_single_player(self, player_id: int, station_id: int, score: int, game_type: GameType, timestamp: datetime):
+    async def receive_game_score_single_player(self, player_id: int, station_id: int, score: int, game_type: GameType, timestamp: datetime, log_only: bool = False):
         match game_type:
             case GameType.SHAKE_BADGE:
                 # TODO: validate the score and timestamp
@@ -239,13 +239,13 @@ class _GameLogic:
                 # TODO: collect all sponsor bonus
                 pass
 
-
         await self.score_history.insert_one({
             "player_id": player_id,
             "station_id": station_id,
             "score": score,
             "game_type": game_type,
             "timestamp": timestamp,
+            "log_only": log_only,
         })
 
     async def receive_game_score_two_player(self, two_player_event_id: uuid.UUID, player1_id: int, player2_id: int, station_id: int, score1: int, score2: int, game_type: GameType, timestamp: datetime, log_only: bool = False):
@@ -287,7 +287,7 @@ class _GameLogic:
             },
         ])
 
-    async def get_game_history(self, *, player_id: int = None, station_id: int = None, game_type: GameType = None, num_of_player: GameNumOfPlayerType = None, start: datetime = None, before: datetime = None):
+    async def get_game_history(self, *, player_id: int = None, station_id: int = None, game_type: GameType = None, num_of_player: GameNumOfPlayerType = None, start: datetime = None, before: datetime = None, log_only: bool = None):
         # TODO: support "log_only" field to filter out log-only events
         if before is None:
             before = datetime.now()
@@ -306,6 +306,9 @@ class _GameLogic:
         if game_type is not None:
             query["game_type"] = game_type
 
+        if log_only is not None:
+            query["log_only"] = log_only
+
         if num_of_player == GameNumOfPlayerType.SINGLE:
             query["two_player_event_id"] = {"$exists": False}
         elif num_of_player == GameNumOfPlayerType.TWO:
@@ -317,7 +320,8 @@ class _GameLogic:
             yield record
 
     async def get_game_score(self, *, player_id: int = None, station_id: int = None, game_type: GameType = None, num_of_player: GameNumOfPlayerType = None, before: datetime = None) -> int:
-        # TODO: support "log_only" field to filter out log-only events
+        # Note that only log_only=False records are considered for the score calculation
+
         if before is None:
             before = datetime.now()
 
@@ -330,7 +334,7 @@ class _GameLogic:
             seconds_from_start2 = int(seconds_from_start1 // const.GAME_SCORE_GRANULARITY) * const.GAME_SCORE_GRANULARITY
             before = self.start_time + timedelta(seconds=seconds_from_start2)
 
-        query = {"timestamp": {"$lt": before}}
+        query = {"timestamp": {"$lt": before}, "log_only": False}
 
         if player_id is not None:
             query["player_id"] = player_id
@@ -613,6 +617,33 @@ async def test_game_score_history_two_player(with_redis = False, game_score_gran
         assert scores[0][1] == await gl.get_game_score(player_id=player2_id, station_id=station_id, game_type=game_type, num_of_player=GameNumOfPlayerType.TWO, before=time_base + timedelta(seconds=1 + eps))
         assert scores[0][1] + scores[1][1] == await gl.get_game_score(player_id=player2_id, station_id=station_id, game_type=game_type, num_of_player=GameNumOfPlayerType.TWO, before=time_base + timedelta(seconds=2 + eps))
         assert scores[0][1] + scores[1][1] == await gl.get_game_score(player_id=player2_id, station_id=station_id, game_type=game_type, num_of_player=GameNumOfPlayerType.TWO, before=time_base + timedelta(seconds=3 + eps))
+
+
+async def test_game_score_log_only():
+    const.reset()
+    const.STATION_SCORE_DECAY_INTERVAL = 1
+    eps = 0.1
+
+    time_base = datetime.now()
+    gl = _GameLogic(pymongo.AsyncMongoClient("mongodb://localhost:27017?uuidRepresentation=standard"), None, time_base)
+    await gl.clear_database()
+
+    player1_id = 1
+    player2_id = 2
+    station_id = 1
+
+    # Simulate
+    two_player_event_id = uuid.uuid4()
+    await gl.receive_game_score_two_player(two_player_event_id, player1_id, player2_id, station_id, 10, -10, GameType.TAMA, time_base + timedelta(seconds=0.5))
+    await gl.receive_game_score_two_player(two_player_event_id, player1_id, player2_id, station_id, 20, -20, GameType.TAMA, time_base + timedelta(seconds=1.5))
+
+    # Test
+    assert 0 == await gl.get_game_score(player_id=player1_id, station_id=station_id, before=time_base + timedelta(seconds=0 + eps))
+    assert 0 == await gl.get_game_score(player_id=player1_id, station_id=station_id, before=time_base + timedelta(seconds=1 + eps))
+    assert 0 == await gl.get_game_score(player_id=player1_id, station_id=station_id, before=time_base + timedelta(seconds=2 + eps))
+    assert 0 == await gl.get_game_score(player_id=player2_id, station_id=station_id, before=time_base + timedelta(seconds=0 + eps))
+    assert 0 == await gl.get_game_score(player_id=player2_id, station_id=station_id, before=time_base + timedelta(seconds=1 + eps))
+    assert 0 == await gl.get_game_score(player_id=player2_id, station_id=station_id, before=time_base + timedelta(seconds=2 + eps))
 
 
 if __name__ == "__main__":
