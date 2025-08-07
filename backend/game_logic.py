@@ -384,7 +384,11 @@ class _GameLogic:
                     "buff_a_count": buff_a_count,
                     "buff_b_count": buff_b_count,
                     "timestamp": timestamp,
-                }
+                },
+                "$setOnInsert": {
+                    "player_id": player_id,
+                    "latest": True,
+                },
             },
             upsert=True,
         )
