@@ -60,7 +60,6 @@ typedef struct {
   TAMA_TYPE type;
   uint16_t level;
   uint8_t hp;
-  bool hatched;
 } tama_storage_t;
 
 typedef struct {
@@ -229,6 +228,7 @@ class TamaApp : public App {
  private:
   static constexpr unsigned ROUTINE_INTERVAL_MS =
       500;  // How often the Routine function runs
+  TAMA_APP_STATE _state;
   TAMA_TYPE _current_selection_in_choose_mode;
   hitcon::service::sched::PeriodicTask _routine_task;
   hitcon::service::sched::DelayedTask _hatching_task;

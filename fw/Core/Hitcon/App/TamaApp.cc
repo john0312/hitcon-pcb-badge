@@ -31,6 +31,7 @@ TamaApp::TamaApp()
           (hitcon::service::sched::task_callback_t)&TamaApp::HatchingRoutine,
           this, 0),
       _tama_data(g_nv_storage.GetCurrentStorage().tama_storage),
+      _state(_tama_data.state),
       _current_selection_in_choose_mode(TAMA_TYPE::CAT), _fb() {}
 
 void TamaApp::Init() {
@@ -44,10 +45,10 @@ void TamaApp::Init() {
 #endif
   hitcon::service::sched::scheduler.Queue(&_routine_task, nullptr);
   // If the egg is hatching, enable background tasks for updating steps
-  if (_tama_data.state == TAMA_APP_STATE::EGG_1 ||
-      _tama_data.state == TAMA_APP_STATE::EGG_2 ||
-      _tama_data.state == TAMA_APP_STATE::EGG_3 ||
-      _tama_data.state == TAMA_APP_STATE::EGG_4) {
+  if (_state == TAMA_APP_STATE::EGG_1 ||
+      _state == TAMA_APP_STATE::EGG_2 ||
+      _state == TAMA_APP_STATE::EGG_3 ||
+      _state == TAMA_APP_STATE::EGG_4) {
     _hatching_task.SetWakeTime(SysTimer::GetTime() + 5000);
     hitcon::service::sched::scheduler.Queue(&_hatching_task, nullptr);
   }
@@ -75,7 +76,7 @@ void TamaApp::OnEntry() {
                                      TAMA_RECV_ID);
     _enemy_state = TAMA_XBOARD_STATE::XBOARD_INVITE;
     memcpy(&_enemy_score, 0, sizeof(_enemy_score));
-    if (_tama_data.hatched == false || _tama_data.hp == 0) {
+    if (_tama_data.state != TAMA_APP_STATE::IDLE || _tama_data.hp == 0) {
       xboard_state = TAMA_XBOARD_STATE::XBOARD_UNAVAILABLE;
       display_set_mode_scroll_text("Your pet is not ready yet");
       TAMA_XBOARD_PACKET_TYPE packet =
@@ -94,12 +95,9 @@ void TamaApp::OnEntry() {
     return;
   }
   my_assert(player_mode == TAMA_PLAYER_MODE::MODE_SINGLEPLAYER);
-  if (_tama_data.state == TAMA_APP_STATE::INTRO_TEXT) {
+  if (_state == TAMA_APP_STATE::INTRO_TEXT) {
     display_set_mode_scroll_text("Choose your pet");
   } else {
-    if (_tama_data.hatched) {
-      _tama_data.state = TAMA_APP_STATE::IDLE;
-    }
     UpdateFrameBuffer();
   }
 }
@@ -116,7 +114,7 @@ void TamaApp::OnExit() {
 void TamaApp::Render() {
   if (
       // INTRO_TEXT handles render in display_set_mode_scroll_text
-      _tama_data.state == TAMA_APP_STATE::INTRO_TEXT) {
+      _state == TAMA_APP_STATE::INTRO_TEXT) {
     return;
   }
 
@@ -147,15 +145,15 @@ void TamaApp::OnButton(button_t button) {
       return;  // Exit immediately
 
     case BUTTON_OK:
-      switch (_tama_data.state) {
+      switch (_state) {
         case TAMA_APP_STATE::INTRO_TEXT:
           // just wait for the text to scroll finished
-          _tama_data.state = TAMA_APP_STATE::CHOOSE_TYPE;
+          _state = TAMA_APP_STATE::CHOOSE_TYPE;
           needs_update_fb = true;
           break;
         case TAMA_APP_STATE::CHOOSE_TYPE:
           _tama_data.type = _current_selection_in_choose_mode;
-          _tama_data.state = TAMA_APP_STATE::EGG_1;
+          _state = TAMA_APP_STATE::EGG_1;
           _previous_hatching_step = g_imu_logic.GetStep();
           _hatching_task.SetWakeTime(SysTimer::GetTime() + 5000);
           scheduler.Queue(&_hatching_task, nullptr);
@@ -164,22 +162,22 @@ void TamaApp::OnButton(button_t button) {
           break;
 #ifdef DEBUG
         case TAMA_APP_STATE::EGG_1:
-          _tama_data.state = TAMA_APP_STATE::EGG_2;
+          _state = TAMA_APP_STATE::EGG_2;
           _total_hatchin_steps += 100;
           needs_update_fb = true;
           break;
         case TAMA_APP_STATE::EGG_2:
-          _tama_data.state = TAMA_APP_STATE::EGG_3;
+          _state = TAMA_APP_STATE::EGG_3;
           _total_hatchin_steps += 100;
           needs_update_fb = true;
           break;
         case TAMA_APP_STATE::EGG_3:
-          _tama_data.state = TAMA_APP_STATE::EGG_4;
+          _state = TAMA_APP_STATE::EGG_4;
           _total_hatchin_steps += 100;
           needs_update_fb = true;
           break;
         case TAMA_APP_STATE::EGG_4:
-          _tama_data.state = TAMA_APP_STATE::HATCHING;
+          _state = TAMA_APP_STATE::HATCHING;
           _total_hatchin_steps = 400;
           _frame_count = 0;
           needs_update_fb = true;
@@ -190,7 +188,7 @@ void TamaApp::OnButton(button_t button) {
           break;
 #endif
         case TAMA_APP_STATE::FEED_CONFIRM:
-          _tama_data.state =
+          _state =
               _is_selected ? TAMA_APP_STATE::FEED_ANIME : TAMA_APP_STATE::IDLE;
           needs_update_fb = true;
           break;
@@ -200,7 +198,7 @@ void TamaApp::OnButton(button_t button) {
       }
       break;
     case BUTTON_LEFT:
-      switch (_tama_data.state) {
+      switch (_state) {
         case TAMA_APP_STATE::CHOOSE_TYPE:
           if (_current_selection_in_choose_mode == TAMA_TYPE::DOG) {
             needs_update_fb = true;
@@ -211,7 +209,7 @@ void TamaApp::OnButton(button_t button) {
           if (_tama_data.hp == 0) {
             break;
           }
-          _tama_data.state = TAMA_APP_STATE::FEED_CONFIRM;
+          _state = TAMA_APP_STATE::FEED_CONFIRM;
           needs_update_fb = true;
           break;
         // TODO: Handle other states for BUTTON_LEFT if necessary
@@ -225,7 +223,7 @@ void TamaApp::OnButton(button_t button) {
       }
       break;
     case BUTTON_RIGHT:
-      switch (_tama_data.state) {
+      switch (_state) {
         case TAMA_APP_STATE::CHOOSE_TYPE:
           if (_current_selection_in_choose_mode == TAMA_TYPE::CAT) {
             needs_update_fb = true;
@@ -249,29 +247,25 @@ void TamaApp::OnButton(button_t button) {
       }
       break;
     case BUTTON_UP:
-      switch (_tama_data.state) {
+      switch (_state) {
         case TAMA_APP_STATE::IDLE:
-          _tama_data.state = TAMA_APP_STATE::LV_DETAIL;
-          // needs_save = true;
+          _state = TAMA_APP_STATE::LV_DETAIL;
           needs_update_fb = true;
           break;
         case TAMA_APP_STATE::LV_DETAIL:
-          _tama_data.state = TAMA_APP_STATE::IDLE;
-          // needs_save = true;
+          _state = TAMA_APP_STATE::IDLE;
           needs_update_fb = true;
           break;
       }
       break;
     case BUTTON_DOWN:
-      switch (_tama_data.state) {
+      switch (_state) {
         case TAMA_APP_STATE::IDLE:
-          _tama_data.state = TAMA_APP_STATE::LV_DETAIL;
-          // needs_save = true;
+          _state = TAMA_APP_STATE::LV_DETAIL;
           needs_update_fb = true;
           break;
         case TAMA_APP_STATE::LV_DETAIL:
-          _tama_data.state = TAMA_APP_STATE::IDLE;
-          // needs_save = true;
+          _state = TAMA_APP_STATE::IDLE;
           needs_update_fb = true;
           break;
       }
@@ -280,7 +274,8 @@ void TamaApp::OnButton(button_t button) {
       break;
   }
 
-  if (needs_save) {
+  if (needs_save && (_state != _tama_data.state)) {
+    _tama_data.state = _state;
     g_nv_storage.MarkDirty();
   }
   if (needs_update_fb) {
@@ -305,12 +300,12 @@ void TamaApp::Routine(void* unused) {
   bool needs_render = true;
   bool needs_save = false;
 
-  switch (_tama_data.state) {
+  switch (_state) {
     case TAMA_APP_STATE::INTRO_TEXT:
       needs_render = false;
       if (display_get_scroll_count() >= 1) {
         // change type
-        _tama_data.state = TAMA_APP_STATE::CHOOSE_TYPE;
+        _state = TAMA_APP_STATE::CHOOSE_TYPE;
         needs_render = true;
         needs_save = true;
         UpdateFrameBuffer();
@@ -324,8 +319,7 @@ void TamaApp::Routine(void* unused) {
       break;
     case TAMA_APP_STATE::HATCHING:
       if (_frame_count >= 8) {
-        _tama_data.state = TAMA_APP_STATE::IDLE;
-        _tama_data.hatched = true;
+        _state = TAMA_APP_STATE::IDLE;
         _tama_data.level = 1;
         _tama_data.hp = 3;
         needs_save = true;
@@ -338,7 +332,7 @@ void TamaApp::Routine(void* unused) {
       break;
     case TAMA_APP_STATE::FEED_ANIME:
       if (_frame_count == TAMA_GET_ANIMATION_DATA(FEEDING).frame_count) {
-        _tama_data.state = TAMA_APP_STATE::PET_FED;
+        _state = TAMA_APP_STATE::PET_FED;
         UpdateFrameBuffer();
         break;
       }
@@ -346,14 +340,15 @@ void TamaApp::Routine(void* unused) {
       break;
     case TAMA_APP_STATE::PET_FED:
       if (_frame_count == 6) {
-        _tama_data.state = TAMA_APP_STATE::IDLE;
+        _state = TAMA_APP_STATE::IDLE;
         UpdateFrameBuffer();
       }
     default:
       break;
   }
 
-  if (needs_save) {
+  if (needs_save && (_state != _tama_data.state)) {
+    _tama_data.state = _state;
     g_nv_storage.MarkDirty();
   }
 
@@ -367,7 +362,7 @@ void TamaApp::UpdateFrameBuffer() {
     return;
   }
   _frame_count = 0;
-  switch (_tama_data.state) {
+  switch (_state) {
     case TAMA_APP_STATE::CHOOSE_TYPE:
       TAMA_PREPARE_FB(_fb, TAMA_GET_ANIMATION_DATA(PET_SELECTION).frame_count);
       TAMA_COPY_FB(_fb, TAMA_GET_ANIMATION_DATA(PET_SELECTION), 0);
@@ -788,10 +783,10 @@ void TamaApp::StackOnFrameShifing(const tama_display_component_t* component,
 }
 
 void TamaApp::HatchingRoutine(void* unused) {
-  if (_tama_data.state != TAMA_APP_STATE::EGG_1 &&
-      _tama_data.state != TAMA_APP_STATE::EGG_2 &&
-      _tama_data.state != TAMA_APP_STATE::EGG_3 &&
-      _tama_data.state != TAMA_APP_STATE::EGG_4) {
+  if (_state != TAMA_APP_STATE::EGG_1 &&
+      _state != TAMA_APP_STATE::EGG_2 &&
+      _state != TAMA_APP_STATE::EGG_3 &&
+      _state != TAMA_APP_STATE::EGG_4) {
     return;
   }
   unsigned int step = g_imu_logic.GetStep();
@@ -800,25 +795,29 @@ void TamaApp::HatchingRoutine(void* unused) {
     _total_hatchin_steps += step - _previous_hatching_step;
     if (_total_hatchin_steps >= TAMA_HATCHING_STEPS) {
       _total_hatchin_steps = TAMA_HATCHING_STEPS;
-      _tama_data.state = TAMA_APP_STATE::HATCHING;
+      _state = TAMA_APP_STATE::HATCHING;
       return;
     }
     switch (_total_hatchin_steps / hatching_delta) {
       case 0:
-        _tama_data.state = TAMA_APP_STATE::EGG_1;
+        _state = TAMA_APP_STATE::EGG_1;
         break;
       case 1:
-        _tama_data.state = TAMA_APP_STATE::EGG_2;
+        _state = TAMA_APP_STATE::EGG_2;
         break;
       case 2:
-        _tama_data.state = TAMA_APP_STATE::EGG_3;
+        _state = TAMA_APP_STATE::EGG_3;
         break;
       case 3:
-        _tama_data.state = TAMA_APP_STATE::EGG_4;
+        _state = TAMA_APP_STATE::EGG_4;
         break;
       default:
         my_assert(false);
         break;
+    }
+    if (_state != _tama_data.state) {
+      _tama_data.state = _state;
+      g_nv_storage.MarkDirty();
     }
   }
   _previous_hatching_step = step;
