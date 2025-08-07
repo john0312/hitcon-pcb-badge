@@ -26,10 +26,22 @@ CURSES_RESERVE_LINE = config.getint('Settings', 'CURSES_RESERVE_LINE')
 #STLINK_AUTO_DETECTION_INTERVAL = config.getint('Settings', 'STLINK_AUTO_DETECTION_INTERVAL')
 EN_PCB_LOG = config.getint('HTTP', 'EN_PCB_LOG')
 SERVER_PRIV_KEY = int(config.get('GAME', 'SERVER_PRIV_KEY'))
+SERVER_PUB_KEY = base64.b64decode(config.get('GAME', 'SERVER_PUB_KEY'))
 TEAM = config.get('GAME', 'TEAM')
 
 if TEAM not in ['BLUE', 'RED']:
     raise ValueError("Invalid TEAM value in config.ini. Must be 'BLUE' or 'RED'.")
+
+# Verify the server priv key
+def verify_server_priv_key():
+    curve, G, order = ecc.mysecp()
+    pubkey = (SERVER_PRIV_KEY * G).compact()
+    print(f'{pubkey=}')
+    print(f'{SERVER_PUB_KEY=}')
+    if pubkey != SERVER_PUB_KEY:
+        raise ValueError("Invalid SERVER_PRIV_KEY or SERVER_PUB_KEY in config.ini.")
+
+verify_server_priv_key()
 
 # Configure the array to find in ELF
 search_array_PerBoardRandom = [
