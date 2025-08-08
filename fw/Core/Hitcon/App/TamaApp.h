@@ -2,6 +2,7 @@
 #define TAMA_APP_H
 #define TAMA_APP_MAX_FB_LENGTH 6
 #define TAMA_HATCHING_STEPS 400
+#define TAMA_HUNGER_DECREASE_INTERVAL 3600000
 
 #define TAMA_PREPARE_FB(FB, FB_SIZE) \
   FB.fb_size = FB_SIZE;              \
@@ -64,6 +65,7 @@ typedef struct {
   TAMA_TYPE type;
   uint16_t level;
   uint8_t hp;
+  uint8_t hunger;
 } tama_storage_t;
 
 typedef struct {
@@ -151,6 +153,8 @@ typedef struct {
 
 constexpr uint8_t QTE_REFRESH_RATE = 50;
 constexpr uint16_t PAUSE_BETWEEN_QTE_GAMES = 1000;
+constexpr uint8_t QTE_TOTAL_ROUNDS = 5;
+constexpr uint16_t CRITICAL_HIT_SCORE = UINT16_MAX;
 
 class TamaQteArrow {
  private:
@@ -202,8 +206,10 @@ class TamaQte {
   hitcon::service::sched::PeriodicTask routineTask;
   uint8_t currentRound;
   uint8_t success;
+  uint16_t score;
   void Routine();
   void Render();
+  void SaveScore();
 
  public:
   TamaQte();
@@ -215,6 +221,7 @@ class TamaQte {
   void OnButton(button_t button);
   bool IsDone();
   uint16_t GetScore(uint16_t level);
+  uint8_t GetSuccess();
 };
 
 typedef struct {
@@ -237,17 +244,21 @@ class TamaApp : public App {
   TAMA_TYPE _current_selection_in_choose_mode;
   hitcon::service::sched::PeriodicTask _routine_task;
   hitcon::service::sched::DelayedTask _hatching_task;
+  hitcon::service::sched::PeriodicTask _hunger_task;
   tama_storage_t& _tama_data;
   tama_display_fb_t _fb;
   unsigned int _frame_count = 0;
   bool _is_selected = false;
   unsigned int _previous_hatching_step = 0;
   unsigned int _total_hatchin_steps = 0;
+  unsigned int _hunger_check_elapsed = 0;
+  unsigned int _last_hunger_check = 0;
   bool _xb_qte_me_winning = false;
   bool _xb_qte_enemy_winning = false;
 
   TamaQte qte;
 
+  void SetHunger(uint8_t hunger);
   void Render();
   void Routine(void* unused);
   void UpdateFrameBuffer();
@@ -258,6 +269,7 @@ class TamaApp : public App {
                            int offset);
   void ConcateAnimtaions(uint8_t count, ...);
   void HatchingRoutine(void* unused);
+  void HungerRoutine(void* unused);
 
   // XBoard related
   TAMA_XBOARD_STATE _enemy_state;

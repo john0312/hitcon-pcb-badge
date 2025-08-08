@@ -30,6 +30,9 @@ TamaApp::TamaApp()
           1000,
           (hitcon::service::sched::task_callback_t)&TamaApp::HatchingRoutine,
           this, 0),
+      _hunger_task(
+          600, (hitcon::service::sched::task_callback_t)&TamaApp::HungerRoutine,
+          this, 60000),
       _tama_data(g_nv_storage.GetCurrentStorage().tama_storage),
       _state(_tama_data.state),
       _current_selection_in_choose_mode(TAMA_TYPE::CAT), _fb() {}
@@ -50,6 +53,8 @@ void TamaApp::Init() {
     _hatching_task.SetWakeTime(SysTimer::GetTime() + 5000);
     hitcon::service::sched::scheduler.Queue(&_hatching_task, nullptr);
   }
+  hitcon::service::sched::scheduler.Queue(&_hunger_task, nullptr);
+  hitcon::service::sched::scheduler.EnablePeriodic(&_hunger_task);
   qte.Init();
 }
 
@@ -89,6 +94,7 @@ void TamaApp::OnEntry() {
   }
   if (player_mode == TAMA_PLAYER_MODE::MODE_BASESTATION) {
     TamaHeal();
+    UpdateFrameBuffer();
     return;
   }
   my_assert(player_mode == TAMA_PLAYER_MODE::MODE_SINGLEPLAYER);
@@ -185,6 +191,7 @@ void TamaApp::OnButton(button_t button) {
           break;
         case TAMA_APP_STATE::IDLE:
           _tama_data.hp = _tama_data.hp ? _tama_data.hp - 1 : 3;
+          if (_tama_data.hunger == 0) SetHunger(4);
           needs_update_fb = true;
           break;
 #endif
@@ -311,12 +318,11 @@ void TamaApp::Routine(void* unused) {
     XbRoutine(unused);
     return;
   }
-  if (player_mode == TAMA_PLAYER_MODE::MODE_BASESTATION) {
-    // Do not do anything for healing in routine. This is so simple so
-    // we just do it in TamaHeal which is called from OnEntry.
-    return;
-  }
-  my_assert(player_mode == TAMA_PLAYER_MODE::MODE_SINGLEPLAYER);
+
+  // If the player is connected to the base station, behavior should be the same
+  // as if it's not connected.
+  my_assert(player_mode == TAMA_PLAYER_MODE::MODE_SINGLEPLAYER ||
+            player_mode == TAMA_PLAYER_MODE::MODE_BASESTATION);
   bool needs_render = false;
   bool needs_save = false;
 
@@ -342,6 +348,7 @@ void TamaApp::Routine(void* unused) {
         _state = TAMA_APP_STATE::IDLE;
         _tama_data.level = 1;
         _tama_data.hp = 3;
+        SetHunger(4);
         needs_save = true;
         UpdateFrameBuffer();
       }
@@ -352,6 +359,8 @@ void TamaApp::Routine(void* unused) {
       break;
     case TAMA_APP_STATE::FEED_ANIME:
       if (_frame_count == TAMA_GET_ANIMATION_DATA(FEEDING).frame_count) {
+        SetHunger(_tama_data.hunger + 1);
+        needs_save = true;
         _state = TAMA_APP_STATE::PET_FED;
         UpdateFrameBuffer();
         break;
@@ -379,7 +388,7 @@ void TamaApp::Routine(void* unused) {
     case TAMA_APP_STATE::TRAINING_QTE:
       if (qte.IsDone()) {
         _state = TAMA_APP_STATE::TRAINING_END;
-        if (qte.GetScore(1) == 25 && _tama_data.level < 999) {
+        if (qte.GetSuccess() == QTE_TOTAL_ROUNDS && _tama_data.level < 999) {
           _tama_data.level++;
           needs_save = true;
         }
@@ -548,7 +557,7 @@ void TamaApp::UpdateFrameBuffer() {
                                  : &TAMA_GET_ANIMATION_DATA(XB_PLAYER_CAT);
       TAMA_PREPARE_FB(_fb, me->frame_count);
       TAMA_COPY_FB(_fb, *me, 4);
-      if (qte.GetScore(1) == 25) {
+      if (qte.GetSuccess() == QTE_TOTAL_ROUNDS) {
         StackOnFrameBlinking(&TAMA_COMPONENT_TRAINING_LV_UP, 2);
       }
       break;
@@ -735,6 +744,7 @@ void TamaApp::OnXBoardRecv(void* arg) {
 }
 
 void TamaApp::XbRoutine(void* unused) {
+  bool needs_save = false;
   if (xboard_state == TAMA_XBOARD_STATE::XBOARD_UNAVAILABLE ||
       _enemy_state == TAMA_XBOARD_STATE::XBOARD_UNAVAILABLE) {
     // We can not battle now. Do nothing to let the display scroll
@@ -793,6 +803,15 @@ void TamaApp::XbRoutine(void* unused) {
       _xb_qte_enemy_winning = true;
     else
       _xb_qte_enemy_winning = false;
+
+    if (activity.otherScore == CRITICAL_HIT_SCORE)
+      _tama_data.hp = 0;
+    else if (activity.myScore < activity.otherScore)
+      _tama_data.hp = _tama_data.hp ? _tama_data.hp - 1 : 0;
+    else if (activity.myScore > activity.otherScore)
+      _tama_data.hp = _tama_data.hp < 3 ? _tama_data.hp + 1 : 3;
+    needs_save = true;
+
     memcpy(activity.otherUser, _enemy_score.user, sizeof(_enemy_score.user));
     g_game_controller.SendTwoBadgeActivity(activity);
     UpdateFrameBuffer();
@@ -809,13 +828,14 @@ void TamaApp::XbRoutine(void* unused) {
     }
   }
 
+  if (needs_save) g_nv_storage.MarkDirty();
+
   Render();
 }
 
 void TamaApp::TamaHeal() {
-  // TODO: Display animation of restoring
-  // self._tama_data.hp = ...
-  Render();
+  _tama_data.hp = 3;
+  SetHunger(4);
 }
 
 void TamaApp::StackOnFrame(const tama_display_component_t* component,
@@ -863,6 +883,33 @@ void TamaApp::StackOnFrameShifing(const tama_display_component_t* component,
       }
     }
   }
+}
+
+void TamaApp::HungerRoutine(void* unused) {
+  bool needs_save = false;
+  if (_tama_data.hp == 0 || _tama_data.hunger == 0) return;
+
+  unsigned int now = SysTimer::GetTime();
+  _hunger_check_elapsed += now - _last_hunger_check;
+  _last_hunger_check = now;
+  if (_hunger_check_elapsed >= TAMA_HUNGER_DECREASE_INTERVAL) {
+    SetHunger(_tama_data.hunger - 1);
+    _hunger_check_elapsed = 0;
+    if (_tama_data.hunger == 0) {
+      _tama_data.hp = 0;
+      UpdateFrameBuffer();
+    }
+    needs_save = true;
+  }
+
+  if (needs_save) g_nv_storage.MarkDirty();
+}
+
+void TamaApp::SetHunger(uint8_t hunger) {
+  if (hunger > 4) hunger = 4;
+  _tama_data.hunger = hunger;
+  _hunger_check_elapsed = 0;
+  _last_hunger_check = SysTimer::GetTime();
 }
 
 void TamaApp::HatchingRoutine(void* unused) {
@@ -932,8 +979,9 @@ void TamaApp::ConcateAnimtaions(uint8_t count, ...) {
 void TamaQte::Routine() {
   if (state == kInGame) {
     if (game.IsDone()) {
-      success += game.IsSuccess();
-      if (++currentRound == 5) {
+      if (game.IsSuccess()) ++success;
+      if (++currentRound == QTE_TOTAL_ROUNDS) {
+        SaveScore();
         Exit();
       } else {
         state = TamaQteState::kBetweenGame;
@@ -972,7 +1020,22 @@ void TamaQte::Init() {
 
 bool TamaQte::IsDone() { return state == TamaQteState::kDone; }
 
-uint16_t TamaQte::GetScore(uint16_t level) { return success * success * level; }
+void TamaQte::SaveScore() {
+  if (success == QTE_TOTAL_ROUNDS && g_fast_random_pool.GetRandom() % 100 == 0)
+    // 1% chance to make a critical hit
+    score = CRITICAL_HIT_SCORE;
+  else
+    score = success * success;
+}
+
+uint8_t TamaQte::GetSuccess() { return success; }
+
+uint16_t TamaQte::GetScore(uint16_t level) {
+  if (score == CRITICAL_HIT_SCORE)
+    return CRITICAL_HIT_SCORE;
+  else
+    return score * level;
+}
 
 TamaQte::TamaQte()
     : routineTask(650, (callback_t)&TamaQte::Routine, this, QTE_REFRESH_RATE) {}
@@ -1017,7 +1080,7 @@ void TamaQteGame::OnButton() {
   success = arrow.GetLocation() == target.GetLocation();
 }
 
-bool TamaQteGame::IsSuccess() { return !done && success; }
+bool TamaQteGame::IsSuccess() { return success; }
 
 bool TamaQteGame::IsDone() { return done; }
 
