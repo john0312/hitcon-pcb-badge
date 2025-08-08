@@ -188,7 +188,8 @@ class GameLogicController:
             score1=evt.score1,
             score2=evt.score2,
             game_type=GameType(evt.game_type_str),
-            timestamp=evt.timestamp
+            timestamp=evt.timestamp,
+            log_only=(evt.game_type_str == GameType.TAMA) # TAMA is a log-only game, no score update
         )
 
         await GameLogicController.score_announce(
