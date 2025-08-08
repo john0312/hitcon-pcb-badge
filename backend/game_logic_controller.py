@@ -235,7 +235,8 @@ class GameLogicController:
         await game.receive_game_score_single_player(
             player_id=evt.user,
             station_id=evt.station_id // 10,
-            score=evt.sponsor_id, # TODO: Offload the parameter to GameLogic
+            score=1, # TODO: figure out how many points to give
+            sponsor_id=evt.sponsor_id,
             game_type=GameType.CONNECT_SPONSOR,
             timestamp=evt.timestamp
         )
