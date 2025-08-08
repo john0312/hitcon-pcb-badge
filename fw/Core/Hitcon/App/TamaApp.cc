@@ -94,7 +94,6 @@ void TamaApp::OnEntry() {
   }
   if (player_mode == TAMA_PLAYER_MODE::MODE_BASESTATION) {
     TamaHeal();
-    UpdateFrameBuffer();
     return;
   }
   my_assert(player_mode == TAMA_PLAYER_MODE::MODE_SINGLEPLAYER);
@@ -401,6 +400,17 @@ void TamaApp::Routine(void* unused) {
         _state = TAMA_APP_STATE::IDLE;
         UpdateFrameBuffer();
       }
+      break;
+    case TAMA_APP_STATE::PET_HEALING:
+      needs_render = true;
+      static_assert(TAMA_GET_ANIMATION_DATA(DOG_FED_HEALING).frame_count ==
+                    TAMA_GET_ANIMATION_DATA(CAT_FED_HEALING).frame_count);
+      if (_frame_count >
+          TAMA_GET_ANIMATION_DATA(DOG_FED_HEALING).frame_count * 3) {
+        _state = TAMA_APP_STATE::IDLE;
+        UpdateFrameBuffer();
+      }
+      break;
     default:
       break;
   }
@@ -836,6 +846,8 @@ void TamaApp::XbRoutine(void* unused) {
 void TamaApp::TamaHeal() {
   _tama_data.hp = 3;
   SetHunger(4);
+  _state = TAMA_APP_STATE::PET_HEALING;
+  UpdateFrameBuffer();
 }
 
 void TamaApp::StackOnFrame(const tama_display_component_t* component,

@@ -1,4 +1,6 @@
 #include <App/ConnectMenuApp.h>
+#include <App/TamaApp.h>
+#include <Logic/BadgeController.h>
 
 namespace hitcon {
 
@@ -13,10 +15,16 @@ void ConnectBasestnMenuApp::OnEntry() {
 }
 
 void ConnectBasestnMenuApp::NotifyIrXbFinished() {
-  if (!basestn_available_) {
-    basestn_available_ = true;
-    MenuApp::OnEntry();
-  }
+  // Switch over to Tama and run heal.
+  hitcon::app::tama::SetBaseStationConnect();
+  // TamaHeal() is called by OnEntry() in base station mode.
+  hitcon::badge_controller.change_app(&hitcon::app::tama::tama_app);
+
+  // We don't actually use the base station menu.
+  // if (!basestn_available_) {
+  //  basestn_available_ = true;
+  //  MenuApp::OnEntry();
+  //}
 }
 
 void ConnectBasestnMenuApp::OnButton(button_t button) {
