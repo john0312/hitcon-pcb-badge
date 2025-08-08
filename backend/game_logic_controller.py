@@ -280,7 +280,17 @@ class GameLogicController:
         print(f"Pub announce event: {evt.pubkey.hex()}")
         print(f"Signature: {evt.signature.hex()}")
         # station <--> user has been recorded by the PacketProcessor
-        result = await db["users"].find_one({"pubkey": evt.pubkey})  # Ensure user exists
+        pub_x = CryptoAuth.encode_pubkey(evt.pubkey)
+
+        # Check if the user already exists
+        existing_user = await db["users"].find_one({"pubkey": pub_x})
+        if not existing_user:
+            # Create a new user
+            user = await CryptoAuth.create_user(evt.pubkey)
+            print(f"New user created: {user}")
+        else:
+            user = existing_user["user"]
+            print(f"Existing user: {user}")
 
 
     @staticmethod

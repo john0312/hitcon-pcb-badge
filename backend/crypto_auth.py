@@ -42,7 +42,7 @@ class CryptoAuth:
 
         if u is None:
             return
-        
+
         return CryptoAuth.parse_pubkey(u["pubkey"])
 
 
@@ -114,7 +114,7 @@ class CryptoAuth:
         elif event.__class__ == PubAnnounceEvent:
             # Validate the public key with server key (CA)
             sig = EccSignature.from_bytes(event.signature, pub=CryptoAuth.server_pub)
-            
+
             if not ecc_verify(
                 msg=event.pubkey,
                 sig=sig
@@ -172,3 +172,19 @@ class CryptoAuth:
             return -1
         else:
             return 1
+
+
+    @staticmethod
+    async def create_user(pubkey: EccPublicKey) -> int:
+        """
+        Create a user with the given public key.
+        Returns the user ID.
+        """
+        user = pubkey.point.x.to_bytes(7, 'little', signed=False)[3:6]
+
+        x = CryptoAuth.encode_pubkey(pubkey)
+
+        # Create a new user
+        await db["users"].insert_one({"user": user, "pubkey": x, "station_id": None})
+
+        return user
