@@ -249,7 +249,8 @@ class _GameLogic:
 
                 # If the player has collected all sponsor badges, attack the station with a bonus score
                 # TODO: cache? (profile the performance first)
-                sponsors = await self.score_history.distinct("sponsor_id", {"player_id": player_id})
+                # TODO: There is a race condition, but maybe it is not a big deal
+                sponsors = await self.score_history.distinct("sponsor_id", {"player_id": player_id, "game_type": GameType.CONNECT_SPONSOR})
                 if len(sponsors) == len(const.SPONSOR_STATION_ID_LIST) - 1 and sponsor_id not in sponsors:
                     await self.attack_station(player_id, station_id, const.SPONSOR_ALL_COLLECTED_BONUS, timestamp)
 
