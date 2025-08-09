@@ -21,6 +21,7 @@ jobs:
         run: |
           npm i
           npm run build
+          npm i -g wrangler
       - name: Deploy
         id: deploy
         uses: cloudflare/wrangler-action@v3
