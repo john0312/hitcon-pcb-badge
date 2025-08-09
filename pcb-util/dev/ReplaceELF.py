@@ -3,43 +3,14 @@ import shutil
 from elftools.elf.elffile import ELFFile
 import numpy as np
 import requests
-import configparser
-import os
 import json
+import config
 import ecc
+import pcb_logger
+from typing import Tuple
 
 original_elf_path = 'fw.elf'  # Original ELF file path
 MOD_elf_path = 'fwMOD.elf'  # New duplicated ELF file path
-
-# Read the .ini file
-config = configparser.ConfigParser()
-config.read('config.ini')
-
-# Extract variables from the .ini file
-FW_ELF_PATH = config.get('Paths', 'FW_ELF_PATH')
-ST_PRO_PATH, ST_PRO_EXE = os.path.split(config.get('Paths', 'ST_PPROGRAMMER_PATH'))
-post_url = config.get('HTTP', 'POST_URL')
-THREAD_SLEEP_INTERVAL = config.getfloat('Settings', 'THREAD_SLEEP_INTERVAL')
-CLI_QUIT_SCAN_INTERVAL = config.getfloat('Settings', 'CLI_QUIT_SCAN_INTERVAL')
-MAX_ST_QTY = config.getint('Settings', 'MAX_ST_QTY')
-CURSES_RESERVE_LINE = config.getint('Settings', 'CURSES_RESERVE_LINE')
-#STLINK_AUTO_DETECTION_INTERVAL = config.getint('Settings', 'STLINK_AUTO_DETECTION_INTERVAL')
-EN_PCB_LOG = config.getint('HTTP', 'EN_PCB_LOG')
-SERVER_PRIV_KEY = int(config.get('GAME', 'SERVER_PRIV_KEY'))
-SERVER_PUB_KEY = base64.b64decode(config.get('GAME', 'SERVER_PUB_KEY'))
-TEAM = config.get('GAME', 'TEAM')
-
-if TEAM not in ['BLUE', 'RED']:
-    raise ValueError("Invalid TEAM value in config.ini. Must be 'BLUE' or 'RED'.")
-
-# Verify the server priv key
-def verify_server_priv_key():
-    curve, G, order = ecc.mysecp()
-    pubkey = (SERVER_PRIV_KEY * G).compact()
-    if pubkey != SERVER_PUB_KEY:
-        raise ValueError("Invalid SERVER_PRIV_KEY or SERVER_PUB_KEY in config.ini.")
-
-verify_server_priv_key()
 
 # Configure the array to find in ELF
 search_array_PerBoardRandom = [
@@ -160,28 +131,22 @@ def search_and_reaplce_array(elf_file_path, search_array, replace_array):
     else:
         raise ValueError("Array not found in the ELF file.")
 
-def print_array_in_hex(array):
-    hex_array = [f'0x{value:02x}' for value in array]
-    print("Generated random uint8 array in HEX:", hex_array)
+def modify_fw_elf() -> Tuple[bytes, bytes]:
+    replace_array_PerBoardRandom = bytes(np.random.randint(0, 256, size=16, dtype=np.uint8))
+    replace_array_PerBoardSecret = bytes(np.random.randint(0, 256, size=16, dtype=np.uint8))
+    while True:
+        try:
+            replace_array_PrivKey = ecc.gen_key(config.TEAM == 'RED')
+            replace_array_PubKeyCert = pcb_logger.post_board_data(replace_array_PerBoardSecret, replace_array_PrivKey)
+            break
+        except pcb_logger.PrivKeyExistsException:
+            print('existing privkey')
+            pass
+        except Exception as e:
+            print(f'got exception {e}')
+            raise
 
-def http_post_data(url, per_board_secret, priv_key):
-    per_board_secret = base64.b64encode(per_board_secret).decode('utf-8')
-    priv_key = base64.b64encode(priv_key).decode('utf-8')
-    data = {
-        "board_secret": per_board_secret,
-        "priv_key": priv_key
-    }
-    data = json.dumps(data)
-    response = requests.post(url, data)
-
-    return response.status_code
-
-def modify_fw_elf():
-    replace_array_PerBoardRandom = np.random.randint(0, 256, size=16, dtype=np.uint8)
-    replace_array_PerBoardSecret = np.random.randint(0, 256, size=16, dtype=np.uint8)
-
-    replace_array_PrivKey, replace_array_PubKeyCert = ecc.gen_key(SERVER_PRIV_KEY, TEAM == 'RED')
-
+    
     # Duplicate the ELF file
     duplicate_elf_file(original_elf_path, MOD_elf_path)
     # Modify array in ELF
@@ -191,17 +156,3 @@ def modify_fw_elf():
     array_offset_PrivKey = search_and_reaplce_array(MOD_elf_path, search_array_PrivKey, replace_array_PrivKey)
 
     return replace_array_PerBoardSecret, replace_array_PrivKey
-
-if __name__ == "__main__":
-    replace_array_PerBoardSecret, replace_array_PrivKey = modify_fw_elf()
-
-    # TODO: Test posting PerBoardSecret to Cloud
-    print(f"\n POST PerBoardSecret to {post_url}\n")
-
-    response = http_post_data(post_url, replace_array_PerBoardSecret, replace_array_PrivKey)
-    if response == 200:
-        print("HTTP POST Success!")
-    else:
-        print(f"Error: {response}")
-
-    print("\n Operation Done \n")

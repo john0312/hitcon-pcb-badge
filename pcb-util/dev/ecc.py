@@ -237,8 +237,9 @@ class ECC:
     def sign(self, message: bytes):
         z = int.from_bytes(hashlib.sha3_256(message).digest()[:8], 'little')
         n = self.order
-        r, s = 0, 0
+        r, s = ModNum(0, n), ModNum(0, n)
         while s == 0:
+            k: int = 0
             while r == 0:
                 k = random.randint(1, n - 1)
                 P = k * self.G
@@ -246,11 +247,10 @@ class ECC:
             s = (z + r * self.d) // k
         return Signature(r, s)
 
-def gen_key(server_priv_key, parity):
+def gen_key(parity):
     if parity not in (0, 1):
         raise ValueError("Parity must be 0 or 1")
     curve, G, order = mysecp()
-    server = ECC(curve, G, order, server_priv_key)
     while True:
         privkey = random.randint(1, order - 1)
         pubkey = privkey * G
@@ -258,5 +258,4 @@ def gen_key(server_priv_key, parity):
             break
     privkey_size = (order.bit_length() + 7 ) // 8
     privkey_bytes = privkey.to_bytes(privkey_size, 'little')
-    pub_key_cert = server.sign(pubkey.compact()).compact()
-    return privkey_bytes, pub_key_cert
+    return privkey_bytes
