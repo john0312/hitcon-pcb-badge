@@ -28,6 +28,7 @@ jobs:
         with:
           workingDirectory: web
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           command: pages deploy dist/pcb-badge-leaderboard/browser --project-name=${{ vars.CLOUDFLARE_PAGES_PROJECT_NAME }}
       - name: Summary
         env:
