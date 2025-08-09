@@ -319,6 +319,8 @@ class _GameLogic:
 
     async def get_game_history(self, *, player_id: int = None, station_id: int = None, game_type: GameType = None, num_of_player: GameNumOfPlayerType = None, start: datetime = None, before: datetime = None, log_only: bool = None):
         # TODO: support "log_only" field to filter out log-only events
+        if start is None:
+            start = self.start_time
         if before is None:
             before = datetime.now()
 
