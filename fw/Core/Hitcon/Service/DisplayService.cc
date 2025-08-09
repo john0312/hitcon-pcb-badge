@@ -202,7 +202,7 @@ void DisplayService::SetBrightness(uint8_t brightness) {
       brightness * 1.0 / DISPLAY_MAX_BRIGHTNESS * (htim3.Init.Period);
 #ifdef V1_1
   __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_2, value);
-#elifdef V2_1
+#elif defined(V2_1) || defined(V2_2)
   __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_1, value);
 #endif
 }
