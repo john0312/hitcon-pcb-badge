@@ -14,6 +14,14 @@ if typing.TYPE_CHECKING:
 config = Config("config.yaml")
 game = GameLogic(mongo, redis_client)
 
+
+def get_game_logic_station_id(raw_station_id: int) -> int:
+    """
+    Convert station ID to the actual station ID used in the game logic.
+    """
+    return raw_station_id // 10
+
+
 class GameLogicController:
     # ===== APIs for PacketProcessor =====
     @staticmethod
@@ -53,7 +61,7 @@ class GameLogicController:
         await redis_client.set(nonce_key, "1", ex=config.get("redis", {}).get("game_nonce_expire", 180)) # default 3 minutes
         await game.receive_game_score_single_player(
             player_id=evt.user,
-            station_id=evt.station_id // 10,
+            station_id=get_game_logic_station_id(evt.station_id),
             score=score,
             game_type=game_type,
             timestamp=evt.timestamp
@@ -68,7 +76,7 @@ class GameLogicController:
         team = await CryptoAuth.get_user_team(evt.user)
         await game.attack_station(
             player_id=evt.user,
-            station_id=evt.station_id // 10,
+            station_id=get_game_logic_station_id(evt.station_id),
             amount=team * score,
             timestamp=evt.timestamp
         )
@@ -184,7 +192,7 @@ class GameLogicController:
             two_player_event_id=evt.event_id,
             player1_id=evt.user1,
             player2_id=evt.user2,
-            station_id=evt.station_id // 10,
+            station_id=get_game_logic_station_id(evt.station_id),
             score1=evt.score1,
             score2=evt.score2,
             game_type=GameType(evt.game_type_str),
@@ -206,7 +214,7 @@ class GameLogicController:
         team1 = await CryptoAuth.get_user_team(evt.user1)
         await game.attack_station(
             player_id=evt.user1,
-            station_id=evt.station_id // 10,
+            station_id=get_game_logic_station_id(evt.station_id),
             amount=team1 * evt.score1,
             timestamp=evt.timestamp
         )
@@ -214,7 +222,7 @@ class GameLogicController:
         team2 = await CryptoAuth.get_user_team(evt.user2)
         await game.attack_station(
             player_id=evt.user2,
-            station_id=evt.station_id // 10,
+            station_id=get_game_logic_station_id(evt.station_id),
             amount=team2 * evt.score2,
             timestamp=evt.timestamp
         )
@@ -234,7 +242,7 @@ class GameLogicController:
 
         await game.receive_game_score_single_player(
             player_id=evt.user,
-            station_id=evt.station_id // 10,
+            station_id=get_game_logic_station_id(evt.station_id),
             score=Constants.SPONSOR_CONNECT_SCORE,
             sponsor_id=evt.sponsor_id,
             game_type=GameType.CONNECT_SPONSOR,
@@ -253,7 +261,7 @@ class GameLogicController:
 
         await game.receive_game_score_single_player(
             player_id=evt.user,
-            station_id=evt.station_id // 10,
+            station_id=get_game_logic_station_id(evt.station_id),
             score=power,
             game_type=GameType.SHAKE_BADGE,
             timestamp=evt.timestamp
@@ -263,7 +271,7 @@ class GameLogicController:
 
         await game.attack_station(
             player_id=evt.user,
-            station_id=evt.station_id // 10,
+            station_id=get_game_logic_station_id(evt.station_id),
             amount=team * power,
             timestamp=evt.timestamp
         )
@@ -316,12 +324,12 @@ class GameLogicController:
 
     @staticmethod
     async def get_station_score(station_id: int):
-        return await game.get_station_score(station_id=station_id // 10)
+        return await game.get_station_score(station_id=get_game_logic_station_id(station_id))
 
 
     @staticmethod
     async def get_station_score_history(station_id: int):
-        return await game.get_station_attack_history(station_id=station_id // 10)
+        return await game.get_station_attack_history(station_id=get_game_logic_station_id(station_id))
 
 
     @staticmethod
