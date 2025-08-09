@@ -1,4 +1,5 @@
 import uuid
+import time
 import asyncio
 from dataclasses import dataclass, field, fields, MISSING
 from datetime import datetime, timedelta
@@ -6,6 +7,7 @@ import pymongo
 from enum import Enum
 from redis.asyncio import Redis
 import random
+import itertools
 
 try:
     from enum import StrEnum
@@ -50,7 +52,7 @@ class Constants:
     STATION_SCORE_DECAY_INTERVAL: int = 30 # seconds
     STATION_SCORE_DECAY_AMOUNT: int = 10
 
-    STATION_SCORE_CACHE_MIN_INTERVAL: int = 10 # seconds
+    STATION_SCORE_CACHE_MIN_INTERVAL: int = 30 # seconds
 
     GAME_SCORE_GRANULARITY: int | None = 10  # seconds
 
@@ -553,6 +555,48 @@ class _GameLogic:
         })
 
 
+async def profile_attack_station(with_redis, time_limit_sec):
+    const.reset()
+    const.STATION_SCORE_DECAY_INTERVAL = 1
+    eps = 0.1
+
+    if with_redis:
+        redis_client = Redis(host='localhost', port=6379)
+        await redis_client.flushall()  # Clear all keys in Redis for testing
+    else:
+        redis_client = None
+
+    time_base = datetime.now()
+    gl = _GameLogic(pymongo.AsyncMongoClient("mongodb://localhost:27017?uuidRepresentation=standard"), redis_client, time_base)
+    await gl.clear_database()
+
+    # 2 days, 8 hours per day, 21 station
+    # Assume 800 players, each player attack station every 30 second
+
+    random.seed("chiffoncake") # for reproducibility
+    all_seconds = 2 * 8 * 3600
+    num_players = 800
+    num_stations = 21
+    attack_interval = 30
+    total_attacks = num_players * (all_seconds // attack_interval)
+
+    print(f"Profiling attack_station {with_redis=} {time_limit_sec=}")
+
+    # prepare data
+    start = time.perf_counter()
+    count = 0
+    # for player_id, t in tqdm(itertools.product(range(1, num_players + 1), range(0, all_seconds, attack_interval)), desc="Simulating attacks", total=total_attacks):
+    for player_id, t in itertools.product(range(1, num_players + 1), range(0, all_seconds, attack_interval)):
+        if time.perf_counter() - start > time_limit_sec:
+            break
+        station_id = random.choice(range(1, num_stations + 1))
+        sign_ = 1 if player_id <= num_players // 2 else -1
+        await gl.attack_station(player_id, station_id, sign_ * random.randint(0, 100), time_base + timedelta(seconds=t))
+        count += 1
+
+    print(f"Executed {count}/{total_attacks} attacks within {time_limit_sec} seconds. (avg. {count / time_limit_sec:.2f} attacks/sec)")
+
+
 _executed_test = set()
 def test_func(func):
     # use this decorator to make sure all tests are executed
@@ -941,6 +985,10 @@ async def test_scoreboard_api(game_score_granularity = None):
 
 
 if __name__ == "__main__":
+    asyncio.run(profile_attack_station(with_redis=False, time_limit_sec=5))
+    asyncio.run(profile_attack_station(with_redis=True, time_limit_sec=5))
+    # exit(0)  # Exit early for profiling
+
     asyncio.run(test_attack_station_score_history())
     asyncio.run(test_game_score_history_single_player())
     asyncio.run(test_game_score_history_two_player())
