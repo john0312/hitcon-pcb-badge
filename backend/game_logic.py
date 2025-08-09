@@ -107,6 +107,16 @@ class _GameLogic:
         await self.score_history.delete_many({})
         await self.player_buff.delete_many({})
 
+    def _round_to_granularity(self, timestamp: datetime):
+        """
+        Round the timestamp to the nearest granularity.
+        """
+        if const.GAME_SCORE_GRANULARITY is not None:
+            seconds_from_start1 = round((timestamp - self.start_time).total_seconds())
+            seconds_from_start2 = int(seconds_from_start1 // const.GAME_SCORE_GRANULARITY) * const.GAME_SCORE_GRANULARITY
+            return self.start_time + timedelta(seconds=seconds_from_start2)
+        return timestamp
+
     async def attack_station(self, player_id: int, station_id: int, amount: int, timestamp: datetime):
         """
         This method is called when a player attacks a station.
@@ -340,15 +350,10 @@ class _GameLogic:
 
         if before is None:
             before = datetime.now()
+        before = self._round_to_granularity(before)
 
         if num_of_player is None:
             num_of_player = GameNumOfPlayerType.ALL
-
-        if const.GAME_SCORE_GRANULARITY is not None:
-            # Round the before time to the nearest granularity
-            seconds_from_start1 = round((before - self.start_time).total_seconds())
-            seconds_from_start2 = int(seconds_from_start1 // const.GAME_SCORE_GRANULARITY) * const.GAME_SCORE_GRANULARITY
-            before = self.start_time + timedelta(seconds=seconds_from_start2)
 
         query = {"timestamp": {"$lt": before}, "log_only": False}
 
@@ -390,6 +395,92 @@ class _GameLogic:
             await self.redis_client.set(f"game_score:{player_id}:{station_id}:{game_type}:{num_of_player}:{before.isoformat()}", score)
 
         return score
+
+    async def get_player_scoreboard(self, before: datetime = None):
+        """
+        Get all players' scores in the game.
+        Return like [
+            {
+                "player_id": 101,
+                "scores": {
+                    "shake_badge": 100,
+                    "dino": 200,
+                    ...
+                },
+                "total_score": 2100,
+                "connected_sponsors": [1, 2, 3],
+            },
+            ...
+        ]
+        """
+
+        if before is None:
+            before = datetime.now()
+        before = self._round_to_granularity(before)
+
+        # check cache, if granularity is set
+        # if granularity is not set, the cache will be meaningless, since it is practically impossible to hit the cache with two same "before" timestamps
+        if self.redis_client is not None and const.GAME_SCORE_GRANULARITY is not None:
+            # TODO: cache
+            pass
+
+        cursor = await self.score_history.aggregate([
+            {
+                "$match": {
+                    "log_only": { "$ne": True },
+                    "timestamp": { "$lt": before }
+                }
+            },
+            {
+                "$group": {
+                    "_id": {
+                        "player_id": "$player_id",
+                        "game_type": "$game_type"
+                    },
+                    "total_score": { "$sum": "$score" },
+                    "connected_sponsors": { "$addToSet": "$sponsor_id" }
+                }
+            },
+            {
+                "$group": {
+                    "_id": "$_id.player_id",
+                    "scores": {
+                        "$push": { "k": "$_id.game_type", "v": "$total_score" }
+                    },
+                    "total_score": { "$sum": "$total_score" },
+                    "connected_sponsors": { "$addToSet": "$connected_sponsors" }
+                }
+            },
+            {
+                "$project": {
+                    "_id": 0,
+                    "player_id": "$_id",
+                    "scores": { "$arrayToObject": "$scores" },
+                    "total_score": 1,
+                    "connected_sponsors": {
+                        "$filter": {
+                            "input": {
+                                "$reduce": {
+                                    "input": "$connected_sponsors",
+                                    "initialValue": [],
+                                    "in": { "$setUnion": ["$$value", "$$this"] }
+                                }
+                            },
+                            "as": "item",
+                            "cond": { "$ne": ["$$item", None] }
+                        }
+                    }
+                }
+            }
+        ])
+        result = await cursor.to_list(length=None)
+
+        # If granularity is set, cache the score
+        if self.redis_client is not None and const.GAME_SCORE_GRANULARITY is not None:
+            # TODO: cache
+            pass
+
+        return result
 
     async def update_player_buff(self, player_id: int, buff_a_count: int, buff_b_count: int, timestamp: datetime):
         """
@@ -705,6 +796,82 @@ async def test_sponsor_bonus():
         assert const.SPONSOR_ALL_COLLECTED_BONUS == await gl.get_station_score(player_id=player_id, station_id=station_id, before=time_base + timedelta(seconds=len(const.SPONSOR_STATION_ID_LIST) + i + 0.5 + eps))
 
 
+@test_func
+async def test_scoreboard_api(game_score_granularity = None):
+    const.reset()
+    const.STATION_SCORE_DECAY_INTERVAL = 1
+    const.GAME_SCORE_GRANULARITY = game_score_granularity
+    eps = 0.1
+
+    time_base = datetime.now()
+    gl = _GameLogic(pymongo.AsyncMongoClient("mongodb://localhost:27017?uuidRepresentation=standard"), None, time_base)
+    await gl.clear_database()
+
+    operations = [
+        # num of player, game type, score, sponsor_id, timestamp
+        (GameNumOfPlayerType.SINGLE, GameType.SHAKE_BADGE, 4, None, time_base + timedelta(seconds=0.5)),
+        (GameNumOfPlayerType.SINGLE, GameType.DINO, 5, None, time_base + timedelta(seconds=1.5)),
+        (GameNumOfPlayerType.SINGLE, GameType.CONNECT_SPONSOR, 6, 1, time_base + timedelta(seconds=2.5)),
+        (GameNumOfPlayerType.SINGLE, GameType.CONNECT_SPONSOR, 7, 2, time_base + timedelta(seconds=2.5)),
+        (GameNumOfPlayerType.SINGLE, GameType.CONNECT_SPONSOR, 8, 4, time_base + timedelta(seconds=2.5)),
+
+        # num of player, game type, player 1 score, player 2 score, timestamp
+        (GameNumOfPlayerType.TWO, GameType.DINO, -1, 1, time_base + timedelta(seconds=3.5)),
+        (GameNumOfPlayerType.TWO, GameType.SNAKE, -2, 2, time_base + timedelta(seconds=4.5)),
+        (GameNumOfPlayerType.TWO, GameType.TAMA, -3, 3, time_base + timedelta(seconds=5.5)), # log only
+    ]
+    total_score_1 = 4 + 5 + 6 + 7 + 8 - 1 - 2 # ignore TAMA's score
+    total_score_2 = 1 + 2 # ignore TAMA's score
+    sponsors_1 = [1, 2, 4]
+    sponsors_2 = []
+
+    for args in operations:
+        if args[0] == GameNumOfPlayerType.SINGLE:
+            _, game_type, score, sponsor_id, timestamp = args
+            await gl.receive_game_score_single_player(
+                player_id=1,
+                station_id=1,
+                score=score,
+                game_type=game_type,
+                timestamp=timestamp,
+                sponsor_id=sponsor_id,
+            )
+        elif args[0] == GameNumOfPlayerType.TWO:
+            _, game_type, score1, score2, timestamp = args
+            two_player_event_id = uuid.uuid4()
+            await gl.receive_game_score_two_player(
+                two_player_event_id=two_player_event_id,
+                player1_id=1,
+                player2_id=2,
+                station_id=1,
+                score1=score1,
+                score2=score2,
+                game_type=game_type,
+                timestamp=timestamp,
+            )
+
+    # Test
+    scoreboard = await gl.get_player_scoreboard(before=time_base + timedelta(seconds=10 + eps))
+    scoreboard.sort(key=lambda x: x["player_id"])  # Sort by player_id for consistency
+
+    assert scoreboard[0]["player_id"] == 1
+    assert scoreboard[0]["total_score"] == total_score_1
+    assert set(scoreboard[0]["connected_sponsors"]) == set(sponsors_1)
+    assert scoreboard[0]["scores"] == {
+        GameType.SHAKE_BADGE: 4,
+        GameType.DINO: 5 - 1,
+        GameType.CONNECT_SPONSOR: 6 + 7 + 8,
+        GameType.SNAKE: -2,
+    }
+    assert scoreboard[1]["player_id"] == 2
+    assert scoreboard[1]["total_score"] == total_score_2
+    assert set(scoreboard[1]["connected_sponsors"]) == set(sponsors_2)
+    assert scoreboard[1]["scores"] == {
+        GameType.DINO: 1,
+        GameType.SNAKE: 2,
+    }
+
+
 if __name__ == "__main__":
     asyncio.run(test_attack_station_score_history())
     asyncio.run(test_game_score_history_single_player())
@@ -726,6 +893,9 @@ if __name__ == "__main__":
     asyncio.run(test_attack_station_score_buff(buff_a_count=10, buff_b_count=5))
     asyncio.run(test_game_score_log_only())
     asyncio.run(test_sponsor_bonus())
+    asyncio.run(test_scoreboard_api())
+    asyncio.run(test_scoreboard_api(game_score_granularity=5))
+    asyncio.run(test_scoreboard_api(game_score_granularity=10))
 
     import sys
     import inspect
