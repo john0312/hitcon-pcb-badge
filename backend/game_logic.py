@@ -485,6 +485,12 @@ class _GameLogic:
         ])
         result = await cursor.to_list(length=None)
 
+        # give missing game types a score of 0
+        for record in result:
+            for game_type in GameType:
+                if game_type not in record["scores"]:
+                    record["scores"][game_type] = 0
+
         # If granularity is set, cache the score
         if self.redis_client is not None and const.GAME_SCORE_GRANULARITY is not None:
             # TODO: cache
@@ -883,16 +889,23 @@ async def test_scoreboard_api(game_score_granularity = None):
     assert scoreboard[0]["scores"] == {
         GameType.SHAKE_BADGE: 4,
         GameType.DINO: 5,
-        GameType.CONNECT_SPONSOR: 6 + 7 + 8,
         GameType.SNAKE: 3,
         GameType.TETRIS: 6*2,
+        GameType.TAMA: 0,
+        GameType.CONNECT_SPONSOR: 6 + 7 + 8,
+        GameType.RECTF: 0,
     }
     assert scoreboard[1]["player_id"] == 2
     assert scoreboard[1]["total_score"] == total_score_2
     assert set(scoreboard[1]["connected_sponsors"]) == set(sponsors_2)
     assert scoreboard[1]["scores"] == {
+        GameType.SHAKE_BADGE: 0,
+        GameType.DINO: 0,
         GameType.SNAKE: 4*2,
         GameType.TETRIS: 5,
+        GameType.TAMA: 0,
+        GameType.CONNECT_SPONSOR: 0,
+        GameType.RECTF: 0,
     }
 
 
