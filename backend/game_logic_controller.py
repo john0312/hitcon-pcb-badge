@@ -249,6 +249,13 @@ class GameLogicController:
             timestamp=evt.timestamp
         )
 
+        await game.attack_station(
+            player_id=evt.user,
+            station_id=get_game_logic_station_id(evt.station_id),
+            amount=Constants.SPONSOR_CONNECT_SCORE,
+            timestamp=evt.timestamp
+        )
+
         await GameLogicController.score_announce(
             user=evt.user,
             packet_processor=packet_processor
