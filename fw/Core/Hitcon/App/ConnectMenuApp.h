@@ -26,9 +26,9 @@ constexpr menu_entry_t connect_menu_entries[] = {
 #if BADGE_ROLE == BADGE_ROLE_SPONSOR
     {"Send Bonus", &hitcon::sponsor::g_sponsor_resp, nullptr},
 #endif  // BADGE_ROLE == BADGE_ROLE_SPONSOR
+    {"HackerPet", &tama_app, &hitcon::app::tama::SetMultiplayer},
     {"Tetris", &tetris_app, &hitcon::app::tetris::SetMultiplayer},
     {"Snake", &snake_app, &hitcon::app::snake::SetMultiplayer},
-    {"Tama", &tama_app, &hitcon::app::tama::SetMultiplayer},
 };
 
 constexpr int connect_menu_entries_len =

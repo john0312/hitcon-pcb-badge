@@ -25,7 +25,7 @@ using hitcon::app::tetris::tetris_app;
 
 constexpr menu_entry_t main_menu_entries[] = {
     // TODO : change app
-    {"Tama", &tama_app, &hitcon::app::tama::SetSingleplayer},
+    {"HackerPet", &tama_app, &hitcon::app::tama::SetSingleplayer},
     {"Snake", &snake_app, &hitcon::app::snake::SetSingleplayer},
     {"Tetris", &tetris_app, &hitcon::app::tetris::SetSingleplayer},
     {"Dino", &dino_app, nullptr},

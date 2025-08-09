@@ -32,7 +32,11 @@ TamaApp::TamaApp()
           this, 0),
       _hunger_task(
           600, (hitcon::service::sched::task_callback_t)&TamaApp::HungerRoutine,
-          this, 60000),
+          this, 30000),
+      _level_up_task(
+          600, (hitcon::service::sched::task_callback_t)&TamaApp::LevelUpRoutine,
+          this, 300000
+      ),
       _tama_data(g_nv_storage.GetCurrentStorage().tama_storage),
       _state(_tama_data.state),
       _current_selection_in_choose_mode(TAMA_TYPE::CAT), _fb() {}
@@ -351,7 +355,7 @@ void TamaApp::Routine(void* unused) {
     case TAMA_APP_STATE::HATCHING:
       if (_frame_count >= 8) {
         _state = TAMA_APP_STATE::IDLE;
-        _tama_data.level = 1;
+        _tama_data.qte_level = 1;
         _tama_data.hp = 3;
         SetHunger(4);
         needs_save = true;
@@ -393,8 +397,12 @@ void TamaApp::Routine(void* unused) {
     case TAMA_APP_STATE::TRAINING_QTE:
       if (qte.IsDone()) {
         _state = TAMA_APP_STATE::TRAINING_END;
-        if (qte.GetSuccess() == QTE_TOTAL_ROUNDS && _tama_data.level < 999) {
-          _tama_data.level++;
+        if (qte.GetSuccess() == QTE_TOTAL_ROUNDS) {
+          SetQteLevel(_tama_data.qte_level + 10);
+          needs_save = true;
+        }
+        else if (qte.GetSuccess() >= QTE_TOTAL_ROUNDS - 2) {
+          SetQteLevel(_tama_data.qte_level + 3);
           needs_save = true;
         }
         UpdateFrameBuffer();
@@ -505,9 +513,9 @@ void TamaApp::UpdateFrameBuffer() {
     case TAMA_APP_STATE::LV_DETAIL:
       TAMA_PREPARE_FB(_fb, TAMA_GET_ANIMATION_DATA(LV).frame_count);
       TAMA_COPY_FB(_fb, TAMA_GET_ANIMATION_DATA(LV), 0);
-      StackOnFrame(&TAMA_NUM_FONT[_tama_data.level / 100], 5);
-      StackOnFrame(&TAMA_NUM_FONT[(_tama_data.level % 100) / 10], 9);
-      StackOnFrame(&TAMA_NUM_FONT[_tama_data.level % 10], 13);
+      StackOnFrame(&TAMA_NUM_FONT[GetLevel() / 100], 5);
+      StackOnFrame(&TAMA_NUM_FONT[(GetLevel() % 100) / 10], 9);
+      StackOnFrame(&TAMA_NUM_FONT[GetLevel() % 10], 13);
       for (int i = 0;
            (i < _tama_data.secret_level && i < TAMA_MAX_SECRET_LEVEL); i++) {
         const display_buf_t indicator = 1 << (i / (TAMA_MAX_SECRET_LEVEL / 2));
@@ -781,10 +789,12 @@ void TamaApp::XbRoutine(void* unused) {
     if (qte.IsDone()) {
       display_set_mode_scroll_text("Waiting for enemy...");
       _my_nounce = (g_fast_random_pool.GetRandom() % (UINT16_MAX - 1)) + 1;
+
       my_packet.state = TAMA_XBOARD_STATE::XBOARD_BATTLE_SENT_SCORE;
-      my_packet.result.score = qte.GetScore(_tama_data.level);
+      my_packet.result.score = qte.GetScore(GetRealLevel()),
       my_packet.result.nonce = _my_nounce;
       g_game_controller.SetBufferToUsername(my_packet.result.user);
+
       UpdateFrameBuffer();
     }
     return;
@@ -799,7 +809,7 @@ void TamaApp::XbRoutine(void* unused) {
     // Send result with TwoBadgeActivity
     hitcon::game::TwoBadgeActivity activity = {
         .gameType = hitcon::game::EventType::kTama,
-        .myScore = qte.GetScore(_tama_data.level),
+        .myScore = qte.GetScore(GetRealLevel()),
         .otherScore = enemy_packet.result.score,
         .nonce = _my_nounce + enemy_packet.result.nonce,
     };
@@ -817,10 +827,10 @@ void TamaApp::XbRoutine(void* unused) {
 
     if (activity.otherScore == CRITICAL_HIT_SCORE)
       _tama_data.hp = 0;
-    else if (activity.myScore < activity.otherScore)
+    else if (_xb_qte_me_winning)
+      SetQteLevel(_tama_data.qte_level + 3);
+    else
       _tama_data.hp = _tama_data.hp ? _tama_data.hp - 1 : 0;
-    else if (activity.myScore > activity.otherScore)
-      _tama_data.hp = _tama_data.hp < 3 ? _tama_data.hp + 1 : 3;
     needs_save = true;
     UpdateFrameBuffer();
   }
@@ -915,11 +925,68 @@ void TamaApp::HungerRoutine(void* unused) {
   if (needs_save) g_nv_storage.MarkDirty();
 }
 
+static unsigned int intSqrt(unsigned int x) {
+  unsigned int res = 0;
+  unsigned int bit = 1 << 30;
+  while (bit > x)
+    bit >>= 2;
+
+  while (bit) {
+    if (x >= res + bit) {
+      x -= res + bit;
+      res = (res >> 1) + bit;
+    }
+    else
+      res >>= 1;
+  }
+  return res;
+}
+
+static inline unsigned int min(unsigned int a, unsigned int b) {
+  return (a < b) ? a : b;
+}
+
+void TamaApp::LevelUpRoutine(void *unused) {
+  bool needs_save = false;
+  if (_tama_data.hp == 0 || _tama_data.hunger == 0) return;
+
+  unsigned int step = g_imu_logic.GetStep();
+  if (step > _last_level_check_steps)
+    _level_up_progress += step - _last_level_check_steps;
+  _last_level_check_steps = step;
+
+  if (_level_up_progress >= min(100, _tama_data.step_level * intSqrt(_tama_data.step_level))) {
+    SetStepLevel(_tama_data.step_level + 1);
+    needs_save = true;
+  }
+
+  if (needs_save) g_nv_storage.MarkDirty();
+}
+
 void TamaApp::SetHunger(uint8_t hunger) {
   if (hunger > 4) hunger = 4;
   _tama_data.hunger = hunger;
   _hunger_check_elapsed = 0;
   _last_hunger_check = SysTimer::GetTime();
+}
+
+void TamaApp::SetQteLevel(uint16_t level) {
+  if (level > 499) level = 499;
+  _tama_data.qte_level = level;
+}
+
+void TamaApp::SetStepLevel(uint16_t level) {
+  if (level > 499) level = 499;
+  _tama_data.step_level = level;
+  _level_up_progress = 0;
+}
+
+uint16_t TamaApp::GetLevel() const {
+  return _tama_data.step_level + _tama_data.qte_level;
+}
+
+uint16_t TamaApp::GetRealLevel() const {
+  return _tama_data.step_level + _tama_data.qte_level + _tama_data.secret_level;
 }
 
 void TamaApp::HatchingRoutine(void* unused) {
@@ -1043,8 +1110,9 @@ void TamaQte::Init() {
 bool TamaQte::IsDone() { return state == TamaQteState::kDone; }
 
 void TamaQte::SaveScore() {
-  if (success == QTE_TOTAL_ROUNDS && g_fast_random_pool.GetRandom() % 100 == 0)
-    // 1% chance to make a critical hit
+  if (success == QTE_TOTAL_ROUNDS)
+    score = CRITICAL_HIT_SCORE;
+  else if (success == QTE_TOTAL_ROUNDS - 1 && g_fast_random_pool.GetRandom() & 1)
     score = CRITICAL_HIT_SCORE;
   else
     score = success * success;

@@ -65,10 +65,11 @@ enum class TAMA_TYPE : uint8_t {
 typedef struct {
   TAMA_APP_STATE state;
   TAMA_TYPE type;
-  uint16_t level;
+  uint16_t qte_level;
   uint8_t hp;
   uint8_t hunger;
   uint16_t secret_level;
+  uint16_t step_level;
   unsigned int sponsor_register;
 } tama_storage_t;
 
@@ -238,6 +239,7 @@ class TamaApp : public App {
   hitcon::service::sched::PeriodicTask _routine_task;
   hitcon::service::sched::DelayedTask _hatching_task;
   hitcon::service::sched::PeriodicTask _hunger_task;
+  hitcon::service::sched::PeriodicTask _level_up_task;
   tama_storage_t& _tama_data;
   tama_display_fb_t _fb;
   unsigned int _frame_count = 0;
@@ -246,12 +248,18 @@ class TamaApp : public App {
   unsigned int _total_hatchin_steps = 0;
   unsigned int _hunger_check_elapsed = 0;
   unsigned int _last_hunger_check = 0;
+  unsigned int _level_up_progress = 0;
+  unsigned int _last_level_check_steps = 0;
   bool _xb_qte_me_winning = false;
   bool _xb_qte_enemy_winning = false;
 
   TamaQte qte;
 
+  uint16_t GetLevel() const;
+  uint16_t GetRealLevel() const;
   void SetHunger(uint8_t hunger);
+  void SetQteLevel(uint16_t level);
+  void SetStepLevel(uint16_t level);
   void Render();
   void Routine(void* unused);
   void UpdateFrameBuffer();
@@ -263,6 +271,7 @@ class TamaApp : public App {
   void ConcateAnimtaions(uint8_t count, ...);
   void HatchingRoutine(void* unused);
   void HungerRoutine(void* unused);
+  void LevelUpRoutine(void *unused);
   void SponsorRegister(uint8_t sponsor_id);
 
   // XBoard related
