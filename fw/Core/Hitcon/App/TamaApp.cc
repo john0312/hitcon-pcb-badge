@@ -34,9 +34,9 @@ TamaApp::TamaApp()
           600, (hitcon::service::sched::task_callback_t)&TamaApp::HungerRoutine,
           this, 30000),
       _level_up_task(
-          600, (hitcon::service::sched::task_callback_t)&TamaApp::LevelUpRoutine,
-          this, 300000
-      ),
+          600,
+          (hitcon::service::sched::task_callback_t)&TamaApp::LevelUpRoutine,
+          this, 300000),
       _tama_data(g_nv_storage.GetCurrentStorage().tama_storage),
       _state(_tama_data.state),
       _current_selection_in_choose_mode(TAMA_TYPE::CAT), _fb() {}
@@ -400,8 +400,7 @@ void TamaApp::Routine(void* unused) {
         if (qte.GetSuccess() == QTE_TOTAL_ROUNDS) {
           SetQteLevel(_tama_data.qte_level + 10);
           needs_save = true;
-        }
-        else if (qte.GetSuccess() >= QTE_TOTAL_ROUNDS - 2) {
+        } else if (qte.GetSuccess() >= QTE_TOTAL_ROUNDS - 2) {
           SetQteLevel(_tama_data.qte_level + 3);
           needs_save = true;
         }
@@ -928,15 +927,13 @@ void TamaApp::HungerRoutine(void* unused) {
 static unsigned int IntSqrt(unsigned int x) {
   unsigned int res = 0;
   unsigned int bit = 1 << 30;
-  while (bit > x)
-    bit >>= 2;
+  while (bit > x) bit >>= 2;
 
   while (bit) {
     if (x >= res + bit) {
       x -= res + bit;
       res = (res >> 1) + bit;
-    }
-    else
+    } else
       res >>= 1;
   }
   return res;
@@ -946,7 +943,7 @@ static inline unsigned int min(unsigned int a, unsigned int b) {
   return (a < b) ? a : b;
 }
 
-void TamaApp::LevelUpRoutine(void *unused) {
+void TamaApp::LevelUpRoutine(void* unused) {
   bool needs_save = false;
   if (_tama_data.hp == 0 || _tama_data.hunger == 0) return;
 
@@ -956,7 +953,8 @@ void TamaApp::LevelUpRoutine(void *unused) {
   _last_level_check_steps = step;
 
   // Steps needed to level up = min(100, current_level ^ 1.5)
-  if (_level_up_progress >= min(100, _tama_data.step_level * IntSqrt(_tama_data.step_level))) {
+  if (_level_up_progress >=
+      min(100, _tama_data.step_level * IntSqrt(_tama_data.step_level))) {
     SetStepLevel(_tama_data.step_level + 1);
     needs_save = true;
   }
@@ -1113,7 +1111,8 @@ bool TamaQte::IsDone() { return state == TamaQteState::kDone; }
 void TamaQte::SaveScore() {
   if (success == QTE_TOTAL_ROUNDS)
     score = CRITICAL_HIT_SCORE;
-  else if (success == QTE_TOTAL_ROUNDS - 1 && g_fast_random_pool.GetRandom() & 1)
+  else if (success == QTE_TOTAL_ROUNDS - 1 &&
+           g_fast_random_pool.GetRandom() & 1)
     score = CRITICAL_HIT_SCORE;
   else
     score = success * success;

@@ -275,6 +275,7 @@ class TamaApp : public App {
   void HungerRoutine(void* unused);
   void LevelUpRoutine(void *unused);
   void SponsorRegister(uint8_t sponsor_id);
+  void LevelUpRoutine(void* unused);
 
   // XBoard related
   uint8_t _my_nounce;
