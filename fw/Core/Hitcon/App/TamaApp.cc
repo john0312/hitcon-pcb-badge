@@ -144,12 +144,24 @@ void TamaApp::OnButton(button_t button) {
   bool needs_save = false;
   bool needs_update_fb = false;
   if (_state == TAMA_APP_STATE::TRAINING_QTE) {
+    if (((button & BUTTON_VALUE_MASK) == BUTTON_BACK) ||
+        ((button & BUTTON_VALUE_MASK) == BUTTON_LONG_BACK)) {
+      qte.Exit();
+      badge_controller.BackToMenu(this);
+    }
     qte.OnButton(button);
     return;
   }
   switch (button & BUTTON_VALUE_MASK) {
     case BUTTON_BACK:
     case BUTTON_LONG_BACK:
+      if (_state == TAMA_APP_STATE::LV_DETAIL ||
+          _state == TAMA_APP_STATE::FEED_CONFIRM ||
+          _state == TAMA_APP_STATE::TRAINING_CONFIRM) {
+        _state = TAMA_APP_STATE::IDLE;
+        needs_update_fb = true;
+        break;
+      }
       badge_controller.BackToMenu(this);
       return;  // Exit immediately
 
