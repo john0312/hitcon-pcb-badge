@@ -4,6 +4,9 @@ services:
     environment:
       - MONGO_CONNECT_STRING=mongodb://mongodb:27017
       - MONGO_DATABASE_NAME=board_logs
+      # !!! Update the actual server key here !!!
+      - SERVER_PRIV_KEY=1234554321
+      - SERVER_PUB_KEY=flDeY2vLBQE=
     ports:
       - 8000:8000
     depends_on:

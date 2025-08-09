@@ -1,5 +1,6 @@
 import hashlib
 import random
+import config
 
 class ModNum:
     def __init__(self, val: int, mod: int):
@@ -267,3 +268,16 @@ def privkey_to_username(privkey: bytes) -> bytes:
     prv = int.from_bytes(privkey, 'little')
     pubkey: EPoint = prv * G
     return pubkey.compact()[3:7]
+
+def check_server_privkey():
+    curve, G, order = mysecp()
+    if (config.SERVER_PRIV_KEY * G).compact() != config.SERVER_PUB_KEY:
+        raise RuntimeError(f'Invalid server private key {config.SERVER_PRIV_KEY}')
+
+check_server_privkey()
+
+def server_sign_pubkey(privkey: bytes) -> bytes:
+    curve, G, order = mysecp()
+    pubkey = int.from_bytes(privkey, 'little') * G
+    pubkey_compact = pubkey.compact()
+    return ECC(curve, G, order, config.SERVER_PRIV_KEY).sign(pubkey_compact).compact()

@@ -12,6 +12,7 @@ class BoardData(Document):
     board_secret: bytes
     priv_key: bytes
     user_id: Annotated[bytes, Indexed(unique=True)]
+    commit: bool
 
     def __repr__(self) -> str:
         return f"BoardData(board_secret={self.board_secret}, priv_key={self.priv_key}, id={self.id})"
@@ -38,9 +39,13 @@ class Storage:
         self.client.close()
 
 async def store_item(board_secret: bytes, priv_key: bytes) -> Optional[BoardData]:
-    data = BoardData(board_secret=board_secret, priv_key=priv_key, user_id=ecc.privkey_to_username(priv_key))
+    data = BoardData(board_secret=board_secret, priv_key=priv_key, user_id=ecc.privkey_to_username(priv_key), commit=False)
     try:
         return await data.insert()
     except DuplicateKeyError:
         raise PrivKeyExistsError("Private key already exists in the database")
 
+async def commit_item(priv_key: bytes):
+    await BoardData.find_one(BoardData.user_id == ecc.privkey_to_username(priv_key)).update_one(
+        {"$set": {BoardData.commit: True}}
+    )
