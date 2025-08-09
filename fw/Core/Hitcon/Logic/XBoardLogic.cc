@@ -15,9 +15,6 @@ namespace xboard {
 XBoardLogic g_xboard_logic;
 
 namespace {
-inline uint16_t inc_head(size_t head, size_t offset) {
-  return (head + offset) % RX_BUF_SZ;
-}
 constexpr uint8_t PADDING_MAP[] = {0, 3, 2, 1};
 }  // namespace
 
@@ -98,36 +95,6 @@ void XBoardLogic::SetOnPacketArrive(callback_t callback, void *self,
 
 // private functions
 
-bool XBoardLogic::TryReadBytes(uint8_t *dst, size_t size,
-                               uint16_t head_offset) {
-  uint16_t _cons_head = inc_head(cons_head, head_offset);
-  if (cons_head == prod_head) {
-    if (_cons_head != cons_head) return false;
-  } else if (cons_head < prod_head) {
-    // Ok: c <= _c <= p
-    if (_cons_head > prod_head) return false;
-    if (_cons_head < cons_head) return false;
-  } else {
-    // Ok: p < c <= _c
-    // Ok: _c <= p < c
-    if (prod_head < _cons_head && _cons_head < cons_head) return false;
-  }
-  uint16_t remain_size =
-      (_cons_head > prod_head ? 0 : RX_BUF_SZ) - prod_head + _cons_head;
-  if (remain_size < size) {
-    return false;
-  }
-  uint16_t next_cons_head = inc_head(_cons_head, size);
-  if (next_cons_head < _cons_head) {
-    uint16_t sz1 = RX_BUF_SZ - _cons_head;
-    memcpy(dst, rx_buf + _cons_head, sz1);
-    memcpy(dst + sz1, rx_buf, size - sz1);
-  } else {
-    memcpy(dst, rx_buf + _cons_head, size);
-  }
-  return true;
-}
-
 bool XBoardLogic::SendIRPacket(uint8_t *data, size_t len) {
   g_xboard_logic.QueueDataForTx(data, len, IR_TO_BASE_STATION);
   // TODO: Checking ACK
@@ -159,46 +126,43 @@ void XBoardLogic::SendPeerPong() {
 
 void XBoardLogic::OnByteArrive(void *arg1) {
   uint8_t b = static_cast<uint8_t>(reinterpret_cast<size_t>(arg1));
-  uint16_t next_prod_head = inc_head(prod_head, 1);
-  if (next_prod_head == cons_head) {
+  if (rx_queue.IsFull()) {
     // drop the data
     AssertOverflow();
     return;
   }
-  rx_buf[prod_head] = b;
-  prod_head = next_prod_head;
+  rx_queue.PushBack(b);
 }
 
 void XBoardLogic::ParsePacket() {
   size_t bytes_processed = 0;
-  while (cons_head != prod_head && bytes_processed < 16) {
-    if (rx_buf[cons_head] != 0x55) {
-      cons_head = inc_head(cons_head, 1);
+  while (!rx_queue.IsEmpty() && bytes_processed < 16) {
+    if (rx_queue.Front() != 0x55) {
+      rx_queue.PopFront();
       ++bytes_processed;
       continue;
     }
-    uint16_t in_buf_size =
-        (prod_head > cons_head ? 0 : RX_BUF_SZ) + prod_head - cons_head;
-    if (in_buf_size < HEADER_SZ) {
+    if (rx_queue.Size() < HEADER_SZ) {
       break;
     }
 
     uint8_t pkt[HEADER_SZ + PKT_PAYLOAD_LEN_MAX] = {0};
     Frame *header = reinterpret_cast<Frame *>(pkt);
     uint8_t *payload = pkt + HEADER_SZ;
-    TryReadBytes(reinterpret_cast<uint8_t *>(header), HEADER_SZ);
+    rx_queue.PeekSegment(reinterpret_cast<uint8_t *>(header), HEADER_SZ, 0);
     if (header->preamble != PREAMBLE) {
-      cons_head = inc_head(cons_head, 1);
+      rx_queue.PopFront();
       ++bytes_processed;
       continue;
     }
     if (header->len >= PKT_PAYLOAD_LEN_MAX) {
       // invalid packet, skip this packet (preamble 8 bytes)
-      cons_head = inc_head(cons_head, 8);
+      rx_queue.RemoveFrontMulti(8);
+
       bytes_processed += 8;
       continue;
     }
-    if (!TryReadBytes(payload, header->len, HEADER_SZ)) {
+    if (!rx_queue.PeekSegment(payload, header->len, HEADER_SZ)) {
       // no enough bytes to read, wait more bytes in
       return;
     }
@@ -207,13 +171,13 @@ void XBoardLogic::ParsePacket() {
     header->checksum = 0;
     if (fast_crc32(pkt, HEADER_SZ + header->len +
                             PADDING_MAP[header->len & 0b11]) != recv_check) {
-      cons_head = inc_head(cons_head, 8);
+      rx_queue.RemoveFrontMulti(8);
       bytes_processed += 8;
       continue;
     }
 
     // pass checking, valid packet now
-    cons_head = inc_head(cons_head, HEADER_SZ + header->len);
+    rx_queue.RemoveFrontMulti(HEADER_SZ + header->len);
     if (header->type == PING_TYPE) {
       recv_ping = true;
       continue;

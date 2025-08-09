@@ -1,6 +1,7 @@
 #ifndef HITCON_LOGIC_XBOARD_LOGIC_H_
 #define HITCON_LOGIC_XBOARD_LOGIC_H_
 
+#include <Util/CircularQueue.h>
 #include <Util/callback.h>
 #include <stddef.h>
 #include <stdint.h>
@@ -88,9 +89,7 @@ class XBoardLogic {
  private:
   // buffer variables
 
-  uint8_t rx_buf[RX_BUF_SZ] = {0};
-  uint16_t prod_head = 0;
-  uint16_t cons_head = 0;
+  CircularQueue<uint8_t, RX_BUF_SZ> rx_queue;
   bool recv_ping = false;
   uint8_t recv_pong_flags = 0;
   // 0x01 - Legacy pong received.
@@ -118,10 +117,6 @@ class XBoardLogic {
   callback_t connect_basestn2025_handler = nullptr;
   void *connect_basestn2025_handler_self = nullptr;
 
-  // read `size` bytes from `rx_buf` to `dst`
-  // if `head_offset` > 0, start reading from cons_head + head_offset
-  // return false if no enough bytes to read
-  bool TryReadBytes(uint8_t *dst, size_t size, uint16_t head_offset = 0);
   void SendPing();
   void SendPeerPong();
   void OnByteArrive(void *);
