@@ -48,7 +48,7 @@ def getZoomValue():
             print('Error getting the zoom value of the system')
             zoomValue = float(input('Please input the zoom value of your system: '))
     else:
-        zoomValue = 1
+        zoomValue = 2
     return zoomValue
 
 def writeMemory(addr, data, mode):
