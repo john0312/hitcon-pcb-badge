@@ -61,8 +61,8 @@ extern IrRetxDebugApp g_ir_retx_debug_app;
 
 constexpr menu_entry_t debug_menu_entries[] = {
     {"Accel", &g_debug_accel_app, nullptr},
-    {"IR Retx", &g_ir_retx_debug_app, nullptr},
-    {"IR Force Retx", &g_ir_force_retx_app, nullptr}};
+    {"Pkt Stat", &g_ir_retx_debug_app, nullptr},
+    {"Force Retx", &g_ir_force_retx_app, nullptr}};
 
 constexpr size_t debug_menu_entries_len =
     sizeof(debug_menu_entries) / sizeof(debug_menu_entries[0]);

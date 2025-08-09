@@ -32,20 +32,26 @@ constexpr menu_entry_t main_menu_entries[] = {
     {"Show ID", &show_id_app, nullptr},
     {"Show Scores", &score_hist::g_score_hist, nullptr},
     {"Bouncing DVD", &bouncing_dvd_app, nullptr},
-    {"BadUSB", &hitcon::usb::bad_usb_app, nullptr},
-    {"Debug", &g_debug_app, nullptr}};
+    {"BadUSB", &hitcon::usb::bad_usb_app, nullptr}
+    //,{"Debug", &g_debug_app, nullptr}
+};
 
 constexpr int main_menu_entries_len =
     sizeof(main_menu_entries) / sizeof(menu_entry_t);
 
 class MainMenuApp : public MenuApp {
  public:
-  MainMenuApp() : MenuApp(main_menu_entries, main_menu_entries_len) {}
+  MainMenuApp()
+      : MenuApp(main_menu_entries, main_menu_entries_len), dbg_ctr(0) {}
   void OnButtonMode() override { badge_controller.change_app(&show_name_app); }
   void OnButtonBack() override { badge_controller.change_app(&show_name_app); }
   void OnButtonLongBack() override {
     badge_controller.change_app(&show_name_app);
   }
+  void OnButton(button_t button) override;
+
+ private:
+  uint8_t dbg_ctr;
 };
 
 extern MainMenuApp main_menu;
