@@ -989,6 +989,14 @@ void TamaApp::ConcateAnimtaions(uint8_t count, ...) {
   va_end(args);
 }
 
+void TamaApp::SponsorRegister(unsigned int sponsor_id) {
+  if (!(_tama_data.sponsor_register & sponsor_id)) {
+    _tama_data.secret_level++;
+    _tama_data.sponsor_register |= sponsor_id;
+    g_nv_storage.MarkDirty();
+  }
+}
+
 void TamaQte::Routine() {
   if (state == kInGame) {
     if (game.IsDone()) {

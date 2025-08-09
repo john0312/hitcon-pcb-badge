@@ -66,6 +66,8 @@ typedef struct {
   uint16_t level;
   uint8_t hp;
   uint8_t hunger;
+  uint8_t secret_level;
+  unsigned int sponsor_register;
 } tama_storage_t;
 
 typedef struct {
@@ -270,6 +272,7 @@ class TamaApp : public App {
   void ConcateAnimtaions(uint8_t count, ...);
   void HatchingRoutine(void* unused);
   void HungerRoutine(void* unused);
+  void SponsorRegister(unsigned int sponsor_id);
 
   // XBoard related
   TAMA_XBOARD_STATE _enemy_state;
