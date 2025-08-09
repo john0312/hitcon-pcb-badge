@@ -84,24 +84,15 @@ enum class TAMA_PLAYER_MODE : uint8_t {
   MODE_BASESTATION,
 };
 
-enum class TAMA_XBOARD_PACKET_TYPE {
-  // TODO: Add all packet type
-  PACKET_CONFIRM,
-  PACKET_ENIMY_INFO,
-  PACKET_SCORE,
-  PACKET_END,
-  PACKET_LEAVE,
-  PACKET_UNAVAILABLE,
-};
-
 enum class TAMA_XBOARD_STATE {
   XBOARD_INVITE,
+  XBOARD_UNAVAILABLE,
+  XBOARD_LEAVE,
   XBOARD_BATTLE_ENCOUNTER,
   XBOARD_BATTLE_QTE,
   XBOARD_BATTLE_SENT_SCORE,
   XBOARD_BATTLE_RESULT,
   XBOARD_BATTLE_END,
-  XBOARD_UNAVAILABLE,
 };
 
 enum class TAMA_XBOARD_BATTLE_INVITE {
@@ -144,16 +135,14 @@ enum class TAMA_ANIMATION_TYPE : uint8_t {
 };
 
 typedef struct {
-  TAMA_XBOARD_PACKET_TYPE packet_type;
-  uint8_t user[hitcon::ir::IR_USERNAME_LEN];
-  uint16_t score;
-  uint8_t nonce;
-} __attribute__((__packed__)) tama_xboard_result_t;
-
-typedef struct {
-  TAMA_XBOARD_PACKET_TYPE packet_type;
+  TAMA_XBOARD_STATE state;
   TAMA_TYPE type;
-} tama_xboard_enemy_info_t;
+  struct {
+    uint8_t user[hitcon::ir::IR_USERNAME_LEN];
+    uint16_t score;
+    uint8_t nonce;
+  } result;
+} __attribute__((__packed__)) tama_xboard_packet_t;
 
 constexpr uint8_t QTE_REFRESH_RATE = 50;
 constexpr uint16_t PAUSE_BETWEEN_QTE_GAMES = 1000;
@@ -277,10 +266,8 @@ class TamaApp : public App {
   void SponsorRegister(unsigned int sponsor_id);
 
   // XBoard related
-  TAMA_XBOARD_STATE _enemy_state;
   uint8_t _my_nounce;
-  tama_xboard_enemy_info_t _enemy_info;
-  tama_xboard_result_t _enemy_score;
+
   void XbOnButton(button_t button);
   void XbUpdateFrameBuffer();
   void XbRoutine(void* unused);
@@ -296,7 +283,8 @@ class TamaApp : public App {
   // void OnEdgeButton(button_t button) override;
 
   // XBoard related
-  TAMA_XBOARD_STATE xboard_state;
+  tama_xboard_packet_t my_packet;
+  tama_xboard_packet_t enemy_packet;
   TAMA_XBOARD_BATTLE_INVITE xboard_battle_invite;
   void OnXBoardRecv(void* arg);
 

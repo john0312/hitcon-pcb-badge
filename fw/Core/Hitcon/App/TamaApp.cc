@@ -64,7 +64,9 @@ void SetSingleplayer() {
 
 void SetMultiplayer() {
   tama_app.player_mode = TAMA_PLAYER_MODE::MODE_MULTIPLAYER;
-  tama_app.xboard_state = TAMA_XBOARD_STATE::XBOARD_INVITE;
+
+  tama_app.my_packet = {.state = TAMA_XBOARD_STATE::XBOARD_INVITE};
+  tama_app.enemy_packet = {.state = TAMA_XBOARD_STATE::XBOARD_INVITE};
   tama_app.xboard_battle_invite = TAMA_XBOARD_BATTLE_INVITE::XBOARD_BATTLE_N;
 }
 
@@ -75,19 +77,14 @@ void SetBaseStationConnect() {
 void TamaApp::OnEntry() {
   hitcon::service::sched::scheduler.EnablePeriodic(&_routine_task);
   if (player_mode == TAMA_PLAYER_MODE::MODE_MULTIPLAYER) {
+    enemy_packet = {.state = TAMA_XBOARD_STATE::XBOARD_INVITE};
     g_xboard_logic.SetOnPacketArrive((callback_t)&TamaApp::OnXBoardRecv, this,
                                      TAMA_RECV_ID);
-    _enemy_state = TAMA_XBOARD_STATE::XBOARD_INVITE;
-    memcpy(&_enemy_score, 0, sizeof(_enemy_score));
     if (_tama_data.state != TAMA_APP_STATE::IDLE || _tama_data.hp == 0) {
-      xboard_state = TAMA_XBOARD_STATE::XBOARD_UNAVAILABLE;
+      my_packet.state = TAMA_XBOARD_STATE::XBOARD_UNAVAILABLE;
       display_set_mode_scroll_text("Your pet is not ready yet");
-      TAMA_XBOARD_PACKET_TYPE packet =
-          TAMA_XBOARD_PACKET_TYPE::PACKET_UNAVAILABLE;
-      g_xboard_logic.QueueDataForTx(reinterpret_cast<uint8_t*>(&packet),
-                                    sizeof(packet), TAMA_RECV_ID);
     } else {
-      xboard_state = TAMA_XBOARD_STATE::XBOARD_INVITE;
+      my_packet = {.state = TAMA_XBOARD_STATE::XBOARD_INVITE};
     }
     UpdateFrameBuffer();
     return;
@@ -107,7 +104,7 @@ void TamaApp::OnEntry() {
 
 void TamaApp::OnExit() {
   hitcon::service::sched::scheduler.DisablePeriodic(&_routine_task);
-  if (xboard_state == TAMA_XBOARD_STATE::XBOARD_BATTLE_QTE) {
+  if (my_packet.state == TAMA_XBOARD_STATE::XBOARD_BATTLE_QTE) {
     // We are aborting the app during QTE battle. Abort the QTE.
     qte.Exit();
   }
@@ -589,29 +586,20 @@ void TamaApp::XbOnButton(button_t button) {
     badge_controller.BackToMenu(this);
     return;
   }
-  switch (xboard_state) {
+  switch (my_packet.state) {
     case TAMA_XBOARD_STATE::XBOARD_INVITE:
       switch (button & BUTTON_VALUE_MASK) {
         case BUTTON_OK: {
           if (xboard_battle_invite ==
               TAMA_XBOARD_BATTLE_INVITE::XBOARD_BATTLE_N) {
-            uint8_t invite =
-                static_cast<uint8_t>(TAMA_XBOARD_PACKET_TYPE::PACKET_LEAVE);
-            g_xboard_logic.QueueDataForTx(reinterpret_cast<uint8_t*>(&invite),
-                                          sizeof(invite), TAMA_RECV_ID);
+            my_packet.state = TAMA_XBOARD_STATE::XBOARD_LEAVE;
             display_set_mode_scroll_text("Your pet fled...");
-            xboard_state = TAMA_XBOARD_STATE::XBOARD_UNAVAILABLE;
           } else {
             my_assert(xboard_battle_invite ==
                       TAMA_XBOARD_BATTLE_INVITE::XBOARD_BATTLE_Y);
-            xboard_state = TAMA_XBOARD_STATE::XBOARD_BATTLE_ENCOUNTER;
+            my_packet.state = TAMA_XBOARD_STATE::XBOARD_BATTLE_ENCOUNTER;
+            my_packet.type = _tama_data.type;
             display_set_mode_scroll_text("Waiting for enemy...");
-            tama_xboard_enemy_info_t invite = {
-                .packet_type = TAMA_XBOARD_PACKET_TYPE::PACKET_CONFIRM,
-                .type = _tama_data.type,
-            };
-            g_xboard_logic.QueueDataForTx(reinterpret_cast<uint8_t*>(&invite),
-                                          sizeof(invite), TAMA_RECV_ID);
           }
           UpdateFrameBuffer();
           break;
@@ -638,7 +626,7 @@ void TamaApp::XbOnButton(button_t button) {
 void TamaApp::XbUpdateFrameBuffer() {
   // TODO: Handle all XBoard frame here
   _frame_count = 0;
-  switch (xboard_state) {
+  switch (my_packet.state) {
     case TAMA_XBOARD_STATE::XBOARD_INVITE:
       TAMA_PREPARE_FB(_fb,
                       TAMA_GET_ANIMATION_DATA(XB_BATTLE_INVITE).frame_count);
@@ -652,7 +640,7 @@ void TamaApp::XbUpdateFrameBuffer() {
               : 13);
       break;
     case TAMA_XBOARD_STATE::XBOARD_BATTLE_ENCOUNTER: {
-      if (_enemy_state != TAMA_XBOARD_STATE::XBOARD_BATTLE_ENCOUNTER) {
+      if (enemy_packet.state < TAMA_XBOARD_STATE::XBOARD_BATTLE_ENCOUNTER) {
         return;
       }
       const tama_ani_t *me = nullptr, *enemy = nullptr;
@@ -663,9 +651,9 @@ void TamaApp::XbUpdateFrameBuffer() {
       } else {
         my_assert(false);
       }
-      if (_enemy_info.type == TAMA_TYPE::DOG) {
+      if (enemy_packet.type == TAMA_TYPE::DOG) {
         enemy = &TAMA_GET_ANIMATION_DATA(XB_ENEMY_DOG);
-      } else if (_enemy_info.type == TAMA_TYPE::CAT) {
+      } else if (enemy_packet.type == TAMA_TYPE::CAT) {
         enemy = &TAMA_GET_ANIMATION_DATA(XB_ENEMY_CAT);
       } else {
         my_assert(false);
@@ -709,105 +697,98 @@ void TamaApp::XbUpdateFrameBuffer() {
       }
       break;
     }
-    case TAMA_XBOARD_STATE::XBOARD_BATTLE_SENT_SCORE:
-      // Waiting score packet
-    case TAMA_XBOARD_STATE::XBOARD_BATTLE_QTE:
-      // handled by QTE class
-    case TAMA_XBOARD_STATE::XBOARD_UNAVAILABLE:
-      break;
     default:
-      my_assert(false);
       break;
   }
 }
 
 void TamaApp::OnXBoardRecv(void* arg) {
   PacketCallbackArg* packet = reinterpret_cast<PacketCallbackArg*>(arg);
-  switch ((TAMA_XBOARD_PACKET_TYPE)packet->data[0]) {
-    // TODO: Handle XB game logic here
-    case TAMA_XBOARD_PACKET_TYPE::PACKET_CONFIRM:
-      _enemy_state = TAMA_XBOARD_STATE::XBOARD_BATTLE_ENCOUNTER;
-      my_assert(packet->len == sizeof(_enemy_info));
-      memcpy(&_enemy_info, packet->data, sizeof(_enemy_info));
-      my_assert(_enemy_info.type == TAMA_TYPE::DOG ||
-                _enemy_info.type == TAMA_TYPE::CAT);
+  if ((TAMA_XBOARD_STATE)packet->data[0] == enemy_packet.state) return;
+  // Packet has been updated, we now knows that enemy state has changed
+  memcpy(&enemy_packet, packet->data, sizeof(enemy_packet));
+  switch (enemy_packet.state) {
+    case TAMA_XBOARD_STATE::XBOARD_BATTLE_ENCOUNTER:
+      my_assert(enemy_packet.type == TAMA_TYPE::DOG ||
+                enemy_packet.type == TAMA_TYPE::CAT);
       UpdateFrameBuffer();
       break;
-    case TAMA_XBOARD_PACKET_TYPE::PACKET_SCORE:
-      my_assert(packet->len == sizeof(_enemy_score));
-      _enemy_state = TAMA_XBOARD_STATE::XBOARD_BATTLE_SENT_SCORE;
-      memcpy(&_enemy_score, packet->data, sizeof(_enemy_score));
+    case TAMA_XBOARD_STATE::XBOARD_BATTLE_SENT_SCORE:
+      my_assert(enemy_packet.result.nonce);
       UpdateFrameBuffer();
       break;
-    case TAMA_XBOARD_PACKET_TYPE::PACKET_END:
-      // TODO: End game
-      break;
-    case TAMA_XBOARD_PACKET_TYPE::PACKET_LEAVE:
+    case TAMA_XBOARD_STATE::XBOARD_LEAVE:
+      if (my_packet.state == TAMA_XBOARD_STATE::XBOARD_LEAVE) {
+        return;
+      }
       display_set_mode_scroll_text("Enemy fled...");
-      xboard_state = TAMA_XBOARD_STATE::XBOARD_UNAVAILABLE;
+      my_packet.state = TAMA_XBOARD_STATE::XBOARD_LEAVE;
       return;  // Exit immediately
-    case TAMA_XBOARD_PACKET_TYPE::PACKET_UNAVAILABLE:
-      _enemy_state = TAMA_XBOARD_STATE::XBOARD_UNAVAILABLE;
+    case TAMA_XBOARD_STATE::XBOARD_UNAVAILABLE:
+      if (my_packet.state == TAMA_XBOARD_STATE::XBOARD_UNAVAILABLE) {
+        return;
+      }
       display_set_mode_scroll_text("Enemy unavailable");
+      my_packet.state = TAMA_XBOARD_STATE::XBOARD_UNAVAILABLE;
       break;
     default:
-      my_assert(false);
       break;
   }
 }
 
 void TamaApp::XbRoutine(void* unused) {
   bool needs_save = false;
-  if (xboard_state == TAMA_XBOARD_STATE::XBOARD_UNAVAILABLE ||
-      _enemy_state == TAMA_XBOARD_STATE::XBOARD_UNAVAILABLE) {
+  // Keep sending packet to prevent packet lost
+  g_xboard_logic.QueueDataForTx(reinterpret_cast<uint8_t*>(&my_packet),
+                                sizeof(my_packet), TAMA_RECV_ID);
+  if (my_packet.state == TAMA_XBOARD_STATE::XBOARD_UNAVAILABLE ||
+      my_packet.state == TAMA_XBOARD_STATE::XBOARD_LEAVE ||
+      enemy_packet.state == TAMA_XBOARD_STATE::XBOARD_UNAVAILABLE) {
     // We can not battle now. Do nothing to let the display scroll
     return;
   }
 
-  if (xboard_state == TAMA_XBOARD_STATE::XBOARD_BATTLE_ENCOUNTER &&
-      !(_enemy_state == TAMA_XBOARD_STATE::XBOARD_BATTLE_ENCOUNTER)) {
+  if (my_packet.state == TAMA_XBOARD_STATE::XBOARD_BATTLE_ENCOUNTER &&
+      (enemy_packet.state < TAMA_XBOARD_STATE::XBOARD_BATTLE_ENCOUNTER)) {
     // Let waiting scrolls
     return;
   }
-  if (xboard_state == TAMA_XBOARD_STATE::XBOARD_BATTLE_ENCOUNTER &&
-      _enemy_state == TAMA_XBOARD_STATE::XBOARD_BATTLE_ENCOUNTER &&
+  if (my_packet.state == TAMA_XBOARD_STATE::XBOARD_BATTLE_ENCOUNTER &&
+      enemy_packet.state >= TAMA_XBOARD_STATE::XBOARD_BATTLE_ENCOUNTER &&
       _frame_count >= 8) {
-    xboard_state = TAMA_XBOARD_STATE::XBOARD_BATTLE_QTE;
+    my_packet.state = TAMA_XBOARD_STATE::XBOARD_BATTLE_QTE;
     qte.Entry();
     return;
   }
-  if (xboard_state == TAMA_XBOARD_STATE::XBOARD_BATTLE_QTE) {
+  if (my_packet.state == TAMA_XBOARD_STATE::XBOARD_BATTLE_QTE) {
     if (qte.IsDone()) {
-      xboard_state = TAMA_XBOARD_STATE::XBOARD_BATTLE_SENT_SCORE;
       display_set_mode_scroll_text("Waiting for enemy...");
-      _my_nounce = g_fast_random_pool.GetRandom();
-      tama_xboard_result_t result = {
-          .packet_type = TAMA_XBOARD_PACKET_TYPE::PACKET_SCORE,
-          .score = qte.GetScore(_tama_data.level),
-          .nonce = _my_nounce,
-      };
-      g_game_controller.SetBufferToUsername(result.user);
-      g_xboard_logic.QueueDataForTx(reinterpret_cast<uint8_t*>(&result),
-                                    sizeof(result), TAMA_RECV_ID);
+      _my_nounce = (g_fast_random_pool.GetRandom() % (UINT16_MAX - 1)) + 1;
+      my_packet.state = TAMA_XBOARD_STATE::XBOARD_BATTLE_SENT_SCORE;
+      my_packet.result.score = qte.GetScore(_tama_data.level);
+      my_packet.result.nonce = _my_nounce;
+      g_game_controller.SetBufferToUsername(my_packet.result.user);
       UpdateFrameBuffer();
     }
     return;
   }
-  if (xboard_state == TAMA_XBOARD_STATE::XBOARD_BATTLE_SENT_SCORE) {
-    if (_enemy_state != TAMA_XBOARD_STATE::XBOARD_BATTLE_SENT_SCORE) {
+  if (my_packet.state == TAMA_XBOARD_STATE::XBOARD_BATTLE_SENT_SCORE) {
+    if (enemy_packet.state < TAMA_XBOARD_STATE::XBOARD_BATTLE_SENT_SCORE) {
       return;
     }
-    xboard_state = TAMA_XBOARD_STATE::XBOARD_BATTLE_RESULT;
+    my_packet.state = TAMA_XBOARD_STATE::XBOARD_BATTLE_RESULT;
     // We need to know enemy score to update our frames
-    my_assert(_enemy_score.packet_type ==
-              TAMA_XBOARD_PACKET_TYPE::PACKET_SCORE);
+    my_assert(enemy_packet.result.nonce);
     // Send result with TwoBadgeActivity
     hitcon::game::TwoBadgeActivity activity = {
         .gameType = hitcon::game::EventType::kTama,
         .myScore = qte.GetScore(_tama_data.level),
-        .otherScore = _enemy_score.score,
-        .nonce = _my_nounce + _enemy_score.nonce,
+        .otherScore = enemy_packet.result.score,
+        .nonce = _my_nounce + enemy_packet.result.nonce,
     };
+    memcpy(activity.otherUser, enemy_packet.result.user,
+           sizeof(enemy_packet.result.user));
+    g_game_controller.SendTwoBadgeActivity(activity);
     if (activity.myScore > activity.otherScore)
       _xb_qte_me_winning = true;
     else
@@ -824,18 +805,15 @@ void TamaApp::XbRoutine(void* unused) {
     else if (activity.myScore > activity.otherScore)
       _tama_data.hp = _tama_data.hp < 3 ? _tama_data.hp + 1 : 3;
     needs_save = true;
-
-    memcpy(activity.otherUser, _enemy_score.user, sizeof(_enemy_score.user));
-    g_game_controller.SendTwoBadgeActivity(activity);
     UpdateFrameBuffer();
   }
-  if (xboard_state == TAMA_XBOARD_STATE::XBOARD_BATTLE_RESULT) {
+  if (my_packet.state == TAMA_XBOARD_STATE::XBOARD_BATTLE_RESULT) {
     if (_frame_count >= 8) {
-      xboard_state = TAMA_XBOARD_STATE::XBOARD_BATTLE_END;
+      my_packet.state = TAMA_XBOARD_STATE::XBOARD_BATTLE_END;
       UpdateFrameBuffer();
     }
   }
-  if (xboard_state == TAMA_XBOARD_STATE::XBOARD_BATTLE_END) {
+  if (my_packet.state == TAMA_XBOARD_STATE::XBOARD_BATTLE_END) {
     if (_frame_count >= 8) {
       badge_controller.BackToMenu(this);
     }
