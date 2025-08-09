@@ -10,8 +10,7 @@ NoiseSource g_noise_source;
 NoiseSource::NoiseSource()
     : _routine_task(810, (task_callback_t)&NoiseSource::Routine, this,
                     kRoutinePeriod / kNoiseLen),
-      _cb_task(805, (task_callback_t)&NoiseSource::CallbackWrapper, this),
-      on_noise_cb(nullptr) {}
+      _cb_task(805, (task_callback_t)&NoiseSource::CallbackWrapper, this) {}
 
 void AdcCpltCallback(ADC_HandleTypeDef* hadc) {
   if (hadc == &hadc1) {

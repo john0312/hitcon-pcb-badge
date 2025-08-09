@@ -42,14 +42,14 @@ class ShowNameApp : public App {
   void check_update();
 
  private:
-  enum ShowNameMode mode;
+  enum ShowNameMode mode = SHOW_INITIALIZE;
   void update_display();
   hitcon::service::sched::PeriodicTask _routine_task;
   uint32_t score_cache = 0;
 
   char surprise_msg[kDisplayScrollMaxTextLen + 1];
   bool starting_up;
-  unsigned last_disp_update;
+  unsigned last_disp_update = 0;
 };
 
 extern ShowNameApp show_name_app;

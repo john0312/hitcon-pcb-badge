@@ -49,7 +49,7 @@ class IrService {
   uint16_t rx_dma_buffer[2 * IR_SERVICE_RX_SIZE];
   uint16_t tx_dma_buffer[2 * IR_SERVICE_TX_SIZE];
   uint8_t rx_buffer[2 * IR_SERVICE_RX_ON_BUFFER_SIZE];
-  size_t rx_buffer_base;
+  size_t rx_buffer_base = 0;
 
   uint8_t calllback_pass_arr[IR_SERVICE_RX_SIZE];
 
@@ -80,7 +80,7 @@ class IrService {
 
   // How long has rx been quiet?
   // This is in units of 8/DECODE_SAMPLE_RATIO bit time.
-  size_t rx_quiet_cnt;
+  size_t rx_quiet_cnt = 0;
 
   // How long should we wait until we transmit?
   size_t rx_required_quiet_period;
@@ -90,13 +90,13 @@ class IrService {
 
   // How many packets has been sent?
   // Primarily used for debugging.
-  size_t tx_packet_cnt;
+  size_t tx_packet_cnt = 0;
 
   hitcon::service::sched::PeriodicTask routine_task;
 
   hitcon::service::sched::Task on_rx_callback_runner;
 
-  bool rx_on_buffer_callback_finished;
+  bool rx_on_buffer_callback_finished = true;
 
   // Call to populate TX DMA Buffer.
   // ptr_side is to be reinterpret_cast<int>(), and will be 0 or 1.

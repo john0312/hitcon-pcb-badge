@@ -212,25 +212,25 @@ class IrController {
   void ForceRetransmitForDebug(uint8_t slot_index);
 
  private:
-  bool send_lock;
-  bool recv_lock;
+  bool send_lock = true;
+  bool recv_lock = true;
   // TODO: Tune the quadratic function parameters
   uint8_t v[3] = {1, 27, 111};
-  bool disable_broadcast;
+  bool disable_broadcast = false;
 
   // Number of packets received, primarily for debugging.
-  size_t received_packet_cnt;
+  size_t received_packet_cnt = 0;
 
   hitcon::service::sched::PeriodicTask routine_task;
   hitcon::service::sched::Task showtext_task;
   hitcon::service::sched::Task broadcast_task;
 
   IrData priority_data_;
-  size_t priority_data_len_;
+  size_t priority_data_len_ = 0;
 
   RetransmittableIrPacket queued_packets_[RETX_QUEUE_SIZE];
-  int current_hashing_slot;
-  int current_tx_slot;
+  int current_hashing_slot = -1;
+  int current_tx_slot = -1;
 
   // Called every 1s.
   void RoutineTask(void* unused);

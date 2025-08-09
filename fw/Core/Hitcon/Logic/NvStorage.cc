@@ -17,8 +17,7 @@ constexpr int kMinFlushInterval = 500;
 NvStorage g_nv_storage;
 
 NvStorage::NvStorage()
-    : routine_task(800, (callback_t)&NvStorage::Routine, this, 100),
-      last_flush_cycle(0) {}
+    : routine_task(800, (callback_t)&NvStorage::Routine, this, 100) {}
 
 void NvStorage::Init() {
   int32_t newest_version = -1;

@@ -96,8 +96,8 @@ class EcPoint {
   bool getCompactForm(uint8_t *buffer, size_t len) const;
 
  private:
-  bool isInf;
   ModNum x, y;
+  bool isInf;
 };
 
 /**
@@ -276,7 +276,7 @@ class EcLogic {
    * / verify will fail. If neither sign nor verify is running, this flag should
    * be set to false.
    */
-  bool busy;
+  bool busy = false;
   /**
    * Temporary storage of the random value used for sig generation.
    */
@@ -293,13 +293,13 @@ class EcLogic {
   /**
    * The private key.
    */
-  uint64_t privateKey;
+  uint64_t privateKey = 0;
 
   /**
    * The public key.
    */
   uint8_t publicKey[ECC_PUBKEY_SIZE];
-  uint8_t publicKeyReady;
+  uint8_t publicKeyReady = 0;
 
   hitcon::ecc::internal::EcContext context;
 

@@ -17,7 +17,7 @@ class NoiseSource {
   void CallbackWrapper(void* unused);
 
   hitcon::service::sched::PeriodicTask _routine_task;
-  hitcon::service::sched::task_callback_t on_noise_cb;
+  hitcon::service::sched::task_callback_t on_noise_cb = nullptr;
   void* on_noise_cb_arg;
 
   // interval between each on_noise_cb is called

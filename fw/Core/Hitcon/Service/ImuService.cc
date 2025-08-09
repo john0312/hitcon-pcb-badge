@@ -34,9 +34,7 @@ namespace hitcon {
 ImuService g_imu_service;
 
 ImuService::ImuService()
-    : _routine_task(417, (task_callback_t)&ImuService::Routine, this, 100),
-      state(State::INIT), _rx_cb(nullptr), _rx_cb_arg1(nullptr),
-      _tx_cb(nullptr), _tx_cb_arg1(nullptr) {}
+    : _routine_task(417, (task_callback_t)&ImuService::Routine, this, 100) {}
 
 void ImuService::Init() {
   state = State::INIT;

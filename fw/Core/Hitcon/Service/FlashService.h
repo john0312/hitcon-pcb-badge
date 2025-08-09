@@ -69,7 +69,7 @@ class FlashService {
 
   hitcon::service::sched::PeriodicTask routine_task;
 
-  FlashServiceState _state;
+  FlashServiceState _state = FS_IDLE;
 
   void Routine();
 

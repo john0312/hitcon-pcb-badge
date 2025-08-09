@@ -21,12 +21,10 @@ IrService::IrService()
     : dma_tx_populate_task(
           100, (task_callback_t)&IrService::PopulateTxDmaBuffer, this),
       dma_rx_pull_task(150, (task_callback_t)&IrService::PullRxDmaBuffer, this),
+      rx_required_quiet_period(500), rx_ctr_since_release(100000),
       routine_task(600, (callback_t)&IrService::Routine, this, 22),
       on_rx_callback_runner(500, (callback_t)&IrService::OnBufferRecvWrapper,
-                            this),
-      rx_buffer_base(0), rx_on_buffer_callback_finished(true), rx_quiet_cnt(0),
-      rx_required_quiet_period(500), rx_ctr_since_release(100000),
-      tx_packet_cnt(0) {}
+                            this) {}
 
 void ReceiveDmaHalfCplt(DMA_HandleTypeDef *hdma) {
   if (!g_suspender.IsSuspended()) {

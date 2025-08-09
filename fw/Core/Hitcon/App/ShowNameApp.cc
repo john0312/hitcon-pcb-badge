@@ -32,8 +32,7 @@ ShowNameApp show_name_app;
 
 ShowNameApp::ShowNameApp()
     : _routine_task(490, (task_callback_t)&ShowNameApp::check_update, this,
-                    1000),
-      last_disp_update(0), mode(SHOW_INITIALIZE) {}
+                    1000) {}
 
 void ShowNameApp::Init() {
   nv_storage_content &content = g_nv_storage.GetCurrentStorage();

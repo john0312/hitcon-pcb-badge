@@ -83,10 +83,10 @@ using hitcon::service::sched::task_callback_t;
 unsigned bouncing_dvd_rand() { return g_fast_random_pool.GetRandom(); }
 
 BouncingDVDApp::BouncingDVDApp()
-    : periodic_task(UPDATE_PRIORITY,
+    : bouncing_dvd(bouncing_dvd_rand),
+      periodic_task(UPDATE_PRIORITY,
                     (task_callback_t)&BouncingDVDApp::periodic_task_callback,
-                    this, UPDATE_INTERVAL),
-      bouncing_dvd(bouncing_dvd_rand) {
+                    this, UPDATE_INTERVAL) {
   hitcon::service::sched::scheduler.Queue(&periodic_task, nullptr);
 }
 

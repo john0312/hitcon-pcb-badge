@@ -87,7 +87,7 @@ class NvStorage {
   int current_cycle;
 
   // Cycle at last flush.
-  int last_flush_cycle;
+  int last_flush_cycle = 0;
 
   // Next available page to write.
   int next_available_page;

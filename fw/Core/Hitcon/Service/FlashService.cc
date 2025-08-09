@@ -19,8 +19,7 @@ namespace hitcon {
 FlashService g_flash_service;
 
 FlashService::FlashService()
-    : _state(FS_IDLE),
-      routine_task(980, (task_callback_t)&FlashService::Routine, this, 20) {}
+    : routine_task(980, (task_callback_t)&FlashService::Routine, this, 20) {}
 
 void FlashService::Init() {
   scheduler.Queue(&routine_task, nullptr);

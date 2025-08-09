@@ -486,8 +486,7 @@ const uint8_t *EcLogic::GetPublicKey() {
 }
 
 EcLogic::EcLogic()
-    : privateKey(0), publicKeyReady(0), busy(false),
-      genRandTask(800, (callback_t)&EcLogic::genRand, this),
+    : genRandTask(800, (callback_t)&EcLogic::genRand, this),
       finalizeTask(800, (callback_t)&EcLogic::finalizeSign, this) {}
 
 void EcLogic::SetPrivateKey(uint64_t privkey) {

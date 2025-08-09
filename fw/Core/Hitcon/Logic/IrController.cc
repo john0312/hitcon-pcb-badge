@@ -32,11 +32,8 @@ IrController irController;
 
 IrController::IrController()
     : routine_task(950, (callback_t)&IrController::RoutineTask, this, 1000),
-      broadcast_task(800, (callback_t)&IrController::BroadcastIr, this),
       showtext_task(800, (callback_t)&IrController::ShowText, this),
-      send_lock(true), recv_lock(true), disable_broadcast(false),
-      received_packet_cnt(0), priority_data_len_(0), current_hashing_slot(-1),
-      current_tx_slot(-1) {}
+      broadcast_task(800, (callback_t)&IrController::BroadcastIr, this) {}
 
 void IrController::ShowText(void* arg) {
   struct ShowPacket* pkt = reinterpret_cast<struct ShowPacket*>(arg);
