@@ -96,8 +96,12 @@ void TamaApp::OnEntry() {
     return;
   }
   if (player_mode == TAMA_PLAYER_MODE::MODE_BASESTATION) {
-    TamaHeal();
-    return;
+    if (CanAcceptHeal()) {
+      TamaHeal();
+      return;
+    }
+    // Otherwise the same as singleplayer mode.
+    player_mode = TAMA_PLAYER_MODE::MODE_SINGLEPLAYER;
   }
   my_assert(player_mode == TAMA_PLAYER_MODE::MODE_SINGLEPLAYER);
   _state = _tama_data.state;
@@ -560,6 +564,8 @@ void TamaApp::UpdateFrameBuffer() {
         pet = &TAMA_GET_ANIMATION_DATA(DOG_FED_HEALING);
       } else if (_tama_data.type == TAMA_TYPE::CAT) {
         pet = &TAMA_GET_ANIMATION_DATA(CAT_FED_HEALING);
+      } else {
+        my_assert(false);
       }
       TAMA_PREPARE_FB(_fb, pet->frame_count);
       TAMA_COPY_FB(_fb, *pet, 0);
@@ -852,6 +858,14 @@ void TamaApp::XbRoutine(void* unused) {
   if (needs_save) g_nv_storage.MarkDirty();
 
   Render();
+}
+
+bool TamaApp::CanAcceptHeal() {
+  if (_tama_data.type != TAMA_TYPE::DOG && _tama_data.type != TAMA_TYPE::CAT) {
+    return false;
+  }
+  if (_tama_data.state == TAMA_APP_STATE::IDLE) return true;
+  return false;
 }
 
 void TamaApp::TamaHeal() {

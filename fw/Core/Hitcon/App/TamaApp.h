@@ -300,6 +300,7 @@ class TamaApp : public App {
   void OnXBoardRecv(void* arg);
 
   // BaseStation
+  bool CanAcceptHeal();
   void TamaHeal();
 };
 
