@@ -12,20 +12,20 @@ jobs:
     name: Deploy
     steps:
       - uses: actions/checkout@v4
-      - name: Build Project
-        id: build
-        uses: actions/setup-node@v4
-        working-directory: web
+      - uses: actions/setup-node@v4
         with:
           node-version: '24'
+      - name: Build Project
+        id: build
+        working-directory: web
         run: |
           npm i
           npm run build
       - name: Deploy
         id: deploy
         uses: cloudflare/wrangler-action@v3
-        working-directory: web
         with:
+          workingDirectory: web
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           command: pages deploy dist/pcb-badge-leaderboard/browser --project-name=${{ vars.CLOUDFLARE_PAGES_PROJECT_NAME }}
       - name: Summary
