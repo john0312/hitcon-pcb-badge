@@ -55,8 +55,8 @@ void ImuLogic::AccSelfTest(callback_t cb, void* cb_arg1) {
 }
 
 void ImuLogic::Routine(void* arg1) {
-  if (_state == RoutineState::WAIT_15 &&
-      SysTimer::GetTime() - _start_time >= 15) {
+  if (_state == RoutineState::WAIT_800 &&
+      SysTimer::GetTime() - _start_time >= 800) {
     _state = RoutineState::INIT;
   } else if (_state == RoutineState::INIT) {
     switch (_init_state) {

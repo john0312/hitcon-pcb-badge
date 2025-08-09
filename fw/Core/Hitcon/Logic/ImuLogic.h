@@ -13,7 +13,7 @@ namespace hitcon {
 
 namespace {
 enum class RoutineState {
-  WAIT_15,  // wait for 15 ms for stable
+  WAIT_800,  // wait for 800 ms for stable
   INIT,
   ST_GYRO,
   ST_ACC,
