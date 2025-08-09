@@ -3,7 +3,7 @@
     <div id="map-scale-layer" [style.height.%]="scaler">
         <img alt="2f, 3f" [src]="floorImg[floor]" />
         @for (point of points[floor]; track point.x){
-        <div class="ring" [style.top.%]="point.x" [style.left.%]="point.y" [style.background]="`conic-gradient(var(--color-blue) 0rad ${scoreToRingRadius(point.score)}deg, 
+        <div class="ring" [style.top.%]="point.x" [style.left.%]="point.y" [style.background]="`conic-gradient(var(--color-blue) 0rad ${scoreToRingRadius(point.score)}deg,
             var(--color-red) ${scoreToRingRadius(point.score)}deg 360deg)`">
         </div>
         <div class="ring-bg" [style.top.%]="point.x" [style.left.%]="point.y"></div>
@@ -11,7 +11,8 @@
         }
     </div>
 </div>
-<div id="floor-button" class="fab  disable-select">
+<div id="floor-button" class="fab disable-select" style="height: 115px">
+    <div tabindex="0" (keypress)="changeFloor(2)" (click)="changeFloor(2)" [ngClass]="{'select': floor === 2}">99F</div>
     <div tabindex="0" (keypress)="changeFloor(1)" (click)="changeFloor(1)" [ngClass]="{'select': floor === 1}">4F</div>
     <div tabindex="0" (keypress)="changeFloor(0)" (click)="changeFloor(0)" [ngClass]="{'select': floor === 0}">3F</div>
 </div>

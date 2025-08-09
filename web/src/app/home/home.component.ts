@@ -16,7 +16,7 @@ export class HomeComponent implements AfterViewInit, OnInit {
   readonly scalerMin = 79;
   floor = 0;
   scaler = 99;
-  readonly floorImg: string[] = ['./3f.svg', './4f.svg'];
+  readonly floorImg: string[] = ['./3f.svg', './4f.svg', './hitcon-hat-logo.svg'];
 
   // TODO: the data of points should be fetched from server periodically
   points0: point[] = [
@@ -125,7 +125,16 @@ export class HomeComponent implements AfterViewInit, OnInit {
     }
   ];
 
-  points = [this.points0, this.points1];
+  // 雲端 base-station
+  points2: point[] = [
+    {
+      x: 50,  // 中間點
+      y: 50,
+      score: 0
+    }
+  ];
+
+  points = [this.points0, this.points1, this.points2];
 
   constructor(public state: StateService) { }
 
