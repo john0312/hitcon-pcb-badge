@@ -2,8 +2,10 @@
 #define USB_MENU_APP_H
 
 #include <App/BadUsbApp.h>
+#include <App/MainMenuApp.h>
 #include <App/MenuApp.h>
 #include <App/ShowIdApp.h>
+#include <Logic/BadgeController.h>
 
 namespace hitcon {
 namespace usb {
@@ -23,7 +25,7 @@ class UsbMenuApp : public MenuApp {
   UsbMenuApp() : MenuApp(usb_menu_entries, usb_menu_entries_len) {}
   void OnButtonMode() override {}
   void OnButtonBack() override {}
-  void OnButtonLongBack() override {}
+  void OnButtonLongBack() override { badge_controller.change_app(&main_menu); }
 };
 
 extern UsbMenuApp usb_menu;
