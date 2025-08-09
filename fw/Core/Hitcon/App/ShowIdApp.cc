@@ -31,11 +31,12 @@ void ShowIdApp::GetId(void* unused) {
     scheduler.Queue(&_get_id_task, nullptr);
   } else {
     for (uint8_t i = 0; i < ir::IR_USERNAME_LEN; i++) {
-      _id_str[3 * i] = "0123456789ABCDEF"[data[i] >> 4];
-      _id_str[3 * i + 1] = "0123456789ABCDEF"[data[i] & 0xF];
+      _id_str[3 * i] = "0123456789abcdef"[data[i] >> 4];
+      _id_str[3 * i + 1] = "0123456789abcdef"[data[i] & 0xF];
       _id_str[3 * i + 2] = ' ';
     }
     _id_str[ir::IR_USERNAME_LEN * 3 - 1] = 0;
+    display_set_mode_scroll_text(_id_str);
   }
 }
 
@@ -46,7 +47,7 @@ void ShowIdApp::OnButton(button_t button) {
       break;
     case BUTTON_OK:
       // send badge id keycode
-      if (g_usb_service.IsConnected()) {
+      if (g_usb_service.IsConnected() && _id_str[0] != 0) {
         g_usb_service.SendKeyCode(0, 0);  // send release
         scheduler.EnablePeriodic(&_type_id_task);
         _routine_count = 0;

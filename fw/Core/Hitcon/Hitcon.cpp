@@ -119,6 +119,8 @@ void hitcon_run() {
   } else if (HAL_GPIO_ReadPin(USB_DET_GPIO_Port, USB_DET_Pin) == GPIO_PIN_SET) {
     badge_controller.change_app(&usb::usb_menu);
   }
+  // check if the USB is connected
+  HAL_GPIO_EXTI_Callback(USB_DET_Pin);
 
   scheduler.Queue(&InitTask, nullptr);
 
