@@ -84,14 +84,12 @@ async def get_scoreboard():
 
 @app.get("/api/stations")
 async def get_stations_scores():
-    return {
-        "1": 10,
-        "2": 20,
-        "3": -30,
-        "4": 40,
-        "5": -50,
-        "6": 60
-    }
+    data = {}
+
+    async for station_id, score in GameLogicController.get_stations_scores():
+        data[station_id] = score
+
+    return data
 
 
 ## ====== Station API Endpoints ======

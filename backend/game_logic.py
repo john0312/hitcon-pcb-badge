@@ -41,6 +41,7 @@ class Constants:
     SCORE_HISTORY_COLLECTION: str = "score_history"
     PLAYER_BUFF_COLLECTION: str = "player_buff"
 
+    STATION_COUNT: int = 20
     STATION_SCORE_LB: int = -1000
     STATION_SCORE_UB: int = 1000
     STATION_NEUTRAL_LB: int = -300

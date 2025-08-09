@@ -341,8 +341,8 @@ class GameLogicController:
 
     @staticmethod
     async def get_stations_scores():
-        # TODO: fetching stations scores from GameLogic
-        pass
+        for i in range(1, Constants.STATION_COUNT + 1):
+            yield i, await game.get_station_score(station_id=i)
 
 
     @staticmethod
