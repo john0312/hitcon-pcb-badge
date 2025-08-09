@@ -70,7 +70,24 @@ class Constants:
             else:
                 setattr(self, field.name, field.default)
 
+
+class ConstantsProduction(Constants):
+    STATION_COUNT: int = 21
+    STATION_SCORE_LB: int = -30000
+    STATION_SCORE_UB: int = 30000
+    STATION_NEUTRAL_LB: int = -500
+    STATION_NEUTRAL_UB: int = 500
+
+    STATION_SCORE_DECAY_INTERVAL: int = 60 # seconds
+    STATION_SCORE_DECAY_AMOUNT: int = 120
+
+    SPONSOR_STATION_ID_LIST: list[int] = field(default_factory=lambda: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13])
+    SPONSOR_CONNECT_SCORE: int = 200
+    SPONSOR_ALL_COLLECTED_BONUS: int = 1200
+
+
 const = Constants()
+# const = ConstantsProduction()
 
 
 def clamp(value: int, min_value: int, max_value: int) -> int:
@@ -269,6 +286,8 @@ class _GameLogic:
                 pass
 
             case GameType.CONNECT_SPONSOR:
+                if score != const.SPONSOR_CONNECT_SCORE:
+                    raise ValueError(f"score must be {const.SPONSOR_CONNECT_SCORE} for CONNECT_SPONSOR game type, got {score}")
                 if sponsor_id is None:
                     raise ValueError("sponsor_id must be provided for CONNECT_SPONSOR game type")
                 if sponsor_id not in const.SPONSOR_STATION_ID_LIST:
@@ -750,7 +769,7 @@ async def test_game_score_history_single_player(with_redis = False, game_score_g
         GameType.DINO: [20, 25],
         GameType.SNAKE: [30, 35],
         GameType.TETRIS: [40, 45],
-        GameType.CONNECT_SPONSOR: [50, 55],
+        GameType.CONNECT_SPONSOR: [const.SPONSOR_CONNECT_SCORE, const.SPONSOR_CONNECT_SCORE],
         GameType.RECTF: [60, 65],
     }
     player_id = 1
@@ -878,25 +897,24 @@ async def test_sponsor_bonus(with_redis = False):
 
     player_id = 1
     station_id = 1
-    player_score = 100
 
     # Score should be 0 when sponsor are not fully collected
     for i in range(len(const.SPONSOR_STATION_ID_LIST) - 1):
-        await gl.receive_game_score_single_player(player_id, station_id, player_score, GameType.CONNECT_SPONSOR, time_base + timedelta(seconds=2*i + 0.5), sponsor_id=const.SPONSOR_STATION_ID_LIST[i])
+        await gl.receive_game_score_single_player(player_id, station_id, const.SPONSOR_CONNECT_SCORE, GameType.CONNECT_SPONSOR, time_base + timedelta(seconds=2*i + 0.5), sponsor_id=const.SPONSOR_STATION_ID_LIST[i])
         assert 0 == await gl.get_station_score(station_id=station_id, before=time_base + timedelta(seconds=2*i + 0.5 + eps))
 
         # sponsor score should not duplicate
-        assert (i+1) * player_score == await gl.get_game_score(player_id=player_id, game_type=GameType.CONNECT_SPONSOR, before=time_base + timedelta(seconds=2*i + 0.5 + eps))
-        await gl.receive_game_score_single_player(player_id, station_id, player_score, GameType.CONNECT_SPONSOR, time_base + timedelta(seconds=2*i + 1 + 0.5), sponsor_id=const.SPONSOR_STATION_ID_LIST[i])
-        assert (i+1) * player_score == await gl.get_game_score(player_id=player_id, game_type=GameType.CONNECT_SPONSOR, before=time_base + timedelta(seconds=2*i + 1 + 0.5 + eps))
+        assert (i+1) * const.SPONSOR_CONNECT_SCORE == await gl.get_game_score(player_id=player_id, game_type=GameType.CONNECT_SPONSOR, before=time_base + timedelta(seconds=2*i + 0.5 + eps))
+        await gl.receive_game_score_single_player(player_id, station_id, const.SPONSOR_CONNECT_SCORE, GameType.CONNECT_SPONSOR, time_base + timedelta(seconds=2*i + 1 + 0.5), sponsor_id=const.SPONSOR_STATION_ID_LIST[i])
+        assert (i+1) * const.SPONSOR_CONNECT_SCORE == await gl.get_game_score(player_id=player_id, game_type=GameType.CONNECT_SPONSOR, before=time_base + timedelta(seconds=2*i + 1 + 0.5 + eps))
 
     # Buff should be applied when all sponsors are collected
-    await gl.receive_game_score_single_player(player_id, station_id, player_score, GameType.CONNECT_SPONSOR, time_base + timedelta(seconds=len(const.SPONSOR_STATION_ID_LIST) - 1), sponsor_id=const.SPONSOR_STATION_ID_LIST[-1])
+    await gl.receive_game_score_single_player(player_id, station_id, const.SPONSOR_CONNECT_SCORE, GameType.CONNECT_SPONSOR, time_base + timedelta(seconds=len(const.SPONSOR_STATION_ID_LIST) - 1), sponsor_id=const.SPONSOR_STATION_ID_LIST[-1])
     assert const.SPONSOR_ALL_COLLECTED_BONUS == await gl.get_station_score(station_id=station_id, before=time_base + timedelta(seconds=len(const.SPONSOR_STATION_ID_LIST) - 1 + eps))
 
     # Duplicate sponsor score should have no effect
     for i in range(len(const.SPONSOR_STATION_ID_LIST)):
-        await gl.receive_game_score_single_player(player_id, station_id, player_score, GameType.CONNECT_SPONSOR, time_base + timedelta(seconds=len(const.SPONSOR_STATION_ID_LIST) + i + 0.5), sponsor_id=const.SPONSOR_STATION_ID_LIST[-1])
+        await gl.receive_game_score_single_player(player_id, station_id, const.SPONSOR_CONNECT_SCORE, GameType.CONNECT_SPONSOR, time_base + timedelta(seconds=len(const.SPONSOR_STATION_ID_LIST) + i + 0.5), sponsor_id=const.SPONSOR_STATION_ID_LIST[-1])
         assert const.SPONSOR_ALL_COLLECTED_BONUS == await gl.get_station_score(station_id=station_id, before=time_base + timedelta(seconds=len(const.SPONSOR_STATION_ID_LIST) + i + 0.5 + eps))
 
 
@@ -915,16 +933,16 @@ async def test_scoreboard_api(game_score_granularity = None):
         # num of player, game type, score, sponsor_id, timestamp
         (GameNumOfPlayerType.SINGLE, GameType.SHAKE_BADGE, 4, None, time_base + timedelta(seconds=0.5)),
         (GameNumOfPlayerType.SINGLE, GameType.DINO, 5, None, time_base + timedelta(seconds=1.5)),
-        (GameNumOfPlayerType.SINGLE, GameType.CONNECT_SPONSOR, 6, 1, time_base + timedelta(seconds=2.5)),
-        (GameNumOfPlayerType.SINGLE, GameType.CONNECT_SPONSOR, 7, 2, time_base + timedelta(seconds=2.5)),
-        (GameNumOfPlayerType.SINGLE, GameType.CONNECT_SPONSOR, 8, 4, time_base + timedelta(seconds=2.5)),
+        (GameNumOfPlayerType.SINGLE, GameType.CONNECT_SPONSOR, const.SPONSOR_CONNECT_SCORE, 1, time_base + timedelta(seconds=2.5)),
+        (GameNumOfPlayerType.SINGLE, GameType.CONNECT_SPONSOR, const.SPONSOR_CONNECT_SCORE, 2, time_base + timedelta(seconds=2.5)),
+        (GameNumOfPlayerType.SINGLE, GameType.CONNECT_SPONSOR, const.SPONSOR_CONNECT_SCORE, 4, time_base + timedelta(seconds=2.5)),
 
         # num of player, game type, player 1 score, player 2 score, timestamp
         (GameNumOfPlayerType.TWO, GameType.SNAKE, 3, 4, time_base + timedelta(seconds=4.5)),
         (GameNumOfPlayerType.TWO, GameType.TETRIS, 6, 5, time_base + timedelta(seconds=4.5)),
         (GameNumOfPlayerType.TWO, GameType.TAMA, 7, 8, time_base + timedelta(seconds=5.5)), # log only
     ]
-    total_score_1 = 4 + 5 + 6 + 7 + 8 + 3 + 6*2 # ignore TAMA's score
+    total_score_1 = 4 + 5 + const.SPONSOR_CONNECT_SCORE*3 + 3 + 6*2 # ignore TAMA's score
     total_score_2 = 4*2 + 5 # ignore TAMA's score
     sponsors_1 = [1, 2, 4]
     sponsors_2 = []
@@ -967,7 +985,7 @@ async def test_scoreboard_api(game_score_granularity = None):
         GameType.SNAKE: 3,
         GameType.TETRIS: 6*2,
         GameType.TAMA: 0,
-        GameType.CONNECT_SPONSOR: 6 + 7 + 8,
+        GameType.CONNECT_SPONSOR: const.SPONSOR_CONNECT_SCORE*3,
         GameType.RECTF: 0,
     }
     assert scoreboard[1]["player_id"] == 2
