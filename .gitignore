@@ -12,6 +12,8 @@ pcb/kicad/pcb_badge/fp-info-cache
 __pycache__
 /.venv
 *.spec
+pcb-util/dev/build
+pcb-util/dev/dist
 /build/BadgeCommander
 /dist
 /pcb-util/.venv
