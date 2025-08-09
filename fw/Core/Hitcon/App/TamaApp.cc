@@ -356,6 +356,8 @@ void TamaApp::Routine(void* unused) {
       if (_frame_count >= 8) {
         _state = TAMA_APP_STATE::IDLE;
         _tama_data.qte_level = 1;
+        _tama_data.step_level = 0;
+        _tama_data.secret_level = 0;
         _tama_data.hp = 3;
         SetHunger(4);
         needs_save = true;
@@ -944,7 +946,6 @@ static inline unsigned int min(unsigned int a, unsigned int b) {
 }
 
 void TamaApp::LevelUpRoutine(void* unused) {
-  bool needs_save = false;
   if (_tama_data.hp == 0 || _tama_data.hunger == 0) return;
 
   unsigned int step = g_imu_logic.GetStep();
@@ -956,10 +957,7 @@ void TamaApp::LevelUpRoutine(void* unused) {
   if (_level_up_progress >=
       min(100, _tama_data.step_level * IntSqrt(_tama_data.step_level))) {
     SetStepLevel(_tama_data.step_level + 1);
-    needs_save = true;
   }
-
-  if (needs_save) g_nv_storage.MarkDirty();
 }
 
 void TamaApp::SetHunger(uint8_t hunger) {
@@ -971,13 +969,19 @@ void TamaApp::SetHunger(uint8_t hunger) {
 
 void TamaApp::SetQteLevel(uint16_t level) {
   if (level > 499) level = 499;
+  if (_tama_data.qte_level == level) return;
   _tama_data.qte_level = level;
+  if (_state == TAMA_APP_STATE::LV_DETAIL) UpdateFrameBuffer();
+  g_nv_storage.MarkDirty();
 }
 
 void TamaApp::SetStepLevel(uint16_t level) {
   if (level > 499) level = 499;
-  _tama_data.step_level = level;
   _level_up_progress = 0;
+  if (_tama_data.step_level == level) return;
+  _tama_data.step_level = level;
+  if (_state == TAMA_APP_STATE::LV_DETAIL) UpdateFrameBuffer();
+  g_nv_storage.MarkDirty();
 }
 
 uint16_t TamaApp::GetDisplayLevel() const {
