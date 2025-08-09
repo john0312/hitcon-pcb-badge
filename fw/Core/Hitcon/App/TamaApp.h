@@ -3,7 +3,7 @@
 #define TAMA_APP_MAX_FB_LENGTH 6
 #define TAMA_HATCHING_STEPS 400
 #define TAMA_HUNGER_DECREASE_INTERVAL 3600000
-// #define TAMA_SAVE_STATE 0xF0
+#define TAMA_MAX_SECRET_LEVEL 16
 
 #define TAMA_PREPARE_FB(FB, FB_SIZE) \
   FB.fb_size = FB_SIZE;              \
@@ -68,7 +68,7 @@ typedef struct {
   uint16_t level;
   uint8_t hp;
   uint8_t hunger;
-  uint8_t secret_level;
+  uint16_t secret_level;
   unsigned int sponsor_register;
 } tama_storage_t;
 
@@ -263,7 +263,7 @@ class TamaApp : public App {
   void ConcateAnimtaions(uint8_t count, ...);
   void HatchingRoutine(void* unused);
   void HungerRoutine(void* unused);
-  void SponsorRegister(unsigned int sponsor_id);
+  void SponsorRegister(uint8_t sponsor_id);
 
   // XBoard related
   uint8_t _my_nounce;

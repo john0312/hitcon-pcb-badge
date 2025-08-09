@@ -190,6 +190,15 @@ void TamaApp::OnButton(button_t button) {
           if (_tama_data.hunger == 0) SetHunger(4);
           needs_update_fb = true;
           break;
+        case TAMA_APP_STATE::LV_DETAIL:
+          if (_tama_data.secret_level < TAMA_MAX_SECRET_LEVEL) {
+            _tama_data.secret_level++;
+          } else {
+            _tama_data.secret_level = 0;
+          }
+          needs_update_fb = true;
+          needs_save = true;
+          break;
 #endif
         case TAMA_APP_STATE::FEED_CONFIRM:
           _state =
@@ -499,7 +508,15 @@ void TamaApp::UpdateFrameBuffer() {
       StackOnFrame(&TAMA_NUM_FONT[_tama_data.level / 100], 5);
       StackOnFrame(&TAMA_NUM_FONT[(_tama_data.level % 100) / 10], 9);
       StackOnFrame(&TAMA_NUM_FONT[_tama_data.level % 10], 13);
-      // TODO: Add indicator for bonus level
+      for (int i = 0;
+           (i < _tama_data.secret_level && i < TAMA_MAX_SECRET_LEVEL); i++) {
+        const display_buf_t indicator = 1 << (i / (TAMA_MAX_SECRET_LEVEL / 2));
+        const tama_display_component_t indicator_component = {
+            .data = &indicator, .length = 1};
+        StackOnFrameBlinking(
+            &indicator_component,
+            (DISPLAY_WIDTH - 1 - (i % (TAMA_MAX_SECRET_LEVEL / 2))));
+      }
       break;
     case TAMA_APP_STATE::FEED_CONFIRM:
       TAMA_PREPARE_FB(_fb, TAMA_GET_ANIMATION_DATA(FEED_CONFIRM).frame_count);
@@ -970,12 +987,14 @@ void TamaApp::ConcateAnimtaions(uint8_t count, ...) {
   va_end(args);
 }
 
-void TamaApp::SponsorRegister(unsigned int sponsor_id) {
-  if (!(_tama_data.sponsor_register & sponsor_id)) {
-    _tama_data.secret_level++;
-    _tama_data.sponsor_register |= sponsor_id;
-    g_nv_storage.MarkDirty();
+void TamaApp::SponsorRegister(uint8_t sponsor_id) {
+  unsigned int mask = 1 << sponsor_id;
+  if (_tama_data.sponsor_register & mask) {
+    return;
   }
+  _tama_data.secret_level++;
+  _tama_data.sponsor_register |= mask;
+  g_nv_storage.MarkDirty();
 }
 
 void TamaQte::Routine() {
