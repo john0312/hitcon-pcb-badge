@@ -18,7 +18,7 @@
 // V2_1  - HITCON CMT 2025 last prototype
 // V2_2  - HITCON CMT 2025 attendee version
 #if !defined(V1_1) && !defined(V2_0) && !defined(V2_1) && !defined(V2_2)
-#error "You must define at least one of: V1_1, V2_0, V2_1, V2_2"
+#error "You must define one of: V1_1, V2_0, V2_1, V2_2"
 #endif
 
 void hitcon_run();

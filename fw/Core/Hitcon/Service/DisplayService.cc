@@ -54,10 +54,10 @@ void DisplayService::Init() {
   tmp_request_cb_param.callback = request_frame_callback_arg1;
   tmp_request_cb_param.buf_index = 0;
   scheduler.Queue(&task, &tmp_request_cb_param);
-#ifdef V2_0
+#ifdef V1_1
   HAL_TIM_PWM_Start(&htim3,
                     TIM_CHANNEL_2);  // decoder enable to control brightness
-#elifdef V2_1
+#elif defined(V2_1) || defined(V2_2)
   HAL_TIM_PWM_Start(&htim3,
                     TIM_CHANNEL_1);  // decoder enable to control brightness
 #endif
