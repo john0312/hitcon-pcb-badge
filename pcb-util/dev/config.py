@@ -1,6 +1,5 @@
-
-
-
+import os
+os.chdir(os.path.dirname(__file__))
 FW_ELF_PATH = 'fw.elf'
 MOD_ELF_PATH = 'fwMOD.elf'
 ST_PRO_PATH = r'C:\Program Files\STMicroelectronics\STM32Cube\STM32CubeProgrammer\bin\STM32_Programmer_CLI.exe'
