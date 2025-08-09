@@ -99,8 +99,17 @@ bool SponsorReq::RoutineTaskInternal() {
   } else if (state_ == 5) {
     display_set_mode_scroll_text("Received");
     state_++;
-  } else if (state_ == 6) {
-    // Finished, nothing to do.
+    to_queue = true;
+  } else if (state_ >= 6 && state_ < 19) {
+    // Waiting to clear out the text.
+    state_++;
+    to_queue = true;
+  } else if (state_ == 19) {
+    // Clear out the text.
+    hitcon::badge_controller.BackToMenu(hitcon::badge_controller.current_app);
+    state_++;
+  } else if (state_ == 20) {
+    // Finished.
   }
   if (pending_send_) {
     TrySend();

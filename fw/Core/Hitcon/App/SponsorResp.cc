@@ -38,7 +38,7 @@ void SponsorResp::Init() {
 
 void SponsorResp::OnEntry() {
   consented_ = true;
-  display_set_mode_scroll_text("Preparing...");
+  display_set_mode_text(".");
 }
 
 void SponsorResp::OnPeerConnect() {
@@ -136,7 +136,7 @@ void SponsorResp::RoutineTaskInternal() {
     // Got consent, sending...
     g_xboard_logic.QueueDataForTx(xb_packet_buffer, sizeof(xb_packet_buffer),
                                   SPONSOR_RESP_ID);
-    display_set_mode_scroll_text("Sending...");
+    display_set_mode_text("..");
     state_++;
     return;
   }
@@ -153,7 +153,7 @@ void SponsorResp::RoutineTaskInternal() {
   }
 
   if (state_ == 11) {
-    display_set_mode_scroll_text("Sent");
+    display_set_mode_text("...");
     state_++;
     return;
   }
