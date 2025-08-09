@@ -14,6 +14,7 @@ mat-toolbar {
     -webkit-user-select: none;
     -moz-user-select: none;
     user-select: none;
+    font-family: 'Square Font';
 }
 
 .mat-toolbar button {
