@@ -2,6 +2,7 @@
 #define UTIL_CIRCULAR_QUEUE_DOT_H_
 
 #include <cstddef>
+#include <cstring>
 
 namespace hitcon {
 
@@ -90,6 +91,26 @@ class CircularQueue {
              (count - elements_to_end_of_array) * sizeof(T));
     }
 
+    return true;
+  }
+
+  // Remove cnt elements from the front.
+  // Return false if not enough elements, in that case it'll be unchanged.
+  bool RemoveFrontMulti(size_t cnt) {
+    if (cnt > Size()) {
+      return false;
+    }
+    m_front_ = (m_front_ + cnt) % capacity;
+    return true;
+  }
+
+  // Remove cnt elements from the back.
+  // Return false if not enough elements, in that case it'll be unchanged.
+  bool RemoveBackMulti(size_t cnt) {
+    if (cnt > Size()) {
+      return false;
+    }
+    m_back_ = (m_back_ - cnt + capacity) % capacity;
     return true;
   }
 
