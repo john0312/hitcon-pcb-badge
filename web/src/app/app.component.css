@@ -1,0 +1,51 @@
+mat-toolbar {
+    position: fixed;
+    z-index: 10;
+    top: 0px;
+    left: 0px;
+}
+
+.mat-toolbar {
+    background-color: var(--color-background-secondary);
+    color: var(--off-white);
+}
+
+.mat-toolbar span {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    user-select: none;
+}
+
+.mat-toolbar button {
+    color: var(--off-white);
+    transition: background-color 300ms;
+}
+
+.mat-toolbar button:hover {
+    background-color: var(--color-interactive-hover-dark);
+}
+
+.spacer {
+    flex: 1 1 auto;
+}
+
+main {
+    margin: 64px auto 0px;
+    box-sizing: border-box;
+    padding: 5px;
+    height: 100%;
+}
+
+@media (max-width: 599px) {
+    main {
+        margin: 54px auto 0px;
+    }
+}
+
+.hideLink {
+    display: block;
+}
+
+.routerActive {
+    display: none;
+}

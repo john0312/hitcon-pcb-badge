@@ -7,9 +7,12 @@
 
 #include <App/DinoApp.h>
 #include <App/HardwareTestApp.h>
+#include <App/ShowIdApp.h>
 #include <App/ShowNameApp.h>
 #include <App/SnakeApp.h>
+#include <App/SponsorResp.h>
 #include <App/TamaApp.h>
+#include <App/UsbMenuApp.h>
 #include <Hitcon.h>
 #include <Logic/BadgeController.h>
 #include <Logic/ButtonLogic.h>
@@ -21,7 +24,9 @@
 #include <Logic/ImuLogic.h>
 #include <Logic/IrController.h>
 #include <Logic/IrLogic.h>
+#include <Logic/IrxbBridge.h>
 #include <Logic/NvStorage.h>
+#include <Logic/SponsorReq.h>
 #include <Logic/UsbLogic.h>
 #include <Logic/XBoardLogic.h>
 #include <Service/ButtonService.h>
@@ -41,6 +46,10 @@ using namespace hitcon::hash;
 using namespace hitcon::service::sched;
 using namespace hitcon::service::xboard;
 using namespace hitcon::app::tama;
+
+#ifndef BADGE_ROLE
+#error "BADGE_ROLE not defined"
+#endif  // BADGE_ROLE
 
 void TestTaskFunc(void* unused1, void* unused2) {}
 void TestTask2Func(void* unused1, void* unused2) {}
@@ -76,11 +85,17 @@ void hitcon_run() {
   g_imu_service.Init();
   g_imu_logic.Init();
 #endif
+#if BADGE_ROLE == BADGE_ROLE_ATTENDEE
+  hitcon::sponsor::g_sponsor_req.Init();
+#elif BADGE_ROLE == BADGE_ROLE_SPONSOR
+  hitcon::sponsor::g_sponsor_resp.Init();
+#endif
 
   g_button_logic.Init();
   g_button_service.Init();
   g_xboard_service.Init();
   g_xboard_logic.Init();
+  g_irxb_bridge.Init();
   show_name_app.Init();
 
   // this call shownameapp onentry
@@ -92,6 +107,7 @@ void hitcon_run() {
   hitcon::app::dino::dino_app.Init();
   hitcon::app::tama::tama_app.Init();
   hitcon::usb::g_usb_logic.Init();
+  show_id_app.Init();
 
   // run hardware test mode if MODE/SETTINGS Button is pressed during
   // initializing
@@ -100,6 +116,8 @@ void hitcon_run() {
     // irController may override its callbacks.
     hardware_test_app.Init();
     badge_controller.change_app(&hardware_test_app);
+  } else if (HAL_GPIO_ReadPin(USB_DET_GPIO_Port, USB_DET_Pin) == GPIO_PIN_SET) {
+    badge_controller.change_app(&usb::usb_menu);
   }
 
   scheduler.Queue(&InitTask, nullptr);

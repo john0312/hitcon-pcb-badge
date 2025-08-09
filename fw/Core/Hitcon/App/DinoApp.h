@@ -10,6 +10,7 @@
 #define DINO_INITIAL_VEL (-DINO_HEIGHT)
 #define DINO_SHOW_SCORE_TIME 60
 
+#include <App/MultiplayerGame.h>
 #include <Logic/Display/display.h>
 #include <Service/Sched/PeriodicTask.h>
 
@@ -21,7 +22,7 @@ namespace hitcon {
 namespace app {
 namespace dino {
 
-class DinoApp : public App {
+class DinoApp : public ::hitcon::app::multiplayer::MultiplayerGame {
  private:
   PeriodicTask _routine_task;
   static constexpr unsigned INTERVAL = 150;
@@ -35,7 +36,7 @@ class DinoApp : public App {
   uint8_t _dino_ani_frame : 1;
   int8_t _dino_jump_vel : 3;
   bool _no_big_cactus = false;
-  enum dino_actions { DINO_RUN, DINO_JUMP, DINO_CRUNCH } _dino_state;
+  enum dino_actions { DINO_RUN, DINO_JUMP, DINO_CRUNCH, DINO_INIT } _dino_state;
   void Routine(void* unused);
   bool dinoDied();
   void printFrame();
@@ -47,8 +48,27 @@ class DinoApp : public App {
   virtual ~DinoApp() = default;
   void Init();
 
-  void OnEntry() override;
-  void OnExit() override;
+  void GameEntry() override;
+  void GameExit() override;
+  void StartGame() override;
+  void AbortGame() override;
+  void GameOver() override;
+
+  hitcon::service::xboard::RecvFnId GetXboardRecvId() const {
+    // Unused.
+    return hitcon::service::xboard::RecvFnId::DINO_RECV_ID;
+  };
+
+  hitcon::game::EventType GetGameType() const {
+    return hitcon::game::EventType::kDino;
+  };
+
+  uint32_t GetScore() const { return _score; };
+
+  void RecvAttackPacket(hitcon::service::xboard::PacketCallbackArg* packet) {
+    // Unused.
+  }
+
   void OnButton(button_t button) override;
   void OnEdgeButton(button_t button) override;
 };

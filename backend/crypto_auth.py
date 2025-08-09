@@ -1,8 +1,11 @@
 from typing import Optional
-from schemas import IrPacket, Event, TwoBadgeActivityEvent, SponsorActivityEvent, PubAnnounceEvent
+from schemas import IrPacket, Event, TwoBadgeActivityEvent, ScoreAnnounceEvent, SponsorActivityEvent, PubAnnounceEvent
+from schemas import EccPoint, EccPublicKey, EccPrivateKey, EccSignature
 from database import db
-from ecc_utils import ecc_sign, ecc_verify
+from ecc_utils import ECC_SIGNATURE_SIZE, ecc_sign, ecc_derive_pub, ecc_verify, ecc_get_point_by_x
+from config import Config
 
+config = Config("config.yaml")
 
 class UnsignedPacketError(Exception):
     pass
@@ -10,92 +13,162 @@ class UnsignedPacketError(Exception):
 
 # This module is responsible for verifying & signing the packets
 class CryptoAuth:
+    # This is the private key of the server, used to sign packets
+    server_key = EccPrivateKey(
+        dA=config.get("backend", {}).get("ecc_key", 878787)
+    )
+    server_pub = ecc_derive_pub(server_key)
+
     # ===== Generic methods for any other layers =====
     @staticmethod
-    async def get_pubkey_by_username(user: int) -> Optional[int]:
-        return db["users"].find_one({"user": user})["pubkey"]
+    def parse_pubkey(pub_x: int) -> EccPublicKey:
+        pub = abs(pub_x)
+        sign = pub_x < 0
+        return EccPublicKey(point=ecc_get_point_by_x(pub, sign))
 
 
     @staticmethod
-    async def derive_user_by_pubkey(pubkey: bytes) -> Optional[int]:
-        # TODO: mock fetch user
-        return int.from_bytes(pubkey[:4], "little")
+    def encode_pubkey(pub: EccPublicKey) -> int:
+        x = pub.point.x
+        sign = pub.point.y % 2
+        if sign:
+            x = -x
+        return x
+
+
+    @staticmethod
+    async def get_pubkey_by_username(user: int) -> Optional[EccPublicKey]:
+        u = await db["users"].find_one({"user": user})
+
+        if u is None:
+            return
+        
+        return CryptoAuth.parse_pubkey(u["pubkey"])
+
+
+    @staticmethod
+    async def get_pubkeys_by_sponsor_id(sponsor_id: int) -> list[EccPublicKey]:
+        """
+        Get the public keys of the sponsor by sponsor_id.
+        """
+        sponsors = db["users"].find({"sponsor_id": sponsor_id})
+
+        return [CryptoAuth.parse_pubkey(s["pubkey"]) async for s in sponsors]
+
+
+    @staticmethod
+    async def derive_user_by_pubkey(pub: EccPublicKey) -> Optional[int]:
+        # Last byte of compact form of x is stored as sign in database.
+        pub_x = CryptoAuth.encode_pubkey(pub)
+
+        user = await db["users"].find_one({"pubkey": pub_x})
+
+        if user is None:
+            return None
+
+        return user["user"]
 
 
     # ===== APIs for PacketProcessor =====
     @staticmethod
-    async def verify_packet(event: Event, ir_packet: IrPacket, packet_hash: bytes) -> Optional[int]:
+    async def verify_packet(event: Event, ir_packet: IrPacket) -> Optional[int]:
         """
         Verify the packet. Throws an exception if the packet is invalid.
         Returns username if the packet is valid.
         """
         if event.__class__ == TwoBadgeActivityEvent:
-            sig = event.signature.to_bytes(14, 'little')
-            pub1 = (await CryptoAuth.get_pubkey_by_username(event.user1)).to_bytes(8, 'little')
-            pub2 = (await CryptoAuth.get_pubkey_by_username(event.user2)).to_bytes(8, 'little')
-
-            if MockECC.verify(
-                sig=sig,
-                pub=pub1,
-                hash=packet_hash
+            if ecc_verify(
+                msg=ir_packet.data[2:-ECC_SIGNATURE_SIZE],
+                sig=EccSignature.from_bytes(
+                    event.signature,
+                    pub=await CryptoAuth.get_pubkey_by_username(event.user1)
+                )
             ):
+                event.packet_from = 1
                 return event.user1
-            elif MockECC.verify(
-                sig=sig,
-                pub=pub2,
-                hash=packet_hash
+            elif ecc_verify(
+                msg=ir_packet.data[2:-ECC_SIGNATURE_SIZE],
+                sig=EccSignature.from_bytes(
+                    event.signature,
+                    pub=await CryptoAuth.get_pubkey_by_username(event.user2)
+                )
             ):
+                event.packet_from = 2
                 return event.user2
             else:
                 raise UnsignedPacketError("Invalid signature for the packet")
         elif event.__class__ == SponsorActivityEvent:
-            # SponsorActivityEvent does not require signature verification
+            # Verify SponsorActivityEvent with Sponsor's public key according to the sponsor_id
+            for pub in await CryptoAuth.get_pubkeys_by_sponsor_id(event.sponsor_id):
+                if ecc_verify(
+                    msg=ir_packet.data[2:-ECC_SIGNATURE_SIZE],
+                    sig=EccSignature.from_bytes(
+                        event.signature,
+                        pub=pub
+                    )
+                ):
+                    return event.user
+        elif event.__class__ == ScoreAnnounceEvent:
+            # ScoreAnnounceEvent does not require signature verification
             pass
         elif event.__class__ == PubAnnounceEvent:
-            user = await CryptoAuth.derive_user_by_pubkey(event.pubkey.to_bytes(8, 'little'))
+            # Validate the public key with server key (CA)
+            sig = EccSignature.from_bytes(event.signature, pub=CryptoAuth.server_pub)
+            
+            if not ecc_verify(
+                msg=event.pubkey,
+                sig=sig
+            ):
+                raise UnsignedPacketError("Invalid signature for the public key")
+
+            x = int.from_bytes(event.pubkey[:ECC_SIGNATURE_SIZE - 1], 'little', signed=False)
+            sign = bool(event.pubkey[-1])
+
+            p = ecc_get_point_by_x(x, sign)
+            pub = EccPublicKey(point=EccPoint(x=p.x, y=p.y))
+
+            user = await CryptoAuth.derive_user_by_pubkey(pub)
             return user
         else:
-            sig = event.signature.to_bytes(14, 'little')
-            pub = (await CryptoAuth.get_pubkey_by_username(event.user)).to_bytes(8, 'little')
+            pub = await CryptoAuth.get_pubkey_by_username(event.user)
+            sig = EccSignature.from_bytes(event.signature, pub=pub)
 
-            if not MockECC.verify(
-                sig=sig,
-                pub=pub,
-                hash=packet_hash
+            if not ecc_verify(
+                msg=ir_packet.data[2:-ECC_SIGNATURE_SIZE],
+                sig=sig
             ):
                 raise UnsignedPacketError("Invalid signature for the packet")
 
         return event.user
 
-# MOCK ECC:
-
-# PUBKEY[0:8] = PRIVKEY[0:8] ^ {0x12, 0x35, 0x57, 0x7a, 0xbd, 0xf9, 0xbf}
-# SIG[0:14] = (PRIVKEY[0:8] ^ HASH[0:8] ^ {0x5, 0x3f, 0x85, 0x5c, 0xba, 0x24, 0x64, 0x44}) + (PRIVKEY[0:6] ^ HASH[2:8] ^ {0x18, 0x3b, 0xf6, 0x78, 0x37, 0x60})
-
-
-class MockECC:
-    @staticmethod
-    def xor_bytes(a: bytes, b: bytes) -> bytes:
-        if len(a) != len(b):
-            raise ValueError("Byte strings must be of the same length")
-        return bytes(x ^ y for x, y in zip(a, b))
-
 
     @staticmethod
-    def derive_pub(priv: bytes) -> bytes:
-        if len(priv) != 8:
-            raise ValueError("Private key must be 8 bytes long")
-        return MockECC.xor_bytes(priv, [0x12, 0x35, 0x57, 0x7a, 0xbd, 0xf9, 0xbf, 0x00])
+    def sign_packet(ir_packet: IrPacket) -> IrPacket:
+        """
+        Sign the packet with the server's private key.
+        """
+        sig = ecc_sign(
+            msg=ir_packet.data[2:],
+            priv=CryptoAuth.server_key
+        )
+
+        ir_packet.data = ir_packet.data + sig.to_bytes()
+        return ir_packet
 
 
+    # ===== APIs for GameLogic =====
     @staticmethod
-    def sign(msg_b: bytes, priv_b: bytes) -> bytes:
-        MockECC.xor_bytes(MockECC.xor_bytes(priv_b, msg_b), [0x5, 0x3f, 0x85, 0x5c, 0xba, 0x24, 0x64, 0x44]) + \
-        MockECC.xor_bytes(MockECC.xor_bytes(priv_b[:6], msg_b[2:8]), [0x18, 0x3b, 0xf6, 0x78, 0x37, 0x60])
+    async def get_user_team(user: int) -> int:
+        """
+        Return team as sign.
+        """
+        key = await CryptoAuth.get_pubkey_by_username(user)
 
+        if key is None:
+            raise ValueError(f"User {user} not found")
 
-    @staticmethod
-    def verify(sig: bytes, pub: bytes, hash: bytes) -> bool:
-        expected_sig = MockECC.sign(hash, MockECC.derive_pub(pub))
-
-        return sig == expected_sig
+        sign = key.point.y % 2
+        if sign == 0:
+            return -1
+        else:
+            return 1

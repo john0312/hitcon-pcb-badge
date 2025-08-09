@@ -1,0 +1,18 @@
+<mat-toolbar>
+  <span>HITCON BADGE BATTLE</span>
+  <span class="spacer"></span>
+  <a class="hideLink" routerLink="/" routerLinkActive="routerActive" [routerLinkActiveOptions]="{exact: true}">
+    <button mat-icon-button aria-label="go to map">
+      <mat-icon>map</mat-icon>
+    </button>
+  </a>
+  <a class="hideLink" routerLink="/rank" routerLinkActive="routerActive" [routerLinkActiveOptions]="{exact: true}">
+    <button mat-icon-button aria-label="go to leaderboard">
+      <mat-icon>emoji_events</mat-icon>
+    </button>
+  </a>
+</mat-toolbar>
+
+<main>
+  <router-outlet />
+</main>

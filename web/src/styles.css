@@ -1,0 +1,27 @@
+/* You can add global styles to this file, and also import other style files */
+:root {
+    --color-red: #ff1f60;
+    --color-red-alternative: #ff2222;
+    --color-blue: #099cff;
+    --color-blue-alternative: #0095ff;
+    --color-background-primary: #0f1521;
+    --color-background-secondary: #242a36;
+    --color-interactive-hover-dark: #343f4f;
+    --off-white: #f3f3ff;
+    --float-background: #394968ba;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    font-family: Roboto, "Helvetica Neue", sans-serif;
+    background-color: var(--color-background-primary);
+    color: var(--off-white);
+    height: calc(100dvh - 64px);
+}
+
+@media (max-width: 599px) {
+    body {
+        height: calc(100dvh - 54px);
+    }
+}

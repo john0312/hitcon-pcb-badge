@@ -50,19 +50,19 @@ class PacketType(Enum):
     kSingleBadgeActivity = 8
     kSponsorActivity = 9
 
-PACKET_TYPE_WITHOUT_SIG = { PacketType.kShow, PacketType.kTest, PacketType.kAcknowledge, PacketType.kSponsorActivity }
 
 class IrPacket(BaseModel):
-    packet_id: Optional[uuid.UUID] = Field(None)
+    packet_id: Optional[uuid.UUID] = Field(default_factory=uuid.uuid4)
     # The packet_id to avoid duplication at base station.
     data: bytes
-    station_id: Optional[uuid.UUID] = Field(None)
+    station_id: Optional[int] = Field(0)
     to_stn: bool
     # to_stn is True for backend -> base station packet, False otherwise.
 
 
 # For http requests
 class IrPacketRequestSchema(BaseModel):
+    station_id: Optional[int] = Field(0)
     packet_id: Optional[uuid.UUID] = Field(default_factory=uuid.uuid4)
     data: List[int]
 
@@ -88,7 +88,7 @@ class ScoreBoard(BaseModel):
 # For Mongo
 class IrPacketObject(BaseModel):
     # id: Optional[PyObjectId] = Field(alias="_id", default=None)
-    packet_id: Optional[uuid.UUID] = Field(None)
+    packet_id: Optional[uuid.UUID] = Field(default_factory=uuid.uuid4)
     data: PyBinary
     hash: PyBinary
     timestamp: Optional[datetime.datetime] = Field(default_factory=utcnow)
@@ -98,7 +98,7 @@ class IrPacketObject(BaseModel):
 class Event(BaseModel):
     event_id: Optional[uuid.UUID] = Field(default_factory=uuid.uuid4)
     packet_id: Optional[uuid.UUID] = Field(None)
-    station_id: Optional[uuid.UUID] = Field(None)
+    station_id: Optional[int] = Field(0)
     timestamp: Optional[datetime.datetime] = Field(default_factory=utcnow)
 
 
@@ -106,12 +106,12 @@ class ProximityEvent(Event):
     user: int
     power: int
     nonce: int
-    signature: int
+    signature: bytes
 
 
 class PubAnnounceEvent(Event):
-    pubkey: int
-    signature: int
+    pubkey: bytes
+    signature: bytes
 
 
 # Converted from user packet
@@ -119,7 +119,8 @@ class TwoBadgeActivityEvent(Event):
     user1: int
     user2: int
     game_data: bytes
-    signature: int
+    signature: bytes
+    packet_from: Optional[int] = Field(0) # from user 1 or user 2, this would be set by CryptoAuth
 
 
 # Collected ActivityEvent from two users
@@ -131,31 +132,33 @@ class GameActivityEvent(Event):
     score1: int
     score2: int
     nonce: int
-    signatures: List[int]
+    signatures: List[bytes]
 
 
 class ScoreAnnounceEvent(Event):
     user: int
     score: int
-    signature: int
+    signature: bytes
 
 
 class SingleBadgeActivityEvent(Event):
     user: int
     event_type: int
     event_data: bytes
+    signature: bytes
 
 
 class SponsorActivityEvent(Event):
     user: int
     sponsor_id: int
-    sponsor_data: bytes
+    nonce: int
+    signature: bytes
 
 
 # For Mongo collections `stations`
 class Station(BaseModel):
     id: Optional[PyObjectId] = Field(alias="_id", default=None)
-    station_id: uuid.UUID
+    station_id: int
     station_key: str
     display: Optional[Display]
     tx: List[PyObjectId]
@@ -172,8 +175,6 @@ class User(BaseModel):
     id: Optional[PyObjectId] = Field(alias="_id", default=None)
     user: int
     pubkey: int
-    # Tracking the last station the user was seen
-    station_id: Optional[uuid.UUID] = Field(None)
 
 
 # Elliptic Curve Crytography related.
@@ -190,5 +191,34 @@ class EccSignature(BaseModel):
     r: int
     s: int
 
+    @staticmethod
+    def from_bytes(raw_sig: bytes, pub: Optional[EccPublicKey] = None) -> 'EccSignature':
+        if len(raw_sig) != 14: # ECC_SIGNATURE_SIZE
+            raise ValueError(f"Invalid signature length: {len(raw_sig)}")
+        r = int.from_bytes(raw_sig[:7], 'little', signed=False)
+        s = int.from_bytes(raw_sig[7:], 'little', signed=False)
+
+        return EccSignature(r=r, s=s, pub=pub)
+
+    def to_bytes(self) -> bytes:
+        return self.r.to_bytes(7, 'little', signed=False) + self.s.to_bytes(7, 'little', signed=False)
+
 class EccPrivateKey(BaseModel):
     dA: int
+
+
+## ReCTF related
+class ReCTFSolves(BaseModel):
+    a: int = Field(0)
+    b: int = Field(0)
+
+
+class ReCTFScoreSchema(BaseModel):
+    uid: str
+    solves: ReCTFSolves
+
+
+## Badge Linking related
+class BadgeLinkSchema(BaseModel):
+    badge_user: int
+    name: Optional[str]

@@ -11,7 +11,8 @@ def scriptToHex(scriptPath):
     data = [x.strip() for x in data]
     for line in data:
         if line.startswith("REPEAT"):
-            lastCommand=lastCommand*int(line.split(" ")[1])
+            hexData=lastCommand*int(line.split(" ")[1])
+            print("REPEAT")
         elif line.startswith("STRING_DELAY") or line.startswith("STRINGDELAY"):
             global nextStringDelay
             nextStringDelay=int(int(line.split(" ")[1])/10)
@@ -634,8 +635,6 @@ def charToHex(char):
         return [0xFE, ScanCode.KEY_MOD_LSHIFT, ScanCode.KEY_BACKSLASH, 0x00]
     elif char == "#":
         return [ScanCode.KEY_HASHTILDE]
-    elif char == "~":
-        return [0xFE, ScanCode.KEY_MOD_LSHIFT, ScanCode.KEY_HASHTILDE, 0x00]
     elif char == ";":
         return [ScanCode.KEY_SEMICOLON]
     elif char == ":":

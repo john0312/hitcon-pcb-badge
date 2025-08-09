@@ -71,8 +71,13 @@ void IrController::OnPacketReceived(void* arg) {
   } else if (data->type == packet_type::kAcknowledge) {
     OnAcknowledgePacket(&data->opaq.acknowledge);
   } else if (data->type == packet_type::kScoreAnnonce) {
-    show_name_app.SetScore(
-        *reinterpret_cast<uint32_t*>(data->opaq.score_announce.score));
+    if (memcmp(data->opaq.score_announce.user, g_game_controller.GetUsername(),
+               IR_USERNAME_LEN) == 0) {
+      show_name_app.SetScore(
+          *reinterpret_cast<uint32_t*>(data->opaq.score_announce.score));
+    } else {
+      // Not our score.
+    }
   }
 }
 
@@ -280,6 +285,45 @@ bool IrController::TrySendPriority() {
     priority_data_len_ = 0;
   }
   return false;
+}
+
+uint8_t IrController::GetSlotStatusForDebug(uint8_t slot_index) const {
+  if (slot_index >= RETX_QUEUE_SIZE) return 0;
+  return queued_packets_[slot_index].status & kRetransmitStatusMask;
+}
+
+uint8_t IrController::GetSlotPacketTypeForDebug(uint8_t slot_index) const {
+  if (slot_index >= RETX_QUEUE_SIZE) return 0;
+  uint8_t status_mask =
+      queued_packets_[slot_index].status & kRetransmitStatusMask;
+  if (status_mask == kRetransmitStatusSlotUnused) return 0;
+
+  // The packet type is stored in the second byte of the data
+  // (after the TTL byte in IrData structure)
+  return static_cast<uint8_t>(queued_packets_[slot_index].data[1]);
+}
+
+uint8_t IrController::GetSlotRetryCountForDebug(uint8_t slot_index) const {
+  if (slot_index >= RETX_QUEUE_SIZE) return 0;
+  return queued_packets_[slot_index].status & kRetransmitLimitMask;
+}
+
+uint16_t IrController::GetSlotTimeToRetryForDebug(uint8_t slot_index) const {
+  if (slot_index >= RETX_QUEUE_SIZE) return 0;
+  return queued_packets_[slot_index].time_to_retry;
+}
+
+void IrController::ForceRetransmitForDebug(uint8_t slot_index) {
+  if (slot_index >= RETX_QUEUE_SIZE) return;
+  if ((queued_packets_[slot_index].status & kRetransmitStatusMask) ==
+      kRetransmitStatusWaitAck) {
+    uint8_t counts = queued_packets_[slot_index].status & kRetransmitLimitMask;
+    if (counts <= 5) {
+      counts++;
+    }
+    queued_packets_[slot_index].status =
+        kRetransmitStatusWaitTxSlot | (counts & kRetransmitLimitMask);
+  }
 }
 
 }  // namespace ir

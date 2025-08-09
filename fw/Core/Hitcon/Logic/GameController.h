@@ -9,14 +9,12 @@
 namespace hitcon {
 namespace game {
 
-constexpr uint8_t PRIVATE_KEY_SRC_PREFIX[] = {'2', '0', '2', '5',
-                                              'P', 'R', 'I', 'V'};
-
 enum EventType : uint8_t {
   kNone = 0,
   kSnake = 1,
   kTetris = 2,
   kDino = 3,
+  kTama = 4,
   kShake = 16
 };
 
@@ -39,6 +37,8 @@ struct Proximity {
   uint16_t nonce;
 };
 
+constexpr size_t kPubAnnounceCycleInterval = 484;  // 1.49s * 484 ~= 12 minutes
+
 class GameController {
  public:
   GameController();
@@ -51,11 +51,20 @@ class GameController {
 
   void NotifyPubkeyAck();
   /**
+   * Returns a pointer to a buffer that holds the username, buffer holds
+   * IR_USERNAME_LEN in size.
+   *
+   * Note that the returned buffer may no longer be valid after the current
+   * task ends.
+   */
+  const uint8_t *GetUsername();
+
+  /**
    * Copy the username into the specified buffer. Buffer should be at least
    * IR_USERNAME_LEN in size. This function does not perform any size checks!
    * Caller is expected to do so.
    */
-  void GetUsername(uint8_t *buf);
+  bool SetBufferToUsername(uint8_t *ptr);
 
  private:
   /*
@@ -69,14 +78,10 @@ class GameController {
   */
   int state_;
 
-  uint8_t
-      privkey_src_[PerBoardData::kSecretLen + sizeof(PRIVATE_KEY_SRC_PREFIX)];
+  int pubAnnounceCnt;
+  hitcon::service::sched::PeriodicTask pubAnnounceTask;
 
-  hitcon::service::sched::PeriodicTask routine_task;
-
-  bool TrySendPubAnnounce();
-  void OnPrivKeyHashFinish(void *arg2);
-  void RoutineFunc();
+  void TrySendPubAnnounce();
 };
 
 }  // namespace game

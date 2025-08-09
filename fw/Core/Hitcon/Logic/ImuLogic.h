@@ -27,7 +27,7 @@ enum class InitState {
   WAIT_ID,
   SW_RESET,
   WAIT_SW_RESET,
-  RESET_COUNT,
+  RESET_STEP_COUNT,
   WAIT_RESET_COUNT,
   CONFIGURE,
   WAIT_CONFIGURE,
@@ -62,8 +62,8 @@ enum class SelfTestState {
   DONE
 };
 
-constexpr uint32_t ROUTINE_INTERVAL = 500;  // milisecond
-constexpr uint32_t SHAKING_THRESHOLD = 5;
+constexpr uint32_t ROUTINE_INTERVAL = 200;  // milisecond
+constexpr uint32_t SHAKING_THRESHOLD = 2;
 constexpr uint32_t PROXIMITY_INTERVAL = 3 * 60 * 1000;  // 3 minutes
 // step count within PROXIMITY_INTERVAL will be divided by this factor then call
 // GameController SendProximity
@@ -74,12 +74,13 @@ class ImuLogic {
  public:
   ImuLogic();
   void Init();
+  void Reset();
   void GyroSelfTest(callback_t cb, void *cb_arg1);
   void AccSelfTest(callback_t cb, void *cb_arg1);
 
   // return the step count since last init
   // update every ROUTINE_INTERVAL
-  uint16_t GetStep() { return _step; }
+  uint32_t GetStep() { return _step; }
 
   // within ROUTINE_INTERVAL detected step count if larger than
   // SHAKING_THRESHOLD then is considered shaking
@@ -89,6 +90,7 @@ class ImuLogic {
  private:
   PeriodicTask _routine_task, _proximity_task;
   uint8_t _buf[6], _count;
+  uint16_t _last_step_reg;
   float_t _avg_values[2][3];
   RoutineState _state;
   InitState _init_state;
@@ -96,7 +98,7 @@ class ImuLogic {
   callback_t _gyro_st_cb, _acc_st_cb;
   void *_gyro_st_cb_arg1, *_acc_st_cb_arg1;
   uint32_t _start_time;
-  uint16_t _step;
+  uint32_t _step;
   bool _is_shaking;
 
   void OnRxDone(void *arg1);

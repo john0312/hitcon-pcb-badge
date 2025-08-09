@@ -29,6 +29,7 @@ void MultiplayerGame::OnXboardRecv(void *arg) {
       break;
     case PACKET_GAME_OVER:
       SendGameOverAck(packet);
+      UploadMultiplayerScore(packet);
       GameOver();
       break;
     case PACKET_GAME_OVER_ACK:
@@ -75,7 +76,7 @@ void MultiplayerGame::SendGameOver() {
       .packetType = XboardPacketType::PACKET_GAME_OVER,
       .nonce = savedNonce = (uint16_t)g_fast_random_pool.GetRandom(),
       .score = GetScore()};
-  g_game_controller.GetUsername(packet.username);
+  g_game_controller.SetBufferToUsername(packet.username);
   g_xboard_logic.QueueDataForTx(reinterpret_cast<uint8_t *>(&packet),
                                 sizeof(packet), GetXboardRecvId());
 }
@@ -88,7 +89,7 @@ void MultiplayerGame::SendGameOverAck(PacketCallbackArg *rcvdPacket) {
   GameOverPacket packet = {.packetType = XboardPacketType::PACKET_GAME_OVER_ACK,
                            .nonce = savedNonce = _rcvdPacket->nonce,
                            .score = GetScore()};
-  g_game_controller.GetUsername(packet.username);
+  g_game_controller.SetBufferToUsername(packet.username);
   g_xboard_logic.QueueDataForTx(reinterpret_cast<uint8_t *>(&packet),
                                 sizeof(packet), GetXboardRecvId());
 }

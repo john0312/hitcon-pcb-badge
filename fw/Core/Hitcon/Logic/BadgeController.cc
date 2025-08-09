@@ -5,11 +5,21 @@
 #include <App/HardwareTestApp.h>
 #include <App/MainMenuApp.h>
 #include <App/ShowNameApp.h>
+#include <App/UsbMenuApp.h>
+#include <Hitcon.h>
 #include <Logic/IrController.h>
+#include <Logic/IrxbBridge.h>
+#include <Logic/SponsorReq.h>
+#include <Logic/UsbLogic.h>
 #include <Logic/XBoardLogic.h>
 #include <Secret/secret.h>
 #include <Service/DisplayService.h>
 #include <Service/Sched/Checks.h>
+#include <Service/UsbService.h>
+
+#ifndef BADGE_ROLE
+#error "BADGE_ROLE not defined"
+#endif  // BADGE_ROLE
 
 using hitcon::ir::irController;
 using hitcon::service::sched::my_assert;
@@ -42,7 +52,12 @@ void BadgeController::Init() {
   hitcon::service::xboard::g_xboard_logic.SetOnConnectBaseStn2025(
       (callback_t)&BadgeController::OnXBoardBasestnConnect, this);
   hitcon::service::xboard::g_xboard_logic.SetOnDisconnectBaseStn2025(
-      (callback_t)&BadgeController::OnXBoardDisconnect, this);
+      (callback_t)&BadgeController::OnXBoardBasestnDisconnect, this);
+
+  usb::g_usb_service.SetOnUsbPlugIn((callback_t)&BadgeController::OnUsbPlugIn,
+                                    this);
+  usb::g_usb_service.SetOnUsbPlugOut((callback_t)&BadgeController::OnUsbPlugOut,
+                                     this);
 }
 
 void BadgeController::SetCallback(callback_t callback, void *callback_arg1,
@@ -68,6 +83,8 @@ void BadgeController::BackToMenu(App *ending_app) {
     change_app(&connect_legacy_menu);
   } else if (conn_state == UsartConnectState::ConnectBaseStn2025) {
     change_app(&connect_basestn_menu);
+  } else if (usb::g_usb_service.IsConnected()) {
+    change_app(&usb::usb_menu);
   } else {
     change_app(&main_menu);
   }
@@ -118,8 +135,14 @@ void BadgeController::OnButton(void *arg1) {
 }
 
 void BadgeController::OnXBoardConnect(void *unused) {
-  if (current_app != &hardware_test_app)
+  if (current_app != &hardware_test_app) {
+#if BADGE_ROLE == BADGE_ROLE_ATTENDEE
+    hitcon::sponsor::g_sponsor_req.OnXBoardConnect();
+#elif BADGE_ROLE == BADGE_ROLE_SPONSOR
+    hitcon::sponsor::g_sponsor_resp.OnPeerConnect();
+#endif  // BADGE_ROLE == BADGE_ROLE_ATTENDEE
     badge_controller.change_app(&connect_menu);
+  }
 }
 
 void BadgeController::OnXBoardLegacyConnect(void *unused) {
@@ -128,11 +151,24 @@ void BadgeController::OnXBoardLegacyConnect(void *unused) {
 }
 
 void BadgeController::OnXBoardBasestnConnect(void *unused) {
+  g_irxb_bridge.OnXBoardBasestnConnect();
   if (current_app != &hardware_test_app)
     badge_controller.change_app(&connect_basestn_menu);
 }
 
 void BadgeController::OnXBoardDisconnect(void *unused) {
+  if (current_app != &hardware_test_app) {
+#if BADGE_ROLE == BADGE_ROLE_ATTENDEE
+    hitcon::sponsor::g_sponsor_req.OnXBoardDisconnect();
+#elif BADGE_ROLE == BADGE_ROLE_SPONSOR
+    hitcon::sponsor::g_sponsor_resp.OnPeerDisconnect();
+#endif  // BADGE_ROLE == BADGE_ROLE_ATTENDEE
+    badge_controller.change_app(&show_name_app);
+  }
+}
+
+void BadgeController::OnXBoardBasestnDisconnect(void *unused) {
+  g_irxb_bridge.OnXBoardBasestnDisconnect();
   if (current_app != &hardware_test_app)
     badge_controller.change_app(&show_name_app);
 }
@@ -149,4 +185,14 @@ void BadgeController::RestoreApp() {
   stored_app = nullptr;
 }
 
+void BadgeController::OnUsbPlugIn(void *unused) {
+  badge_controller.change_app(&usb::usb_menu);
+}
+
+void BadgeController::OnUsbPlugOut(void *unused) {
+  if (GetCurrentApp() == &usb::usb_menu ||
+      GetCurrentApp() == &usb::bad_usb_app || GetCurrentApp() == &show_id_app) {
+    change_app(&show_name_app);
+  }
+}
 }  // namespace hitcon

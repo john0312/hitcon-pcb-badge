@@ -22,6 +22,7 @@ class PerBoardData {
   static constexpr size_t kRandomLen = 16;
   static constexpr size_t kSecretLen = 16;
   static constexpr size_t kPubKeyCertSize = hitcon::ECC_SIGNATURE_SIZE;
+  static constexpr size_t kPrivKeySize = hitcon::ECC_SIGNATURE_SIZE / 2;
 };
 
 extern PerBoardData g_per_board_data;

@@ -1,7 +1,12 @@
+#ifndef MAIN_MENU_APP_H
+#define MAIN_MENU_APP_H
+
 #include <App/BadUsbApp.h>
 #include <App/BouncingDVDApp.h>
+#include <App/DebugApp.h>
 #include <App/DinoApp.h>
 #include <App/ScoreHistApp.h>
+#include <App/ShowIdApp.h>
 #include <App/ShowNameApp.h>
 #include <App/SnakeApp.h>
 #include <App/TamaApp.h>
@@ -20,13 +25,15 @@ using hitcon::app::tetris::tetris_app;
 
 constexpr menu_entry_t main_menu_entries[] = {
     // TODO : change app
-    {"BadUSB", &hitcon::usb::bad_usb_app, nullptr},
+    {"Tama", &tama_app, &hitcon::app::tama::SetSingleplayer},
     {"Snake", &snake_app, &hitcon::app::snake::SetSingleplayer},
-    {"Dino", &dino_app, nullptr},
     {"Tetris", &tetris_app, &hitcon::app::tetris::SetSingleplayer},
+    {"Dino", &dino_app, nullptr},
+    {"Show ID", &show_id_app, nullptr},
     {"Show Scores", &score_hist::g_score_hist, nullptr},
     {"Bouncing DVD", &bouncing_dvd_app, nullptr},
-    {"Tama", &tama_app, &hitcon::app::tama::SetSingleplayer}};
+    {"BadUSB", &hitcon::usb::bad_usb_app, nullptr},
+    {"Debug", &g_debug_app, nullptr}};
 
 constexpr int main_menu_entries_len =
     sizeof(main_menu_entries) / sizeof(menu_entry_t);
@@ -44,3 +51,4 @@ class MainMenuApp : public MenuApp {
 extern MainMenuApp main_menu;
 
 }  // namespace hitcon
+#endif

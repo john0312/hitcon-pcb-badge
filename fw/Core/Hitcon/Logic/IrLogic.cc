@@ -28,12 +28,6 @@ void IrLogic::Init() {
   // Set callback
   irService.SetOnBufferReceived(
       (callback_t)&IrLogic::OnBufferReceivedEnqueueTask, this);
-  // This is logically correct because this is triggered only when Xboard is
-  // connected
-  // Possible Vuln: the IR decode can cause CPU out of service if there are
-  // too many xboard packets.
-  g_xboard_logic.SetOnPacketArrive((callback_t)&IrLogic::OnBufferReceived, this,
-                                   IR_TO_ATTENDEE);
 }
 
 size_t packet_buf{0};

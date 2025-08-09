@@ -10,6 +10,10 @@
 #include <stddef.h>
 #include <stdint.h>
 
+namespace hitcon {
+class IrxbBridge;
+}
+
 enum class packet_type : uint8_t {
   kGame = 0,  // disabled
   kShow = 1,
@@ -21,7 +25,9 @@ enum class packet_type : uint8_t {
   kTwoBadgeActivity = 6,
   kScoreAnnonce = 7,
   kSingleBadgeActivity = 8,
-  kSponsorActivity = 9
+  kSponsorActivity = 9,
+  kShowMsg = 10,
+  kRequestScore = 11,
 };
 
 namespace hitcon {
@@ -105,9 +111,21 @@ struct SingleBadgeActivityPacket {
 
 // This packet is from the badge to the base station.
 struct SponsorActivityPacket {
-  uint8_t user[IR_USERNAME_LEN];
   uint8_t sponsor_id;
-  uint8_t sponsor_data[9];
+  uint8_t nonce;
+  uint8_t user[IR_USERNAME_LEN];
+  uint8_t sig[ECC_SIGNATURE_SIZE];
+};
+
+// This packet is from base station to badge.
+struct ShowMsgPacket {
+  uint8_t user[IR_USERNAME_LEN];
+  uint8_t msg[24];
+};
+
+// This packet is from badge to base station.
+struct RequestScorePacket {
+  uint8_t user[IR_USERNAME_LEN];
 };
 
 /*Definition of IR content.*/
@@ -127,6 +145,8 @@ struct IrData {
     struct ScoreAnnouncePacket score_announce;
     struct SingleBadgeActivityPacket single_activity;
     struct SponsorActivityPacket sponsor_activity;
+    struct ShowMsgPacket show_msg;
+    struct RequestScorePacket request_score;
   } opaq;
 };
 
@@ -164,6 +184,8 @@ struct RetransmittableIrPacket {
 };
 
 class IrController {
+  friend class ::hitcon::IrxbBridge;
+
  public:
   IrController();
 
@@ -180,6 +202,14 @@ class IrController {
   // Return false if IrController is busy and cannot accept the packet.
   bool SendPacketWithRetransmit(uint8_t* data, size_t len, uint8_t retries,
                                 AckTag ack_tag);
+
+  // Query methods for debug interface
+  uint8_t GetSlotStatusForDebug(uint8_t slot_index) const;
+  uint8_t GetSlotPacketTypeForDebug(uint8_t slot_index) const;
+  uint8_t GetSlotRetryCountForDebug(uint8_t slot_index) const;
+  uint16_t GetSlotTimeToRetryForDebug(uint8_t slot_index) const;
+
+  void ForceRetransmitForDebug(uint8_t slot_index);
 
  private:
   bool send_lock;

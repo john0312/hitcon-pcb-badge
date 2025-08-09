@@ -15,14 +15,15 @@ class PacketRecorder:
     def _format_datetime(self, ts):
         return datetime.fromtimestamp(ts).strftime("%Y%m%d_%H%M%S")
 
-    async def record_packet(self, data: bytes, direction: str, packet_id: uuid.UUID):
+    async def record_packet(self, data: bytes, direction: str, packet_id: uuid.UUID, station_id: str):
         """Record a packet to log file"""
         ts = self._get_timestamp()
         log_entry = {
             "datetime": ts,
             "data": data.hex(),
             "direction": direction,
-            "packet_id": str(packet_id)
+            "packet_id": str(packet_id),
+            "station_id": station_id
         }
         
         filename = f"{direction}-{self._format_datetime(ts)}-{packet_id}.json"

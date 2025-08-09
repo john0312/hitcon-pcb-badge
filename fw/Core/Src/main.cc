@@ -107,6 +107,16 @@ int main(void)
 #ifndef V1_1
   MX_I2C1_Init();
 #endif
+
+#ifndef V2_2
+  // configure PC15 as input to avoid conflicting with IMU_INT1
+  GPIO_InitTypeDef GPIO_InitStruct = {0};
+  GPIO_InitStruct.Pin = GPIO_PIN_15;
+  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+#endif
+
   hitcon_run();
 
   /* USER CODE END 2 */

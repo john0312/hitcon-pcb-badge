@@ -28,7 +28,14 @@ DinoApp::DinoApp()
 
 void DinoApp::Init() { scheduler.Queue(&_routine_task, nullptr); }
 
-void DinoApp::OnEntry() {
+void DinoApp::GameEntry() {
+  _dino_state = DINO_INIT;
+  display_set_mode_scroll_text("Ready...");
+}
+
+void DinoApp::AbortGame() { badge_controller.BackToMenu(this); }
+
+void DinoApp::StartGame() {
   memset(_obstacle_frame, 0, OBSTACAL_FRAME_WIDTH * sizeof(uint8_t));
   _curr_dino_frame = &dino_running_bitmap[0];
   _obstacle_interval = 0;
@@ -40,10 +47,19 @@ void DinoApp::OnEntry() {
   _dino_jump_vel = DINO_INITIAL_VEL;
   scheduler.EnablePeriodic(&_routine_task);
 }
-
-void DinoApp::OnExit() { scheduler.DisablePeriodic(&_routine_task); }
+void DinoApp::GameExit() { scheduler.DisablePeriodic(&_routine_task); }
 
 void DinoApp::OnButton(button_t button) {
+  if (_dino_state == DINO_INIT) {
+    if ((button & BUTTON_VALUE_MASK) == BUTTON_OK) {
+      if (IsMultiplayer()) {
+        SendStartGame();
+      }
+      StartGame();
+    }
+    return;
+  }
+
   if (button == COMBO_BUTTON_DINO[combo_button_ctr]) {
     combo_button_ctr++;
   } else {
@@ -58,7 +74,10 @@ void DinoApp::OnButton(button_t button) {
   switch (button & BUTTON_VALUE_MASK) {
     case BUTTON_BACK:
     case BUTTON_LONG_BACK:
-      badge_controller.BackToMenu(this);
+      if (IsMultiplayer()) {
+        SendAbortGame();
+      }
+      AbortGame();
       break;
     default:
       break;
@@ -67,6 +86,7 @@ void DinoApp::OnButton(button_t button) {
 }
 
 void DinoApp::OnEdgeButton(button_t button) {
+  if (_dino_state == DINO_INIT) return;
   switch (button & BUTTON_VALUE_MASK) {
     case BUTTON_DOWN:
       if (button & BUTTON_KEYDOWN_BIT)
@@ -149,9 +169,12 @@ void DinoApp::Routine(void* unused) {
   }
 
   if (dinoDied()) {
-    _game_over = true;
-    _score_show_time = 0;
-    gameOver();
+    if (IsMultiplayer()) {
+      SendGameOver();
+    } else {
+      UploadSingleplayerScore();
+    }
+    GameOver();
     return;
   }
   printFrame();
@@ -181,7 +204,9 @@ bool DinoApp::dinoDied() {
   return false;
 }
 
-inline void DinoApp::gameOver() {
+inline void DinoApp::GameOver() {
+  _game_over = true;
+  _score_show_time = 0;
   show_score_app.SetScore(_score);
   g_game_score.MarkScore(GameScoreType::GAME_DINO, _score);
   badge_controller.change_app(&show_score_app);

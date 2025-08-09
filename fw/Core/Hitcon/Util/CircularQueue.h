@@ -84,6 +84,11 @@ class CircularQueue {
     }
     return false;
   }
+
+  void Clear() {
+    m_front_ = 0;
+    m_back_ = 0;
+  }
 };
 
 }  // namespace hitcon

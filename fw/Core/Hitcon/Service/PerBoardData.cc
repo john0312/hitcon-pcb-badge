@@ -1,5 +1,7 @@
 #include <Service/PerBoardData.h>
 
+#include <cstring>
+
 namespace hitcon {
 
 PerBoardData g_per_board_data;
@@ -13,10 +15,12 @@ constexpr uint8_t kPerBoardSecret[PerBoardData::kSecretLen] = {
     0x13, 0xac, 0x76, 0xfc, 0x1a, 0xa7, 0x0f, 0x92,
     0x05, 0x31, 0x1d, 0xa6, 0x28, 0x4c, 0x8e, 0x94};
 constexpr uint8_t kPubKeyCert[PerBoardData::kPubKeyCertSize] = {
-    0x5c, 0xfc, 0xca, 0x24, 0xbb, 0xe9, 0x38,
-    0xae, 0x02, 0x12, 0x38, 0xa2, 0xf5, 0x48};
+    0x7d, 0xf0, 0xde, 0x4c, 0xe2, 0x23, 0x19,
+    0xf6, 0xb4, 0xfa, 0xbe, 0x12, 0x6d, 0x41};
 
-constexpr uint64_t kPrivKey = 13447439586820736;
+constexpr uint8_t kPrivKey[PerBoardData::kPrivKeySize] = {
+    0x80, 0x02, 0xb6, 0x03, 0x60, 0xc6, 0x2f};
+
 }  // namespace
 
 constexpr PerBoardData::PerBoardData() {}
@@ -27,5 +31,10 @@ const uint8_t* PerBoardData::GetPerBoardSecret() { return kPerBoardSecret; }
 
 const uint8_t* PerBoardData::GetPubKeyCert() { return kPubKeyCert; }
 
-const uint64_t PerBoardData::GetPrivKey() { return kPrivKey; }
+const uint64_t PerBoardData::GetPrivKey() {
+  uint64_t privkey = 0;
+  memcpy(&privkey, kPrivKey, PerBoardData::kPrivKeySize);
+  return privkey;
+}
+
 }  // namespace hitcon

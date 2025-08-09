@@ -221,13 +221,14 @@ class EcLogic {
   void SetPrivateKey(uint64_t privkey);
 
   /**
-   * Store the public key into the buffer.
+   * Retrieve the public key.
    *
-   * @param buffer: The buffer, must be ECC_PUBKEY_SIZE bytes in size.
+   * @return A pointer to the public key, it'll hold ECC_PUBKEY_SIZE bytes.
    *
-   * @return If the key is copied in. False when it's not ready.
+   * Note that the returned buffer may no longer be valid after the current
+   * task ends.
    */
-  bool GetPublicKey(uint8_t *buffer);
+  const uint8_t *GetPublicKey();
 
   /**
    * Start the signing process and mark this API as busy.

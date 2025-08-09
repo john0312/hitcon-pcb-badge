@@ -8,7 +8,7 @@ import asyncio
 async def main():
     config = Config("config.yaml")
     try:
-        async with PacketProcessor() as processor:
+        async with PacketProcessor(config=config) as processor:
             async with BackendInterface(config=config) as backend:
                 async with IrInterface(config=config) as ir:
                     processor.backend = backend
