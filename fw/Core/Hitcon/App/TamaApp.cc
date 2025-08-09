@@ -52,8 +52,10 @@ void TamaApp::Init() {
 #endif
   hitcon::service::sched::scheduler.Queue(&_routine_task, nullptr);
   // If the egg is hatching, enable background tasks for updating steps
-  if (_state == TAMA_APP_STATE::EGG_1 || _state == TAMA_APP_STATE::EGG_2 ||
-      _state == TAMA_APP_STATE::EGG_3 || _state == TAMA_APP_STATE::EGG_4) {
+  if (_tama_data.state == TAMA_APP_STATE::EGG_1 ||
+      _tama_data.state == TAMA_APP_STATE::EGG_2 ||
+      _tama_data.state == TAMA_APP_STATE::EGG_3 ||
+      _tama_data.state == TAMA_APP_STATE::EGG_4) {
     _hatching_task.SetWakeTime(SysTimer::GetTime() + 5000);
     hitcon::service::sched::scheduler.Queue(&_hatching_task, nullptr);
   }
