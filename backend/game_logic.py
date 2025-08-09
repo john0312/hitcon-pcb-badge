@@ -127,13 +127,28 @@ class _GameLogic:
         """
         # TODO: validate the player_id and the amount
 
-        buff = await self.player_buff.find_one({"player_id": player_id, "latest": True})
-        if buff is not None:
-            buff_a_count = buff.get("buff_a_count", 0)
-            buff_b_count = buff.get("buff_b_count", 0)
-        else:
-            buff_a_count = 0
-            buff_b_count = 0
+        # Retrieve the buff
+        async def _tmp():
+            # cache
+            if self.redis_client is not None:
+                buff = await self.redis_client.get(f"player_buff:{player_id}")
+                if buff is not None:
+                    a, b = buff.decode().split(",")
+                    return int(a), int(b)
+
+            # database
+            buff = await self.player_buff.find_one({"player_id": player_id, "latest": True})
+            if buff is not None:
+                a, b = buff.get("buff_a_count", 0), buff.get("buff_b_count", 0)
+                if self.redis_client is not None:
+                    await self.redis_client.set(f"player_buff:{player_id}", f"{a},{b}")
+                return int(a), int(b)
+
+            if self.redis_client is not None:
+                await self.redis_client.set(f"player_buff:{player_id}", "0,0")
+            return 0, 0
+
+        buff_a_count, buff_b_count = await _tmp()
 
         # apply the buff
         amount_after_buff = int(amount * (1 + const.BUFF_A_MODIFIER * buff_a_count + const.BUFF_B_MODIFIER * buff_b_count))
@@ -500,10 +515,18 @@ class _GameLogic:
 
     async def update_player_buff(self, player_id: int, buff_a_count: int, buff_b_count: int, timestamp: datetime):
         """
+        **Assume that `timestamp` is MONOTONIC (i.e., it is always later than the previous timestamp).**
+
         Update the player's buff (possibly a result of solving CTF challenges).
         buff_a and buff_b has different parameter on the modifier.
         The attack power = amount * modifier.
         """
+
+        # Check cache
+        if self.redis_client is not None:
+            await self.redis_client.set(f"player_buff:{player_id}", f"{buff_a_count},{buff_b_count}")
+
+        # Update the player's buff in the database
         await self.player_buff.update_one(
             {"player_id": player_id, "latest": True},
             {
@@ -519,6 +542,8 @@ class _GameLogic:
             },
             upsert=True,
         )
+
+        # Save for history
         await self.player_buff.insert_one({
             "player_id": player_id,
             "buff_a_count": buff_a_count,
@@ -616,13 +641,19 @@ async def test_attack_station_score_history(with_redis = False, cache_min_interv
 
 
 @test_func
-async def test_attack_station_score_buff(buff_a_count, buff_b_count):
+async def test_attack_station_score_buff(buff_a_count, buff_b_count, with_redis = False):
     const.reset()
     const.STATION_SCORE_DECAY_INTERVAL = 1
     eps = 0.1
 
+    if with_redis:
+        redis_client = Redis(host='localhost', port=6379)
+        await redis_client.flushall()  # Clear all keys in Redis for testing
+    else:
+        redis_client = None
+
     time_base = datetime.now()
-    gl = _GameLogic(pymongo.AsyncMongoClient("mongodb://localhost:27017?uuidRepresentation=standard"), None, time_base)
+    gl = _GameLogic(pymongo.AsyncMongoClient("mongodb://localhost:27017?uuidRepresentation=standard"), redis_client, time_base)
     await gl.clear_database()
 
     player_id = 1
@@ -928,6 +959,9 @@ if __name__ == "__main__":
     asyncio.run(test_attack_station_score_buff(buff_a_count=2, buff_b_count=3))
     asyncio.run(test_attack_station_score_buff(buff_a_count=0, buff_b_count=0))
     asyncio.run(test_attack_station_score_buff(buff_a_count=10, buff_b_count=5))
+    asyncio.run(test_attack_station_score_buff(buff_a_count=2, buff_b_count=3, with_redis=True))
+    asyncio.run(test_attack_station_score_buff(buff_a_count=0, buff_b_count=0, with_redis=True))
+    asyncio.run(test_attack_station_score_buff(buff_a_count=10, buff_b_count=5, with_redis=True))
     asyncio.run(test_game_score_log_only())
     asyncio.run(test_sponsor_bonus())
     asyncio.run(test_sponsor_bonus(with_redis=True))
