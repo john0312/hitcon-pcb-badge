@@ -1,7 +1,7 @@
 from schemas import utcnow, PacketType, ProximityEvent, PubAnnounceEvent, TwoBadgeActivityEvent, GameActivityEvent, ScoreAnnounceEvent, SingleBadgeActivityEvent, SponsorActivityEvent, IrPacket, ReCTFSolves
 from config import Config
 from database import mongo, db, redis_client
-from game_logic import _GameLogic as GameLogic, GameType
+from game_logic import _GameLogic as GameLogic, GameType, Constants
 from ecc_utils import ECC_SIGNATURE_SIZE
 from crypto_auth import CryptoAuth
 from badge_link_controller import BadgeLinkController
@@ -235,7 +235,7 @@ class GameLogicController:
         await game.receive_game_score_single_player(
             player_id=evt.user,
             station_id=evt.station_id // 10,
-            score=1, # TODO: figure out how many points to give
+            score=Constants.SPONSOR_CONNECT_SCORE,
             sponsor_id=evt.sponsor_id,
             game_type=GameType.CONNECT_SPONSOR,
             timestamp=evt.timestamp

@@ -57,6 +57,7 @@ class Constants:
     BUFF_B_MODIFIER: float = 0.04
 
     SPONSOR_STATION_ID_LIST: list[int] = field(default_factory=lambda: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
+    SPONSOR_CONNECT_SCORE: int = 50
     SPONSOR_ALL_COLLECTED_BONUS: int = 300
 
     def reset(self):
