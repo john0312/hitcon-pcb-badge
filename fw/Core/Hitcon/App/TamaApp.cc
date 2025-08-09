@@ -897,6 +897,7 @@ void TamaApp::HatchingRoutine(void* unused) {
         break;
     }
     if (_state != _tama_data.state) {
+      UpdateFrameBuffer();
       _tama_data.state = _state;
       g_nv_storage.MarkDirty();
     }
