@@ -3,6 +3,7 @@
 #define TAMA_APP_MAX_FB_LENGTH 6
 #define TAMA_HATCHING_STEPS 400
 #define TAMA_HUNGER_DECREASE_INTERVAL 3600000
+// #define TAMA_SAVE_STATE 0xF0
 
 #define TAMA_PREPARE_FB(FB, FB_SIZE) \
   FB.fb_size = FB_SIZE;              \
@@ -35,23 +36,24 @@ namespace app {
 namespace tama {
 
 enum class TAMA_APP_STATE : uint8_t {
-  INTRO_TEXT,   // Displaying introductory text
-  CHOOSE_TYPE,  // Player is selecting a pet type
-  EGG_1,        // 0% hatching progress
-  EGG_2,        // 25% hatching progress
-  EGG_3,        // 50% hatching progress
-  EGG_4,        // 75% hatching progress
-  HATCHING,     // 100% animation
-  IDLE,
-  LV_DETAIL,
-  FEED_CONFIRM,
-  FEED_ANIME,
-  PET_FED,
-  PET_HEALING,
-  TRAINING_CONFIRM,
-  TRAINING,
-  TRAINING_QTE,
-  TRAINING_END
+  SAVE_STATE = 0xF0,
+  INTRO_TEXT = 0,          // Displaying introductory text
+  CHOOSE_TYPE = 1,         // Player is selecting a pet type
+  EGG_1 = 2 | SAVE_STATE,  // 0% hatching progress
+  EGG_2 = 3 | SAVE_STATE,  // 25% hatching progress
+  EGG_3 = 4 | SAVE_STATE,  // 50% hatching progress
+  EGG_4 = 5 | SAVE_STATE,  // 75% hatching progress
+  HATCHING = 6,            // 100% animation
+  IDLE = 7 | SAVE_STATE,
+  LV_DETAIL = 8,
+  FEED_CONFIRM = 9,
+  FEED_ANIME = 10,
+  PET_FED = 11,
+  PET_HEALING = 12,
+  TRAINING_CONFIRM = 13,
+  TRAINING = 14,
+  TRAINING_QTE = 15,
+  TRAINING_END = 16
 };
 
 enum class TAMA_TYPE : uint8_t {

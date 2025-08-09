@@ -416,7 +416,10 @@ void TamaApp::Routine(void* unused) {
   }
 
   if (needs_save && (_state != _tama_data.state)) {
-    _tama_data.state = _state;
+    if (static_cast<uint8_t>(_state) &
+        static_cast<uint8_t>(TAMA_APP_STATE::SAVE_STATE)) {
+      _tama_data.state = _state;
+    }
     g_nv_storage.MarkDirty();
   }
 
