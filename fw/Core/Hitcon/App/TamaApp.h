@@ -273,7 +273,7 @@ class TamaApp : public App {
   void ConcateAnimtaions(uint8_t count, ...);
   void HatchingRoutine(void* unused);
   void HungerRoutine(void* unused);
-  void LevelUpRoutine(void *unused);
+  void LevelUpRoutine(void* unused);
   void SponsorRegister(uint8_t sponsor_id);
   void LevelUpRoutine(void* unused);
 
