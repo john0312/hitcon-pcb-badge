@@ -421,6 +421,16 @@ class _GameLogic:
         })
 
 
+_executed_test = set()
+def test_func(func):
+    # use this decorator to make sure all tests are executed
+    async def wrapper(*args, **kwargs):
+        _executed_test.add(func.__name__)
+        return await func(*args, **kwargs)
+    return wrapper
+
+
+@test_func
 async def test_attack_station_score_history(with_redis = False, cache_min_interval = None):
     const.reset()
     const.STATION_SCORE_DECAY_INTERVAL = 1
@@ -498,6 +508,7 @@ async def test_attack_station_score_history(with_redis = False, cache_min_interv
         assert expected_score == await gl.get_station_score(station_id=station_id, before=timestamp)
 
 
+@test_func
 async def test_attack_station_score_buff(buff_a_count, buff_b_count):
     const.reset()
     const.STATION_SCORE_DECAY_INTERVAL = 1
@@ -535,6 +546,7 @@ async def test_attack_station_score_buff(buff_a_count, buff_b_count):
         assert total_score == await gl.get_station_score(station_id=station_id, before=time_base + timedelta(seconds=i + 0.5 + eps))
 
 
+@test_func
 async def test_game_score_history_single_player(with_redis = False, game_score_granularity = None):
     const.reset()
     const.STATION_SCORE_DECAY_INTERVAL = 1
@@ -591,6 +603,7 @@ async def test_game_score_history_single_player(with_redis = False, game_score_g
     ])
 
 
+@test_func
 async def test_game_score_history_two_player(with_redis = False, game_score_granularity = None):
     const.reset()
     const.STATION_SCORE_DECAY_INTERVAL = 1
@@ -635,6 +648,7 @@ async def test_game_score_history_two_player(with_redis = False, game_score_gran
         assert scores[0][1] + scores[1][1] == await gl.get_game_score(player_id=player2_id, station_id=station_id, game_type=game_type, num_of_player=GameNumOfPlayerType.TWO, before=time_base + timedelta(seconds=3 + eps))
 
 
+@test_func
 async def test_game_score_log_only():
     const.reset()
     const.STATION_SCORE_DECAY_INTERVAL = 1
@@ -662,6 +676,7 @@ async def test_game_score_log_only():
     assert 0 == await gl.get_game_score(player_id=player2_id, station_id=station_id, before=time_base + timedelta(seconds=2 + eps))
 
 
+@test_func
 async def test_sponsor_bonus():
     const.reset()
     const.STATION_SCORE_DECAY_INTERVAL = 1000 # a very large value to avoid decay during the test
@@ -709,4 +724,17 @@ if __name__ == "__main__":
     asyncio.run(test_attack_station_score_buff(buff_a_count=2, buff_b_count=3))
     asyncio.run(test_attack_station_score_buff(buff_a_count=0, buff_b_count=0))
     asyncio.run(test_attack_station_score_buff(buff_a_count=10, buff_b_count=5))
+    asyncio.run(test_game_score_log_only())
+    asyncio.run(test_sponsor_bonus())
+
+    import sys
+    import inspect
+    current_module = sys.modules[__name__]
+    all_tests = {
+        name
+        for name, _ in inspect.getmembers(current_module, inspect.iscoroutinefunction)
+        if name.startswith("test_")
+    }
+
+    assert _executed_test == all_tests, f"Not all tests were executed: {all_tests - _executed_test}"
     print("All tests passed!")
