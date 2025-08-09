@@ -237,7 +237,7 @@ class TamaApp : public App {
   TAMA_APP_STATE _state;
   TAMA_TYPE _current_selection_in_choose_mode;
   hitcon::service::sched::PeriodicTask _routine_task;
-  hitcon::service::sched::DelayedTask _hatching_task;
+  hitcon::service::sched::PeriodicTask _hatching_task;
   hitcon::service::sched::PeriodicTask _hunger_task;
   hitcon::service::sched::PeriodicTask _level_up_task;
   tama_storage_t& _tama_data;
@@ -245,7 +245,7 @@ class TamaApp : public App {
   unsigned int _frame_count = 0;
   bool _is_selected = false;
   unsigned int _previous_hatching_step = 0;
-  unsigned int _total_hatchin_steps = 0;
+  unsigned int _total_hatching_steps = 0;
   unsigned int _hunger_check_elapsed = 0;
   unsigned int _last_hunger_check = 0;
   unsigned int _level_up_progress = 0;
