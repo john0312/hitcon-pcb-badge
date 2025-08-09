@@ -278,17 +278,19 @@ class _GameLogic:
 
     async def receive_game_score_two_player(self, two_player_event_id: uuid.UUID, player1_id: int, player2_id: int, station_id: int, score1: int, score2: int, game_type: GameType, timestamp: datetime, log_only: bool = False):
         match game_type:
-            case GameType.DINO:
-                # TODO: validate the score and timestamp
-                pass
-
             case GameType.SNAKE:
-                # TODO: validate the score and timestamp
-                pass
+                # winner has double score
+                if score1 > score2:
+                    score1 *= 2
+                elif score1 < score2:
+                    score2 *= 2
 
             case GameType.TETRIS:
-                # TODO: validate the score and timestamp
-                pass
+                # winner has double score
+                if score1 > score2:
+                    score1 *= 2
+                elif score1 < score2:
+                    score2 *= 2
 
             case GameType.TAMA:
                 # TODO: validate the score and timestamp
@@ -714,9 +716,8 @@ async def test_game_score_history_two_player(with_redis = False, game_score_gran
     await gl.clear_database()
 
     table = {
-        GameType.DINO: [[10, -10], [-15, 15]],
-        GameType.SNAKE: [[-20, 20], [25, -25]],
-        GameType.TETRIS: [[30, -30], [35, -35]],
+        GameType.SNAKE: [[15, 20], [30, 25]],
+        GameType.TETRIS: [[25, 30], [40, 35]],
     }
     player1_id = 1
     player2_id = 2
@@ -729,16 +730,17 @@ async def test_game_score_history_two_player(with_redis = False, game_score_gran
         await gl.receive_game_score_two_player(two_player_event_id, player1_id, player2_id, station_id, scores[1][0], scores[1][1], game_type, time_base + timedelta(seconds=1.5))
 
     # Test
+    # Note that winner's score is doubled in SNAKE and TETRIS
     for game_type, scores in table.items():
         assert 0 == await gl.get_game_score(player_id=player1_id, station_id=station_id, game_type=game_type, num_of_player=GameNumOfPlayerType.TWO, before=time_base + timedelta(seconds=0 + eps))
         assert scores[0][0] == await gl.get_game_score(player_id=player1_id, station_id=station_id, game_type=game_type, num_of_player=GameNumOfPlayerType.TWO, before=time_base + timedelta(seconds=1 + eps))
-        assert scores[0][0] + scores[1][0] == await gl.get_game_score(player_id=player1_id, station_id=station_id, game_type=game_type, num_of_player=GameNumOfPlayerType.TWO, before=time_base + timedelta(seconds=2 + eps))
-        assert scores[0][0] + scores[1][0] == await gl.get_game_score(player_id=player1_id, station_id=station_id, game_type=game_type, num_of_player=GameNumOfPlayerType.TWO, before=time_base + timedelta(seconds=3 + eps))
+        assert scores[0][0] + 2*scores[1][0] == await gl.get_game_score(player_id=player1_id, station_id=station_id, game_type=game_type, num_of_player=GameNumOfPlayerType.TWO, before=time_base + timedelta(seconds=2 + eps))
+        assert scores[0][0] + 2*scores[1][0] == await gl.get_game_score(player_id=player1_id, station_id=station_id, game_type=game_type, num_of_player=GameNumOfPlayerType.TWO, before=time_base + timedelta(seconds=3 + eps))
 
         assert 0 == await gl.get_game_score(player_id=player2_id, station_id=station_id, game_type=game_type, num_of_player=GameNumOfPlayerType.TWO, before=time_base + timedelta(seconds=0 + eps))
-        assert scores[0][1] == await gl.get_game_score(player_id=player2_id, station_id=station_id, game_type=game_type, num_of_player=GameNumOfPlayerType.TWO, before=time_base + timedelta(seconds=1 + eps))
-        assert scores[0][1] + scores[1][1] == await gl.get_game_score(player_id=player2_id, station_id=station_id, game_type=game_type, num_of_player=GameNumOfPlayerType.TWO, before=time_base + timedelta(seconds=2 + eps))
-        assert scores[0][1] + scores[1][1] == await gl.get_game_score(player_id=player2_id, station_id=station_id, game_type=game_type, num_of_player=GameNumOfPlayerType.TWO, before=time_base + timedelta(seconds=3 + eps))
+        assert 2*scores[0][1] == await gl.get_game_score(player_id=player2_id, station_id=station_id, game_type=game_type, num_of_player=GameNumOfPlayerType.TWO, before=time_base + timedelta(seconds=1 + eps))
+        assert 2*scores[0][1] + scores[1][1] == await gl.get_game_score(player_id=player2_id, station_id=station_id, game_type=game_type, num_of_player=GameNumOfPlayerType.TWO, before=time_base + timedelta(seconds=2 + eps))
+        assert 2*scores[0][1] + scores[1][1] == await gl.get_game_score(player_id=player2_id, station_id=station_id, game_type=game_type, num_of_player=GameNumOfPlayerType.TWO, before=time_base + timedelta(seconds=3 + eps))
 
 
 @test_func
@@ -818,12 +820,12 @@ async def test_scoreboard_api(game_score_granularity = None):
         (GameNumOfPlayerType.SINGLE, GameType.CONNECT_SPONSOR, 8, 4, time_base + timedelta(seconds=2.5)),
 
         # num of player, game type, player 1 score, player 2 score, timestamp
-        (GameNumOfPlayerType.TWO, GameType.DINO, -1, 1, time_base + timedelta(seconds=3.5)),
-        (GameNumOfPlayerType.TWO, GameType.SNAKE, -2, 2, time_base + timedelta(seconds=4.5)),
-        (GameNumOfPlayerType.TWO, GameType.TAMA, -3, 3, time_base + timedelta(seconds=5.5)), # log only
+        (GameNumOfPlayerType.TWO, GameType.SNAKE, 3, 4, time_base + timedelta(seconds=4.5)),
+        (GameNumOfPlayerType.TWO, GameType.TETRIS, 6, 5, time_base + timedelta(seconds=4.5)),
+        (GameNumOfPlayerType.TWO, GameType.TAMA, 7, 8, time_base + timedelta(seconds=5.5)), # log only
     ]
-    total_score_1 = 4 + 5 + 6 + 7 + 8 - 1 - 2 # ignore TAMA's score
-    total_score_2 = 1 + 2 # ignore TAMA's score
+    total_score_1 = 4 + 5 + 6 + 7 + 8 + 3 + 6*2 # ignore TAMA's score
+    total_score_2 = 4*2 + 5 # ignore TAMA's score
     sponsors_1 = [1, 2, 4]
     sponsors_2 = []
 
@@ -861,16 +863,16 @@ async def test_scoreboard_api(game_score_granularity = None):
     assert set(scoreboard[0]["connected_sponsors"]) == set(sponsors_1)
     assert scoreboard[0]["scores"] == {
         GameType.SHAKE_BADGE: 4,
-        GameType.DINO: 5 - 1,
         GameType.CONNECT_SPONSOR: 6 + 7 + 8,
-        GameType.SNAKE: -2,
+        GameType.SNAKE: 3,
+        GameType.TETRIS: 6*2,
     }
     assert scoreboard[1]["player_id"] == 2
     assert scoreboard[1]["total_score"] == total_score_2
     assert set(scoreboard[1]["connected_sponsors"]) == set(sponsors_2)
     assert scoreboard[1]["scores"] == {
-        GameType.DINO: 1,
-        GameType.SNAKE: 2,
+        GameType.SNAKE: 4*2,
+        GameType.TETRIS: 5,
     }
 
 
