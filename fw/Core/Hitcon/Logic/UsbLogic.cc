@@ -41,8 +41,8 @@ void UsbLogic::OnDataRecv(void* arg2) {
           MIN(REPORT_LEN - 1, hitcon::ShowNameApp::NAME_LEN - name_index);
       memcpy(&content.name[name_index], &data[(name_index == 0) ? 2 : 1],
              copy_len);
-      name_index += copy_len;
-      if (name_index >= hitcon::ShowNameApp::NAME_LEN) {
+      name_index += copy_len - 1;
+      if (name_index >= hitcon::ShowNameApp::NAME_LEN - 1) {
         show_name_app.SetName(const_cast<const char*>(content.name));
         _state = USB_STATE_IDLE;
         name_index = 0;
@@ -70,7 +70,7 @@ void UsbLogic::OnDataRecv(void* arg2) {
       static WriteMemPacket packet;
       if (_first) {
         _first = false;
-        memcpy(&packet.u8, data + 1, REPORT_LEN - 1);
+        memcpy(&packet.u8, data + 2, REPORT_LEN - 1);
       } else {
         _first = true;
         mem_type_t mem_type = static_cast<mem_type_t>(data[1]);
@@ -94,8 +94,8 @@ void UsbLogic::OnDataRecv(void* arg2) {
     case USB_STATE_READ_MEM: {
       // TODO: check read mem and write mem functionality
       ReadMemPacket packet;
-      memcpy(&packet.u8, data + 1, 4);
-      mem_type_t mem_type = static_cast<mem_type_t>(data[5]);
+      memcpy(&packet.u8, data + 2, 4);
+      mem_type_t mem_type = static_cast<mem_type_t>(data[6]);
       uint8_t report[REPORT_LEN - 1] = {0};
       switch (mem_type) {
         case MEM_BYTE:
