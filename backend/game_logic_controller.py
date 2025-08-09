@@ -325,8 +325,7 @@ class GameLogicController:
 
     @staticmethod
     async def get_user_scoreboard():
-        # TODO: fetching scoreboard from GameLogic
-        pass
+        return await game.get_player_scoreboard()
 
 
     @staticmethod

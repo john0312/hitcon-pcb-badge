@@ -33,53 +33,11 @@ async def read_root():
     return {"message": "Hello World"}
 
 ## ====== Public API Endpoints ======
-@app.get("/api/scores", response_model=list[ScoreEntry])
-async def get_scoreboard():
-    # TODO: return scoreboard from GameLogic
-    return [
-        {
-            "name": "tony",
-            "uid": 101,
-            "scores": {
-                "shake_badge": 100,
-                "dino": 200,
-                "snake": 300,
-                "tetris": 400,
-                "connect_sponsor": 500,
-                "rectf": 600
-            },
-            "total_score": 2100,
-            "connected_sponsors": [1, 2, 3]
-        },
-        {
-            "name": "chen",
-            "uid": 102,
-            "scores": {
-                "shake_badge": 200,
-                "dino": 300,
-                "snake": 400,
-                "tetris": 500,
-                "connect_sponsor": 600,
-                "rectf": 700
-            },
-            "total_score": 2700,
-            "connected_sponsors": [1, 3]
-        },
-        {
-            "name": "sherry",
-            "uid": 103,
-            "scores": {
-                "shake_badge": 300,
-                "dino": 400,
-                "snake": 500,
-                "tetris": 600,
-                "connect_sponsor": 700,
-                "rectf": 800
-            },
-            "total_score": 3300,
-            "connected_sponsors": [2, 3]
-        }
-    ]
+@app.get("/api/scores")
+async def get_scoreboard() -> list[ScoreEntry]:
+    scoreboard = await GameLogicController.get_user_scoreboard()
+
+    return scoreboard
 
 
 @app.get("/api/stations")

@@ -75,8 +75,8 @@ class Display(BaseModel):
 
 # Leaderboard
 class ScoreEntry(BaseModel):
-    name: str
-    uid: int
+    name: Optional[str] = ""
+    player_id: int
     scores: Dict[str, int]
     total_score: int
     connected_sponsors: List[int]
