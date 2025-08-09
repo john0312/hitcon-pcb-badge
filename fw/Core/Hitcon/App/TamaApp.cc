@@ -9,6 +9,7 @@
 #include <Logic/RandomPool.h>
 #include <Logic/XBoardLogic.h>
 #include <Service/Sched/Scheduler.h>
+#include <Service/SignedPacketService.h>
 
 #include <cstdarg>
 #include <cstring>
@@ -1196,17 +1197,15 @@ bool TamaApp::TrySendSave(bool force) {
       _tama_data.qte_level + _tama_data.secret_level + _tama_data.step_level;
   if (current_level > _last_save_level || force) {
     // Should save.
+    hitcon::ir::SavePetPacket save_pkt;
     const uint8_t* user = hitcon::g_game_controller.GetUsername();
     if (!user) return false;
-    bool ret = SaveToBuffer(_save_pkt.opaq.save_pet.pet_data);
+    bool ret = SaveToBuffer(&save_pkt.pet_data[0]);
     if (!ret) return false;
-    _save_pkt.ttl = 0;
-    _save_pkt.type = packet_type::kSavePet;
-    memcpy(&_save_pkt.opaq.save_pet.user, user, hitcon::ir::IR_USERNAME_LEN);
-    ret = hitcon::ir::irController.SendPacketWithRetransmit(
-        reinterpret_cast<uint8_t*>(&_save_pkt),
-        ir::IR_DATA_HEADER_SIZE + sizeof(struct hitcon::ir::SavePetPacket), 3,
-        ::hitcon::ir::AckTag::ACK_TAG_NONE);
+    memcpy(&save_pkt.user[0], user, hitcon::ir::IR_USERNAME_LEN);
+    ret = hitcon::g_signed_packet_service.SignAndSendData(
+        packet_type::kSavePet, reinterpret_cast<uint8_t*>(&save_pkt),
+        sizeof(save_pkt) - ECC_SIGNATURE_SIZE);
     if (ret) {
       _last_save_level = current_level;
       return true;

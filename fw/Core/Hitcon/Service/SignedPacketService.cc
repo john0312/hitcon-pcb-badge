@@ -61,6 +61,12 @@ static bool getPacketSigInfo(packet_type packetType, size_t &sigOffset,
                         ECC_SIGNATURE_SIZE <=
                     MAX_PACKET_DATA_SIZE);
       break;
+    case packet_type::kSavePet:
+      sigOffset = offsetof(hitcon::ir::SavePetPacket, sig);
+      dataSize = sizeof(hitcon::ir::SavePetPacket) - ECC_SIGNATURE_SIZE;
+      static_assert(sizeof(hitcon::ir::SavePetPacket) - ECC_SIGNATURE_SIZE <=
+                    MAX_PACKET_DATA_SIZE);
+      break;
     default:
       return false;
   }

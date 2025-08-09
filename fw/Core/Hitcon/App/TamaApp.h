@@ -285,7 +285,6 @@ class TamaApp : public App {
 
   // Save/Restore related.
   uint16_t _last_save_level = 0;
-  struct hitcon::ir::IrData _save_pkt;
 
  public:
   TAMA_PLAYER_MODE player_mode;
