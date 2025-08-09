@@ -103,6 +103,8 @@ void ImuService::Routine(void* arg) {
     case State::INIT:
       _is_rx_done = true;
       _is_tx_done = true;
+      _rx_queue.Clear();
+      _tx_queue.Clear();
 
       HAL_I2C_RegisterCallback(&hi2c1, HAL_I2C_MEM_RX_COMPLETE_CB_ID,
                                I2CCallbackWrapper);
