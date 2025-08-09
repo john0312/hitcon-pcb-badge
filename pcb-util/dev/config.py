@@ -2,6 +2,7 @@
 
 
 FW_ELF_PATH = 'fw.elf'
+MOD_ELF_PATH = 'fwMOD.elf'
 ST_PRO_PATH = r'C:\Program Files\STMicroelectronics\STM32Cube\STM32CubeProgrammer\bin\STM32_Programmer_CLI.exe'
 POST_URL = 'https://pcb-log.hitcon2025.online/'
 CLI_QUIT_SCAN_INTERVAL = 0.1

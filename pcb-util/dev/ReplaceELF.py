@@ -9,9 +9,6 @@ import ecc
 import pcb_logger
 from typing import Tuple
 
-original_elf_path = 'fw.elf'  # Original ELF file path
-MOD_elf_path = 'fwMOD.elf'  # New duplicated ELF file path
-
 # Configure the array to find in ELF
 search_array_PerBoardRandom = [
         0xf1, 0xca, 0x4e, 0xa0, 0x48, 0x2f, 0x27, 0x4d,
@@ -148,11 +145,11 @@ def modify_fw_elf() -> Tuple[bytes, bytes]:
 
     
     # Duplicate the ELF file
-    duplicate_elf_file(original_elf_path, MOD_elf_path)
+    duplicate_elf_file(config.FW_ELF_PATH, config.MOD_ELF_PATH)
     # Modify array in ELF
-    array_offset_PerBoardRandom = search_and_reaplce_array(MOD_elf_path, search_array_PerBoardRandom, replace_array_PerBoardRandom)
-    array_offset_PerBoardSecret = search_and_reaplce_array(MOD_elf_path, search_array_PerBoardSecret, replace_array_PerBoardSecret)
-    array_offset_PubKeyCert = search_and_reaplce_array(MOD_elf_path, search_array_PubKeyCert, replace_array_PubKeyCert)
-    array_offset_PrivKey = search_and_reaplce_array(MOD_elf_path, search_array_PrivKey, replace_array_PrivKey)
+    array_offset_PerBoardRandom = search_and_reaplce_array(config.MOD_ELF_PATH, search_array_PerBoardRandom, replace_array_PerBoardRandom)
+    array_offset_PerBoardSecret = search_and_reaplce_array(config.MOD_ELF_PATH, search_array_PerBoardSecret, replace_array_PerBoardSecret)
+    array_offset_PubKeyCert = search_and_reaplce_array(config.MOD_ELF_PATH, search_array_PubKeyCert, replace_array_PubKeyCert)
+    array_offset_PrivKey = search_and_reaplce_array(config.MOD_ELF_PATH, search_array_PrivKey, replace_array_PrivKey)
 
     return replace_array_PerBoardSecret, replace_array_PrivKey
