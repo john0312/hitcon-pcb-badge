@@ -148,7 +148,7 @@ class _GameLogic:
             "buff_b_modifier": const.BUFF_B_MODIFIER,
         })
 
-    async def get_station_score_history(self, *, player_id: int = None, station_id: int = None, start: datetime = None, before: datetime = None):
+    async def get_station_attack_history(self, *, player_id: int = None, station_id: int = None, start: datetime = None, before: datetime = None):
         if start is None:
             start = self.start_time
         if before is None:
@@ -167,7 +167,7 @@ class _GameLogic:
         async for record in cursor:
             yield record
 
-    async def get_station_score(self, *, player_id: int = None, station_id: int = None, before: datetime = None) -> int:
+    async def get_station_score(self, *, station_id: int = None, before: datetime = None) -> int:
         if before is None:
             before = datetime.now()
 
@@ -182,7 +182,7 @@ class _GameLogic:
 
             # get the latest cached score before the given time
             tmp = await self.redis_client.zrange(
-                f"station_score:{player_id}:{station_id}",
+                f"station_score:{station_id}",
                 start=before.timestamp(),
                 end=self.start_time.timestamp(),
                 desc=True,
@@ -215,7 +215,7 @@ class _GameLogic:
                     total_score += -1 * sign(total_score) * min(const.STATION_SCORE_DECAY_AMOUNT, abs(total_score))
                 time_pointer += timedelta(seconds=const.STATION_SCORE_DECAY_INTERVAL)
 
-        async for record in self.get_station_score_history(player_id=player_id, station_id=station_id, start=start_time, before=before):
+        async for record in self.get_station_attack_history(station_id=station_id, start=start_time, before=before):
             proceed(record["timestamp"])
             total_score = clamp(total_score + record["amount"], const.STATION_SCORE_LB, const.STATION_SCORE_UB)
 
@@ -225,7 +225,7 @@ class _GameLogic:
             # Cache the total score, if it has been a while since the last cache
             if last_cached_time is None or (before - last_cached_time).total_seconds() >= const.STATION_SCORE_CACHE_MIN_INTERVAL:
                 await self.redis_client.zadd(
-                    f"station_score:{player_id}:{station_id}",
+                    f"station_score:{station_id}",
                     {f"{before.isoformat()}:{total_score}": before.timestamp()},
                 )
 
@@ -784,16 +784,16 @@ async def test_sponsor_bonus():
     # Score should be 0 when sponsor are not fully collected
     for i in range(len(const.SPONSOR_STATION_ID_LIST) - 1):
         await gl.receive_game_score_single_player(player_id, station_id, 100, GameType.CONNECT_SPONSOR, time_base + timedelta(seconds=i), sponsor_id=const.SPONSOR_STATION_ID_LIST[i])
-        assert 0 == await gl.get_station_score(player_id=player_id, station_id=station_id, before=time_base + timedelta(seconds=i + eps))
+        assert 0 == await gl.get_station_score(station_id=station_id, before=time_base + timedelta(seconds=i + eps))
 
     # Buff should be applied when all sponsors are collected
     await gl.receive_game_score_single_player(player_id, station_id, 100, GameType.CONNECT_SPONSOR, time_base + timedelta(seconds=len(const.SPONSOR_STATION_ID_LIST) - 1), sponsor_id=const.SPONSOR_STATION_ID_LIST[-1])
-    assert const.SPONSOR_ALL_COLLECTED_BONUS == await gl.get_station_score(player_id=player_id, station_id=station_id, before=time_base + timedelta(seconds=len(const.SPONSOR_STATION_ID_LIST) - 1 + eps))
+    assert const.SPONSOR_ALL_COLLECTED_BONUS == await gl.get_station_score(station_id=station_id, before=time_base + timedelta(seconds=len(const.SPONSOR_STATION_ID_LIST) - 1 + eps))
 
     # Score should remain the same after collecting all sponsors
     for i in range(len(const.SPONSOR_STATION_ID_LIST)):
         await gl.receive_game_score_single_player(player_id, station_id, 100, GameType.CONNECT_SPONSOR, time_base + timedelta(seconds=len(const.SPONSOR_STATION_ID_LIST) + i + 0.5), sponsor_id=const.SPONSOR_STATION_ID_LIST[-1])
-        assert const.SPONSOR_ALL_COLLECTED_BONUS == await gl.get_station_score(player_id=player_id, station_id=station_id, before=time_base + timedelta(seconds=len(const.SPONSOR_STATION_ID_LIST) + i + 0.5 + eps))
+        assert const.SPONSOR_ALL_COLLECTED_BONUS == await gl.get_station_score(station_id=station_id, before=time_base + timedelta(seconds=len(const.SPONSOR_STATION_ID_LIST) + i + 0.5 + eps))
 
 
 @test_func
