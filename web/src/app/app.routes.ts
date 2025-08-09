@@ -2,7 +2,7 @@ import { Routes } from '@angular/router';
 import { HomeComponent } from './home/home.component';
 import { LeaderboardComponent } from './leaderboard/leaderboard.component';
 
-const titleSuffix = 'Hitcon Badge Battle!';
+const titleSuffix = 'HITCON PCB Badge Battle!';
 
 export const routes: Routes = [
     {
