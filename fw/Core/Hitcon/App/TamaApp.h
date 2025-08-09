@@ -255,8 +255,10 @@ class TamaApp : public App {
 
   TamaQte qte;
 
-  uint16_t GetLevel() const;
-  uint16_t GetRealLevel() const;
+  // This level is displayed on the UI
+  uint16_t GetDisplayLevel() const;
+  // This level is used for calculating QTE score
+  uint16_t GetCombatLevel() const;
   void SetHunger(uint8_t hunger);
   void SetQteLevel(uint16_t level);
   void SetStepLevel(uint16_t level);

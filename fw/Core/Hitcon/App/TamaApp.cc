@@ -513,9 +513,9 @@ void TamaApp::UpdateFrameBuffer() {
     case TAMA_APP_STATE::LV_DETAIL:
       TAMA_PREPARE_FB(_fb, TAMA_GET_ANIMATION_DATA(LV).frame_count);
       TAMA_COPY_FB(_fb, TAMA_GET_ANIMATION_DATA(LV), 0);
-      StackOnFrame(&TAMA_NUM_FONT[GetLevel() / 100], 5);
-      StackOnFrame(&TAMA_NUM_FONT[(GetLevel() % 100) / 10], 9);
-      StackOnFrame(&TAMA_NUM_FONT[GetLevel() % 10], 13);
+      StackOnFrame(&TAMA_NUM_FONT[GetDisplayLevel() / 100], 5);
+      StackOnFrame(&TAMA_NUM_FONT[(GetDisplayLevel() % 100) / 10], 9);
+      StackOnFrame(&TAMA_NUM_FONT[GetDisplayLevel() % 10], 13);
       for (int i = 0;
            (i < _tama_data.secret_level && i < TAMA_MAX_SECRET_LEVEL); i++) {
         const display_buf_t indicator = 1 << (i / (TAMA_MAX_SECRET_LEVEL / 2));
@@ -791,7 +791,7 @@ void TamaApp::XbRoutine(void* unused) {
       _my_nounce = (g_fast_random_pool.GetRandom() % (UINT16_MAX - 1)) + 1;
 
       my_packet.state = TAMA_XBOARD_STATE::XBOARD_BATTLE_SENT_SCORE;
-      my_packet.result.score = qte.GetScore(GetRealLevel()),
+      my_packet.result.score = qte.GetScore(GetCombatLevel()),
       my_packet.result.nonce = _my_nounce;
       g_game_controller.SetBufferToUsername(my_packet.result.user);
 
@@ -809,7 +809,7 @@ void TamaApp::XbRoutine(void* unused) {
     // Send result with TwoBadgeActivity
     hitcon::game::TwoBadgeActivity activity = {
         .gameType = hitcon::game::EventType::kTama,
-        .myScore = qte.GetScore(GetRealLevel()),
+        .myScore = qte.GetScore(GetCombatLevel()),
         .otherScore = enemy_packet.result.score,
         .nonce = _my_nounce + enemy_packet.result.nonce,
     };
@@ -925,7 +925,7 @@ void TamaApp::HungerRoutine(void* unused) {
   if (needs_save) g_nv_storage.MarkDirty();
 }
 
-static unsigned int intSqrt(unsigned int x) {
+static unsigned int IntSqrt(unsigned int x) {
   unsigned int res = 0;
   unsigned int bit = 1 << 30;
   while (bit > x)
@@ -955,7 +955,8 @@ void TamaApp::LevelUpRoutine(void *unused) {
     _level_up_progress += step - _last_level_check_steps;
   _last_level_check_steps = step;
 
-  if (_level_up_progress >= min(100, _tama_data.step_level * intSqrt(_tama_data.step_level))) {
+  // Steps needed to level up = min(100, current_level ^ 1.5)
+  if (_level_up_progress >= min(100, _tama_data.step_level * IntSqrt(_tama_data.step_level))) {
     SetStepLevel(_tama_data.step_level + 1);
     needs_save = true;
   }
@@ -981,11 +982,11 @@ void TamaApp::SetStepLevel(uint16_t level) {
   _level_up_progress = 0;
 }
 
-uint16_t TamaApp::GetLevel() const {
+uint16_t TamaApp::GetDisplayLevel() const {
   return _tama_data.step_level + _tama_data.qte_level;
 }
 
-uint16_t TamaApp::GetRealLevel() const {
+uint16_t TamaApp::GetCombatLevel() const {
   return _tama_data.step_level + _tama_data.qte_level + _tama_data.secret_level;
 }
 
