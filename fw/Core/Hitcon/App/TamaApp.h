@@ -283,6 +283,10 @@ class TamaApp : public App {
   void XbUpdateFrameBuffer();
   void XbRoutine(void* unused);
 
+  // Save/Restore related.
+  uint16_t _last_save_level = 0;
+  struct hitcon::ir::IrData _save_pkt;
+
  public:
   TAMA_PLAYER_MODE player_mode;
   TamaApp();
@@ -302,6 +306,15 @@ class TamaApp : public App {
   // BaseStation
   bool CanAcceptHeal();
   void TamaHeal();
+
+  // Save/Restore related.
+  static bool TamaDataToBuffer(uint8_t* buffer, const tama_storage_t& data);
+  static bool BufferToTamaData(const uint8_t* buffer, tama_storage_t& data);
+  bool SaveToBuffer(uint8_t* buffer);
+  bool RestoreFromBuffer(const uint8_t* buffer);
+  bool ShouldRestore(const tama_storage_t& t);
+  bool TrySendSave(bool force);
+  bool OnRestorePacket(struct hitcon::ir::RestorePetPacket* pkt);
 };
 
 void SetSingleplayer();

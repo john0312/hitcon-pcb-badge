@@ -28,9 +28,14 @@ enum class packet_type : uint8_t {
   kSponsorActivity = 9,
   kShowMsg = 10,
   kRequestScore = 11,
+  kSavePet = 12,
+  kRestorePet = 13,
 };
 
 namespace hitcon {
+
+constexpr size_t kTamaDataSaveLen = 6;
+
 namespace ir {
 
 /*Definition of IR content.*/
@@ -128,6 +133,18 @@ struct RequestScorePacket {
   uint8_t user[IR_USERNAME_LEN];
 };
 
+struct SavePetPacket {
+  uint8_t user[IR_USERNAME_LEN];
+  uint8_t pet_data[kTamaDataSaveLen];
+  uint8_t sig[ECC_SIGNATURE_SIZE];
+};
+
+struct RestorePetPacket {
+  uint8_t user[IR_USERNAME_LEN];
+  uint8_t pet_data[kTamaDataSaveLen];
+  uint8_t sig[ECC_SIGNATURE_SIZE];
+};
+
 /*Definition of IR content.*/
 constexpr size_t IR_DATA_HEADER_SIZE = 2;
 struct IrData {
@@ -147,8 +164,11 @@ struct IrData {
     struct SponsorActivityPacket sponsor_activity;
     struct ShowMsgPacket show_msg;
     struct RequestScorePacket request_score;
+    struct SavePetPacket save_pet;
+    struct RestorePetPacket restore_pet;
   } opaq;
 };
+static_assert(sizeof(IrData) < 32);
 
 constexpr size_t RETX_QUEUE_SIZE = 4;
 

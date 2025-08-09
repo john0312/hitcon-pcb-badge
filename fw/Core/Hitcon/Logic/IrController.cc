@@ -2,6 +2,7 @@
 
 #include <App/HardwareTestApp.h>
 #include <App/ShowNameApp.h>
+#include <App/TamaApp.h>
 #include <Logic/BadgeController.h>
 #include <Logic/Display/display.h>
 #include <Logic/GameController.h>
@@ -71,12 +72,21 @@ void IrController::OnPacketReceived(void* arg) {
   } else if (data->type == packet_type::kAcknowledge) {
     OnAcknowledgePacket(&data->opaq.acknowledge);
   } else if (data->type == packet_type::kScoreAnnonce) {
-    if (memcmp(data->opaq.score_announce.user, g_game_controller.GetUsername(),
-               IR_USERNAME_LEN) == 0) {
+    const uint8_t* user = g_game_controller.GetUsername();
+    if (user &&
+        memcmp(data->opaq.score_announce.user, user, IR_USERNAME_LEN) == 0) {
       show_name_app.SetScore(
           *reinterpret_cast<uint32_t*>(data->opaq.score_announce.score));
     } else {
       // Not our score.
+    }
+  } else if (data->type == packet_type::kRestorePet) {
+    const uint8_t* user = g_game_controller.GetUsername();
+    if (user &&
+        memcmp(data->opaq.restore_pet.user, user, IR_USERNAME_LEN) == 0) {
+      hitcon::app::tama::tama_app.OnRestorePacket(&data->opaq.restore_pet);
+    } else {
+      // Not our pet.
     }
   }
 }
