@@ -65,9 +65,9 @@ enum class TAMA_TYPE : uint8_t {
 typedef struct {
   TAMA_APP_STATE state;
   TAMA_TYPE type;
-  uint16_t qte_level;
   uint8_t hp;
   uint8_t hunger;
+  uint16_t qte_level;
   uint16_t secret_level;
   uint16_t step_level;
   unsigned int sponsor_register;
