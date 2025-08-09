@@ -24,8 +24,7 @@ class BadgeLinkController:
         Retrieve UID and Name from badge token (JWT).
         Return None if the token is invalid.
         """
-        # TODO: Verify jwt signature
-        user = jwt.decode(token, options={"verify_signature": False})
+        user = jwt.decode(token, config.get("hitcon", {}).get("secret", ""))
 
         if "scope" not in user or "badge" not in user["scope"]: return
 
@@ -46,7 +45,7 @@ class BadgeLinkController:
         existing_badge_link = await db[BadgeLinkController.DB_NAME].find_one({"badge_user": badge_user})
         if existing_badge_link:
             raise ValueError(f"Badge {badge_user} is already linked to another user!")
-        
+
         old_badge_user = await BadgeLinkController.translate_uid_to_user(uid)
         if old_badge_user is not None and old_badge_user != badge_user:
             await db[BadgeLinkController.DB_NAME].delete_one({"uid": uid, "badge_user": old_badge_user})
