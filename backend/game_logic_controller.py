@@ -426,3 +426,26 @@ class GameLogicController:
         )
         signed_pkt = CryptoAuth.sign_packet(pkt)
         await packet_processor.send_packet_to_user(signed_pkt, user)
+
+
+    @staticmethod
+    async def send_restore_pet(user: int, packet_processor: 'PacketProcessor'):
+        """
+            Send a restore pet event to the user.
+        """
+        existing_user = await db["users"].find_one({"user": user})
+        if not existing_user or not existing_user.get("pet_data"):
+            print(f"User {user} has no pet data to restore.")
+            return
+
+        pkt = IrPacket(
+            data=b"".join([
+                b"\x00",                                    # TTL
+                bytes([PacketType.kRestorePet.value]),      # PacketType
+                user.to_bytes(4, 'little'),                 # User
+                existing_user["pet_data"]                   # Pet data
+            ]),
+            to_stn=True
+        )
+        signed_pkt = CryptoAuth.sign_packet(pkt)
+        await packet_processor.send_packet_to_user(signed_pkt, user)
