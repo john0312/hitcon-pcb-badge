@@ -47,10 +47,10 @@ void ImuLogic::Reset() {
   _init_state = InitState::CHECK_ID;
   _start_time = SysTimer::GetTime();
   _reset_cnt_without_success++;
-  if (_reset_cnt_without_success >= 8) {
+  /*if (_reset_cnt_without_success >= 8) {
     display_set_mode_text("ST");
     if (_reset_cnt_without_success >= 11) my_assert(false);
-  }
+  }*/
 }
 
 void ImuLogic::GyroSelfTest(callback_t cb, void* cb_arg1) {
