@@ -401,7 +401,7 @@ class GameLogicController:
                 )
             else:
                 # apply the previous known ReCTF score
-                result = await db["unapplied_rectf_scores"].find_one({"uid": uid})
+                result = await db["unapplied_rectf_scores"].find_one_and_delete({"uid": uid})
                 if result:
                     solves = ReCTFSolves(**result["solves"])
                     await game.update_player_buff(
@@ -410,7 +410,6 @@ class GameLogicController:
                         buff_b_count=solves.b,
                         timestamp=result["timestamp"]
                     )
-                    await db["unapplied_rectf_scores"].delete_one({"uid": uid})
                 else:
                     print(f"No ReCTF score has received for UID: {uid}, user: {user}")
 

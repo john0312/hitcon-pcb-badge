@@ -64,8 +64,5 @@ class BadgeLinkController:
         """
         Unlink the badge from the attendee.
         """
-        result = await mongo[BadgeLinkController.DB_NAME][BadgeLinkController.COLLECTION_NAME].find_one({"uid": uid})
-        if not result: return None
-
-        await mongo[BadgeLinkController.DB_NAME][BadgeLinkController.COLLECTION_NAME].delete_one({"uid": uid})
-        return result["badge_user"]
+        result = await mongo[BadgeLinkController.DB_NAME][BadgeLinkController.COLLECTION_NAME].find_one_and_delete({"uid": uid})
+        return result["badge_user"] if result else None
