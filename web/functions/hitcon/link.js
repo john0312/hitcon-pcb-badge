@@ -1,6 +1,23 @@
 export async function onRequest(context) {
     const method = context.request.method;
 
+    const allowedOrigins = [
+        "http://localhost",
+        "https://hitcon.org"
+    ];
+
+    if (context.request.headers.has("Origin") && !allowedOrigins.includes(context.request.headers.get("Origin"))) {
+        return new Response(
+            JSON.stringify({"detail": "Origin not allowed"}),
+            {
+                status: 403,
+                headers: {
+                    "Access-Control-Allow-Origin": "https://hitcon.org"
+                }
+            }
+        );
+    }
+
     if (method !== "GET" && method !== "POST") {
         return new Response(
             JSON.stringify({"detail": "Method Not Allowed"}),
