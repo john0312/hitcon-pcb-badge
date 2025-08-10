@@ -22,7 +22,7 @@
 #endif
 
 // comment this if you want to disable dummy step generation
-#define DUMMY_STEP
+// #define DUMMY_STEP
 
 void hitcon_run();
 
