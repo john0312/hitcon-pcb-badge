@@ -1,4 +1,3 @@
-#include <Logic/XBoardGameController.h>
 #include <Logic/XBoardLogic.h>
 #include <Logic/XBoardRecvFn.h>
 #include <Logic/crc32.h>
@@ -8,7 +7,6 @@
 
 using namespace hitcon::service::sched;
 using namespace hitcon::service::xboard;
-using hitcon::xboard_game_controller::g_xboard_game_controller;
 
 namespace hitcon {
 namespace service {
@@ -17,12 +15,10 @@ namespace xboard {
 XBoardLogic g_xboard_logic;
 
 namespace {
-inline uint16_t inc_head(size_t head, size_t offset) {
-  return (head + offset) % RX_BUF_SZ;
-}
 constexpr uint8_t PADDING_MAP[] = {0, 3, 2, 1};
 }  // namespace
 
+constexpr uint64_t PREAMBLE = 0xD555555555555555ULL;
 struct Frame {
   uint64_t preamble;  // 0xD555555555555555
   uint16_t id;
@@ -48,12 +44,12 @@ void XBoardLogic::Init() {
   g_xboard_service.SetOnByteRx((callback_t)&XBoardLogic::OnByteArrive, this);
 }
 
-void XBoardLogic::QueueDataForTx(uint8_t *packet, uint8_t packet_len,
+void XBoardLogic::QueueDataForTx(const uint8_t *packet, uint8_t packet_len,
                                  RecvFnId handler_id) {
   my_assert(packet_len < PKT_PAYLOAD_LEN_MAX);
   uint8_t pkt[HEADER_SZ + PKT_PAYLOAD_LEN_MAX] = {0};
-  *(Frame *)pkt = Frame{0xD555555555555555, 0, packet_len,
-                        static_cast<uint8_t>(handler_id), 0};
+  *(Frame *)pkt =
+      Frame{PREAMBLE, 0, packet_len, static_cast<uint8_t>(handler_id), 0};
   for (uint8_t i = 0; i < packet_len; ++i) {
     pkt[i + HEADER_SZ] = packet[i];
   }
@@ -62,14 +58,34 @@ void XBoardLogic::QueueDataForTx(uint8_t *packet, uint8_t packet_len,
   g_xboard_service.QueueDataForTx(pkt, HEADER_SZ + packet_len);
 }
 
-void XBoardLogic::SetOnConnect(callback_t callback, void *self) {
-  connect_handler = callback;
-  connect_handler_self = self;
+void XBoardLogic::SetOnConnectLegacy(callback_t callback, void *self) {
+  connect_legacy_handler = callback;
+  connect_legacy_handler_self = self;
 }
 
-void XBoardLogic::SetOnDisconnect(callback_t callback, void *self) {
-  disconnect_handler = callback;
-  disconnect_handler_self = self;
+void XBoardLogic::SetOnDisconnectLegacy(callback_t callback, void *self) {
+  disconnect_legacy_handler = callback;
+  disconnect_legacy_handler_self = self;
+}
+
+void XBoardLogic::SetOnConnectPeer2025(callback_t callback, void *self) {
+  connect_peer2025_handler = callback;
+  connect_peer2025_handler_self = self;
+}
+
+void XBoardLogic::SetOnDisconnectPeer2025(callback_t callback, void *self) {
+  disconnect_peer2025_handler = callback;
+  disconnect_peer2025_handler_self = self;
+}
+
+void XBoardLogic::SetOnConnectBaseStn2025(callback_t callback, void *self) {
+  connect_basestn2025_handler = callback;
+  connect_basestn2025_handler_self = self;
+}
+
+void XBoardLogic::SetOnDisconnectBaseStn2025(callback_t callback, void *self) {
+  disconnect_basestn2025_handler = callback;
+  disconnect_basestn2025_handler_self = self;
 }
 
 void XBoardLogic::SetOnPacketArrive(callback_t callback, void *self,
@@ -79,40 +95,16 @@ void XBoardLogic::SetOnPacketArrive(callback_t callback, void *self,
 
 // private functions
 
-bool XBoardLogic::TryReadBytes(uint8_t *dst, size_t size,
-                               uint16_t head_offset) {
-  uint16_t _cons_head = inc_head(cons_head, head_offset);
-  if (cons_head == prod_head) {
-    if (_cons_head != cons_head) return false;
-  } else if (cons_head < prod_head) {
-    // Ok: c <= _c <= p
-    if (_cons_head > prod_head) return false;
-    if (_cons_head < cons_head) return false;
-  } else {
-    // Ok: p < c <= _c
-    // Ok: _c <= p < c
-    if (prod_head < _cons_head && _cons_head < cons_head) return false;
-  }
-  uint16_t remain_size =
-      (_cons_head > prod_head ? 0 : RX_BUF_SZ) - prod_head + _cons_head;
-  if (remain_size < size) {
-    return false;
-  }
-  uint16_t next_cons_head = inc_head(_cons_head, size);
-  if (next_cons_head < _cons_head) {
-    uint16_t sz1 = RX_BUF_SZ - _cons_head;
-    memcpy(dst, rx_buf + _cons_head, sz1);
-    memcpy(dst + sz1, rx_buf, size - sz1);
-  } else {
-    memcpy(dst, rx_buf + _cons_head, size);
-  }
+bool XBoardLogic::SendIRPacket(uint8_t *data, size_t len) {
+  g_xboard_logic.QueueDataForTx(data, len, IR_TO_BASE_STATION);
+  // TODO: Checking ACK
+  // assuming always ACKed now
   return true;
 }
 
 void XBoardLogic::SendPing() {
   uint8_t pkt[HEADER_SZ] = {0};
-  *reinterpret_cast<Frame *>(pkt) =
-      Frame{0xD555555555555555, 0, 0, PING_TYPE, 0};
+  *reinterpret_cast<Frame *>(pkt) = Frame{PREAMBLE, 0, 0, PING_TYPE, 0};
   reinterpret_cast<Frame *>(pkt)->checksum = fast_crc32(pkt, HEADER_SZ);
   // for (int i = 0; i < sizeof(Frame); i++) {
   //   pkt[i] = (0x11+i)&0x0FF;
@@ -121,10 +113,9 @@ void XBoardLogic::SendPing() {
   g_xboard_service.QueueDataForTx(pkt, sizeof(pkt));
 }
 
-void XBoardLogic::SendPong() {
+void XBoardLogic::SendPeerPong() {
   uint8_t pkt[HEADER_SZ] = {0};
-  *reinterpret_cast<Frame *>(pkt) =
-      Frame{0xD555555555555555, 0, 0, PONG_TYPE, 0};
+  *reinterpret_cast<Frame *>(pkt) = Frame{PREAMBLE, 0, 0, SELF_PONG_TYPE, 0};
   reinterpret_cast<Frame *>(pkt)->checksum = fast_crc32(pkt, HEADER_SZ);
   // for (int i = 0; i < sizeof(Frame); i++) {
   //   pkt[i] = (0x11+i)&0x0FF;
@@ -135,46 +126,43 @@ void XBoardLogic::SendPong() {
 
 void XBoardLogic::OnByteArrive(void *arg1) {
   uint8_t b = static_cast<uint8_t>(reinterpret_cast<size_t>(arg1));
-  uint16_t next_prod_head = inc_head(prod_head, 1);
-  if (next_prod_head == cons_head) {
+  if (rx_queue.IsFull()) {
     // drop the data
     AssertOverflow();
     return;
   }
-  rx_buf[prod_head] = b;
-  prod_head = next_prod_head;
+  rx_queue.PushBack(b);
 }
 
 void XBoardLogic::ParsePacket() {
   size_t bytes_processed = 0;
-  while (cons_head != prod_head && bytes_processed < 16) {
-    if (rx_buf[cons_head] != 0x55) {
-      cons_head = inc_head(cons_head, 1);
+  while (!rx_queue.IsEmpty() && bytes_processed < 16) {
+    if (rx_queue.Front() != 0x55) {
+      rx_queue.PopFront();
       ++bytes_processed;
       continue;
     }
-    uint16_t in_buf_size =
-        (prod_head > cons_head ? 0 : RX_BUF_SZ) + prod_head - cons_head;
-    if (in_buf_size < HEADER_SZ) {
+    if (rx_queue.Size() < HEADER_SZ) {
       break;
     }
 
     uint8_t pkt[HEADER_SZ + PKT_PAYLOAD_LEN_MAX] = {0};
     Frame *header = reinterpret_cast<Frame *>(pkt);
     uint8_t *payload = pkt + HEADER_SZ;
-    TryReadBytes(reinterpret_cast<uint8_t *>(header), HEADER_SZ);
-    if (header->preamble != 0xD555555555555555) {
-      cons_head = inc_head(cons_head, 1);
+    rx_queue.PeekSegment(reinterpret_cast<uint8_t *>(header), HEADER_SZ, 0);
+    if (header->preamble != PREAMBLE) {
+      rx_queue.PopFront();
       ++bytes_processed;
       continue;
     }
     if (header->len >= PKT_PAYLOAD_LEN_MAX) {
       // invalid packet, skip this packet (preamble 8 bytes)
-      cons_head = inc_head(cons_head, 8);
+      rx_queue.RemoveFrontMulti(8);
+
       bytes_processed += 8;
       continue;
     }
-    if (!TryReadBytes(payload, header->len, HEADER_SZ)) {
+    if (!rx_queue.PeekSegment(payload, header->len, HEADER_SZ)) {
       // no enough bytes to read, wait more bytes in
       return;
     }
@@ -183,19 +171,27 @@ void XBoardLogic::ParsePacket() {
     header->checksum = 0;
     if (fast_crc32(pkt, HEADER_SZ + header->len +
                             PADDING_MAP[header->len & 0b11]) != recv_check) {
-      cons_head = inc_head(cons_head, 8);
+      rx_queue.RemoveFrontMulti(8);
       bytes_processed += 8;
       continue;
     }
 
     // pass checking, valid packet now
-    cons_head = inc_head(cons_head, HEADER_SZ + header->len);
+    rx_queue.RemoveFrontMulti(HEADER_SZ + header->len);
     if (header->type == PING_TYPE) {
       recv_ping = true;
       continue;
     }
-    if (header->type == PONG_TYPE) {
-      recv_pong = true;
+    if (header->type == PONG_LEGACY_TYPE) {
+      recv_pong_flags |= 0x01;
+      continue;
+    }
+    if (header->type == PONG_PEER2025_TYPE) {
+      recv_pong_flags |= 0x02;
+      continue;
+    }
+    if (header->type == PONG_BASESTN2025_TYPE) {
+      recv_pong_flags |= 0x04;
       continue;
     }
 
@@ -214,39 +210,80 @@ void XBoardLogic::ParsePacket() {
 
 void XBoardLogic::CheckPing() {
   if (recv_ping) {
-    SendPong();
+    SendPeerPong();
   }
   recv_ping = false;
 }
 
 void XBoardLogic::CheckPong() {
-  if (!recv_pong) {
+  UsartConnectState next_state = connect_state;
+  if (recv_pong_flags == 0x01) {
+    // Received legacy pong.
+    next_state = UsartConnectState::ConnectLegacy;
+    no_pong_count = 0;
+  } else if (recv_pong_flags == 0x02) {
+    // Received peer 2025 pong.
+    next_state = UsartConnectState::ConnectPeer2025;
+    no_pong_count = 0;
+  } else if (recv_pong_flags == 0x04) {
+    // Received base stn 2025 pong.
+    next_state = UsartConnectState::ConnectBaseStn2025;
+    no_pong_count = 0;
+  } else {
+    // recv_pong_flags == 0 or some combination, either way
+    // No pong at all.
     if (connect_state == UsartConnectState::Init) no_pong_count = 3;
     if (no_pong_count < 3) {
       ++no_pong_count;
     }
-  } else {
-    no_pong_count = 0;
+    if (no_pong_count >= 3) {
+      next_state = UsartConnectState::Disconnect;
+    }
   }
-  UsartConnectState next_state = no_pong_count >= 3 ? Disconnect : Connect;
   if (next_state != connect_state) {
-    if (next_state == Disconnect && connect_state != UsartConnectState::Init) {
+    if (next_state == UsartConnectState::Disconnect &&
+        connect_state != UsartConnectState::Init) {
       g_suspender.DecBlocker();
-      g_xboard_game_controller.OnDisconnect();
-    } else if (next_state == Connect) {
+    } else if (next_state == UsartConnectState::ConnectBaseStn2025 ||
+               next_state == UsartConnectState::ConnectLegacy ||
+               next_state == UsartConnectState::ConnectPeer2025) {
       g_suspender.IncBlocker();
-      g_xboard_game_controller.OnConnect();
     }
   }
 
   if (next_state != connect_state && connect_state != UsartConnectState::Init) {
-    if (next_state == Disconnect && disconnect_handler != nullptr) {
-      disconnect_handler(disconnect_handler_self, nullptr);
-    } else if (next_state == Connect && connect_handler != nullptr) {
-      connect_handler(connect_handler_self, nullptr);
+    if (connect_state == UsartConnectState::ConnectLegacy &&
+        disconnect_legacy_handler != nullptr) {
+      disconnect_legacy_handler(disconnect_legacy_handler_self, nullptr);
+      connect_state = UsartConnectState::Disconnect;
+    }
+    if (connect_state == UsartConnectState::ConnectBaseStn2025 &&
+        disconnect_basestn2025_handler != nullptr) {
+      disconnect_basestn2025_handler(disconnect_basestn2025_handler_self,
+                                     nullptr);
+      connect_state = UsartConnectState::Disconnect;
+    }
+    if (connect_state == UsartConnectState::ConnectPeer2025 &&
+        disconnect_peer2025_handler != nullptr) {
+      disconnect_peer2025_handler(disconnect_peer2025_handler_self, nullptr);
+      connect_state = UsartConnectState::Disconnect;
     }
   }
-  recv_pong = false;
+  if (next_state != connect_state && connect_state != UsartConnectState::Init) {
+    if (next_state == UsartConnectState::ConnectLegacy &&
+        connect_legacy_handler != nullptr) {
+      connect_legacy_handler(connect_legacy_handler_self, nullptr);
+    }
+    if (next_state == UsartConnectState::ConnectPeer2025 &&
+        connect_peer2025_handler != nullptr) {
+      connect_peer2025_handler(connect_peer2025_handler_self, nullptr);
+    }
+    if (next_state == UsartConnectState::ConnectBaseStn2025 &&
+        connect_basestn2025_handler != nullptr) {
+      connect_basestn2025_handler(connect_basestn2025_handler_self, nullptr);
+    }
+  }
+  recv_pong_flags = 0;
   connect_state = next_state;
 }
 

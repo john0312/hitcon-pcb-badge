@@ -30,6 +30,8 @@ class XBoardService {
   // to be called by interrupt function
   void NotifyRxFinish();
 
+  bool IsTxBusy() { return _tx_buffer_tail != _tx_buffer_head; }
+
   // 48 * 3 = 144, 3 packets
   static constexpr size_t kTxBufferSize = 160;
 

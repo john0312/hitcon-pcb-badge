@@ -6,7 +6,6 @@
 #include <Logic/BadgeController.h>
 #include <Logic/Display/display.h>
 #include <Logic/Display/font.h>
-#include <Logic/GameLogic.h>
 #include <Logic/NvStorage.h>
 #include <Service/Sched/SysTimer.h>
 #include <Service/Sched/Task.h>
@@ -15,7 +14,6 @@
 #include <cstring>
 
 using namespace hitcon::service::sched;
-using hitcon::game::gameLogic;
 using hitcon::service::xboard::g_xboard_logic;
 using hitcon::service::xboard::UsartConnectState;
 
@@ -49,7 +47,8 @@ void ShowNameApp::Init() {
 
 void ShowNameApp::OnEntry() {
   display_set_orientation(0);
-  score_cache = gameLogic.GetScore();
+  // TODO: update score with our new game
+  // score_cache = gameLogic.GetScore();
   scheduler.EnablePeriodic(&_routine_task);
   starting_up = false;
   update_display();
@@ -61,17 +60,23 @@ void ShowNameApp::OnExit() {
 }
 
 void ShowNameApp::OnButton(button_t button) {
+  const UsartConnectState conn_state = g_xboard_logic.GetConnectState();
   switch (button) {
     case BUTTON_LONG_MODE:
-      if (g_xboard_logic.GetConnectState() == UsartConnectState::Connect) {
+      if (conn_state == UsartConnectState::ConnectPeer2025) {
         badge_controller.change_app(&connect_menu);
+      } else if (conn_state == UsartConnectState::ConnectLegacy) {
+        badge_controller.change_app(&connect_legacy_menu);
+      } else if (conn_state == UsartConnectState::ConnectBaseStn2025) {
+        badge_controller.change_app(&connect_basestn_menu);
       } else {
         badge_controller.change_app(&name_setting_menu);
       }
       break;
 
     case BUTTON_MODE:
-      if (g_xboard_logic.GetConnectState() == UsartConnectState::Connect) {
+      if (g_xboard_logic.GetConnectState() ==
+          UsartConnectState::ConnectPeer2025) {
         badge_controller.change_app(&connect_menu);
       } else {
         badge_controller.change_app(&main_menu);
@@ -89,13 +94,11 @@ void ShowNameApp::check_update() {
              SysTimer::GetTime() - last_disp_update > SURPRISE_TIME) {
     mode = NameScore;
     update_display();
+    badge_controller.RestoreApp();
   } else if (mode != Surprise &&
              (SysTimer::GetTime() - last_disp_update > kMinUpdateInterval ||
               starting_up)) {
-    if (score_cache != gameLogic.GetScore() && mode != NameOnly) {
-      score_cache = gameLogic.GetScore();
-      update_display();
-    }
+    // TODO: check and update score with our new game
   }
 }
 
@@ -105,24 +108,13 @@ void ShowNameApp::update_display() {
 
   last_disp_update = SysTimer::GetTime();
 
-  if (!gameLogic.IsGameReady()) {
-    last_disp_update = 0;
-    if (!starting_up) {
-      constexpr char kStartingStr[] = "Starting...";
-      memcpy(display_str, kStartingStr, sizeof(kStartingStr) + 1);
-      display_set_mode_scroll_text(display_str);
-      starting_up = true;
-    }
-    mode = SHOW_INITIALIZE;
-    return;
-  }
   starting_up = false;
 
   int name_len = strlen(name);
 
   static char num_str[max_len + 1];
   int num_len = 0;
-  score_cache = gameLogic.GetScore();
+  // TODO: update score
   uint32_t score_ = score_cache;
 
   uint_to_chr(num_str, max_len + 1, score_);
@@ -166,6 +158,20 @@ void ShowNameApp::SetName(const char *name) {
 void ShowNameApp::SetMode(const enum ShowNameMode mode) {
   this->mode = mode;
   update_display();
+}
+
+void ShowNameApp::SetScore(uint32_t score) {
+  score_cache = score;
+  update_display();
+}
+
+void ShowNameApp::SetSurpriseMsg(const char *msg) {
+  int len = strlen(msg);
+  if (len >= kDisplayScrollMaxTextLen) {
+    len = kDisplayScrollMaxTextLen;
+  }
+  memcpy(surprise_msg, msg, len);
+  surprise_msg[len] = 0;
 }
 
 enum ShowNameMode ShowNameApp::GetMode() { return mode; }

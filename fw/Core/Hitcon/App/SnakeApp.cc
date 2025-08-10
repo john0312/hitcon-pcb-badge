@@ -5,7 +5,6 @@
 #include <Logic/BadgeController.h>
 #include <Logic/GameScore.h>
 #include <Logic/RandomPool.h>
-#include <Logic/XBoardGameController.h>
 #include <Logic/XBoardLogic.h>
 #include <Service/Sched/Scheduler.h>
 #include <Util/uint_to_str.h>
@@ -13,7 +12,9 @@
 using namespace hitcon::service::sched;
 using namespace hitcon::service::xboard;
 using namespace hitcon::app::snake;
-using hitcon::xboard_game_controller::g_xboard_game_controller;
+using hitcon::app::multiplayer::MultiplayerGame;
+using hitcon::app::multiplayer::PlayerCount;
+using hitcon::game::EventType;
 
 namespace hitcon {
 namespace app {
@@ -35,23 +36,40 @@ void SnakeApp::Init() {
   mode = MODE_NONE;
 }
 
-void SnakeApp::OnEntry() {
+void SnakeApp::GameEntry() {
   _game_over = false;
-  if (mode == MODE_NONE)  // default game mode is single player
-    mode = MODE_SINGLEPLAYER;
-  else if (mode == MODE_MULTIPLAYER) {
-    g_xboard_logic.SetOnPacketArrive((callback_t)&SnakeApp::OnXBoardRecv, this,
-                                     SNAKE_RECV_ID);
-  }
   _state = STATE_WAIT;
   display_set_mode_scroll_text("Ready...");
 }
 
-void SetSingleplayer() { snake_app.mode = MODE_SINGLEPLAYER; }
+void SetSingleplayer() { snake_app.SetPlayerCount(PlayerCount::SINGLEPLAYER); }
 
-void SetMultiplayer() { snake_app.mode = MODE_MULTIPLAYER; }
+void SetMultiplayer() { snake_app.SetPlayerCount(PlayerCount::MULTIPLAYER); }
 
-void SnakeApp::OnExit() { scheduler.DisablePeriodic(&_routine_task); }
+void SnakeApp::GameExit() { scheduler.DisablePeriodic(&_routine_task); }
+
+void SnakeApp::StartGame() {
+  _state = STATE_PLAYING;
+  InitGame();
+}
+
+void SnakeApp::AbortGame() { badge_controller.BackToMenu(this); }
+
+void SnakeApp::GameOver() {
+  _game_over = true;
+  // game over screen
+  show_score_app.SetScore(GetScore());
+  g_game_score.MarkScore(GameScoreType::GAME_SNAKE, GetScore());
+  badge_controller.change_app(&show_score_app);
+}
+
+void SnakeApp::RecvAttackPacket(PacketCallbackArg* packet) { _len++; }
+
+RecvFnId SnakeApp::GetXboardRecvId() const { return SNAKE_RECV_ID; }
+
+EventType SnakeApp::GetGameType() const { return EventType::kSnake; }
+
+uint32_t SnakeApp::GetScore() const { return _score; }
 
 void SnakeApp::OnEdgeButton(button_t button) {
   direction_t btn_direction = NONE;
@@ -73,21 +91,17 @@ void SnakeApp::OnEdgeButton(button_t button) {
     case BUTTON_OK:
       if (_game_over) badge_controller.change_app(this);
       if (_state == STATE_WAIT) {
-        _state = STATE_PLAYING;
-        if (mode == MODE_MULTIPLAYER) {
-          uint8_t code = PACKET_GAME_START;
-          g_xboard_logic.QueueDataForTx(&code, 1, SNAKE_RECV_ID);
+        if (IsMultiplayer()) {
+          SendStartGame();
         }
-
-        InitGame();
+        StartGame();
       }
       break;
     case BUTTON_BACK:
-      if (mode == MODE_MULTIPLAYER) {
-        uint8_t code = PACKET_GAME_LEAVE;
-        g_xboard_logic.QueueDataForTx(&code, 1, SNAKE_RECV_ID);
+      if (IsMultiplayer()) {
+        SendAbortGame();
       }
-      badge_controller.BackToMenu(this);
+      AbortGame();
       break;
     default:
       break;
@@ -108,36 +122,6 @@ bool SnakeApp::OnSnake(uint8_t index) {
     }
   }
   return on_snake;
-}
-
-void SnakeApp::OnXBoardRecv(void* arg) {
-  PacketCallbackArg* packet = reinterpret_cast<PacketCallbackArg*>(arg);
-  switch (packet->data[0]) {
-    case PACKET_GAME_OVER:
-      // remote game over
-      _game_over = true;
-      // game over screen
-      show_score_app.SetScore(_score);
-      g_game_score.MarkScore(GameScoreType::GAME_SNAKE, _score);
-      badge_controller.change_app(&show_score_app);
-
-      break;
-    case PACKET_GET_FOOD:
-      _len++;
-      break;
-    case PACKET_GAME_START:
-      if (_state == STATE_WAIT) {
-        _state = STATE_PLAYING;
-        InitGame();
-      }
-      break;
-    case PACKET_GAME_LEAVE:
-      // remote leave
-      _game_over = true;
-      // leave action
-      badge_controller.change_app(&main_menu);
-      break;
-  }
 }
 
 void SnakeApp::InitGame() {
@@ -198,25 +182,21 @@ void SnakeApp::Routine(void* unused) {
 
   if (_game_over) {
     // local game over
-    if (mode == MODE_MULTIPLAYER) {
-      uint8_t code = PACKET_GAME_OVER;
-      g_xboard_logic.QueueDataForTx(&code, 1, SNAKE_RECV_ID);
-      g_xboard_game_controller.SendPartialData(50);
+    if (IsMultiplayer()) {
+      SendGameOver();
+    } else {
+      UploadSingleplayerScore();
     }
-    // game over screen
-    show_score_app.SetScore(_score);
-    g_game_score.MarkScore(GameScoreType::GAME_SNAKE, _score);
-    badge_controller.change_app(&show_score_app);
+    GameOver();
     return;
   }
 
   if (_food_index == new_head) {
     _food_index = -1;
-    if (mode == MODE_SINGLEPLAYER)
+    if (!IsMultiplayer())
       _len++;
     else {
-      uint8_t code = PACKET_GET_FOOD;
-      g_xboard_logic.QueueDataForTx(&code, 1, SNAKE_RECV_ID);
+      SendAttack(1);
     }
     _score++;
   }

@@ -25,7 +25,7 @@ void print_buf(int frame, uint8_t *buf) {
 }
 
 int main() {
-  hitcon::TextEditorDisplay editor("HITCON2024");
+  hitcon::TextEditorDisplay editor("HITCON2025");
 
   display_init();
   uint8_t buf[DISPLAY_HEIGHT * DISPLAY_WIDTH];

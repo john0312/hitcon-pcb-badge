@@ -123,12 +123,6 @@ bool TetrisGame::generate_new_tetromino() {
   return place_tetromino(current_x, current_y);
 }
 
-void TetrisGame::game_fall_down_tetromino() {
-  if (state == GAME_STATE_PLAYING) {
-    fall_down_tetromino();
-  }
-}
-
 void TetrisGame::game_on_input(TetrisDirection direction) {
   if (state == GAME_STATE_PLAYING) {
     switch (direction) {
@@ -203,6 +197,24 @@ void TetrisGame::game_enemy_attack(int n_lines) {
 void TetrisGame::game_register_attack_enemy_callback(
     void (*callback)(int n_lines)) {
   attack_enemy_callback = callback;
+}
+
+inline int max(int a, int b) { return a > b ? a : b; }
+
+/**
+ * Check if it's time to fall down the tetromino.
+ * If fall down, return true.
+ */
+bool TetrisGame::game_fall_down_if_its_time(int now, int last_fall_time) {
+  int fall_period =
+      max(MIN_FALL_PERIOD,
+          FALL_PERIOD - game_get_cleared_lines() * SPEED_UP_PER_CLEAR_LINE);
+
+  if (now - last_fall_time >= fall_period) {
+    fall_down_tetromino();
+    return true;
+  }
+  return false;
 }
 
 }  // namespace tetris

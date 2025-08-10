@@ -1,6 +1,8 @@
 #include "IrLogic.h"
 
 #include <Logic/IrLogic.h>
+#include <Logic/XBoardLogic.h>
+#include <Logic/XBoardRecvFn.h>
 #include <Logic/crc32.h>
 #include <Service/IrService.h>
 #include <Service/Suspender.h>
@@ -9,6 +11,8 @@
 #include <cstring>
 
 using hitcon::service::sched::my_assert;
+using hitcon::service::xboard::g_xboard_logic;
+using hitcon::service::xboard::IR_TO_ATTENDEE;
 
 namespace hitcon {
 namespace ir {
@@ -254,6 +258,8 @@ bool IrLogic::SendPacket(uint8_t *data, size_t len) {
   my_assert(ret);
   return ret;
 }
+
+bool IrLogic::AvailableToSend() { return irService.CanSendBufferNow(); }
 
 int IrLogic::GetLoadFactor() {
   int ret = lowpass_loadfactor;

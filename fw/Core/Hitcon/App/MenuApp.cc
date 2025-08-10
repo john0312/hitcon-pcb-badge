@@ -8,13 +8,15 @@ namespace hitcon {
 MenuApp::MenuApp(const menu_entry_t *menu_entries, const int menu_entry_size)
     : menu_entries(menu_entries), menu_entry_size(menu_entry_size) {
   menu_entry_index = 0;
+  active = false;
 }
 
 void MenuApp::OnEntry() {
+  active = true;
   display_set_mode_scroll_text(menu_entries[menu_entry_index].name);
 }
 
-void MenuApp::OnExit() {}
+void MenuApp::OnExit() { active = false; }
 
 void MenuApp::OnButton(button_t button) {
   switch (button) {
@@ -58,6 +60,25 @@ void MenuApp::OnButton(button_t button) {
     default:
       break;
   }
+}
+
+void MenuApp::AdjustMenuSize(int new_size, bool reset_index) {
+  menu_entry_size = new_size;
+  if (reset_index || menu_entry_index >= new_size) {
+    menu_entry_index = 0;
+    if (active)
+      display_set_mode_scroll_text(menu_entries[menu_entry_index].name);
+  }
+}
+
+void MenuApp::AdjustMenuPointer(const menu_entry_t *new_menu, int new_size,
+                                bool reset_index) {
+  menu_entries = new_menu;
+  menu_entry_size = new_size;
+  if (reset_index || menu_entry_index >= new_size) {
+    menu_entry_index = 0;
+  }
+  if (active) display_set_mode_scroll_text(menu_entries[menu_entry_index].name);
 }
 
 }  // namespace hitcon

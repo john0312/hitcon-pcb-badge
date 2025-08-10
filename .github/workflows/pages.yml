@@ -1,0 +1,39 @@
+name: Deploy
+
+on:
+  push:
+    paths:
+      - '.github/workflows/pages.yml'
+      - 'web/**'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    name: Deploy
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Build Project
+        id: build
+        working-directory: web
+        run: |
+          npm i
+          npm run build
+          npm i -g wrangler
+      - name: Deploy
+        id: deploy
+        uses: cloudflare/wrangler-action@v3
+        with:
+          workingDirectory: web
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy dist/pcb-badge-leaderboard/browser --project-name=${{ vars.CLOUDFLARE_PAGES_PROJECT_NAME }}
+      - name: Summary
+        env:
+          DEPLOYMENT_URL: ${{ steps.deploy.outputs.deployment-url }}
+          DEPLOYMENT_ALIAS_URL: ${{ steps.deploy.outputs.pages-deployment-alias-url }}
+        run: |
+          echo "Preview URL: $DEPLOYMENT_URL" >> $GITHUB_STEP_SUMMARY
+          echo "Alias URL: $DEPLOYMENT_ALIAS_URL" >> $GITHUB_STEP_SUMMARY

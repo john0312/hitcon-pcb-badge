@@ -2,6 +2,7 @@
 
 #include <App/EditNameApp.h>
 #include <Logic/Display/display.h>
+#include <Logic/ImuLogic.h>
 #include <Logic/RandomPool.h>
 #include <Logic/XBoardLogic.h>
 #include <Service/DisplayService.h>
@@ -45,9 +46,28 @@ void HardwareTestApp::CheckIr(void* arg1) {
 
   size_t i;
   for (i = 0; i < _ir_data_len; i++) {
-    if (packet->message[i] != _ir_data.show.message[i]) break;
+    if (packet->message[i] != _ir_data.opaq.show.message[i]) break;
   }
-  if (i == _ir_data_len) next_state = TS_PASS;
+  if (i == _ir_data_len) {
+#ifdef V1_1
+    next_state = TS_PASS;
+#else
+    next_state = TS_GYRO;
+#endif
+  }
+}
+
+void HardwareTestApp::CheckImu(void* arg) {
+  bool pass = static_cast<bool>(arg);
+  if (!pass) {
+    next_state = TS_FAIL;
+    return;
+  }
+  if (current_state == TS_GYRO) {
+    g_imu_logic.AccSelfTest((callback_t)&HardwareTestApp::CheckImu, this);
+    next_state = TS_ACC;
+  } else if (current_state == TS_ACC)
+    next_state = TS_PASS;
 }
 
 void HardwareTestApp::OnEntry() {
@@ -113,14 +133,19 @@ void HardwareTestApp::OnButton(button_t button) {
       if (button == BUTTON_OK) {
         _count = 0;
         for (uint8_t i = 0; i < IR_TEST_LEN; i++) {
-          _ir_data.show.message[i] = g_fast_random_pool.GetRandom() % 256;
+          _ir_data.opaq.show.message[i] = g_fast_random_pool.GetRandom() % 256;
         }
 
         _ir_data.ttl = 0;
         _ir_data.type = packet_type::kTest;
-        _ir_data_len = IR_TEST_LEN;
-        irLogic.SendPacket(reinterpret_cast<uint8_t*>(&_ir_data),
-                           sizeof(_ir_data) / sizeof(uint8_t));
+        _ir_data_len = IR_DATA_HEADER_SIZE + IR_TEST_LEN;
+        irLogic.SendPacket(reinterpret_cast<uint8_t*>(&_ir_data), _ir_data_len);
+      }
+      break;
+    case TS_GYRO:
+      if (button == BUTTON_OK) {
+        HAL_Delay(500);
+        g_imu_logic.GyroSelfTest((callback_t)&HardwareTestApp::CheckImu, this);
       }
       break;
   }

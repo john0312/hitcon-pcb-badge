@@ -162,6 +162,7 @@ void Scheduler::Run() {
     TaskRecord record;
     record.startTime = SysTimer::GetTime();
     record.task = &top;
+
     currentTask = &top;
     top.Run();
     currentTask = nullptr;

@@ -1,6 +1,7 @@
 #ifndef SNAKE_APP_H
 #define SNAKE_APP_H
 
+#include <App/MultiplayerGame.h>
 #include <Logic/Display/display.h>
 #include <Service/Sched/PeriodicTask.h>
 
@@ -29,10 +30,6 @@ enum {  // XBOARD
 
 enum {
   MODE_NONE = 0,
-  // get more score as possible within limited time,
-  MODE_SINGLEPLAYER,
-  // get food will increase the other player's body length
-  MODE_MULTIPLAYER,
   // wait for game start (player press ok button to start)
   STATE_WAIT,
   STATE_PLAYING,
@@ -43,7 +40,7 @@ enum {
 void SetSingleplayer();
 void SetMultiplayer();
 
-class SnakeApp : public App {
+class SnakeApp : public hitcon::app::multiplayer::MultiplayerGame {
  private:
   // interval for snake moving
   static constexpr unsigned INTERVAL = 350;
@@ -62,6 +59,19 @@ class SnakeApp : public App {
   void Routine(void* unused);
   bool OnSnake(uint8_t index);
 
+ protected:
+  virtual void GameEntry() override final;
+  virtual void GameExit() override final;
+  virtual void StartGame() override final;
+  virtual void AbortGame() override final;
+  virtual void GameOver() override final;
+  virtual hitcon::service::xboard::RecvFnId GetXboardRecvId()
+      const override final;
+  virtual hitcon::game::EventType GetGameType() const override final;
+  virtual uint32_t GetScore() const override final;
+  virtual void RecvAttackPacket(
+      hitcon::service::xboard::PacketCallbackArg* packet) override final;
+
  public:
   unsigned mode;
   SnakeApp();
@@ -70,10 +80,7 @@ class SnakeApp : public App {
   void Init();
   // summon random snake and food
   void InitGame();
-  void OnEntry() override;
-  void OnExit() override;
   void OnButton(button_t button) override;
-  void OnXBoardRecv(void* arg);
   void OnEdgeButton(button_t button) override;
 };
 

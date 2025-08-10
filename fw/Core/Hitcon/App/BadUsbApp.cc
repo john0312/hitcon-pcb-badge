@@ -1,4 +1,5 @@
 #include <App/BadUsbApp.h>
+#include <App/UsbMenuApp.h>
 #include <Logic/BadgeController.h>
 #include <Logic/UsbLogic.h>
 
@@ -9,7 +10,7 @@ BadUsbApp bad_usb_app;
 BadUsbApp::BadUsbApp() {}
 
 void BadUsbApp::OnEntry() {
-  _wait = false;
+  _skip_crc = false;
   g_usb_logic.RunScript((callback_t)&BadUsbApp::OnScriptFinished, this,
                         (callback_t)&BadUsbApp::OnScriptError, this, true);
 }
@@ -22,7 +23,7 @@ void BadUsbApp::OnButton(button_t button) {
       badge_controller.BackToMenu(this);
       break;
     case BUTTON_OK:
-      if (_wait) {
+      if (_skip_crc) {
         g_usb_logic.RunScript((callback_t)&BadUsbApp::OnScriptFinished, this,
                               (callback_t)&BadUsbApp::OnScriptError, this,
                               false);
@@ -32,12 +33,16 @@ void BadUsbApp::OnButton(button_t button) {
 }
 
 void BadUsbApp::OnScriptFinished(void* unsed) {
-  badge_controller.BackToMenu(this);
+  badge_controller.change_app(&usb_menu);
 }
 
-void BadUsbApp::OnScriptError(void* unused) {
-  _wait = true;
-  display_set_mode_scroll_text("checksum fail");
+void BadUsbApp::OnScriptError(void* msg) {
+  _skip_crc = true;
+  if (msg != nullptr) {
+    display_set_mode_scroll_text(reinterpret_cast<char*>(msg));
+  } else {
+    display_set_mode_scroll_text("checksum fail");
+  }
 }
 
 }  // namespace usb

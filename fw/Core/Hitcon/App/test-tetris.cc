@@ -56,26 +56,16 @@ void gameFunction() {
                std::chrono::system_clock::now().time_since_epoch())
         .count();
   };
-  auto prev_update = now_ms() - hitcon::tetris::FALL_PERIOD;
+  int prev_update = 0;
   game.game_start_playing();
   while (1) {
-    auto now = now_ms();
-
-    unsigned fall_period;
-    if (hitcon::tetris::FALL_PERIOD >
-        game.game_get_cleared_lines() *
-            hitcon::tetris::SPEED_UP_PER_CLEAR_LINE) {
-      fall_period = hitcon::tetris::FALL_PERIOD -
-                    game.game_get_cleared_lines() *
-                        hitcon::tetris::SPEED_UP_PER_CLEAR_LINE;
-    } else {
-      fall_period = hitcon::tetris::MIN_FALL_PERIOD;
-    }
-
-    if (now - prev_update >= fall_period) {
+    {
       std::lock_guard<std::mutex> lock(game_mutex);
-      game.game_fall_down_tetromino();
-      prev_update = now;
+      int now = now_ms();
+      if (game.game_fall_down_if_its_time(now, prev_update)) {
+        prev_update = now;
+      }
+
       if (game.game_get_state() == hitcon::tetris::GAME_STATE_GAME_OVER) {
         exit(0);
         break;

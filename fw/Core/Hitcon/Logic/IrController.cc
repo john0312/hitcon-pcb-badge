@@ -4,9 +4,11 @@
 #include <App/ShowNameApp.h>
 #include <Logic/BadgeController.h>
 #include <Logic/Display/display.h>
-#include <Logic/GameLogic.h>
+#include <Logic/GameController.h>
 #include <Logic/IrController.h>
 #include <Logic/RandomPool.h>
+#include <Logic/XBoardLogic.h>
+#include <Service/HashService.h>
 #include <Service/IrService.h>
 #include <Service/Sched/Scheduler.h>
 #include <stdlib.h>
@@ -14,10 +16,8 @@
 #include <cstring>
 
 using namespace hitcon::service::sched;
-using hitcon::game::gameLogic;
-using hitcon::game::kDataSize;
-using hitcon::game::kInternalGenChance;
-using hitcon::game::kInternalGenMinQueueAvailable;
+using hitcon::service::xboard::g_xboard_logic;
+using hitcon::service::xboard::UsartConnectState;
 
 namespace hitcon {
 namespace ir {
@@ -33,17 +33,15 @@ IrController irController;
 IrController::IrController()
     : routine_task(950, (callback_t)&IrController::RoutineTask, this, 1000),
       broadcast_task(800, (callback_t)&IrController::BroadcastIr, this),
-      send2game_task(800, (callback_t)&IrController::Send2Game, this),
       showtext_task(800, (callback_t)&IrController::ShowText, this),
       send_lock(true), recv_lock(true), disable_broadcast(false),
-      received_packet_cnt(0), priority_data_len_(0) {}
+      received_packet_cnt(0), priority_data_len_(0), current_hashing_slot(-1),
+      current_tx_slot(-1) {}
 
-void IrController::Send2Game(void* arg) {
-  GamePacket* game = reinterpret_cast<GamePacket*>(arg);
-  gameLogic.AcceptData(game->col, game->data);
-  send_lock = true;
-}
 void IrController::ShowText(void* arg) {
+  struct ShowPacket* pkt = reinterpret_cast<struct ShowPacket*>(arg);
+  badge_controller.SetStoredApp(badge_controller.GetCurrentApp());
+  show_name_app.SetSurpriseMsg(pkt->message);
   show_name_app.SetMode(Surprise);
   badge_controller.change_app(&show_name_app);
 }
@@ -65,46 +63,194 @@ void IrController::OnPacketReceived(void* arg) {
 
   // Game
   if (data->type == packet_type::kGame) {
-    if (send_lock) {
-      send_lock = false;
-      scheduler.Queue(&send2game_task, &data->game);
-    }
+    // removed
   } else if (data->type == packet_type::kTest) {
-    hardware_test_app.CheckIr(&data->show);
+    hardware_test_app.CheckIr(&data->opaq.show);
   } else if (data->type == packet_type::kShow) {
-    scheduler.Queue(&showtext_task, &data->show);
+    scheduler.Queue(&showtext_task, &data->opaq.show);
+  } else if (data->type == packet_type::kAcknowledge) {
+    OnAcknowledgePacket(&data->opaq.acknowledge);
+  } else if (data->type == packet_type::kScoreAnnonce) {
+    if (memcmp(data->opaq.score_announce.user, g_game_controller.GetUsername(),
+               IR_USERNAME_LEN) == 0) {
+      show_name_app.SetScore(
+          *reinterpret_cast<uint32_t*>(data->opaq.score_announce.score));
+    } else {
+      // Not our score.
+    }
+  }
+}
+
+void IrController::OnAcknowledgePacket(AcknowledgePacket* pckt) {
+  for (int i = 0; i < RETX_QUEUE_SIZE; i++) {
+    uint8_t status = queued_packets_[i].status;
+    if ((status & kRetransmitStatusMask) == kRetransmitStatusWaitTxSlot ||
+        (status & kRetransmitStatusMask) == kRetransmitStatusWaitAck) {
+      if (memcmp(queued_packets_[i].hash, pckt->packet_hash, PACKET_HASH_LEN) ==
+          0) {
+        AckTag ack = queued_packets_[i].ack_tag;
+        OnAcknowledgeTag(ack);
+        // Received, no longer need to retransmit.
+        queued_packets_[i].status =
+            (queued_packets_[i].status & (~kRetransmitStatusMask));
+      }
+    }
+  }
+}
+
+void IrController::OnAcknowledgeTag(AckTag tag) {
+  // Hardcoded receivers.
+  switch (tag) {
+    case AckTag::ACK_TAG_NONE:
+      return;
+    case AckTag::ACK_TAG_PUBKEY_RECOG:
+      g_game_controller.NotifyPubkeyAck();
+      return;
   }
 }
 
 int IrController::prob_f(int lf) { return v[0] * lf * lf + v[1] * lf + v[2]; }
 
 void IrController::RoutineTask(void* unused) {
-  if (gameLogic.IsGameReady()) {
-    // Update parameters from load factor.
-    int lf = irLogic.GetLoadFactor();
+  // remove generating random number
+  MaintainQueued();
+}
 
-    // Determine if we want to send a packet.
-    {
-      uint32_t prob_max = prob_f(100);
-      uint32_t rand_num = g_fast_random_pool.GetRandom() % prob_max;
-      if (rand_num > prob_f(lf) && send_lock) {
-        send_lock = false;
-        scheduler.Queue(&broadcast_task, nullptr);
+void IrController::OnPacketHashResult(void* arg_ptr) {
+  my_assert(current_hashing_slot != -1);
+  my_assert(current_hashing_slot < RETX_QUEUE_SIZE);
+  hitcon::hash::HashResult* hash_result =
+      reinterpret_cast<hitcon::hash::HashResult*>(arg_ptr);
+  memcpy(&(queued_packets_[current_hashing_slot].hash[0]), hash_result->digest,
+         PACKET_HASH_LEN);
+  my_assert(PACKET_HASH_LEN <= hash_result->size);
+  uint8_t status = queued_packets_[current_hashing_slot].status;
+  // Update status to Waiting for IrController's tx slot
+  status = (status & (~kRetransmitStatusMask)) | kRetransmitStatusWaitTxSlot;
+  queued_packets_[current_hashing_slot].status =
+      status;  // Update the struct member
+  current_hashing_slot = -1;
+}
+
+bool IrController::SendPacketWithRetransmit(uint8_t* data, size_t len,
+                                            uint8_t retries, AckTag ack_tag) {
+  my_assert(len <= MAX_PACKET_PAYLOAD_BYTES);
+  my_assert(retries < 8);  // Max retries fits in 3 bits
+  for (int i = 0; i < RETX_QUEUE_SIZE; i++) {
+    // Check if slot is empty by checking the status mask
+    if ((queued_packets_[i].status & kRetransmitStatusMask) ==
+        kRetransmitStatusSlotUnused) {
+      // Slot is empty.
+      memcpy(&(queued_packets_[i].data[0]), data, len);
+      queued_packets_[i].size = len;
+      // Set status to Waiting for hashing processor and store retry limit
+      queued_packets_[i].status =
+          kRetransmitStatusWaitHashAvail | (retries & kRetransmitLimitMask);
+      queued_packets_[i].ack_tag = ack_tag;
+      return true;
+    }
+  }
+  return false;  // No empty slot found
+}
+
+void IrController::MaintainQueued() {
+  if (irLogic.AvailableToSend()) {
+    current_tx_slot = -1;
+  }
+
+  // Iterate through the queue slots in a randomized order.
+  for (int j = 0; j < RETX_QUEUE_SIZE; j++) {
+    // Randomize the slot index to avoid always checking/sending from the same
+    // slots first. Sending from the same slots first may result in scheduling
+    // starvation.
+    int i = (j + (g_fast_random_pool.GetRandom() % RETX_QUEUE_SIZE)) %
+            RETX_QUEUE_SIZE;
+
+    // Get the current status and other packet info.
+    uint8_t current_status = queued_packets_[i].status & kRetransmitStatusMask;
+    uint8_t pckt_size = queued_packets_[i].size;
+    // This is the payload data within the struct.
+    uint8_t* pckt_data = &(queued_packets_[i].data[0]);
+
+    if (current_status == kRetransmitStatusSlotUnused) {
+      // Slot is unused. Do nothing.
+    } else if (current_status == kRetransmitStatusWaitHashAvail) {
+      // Waiting for hash processor to be available.
+      if (current_hashing_slot == -1) {
+        // Start hashing the payload.
+        bool ret = hitcon::hash::g_hash_service.StartHash(
+            pckt_data, pckt_size, (callback_t)&IrController::OnPacketHashResult,
+            this);
+        if (ret) {
+          // Hashing started successfully. Update status to Waiting for hash
+          // processor to finish.
+          queued_packets_[i].status =
+              (queued_packets_[i].status & ~kRetransmitStatusMask) |
+              kRetransmitStatusWaitHashDone;
+          current_hashing_slot =
+              i;  // Mark this slot as being currently hashed.
+        }
+        // If ret is false, hash service was busy, will try again next
+        // RoutineTask cycle.
+      }
+    } else if (current_status == kRetransmitStatusWaitHashDone) {
+      // Waiting for hash processor to finish.
+      // The OnPacketHashResult callback will change the status to
+      // kRetransmitStatusWaitTxSlot once hashing is complete and the hash is
+      // stored. Do nothing here.
+    } else if (current_status == kRetransmitStatusWaitTxSlot) {
+      // Waiting for IrController's tx slot to open up. (Hash is ready)
+      if (current_tx_slot == -1) {
+        bool ret;
+        if (g_xboard_logic.GetConnectState() ==
+            UsartConnectState::ConnectBaseStn2025) {
+          ret = g_xboard_logic.SendIRPacket(&(queued_packets_[i].data[0]),
+                                            queued_packets_[i].size);
+        } else {
+          ret = irLogic.SendPacket(&(queued_packets_[i].data[0]),
+                                   queued_packets_[i].size);
+        }
+        if (ret) {
+          // Packet successfully queued for transmission by irLogic.
+          current_tx_slot =
+              i;  // Mark this slot as currently being transmitted.
+          // Update status to Waiting for ACK.
+          queued_packets_[i].status =
+              (queued_packets_[i].status & ~kRetransmitStatusMask) |
+              kRetransmitStatusWaitAck;
+          // Set the timer for waiting for an acknowledgment packet.
+          queued_packets_[i].time_to_retry =
+              600 + 200 - (g_fast_random_pool.GetRandom() % 400);
+        }
+        // If ret is false, irLogic was busy, will try again next RoutineTask
+        // cycle.
+      }
+    } else if (current_status == kRetransmitStatusWaitAck) {
+      // Waiting for ACK. Check the retry timer.
+      if (queued_packets_[i].time_to_retry == 0) {
+        // Timer elapsed, no ACK received. Check if retries are left.
+        uint8_t counts = queued_packets_[i].status &
+                         kRetransmitLimitMask;  // Get remaining retry count.
+        if (counts == 0) {
+          // No more retries left. Mark this slot as unused.
+          queued_packets_[i].status = kRetransmitStatusSlotUnused;
+        } else {
+          // Retries left. Decrement the count and transition back to waiting
+          // for TX slot.
+          counts--;
+          // Preserve the new count and retransmit.
+          queued_packets_[i].status =
+              (queued_packets_[i].status & ~kRetransmitLimitMask) |
+              counts;  // Update retry count.
+          queued_packets_[i].status =
+              (queued_packets_[i].status & ~kRetransmitStatusMask) |
+              kRetransmitStatusWaitTxSlot;  // Update status.
+        }
+      } else {
+        // Timer is still counting down. Decrement it.
+        queued_packets_[i].time_to_retry--;
       }
     }
-
-    // Determine if we want to internally generate.
-    {
-      uint32_t rand_num = g_fast_random_pool.GetRandom() % 65536;
-      if (rand_num < kInternalGenChance &&
-          gameLogic.GetAcceptDataQueueAvailable() >
-              kInternalGenMinQueueAvailable) {
-        // Generate random.
-        gameLogic.DoRandomData();
-      }
-    }
-
-    TrySendPriority();
   }
 }
 
@@ -113,22 +259,7 @@ void IrController::BroadcastIr(void* unused) {
 
   if (!TrySendPriority()) return;
 
-  uint8_t cell_data[kDataSize];
-  int col = g_fast_random_pool.GetRandom() % hitcon::game::kNumCols;
-  gameLogic.GetRandomDataForIrTransmission(cell_data, &col);
-  IrData irdata = {
-      .ttl = 0,
-      .type = packet_type::kGame,
-      .game =
-          {
-              .col = col,
-          },
-  };
-  memcpy(irdata.game.data, cell_data, kDataSize);
-  uint8_t irdata_len = 12;
-  irLogic.SendPacket(reinterpret_cast<uint8_t*>(&irdata), irdata_len);
-
-  send_lock = true;
+  // remove broadcasting
 }
 
 void IrController::SendShowPacket(char* msg) {
@@ -137,7 +268,7 @@ void IrController::SendShowPacket(char* msg) {
       .type = packet_type::kShow,
   };
   size_t length = strlen(msg);
-  memcpy(irdata.show.message, msg, length);
+  memcpy(irdata.opaq.show.message, msg, length);
   memcpy(&priority_data_, &irdata, sizeof(irdata));
   priority_data_len_ = sizeof(priority_data_) / sizeof(uint8_t);
   ;
@@ -154,6 +285,45 @@ bool IrController::TrySendPriority() {
     priority_data_len_ = 0;
   }
   return false;
+}
+
+uint8_t IrController::GetSlotStatusForDebug(uint8_t slot_index) const {
+  if (slot_index >= RETX_QUEUE_SIZE) return 0;
+  return queued_packets_[slot_index].status & kRetransmitStatusMask;
+}
+
+uint8_t IrController::GetSlotPacketTypeForDebug(uint8_t slot_index) const {
+  if (slot_index >= RETX_QUEUE_SIZE) return 0;
+  uint8_t status_mask =
+      queued_packets_[slot_index].status & kRetransmitStatusMask;
+  if (status_mask == kRetransmitStatusSlotUnused) return 0;
+
+  // The packet type is stored in the second byte of the data
+  // (after the TTL byte in IrData structure)
+  return static_cast<uint8_t>(queued_packets_[slot_index].data[1]);
+}
+
+uint8_t IrController::GetSlotRetryCountForDebug(uint8_t slot_index) const {
+  if (slot_index >= RETX_QUEUE_SIZE) return 0;
+  return queued_packets_[slot_index].status & kRetransmitLimitMask;
+}
+
+uint16_t IrController::GetSlotTimeToRetryForDebug(uint8_t slot_index) const {
+  if (slot_index >= RETX_QUEUE_SIZE) return 0;
+  return queued_packets_[slot_index].time_to_retry;
+}
+
+void IrController::ForceRetransmitForDebug(uint8_t slot_index) {
+  if (slot_index >= RETX_QUEUE_SIZE) return;
+  if ((queued_packets_[slot_index].status & kRetransmitStatusMask) ==
+      kRetransmitStatusWaitAck) {
+    uint8_t counts = queued_packets_[slot_index].status & kRetransmitLimitMask;
+    if (counts <= 5) {
+      counts++;
+    }
+    queued_packets_[slot_index].status =
+        kRetransmitStatusWaitTxSlot | (counts & kRetransmitLimitMask);
+  }
 }
 
 }  // namespace ir

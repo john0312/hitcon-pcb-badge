@@ -24,7 +24,15 @@ def set_name(name):
     datatosend[0] = 0x01
     datatosend[1:len(name)+1] = [ord(c) for c in name]
     print(datatosend)
-    k=send_command(datatosend)
+    
+    # Send data in 8-byte chunks
+    for i in range(0, len(datatosend), 8):
+        chunk = datatosend[i:i+8]
+        if len(chunk) < 8:
+            chunk = chunk + [0x00]*(8-len(chunk))
+        print(chunk)
+        k = send_command(chunk)
+    
     return k
 
 #BadUSB Commands
@@ -57,7 +65,8 @@ def write_memory(addr, data, mode):
         data = data + [0x00]*(4-len(data))
     datatosend = [0x04]+addr+data+[mode]
     print(datatosend)
-    send_command(datatosend)
+    send_command(datatosend[:8])
+    send_command(datatosend[8])
 
     return
 
@@ -65,23 +74,20 @@ def write_memory(addr, data, mode):
 def send_badusb_script(script):
     datatosend = [0x00]*3
     datatosend[0] = 0x03
-    datatosend[1:3] = len(script).to_bytes(2, 'big')
+    datatosend[1:3] = len(script).to_bytes(2, 'little')
+    print(len(script))
     crc = crc32.Crc32(0x04C11DB7)
-    # Correct checksum is to add padding
-    # script = script+ [0x00]*(4-len(script)%4)
-    # The checksum is incorrect, but this is the current firmware
-    _script = script
-    if len(_script) % 4 > 0:
-        _script = _script[:len(_script)-(len(_script)%4)]
-    checksum = list(crc.calculate(_script).to_bytes(4, 'little'))
+    
+    script = script+ [0x00]*(4-len(script)%4)
+    checksum = crc.crc_int_to_bytes(crc.calculate(script))
+    checksum = checksum[::-1] 
+    print(checksum)
     datatosend = datatosend+checksum+ script
     for i in range(0, math.ceil(len(datatosend)), 8):
         
         if len(datatosend[i: i+8]) != 8:
             datatosend[i: i+8] = datatosend[i: i+8] + [0]*(8-len(datatosend[i: i+8]))
-        if datatosend[i] == 0:
-            datatosend[i] = 0xFC
-            print(datatosend[i: i+8])
+            
         print(datatosend[i: i+8])
         send_command(datatosend[i: i+8])
         if len(datatosend) - 8 != i:
@@ -103,7 +109,7 @@ def send_badusb_script(script):
         #     print(tmp)
 
 def send_command(command):
-    k=device.write(command)
+    k=device.write([2] + command)
     return k
 
 

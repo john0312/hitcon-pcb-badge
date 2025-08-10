@@ -2,6 +2,7 @@
 #define UTIL_CIRCULAR_QUEUE_DOT_H_
 
 #include <cstddef>
+#include <cstring>
 
 namespace hitcon {
 
@@ -49,6 +50,70 @@ class CircularQueue {
   // Returns a reference to the back element in the circular queue.
   T& Back() { return elements_[(m_back_ - 1 + capacity) % capacity]; }
 
+  // Copies the elements in the circular queue from [offset], for
+  // count elements.
+  // Return false if not enough elements.
+  // Type T MUST be copyable and relocable, otherwise it'll be undefined
+  // behaviour. This method use memcpy.
+  bool PeekSegment(T* buffer, size_t count, size_t offset) {
+    const size_t current_size = Size();
+
+    // Check if the requested segment is within the bounds of the current queue
+    // size.
+    if (offset + count > current_size) {
+      return false;
+    }
+
+    // Calculate the physical starting index in the internal array.
+    const size_t read_start_physical_idx = (m_front_ + offset) % capacity;
+
+    // Determine how many elements can be copied contiguously from
+    // read_start_physical_idx to the end of the internal elements_ array.
+    const size_t elements_to_end_of_array = capacity - read_start_physical_idx;
+
+    if (count <= elements_to_end_of_array) {
+      // The requested segment does not wrap around the end of the array.
+      // Copy in a single memcpy operation.
+      memcpy(buffer, elements_ + read_start_physical_idx, count * sizeof(T));
+    } else {
+      // The requested segment wraps around the end of the array.
+      // Perform two memcpy operations.
+
+      // First part: Copy from read_start_physical_idx to the end of the
+      // elements_ array.
+      memcpy(buffer, elements_ + read_start_physical_idx,
+             elements_to_end_of_array * sizeof(T));
+
+      // Second part: Copy the remaining elements from the beginning of the
+      // elements_ array. The destination buffer continues from where the first
+      // part left off.
+      memcpy(buffer + elements_to_end_of_array, elements_,
+             (count - elements_to_end_of_array) * sizeof(T));
+    }
+
+    return true;
+  }
+
+  // Remove cnt elements from the front.
+  // Return false if not enough elements, in that case it'll be unchanged.
+  bool RemoveFrontMulti(size_t cnt) {
+    if (cnt > Size()) {
+      return false;
+    }
+    m_front_ = (m_front_ + cnt) % capacity;
+    return true;
+  }
+
+  // Remove cnt elements from the back.
+  // Return false if not enough elements, in that case it'll be unchanged.
+  bool RemoveBackMulti(size_t cnt) {
+    if (cnt > Size()) {
+      return false;
+    }
+    m_back_ = (m_back_ - cnt + capacity) % capacity;
+    return true;
+  }
+
   // Removes the front element from the circular queue.
   void PopFront() {
     if (!IsEmpty()) {
@@ -83,6 +148,11 @@ class CircularQueue {
       return true;
     }
     return false;
+  }
+
+  void Clear() {
+    m_front_ = 0;
+    m_back_ = 0;
   }
 };
 

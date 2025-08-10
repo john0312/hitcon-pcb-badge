@@ -159,6 +159,12 @@ void display_set_mode_text(const char *text);
 void display_set_mode_scroll_text(const char *text,
                                   int speed = DISPLAY_SCROLL_DEFAULT_SPEED);
 
+// Get the number of times the display has scrolled.
+// Example use case: an app can use this to scroll the text only once
+// and then stop.
+// Returns -1 if the display is not in scroll mode.
+int display_get_scroll_count();
+
 enum DisplaySetModeState {
   SET_MODE_IDLE,
   SET_MODE_ST_RENDER,

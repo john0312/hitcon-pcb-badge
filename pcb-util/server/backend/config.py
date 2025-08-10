@@ -1,0 +1,3 @@
+import os
+MONGO_CONNECT_STRING: str = os.environ['MONGO_CONNECT_STRING']
+MONGO_DATABASE_NAME: str = os.environ["MONGO_DATABASE_NAME"]

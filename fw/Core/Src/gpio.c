@@ -45,39 +45,63 @@ void MX_GPIO_Init(void)
   GPIO_InitTypeDef GPIO_InitStruct = {0};
 
   /* GPIO Ports Clock Enable */
+  __HAL_RCC_GPIOC_CLK_ENABLE();
   __HAL_RCC_GPIOD_CLK_ENABLE();
   __HAL_RCC_GPIOA_CLK_ENABLE();
   __HAL_RCC_GPIOB_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(IMU_PWR_GPIO_Port, IMU_PWR_Pin, GPIO_PIN_RESET);
+
+  /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOB, LedCh_Pin|LedCg_Pin|LedCf_Pin|LedCe_Pin
                           |LedCd_Pin|LedCc_Pin|LedCb_Pin|LedCa_Pin
-                          |LedA0_Pin|LedA1_Pin|LedA2_Pin|LedA3_Pin, GPIO_PIN_RESET);
+                          |LedA0_Pin|LedA1_Pin|DEC_EN_Pin|LedA2_Pin
+                          |LedA3_Pin, GPIO_PIN_RESET);
 
-  /*Configure GPIO pin : PtPin */
+  /*Configure GPIO pin : USB_DET_Pin */
+  GPIO_InitStruct.Pin = USB_DET_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING_FALLING;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  HAL_GPIO_Init(USB_DET_GPIO_Port, &GPIO_InitStruct);
+
+  /*Configure GPIO pin : IMU_PWR_Pin */
+  GPIO_InitStruct.Pin = IMU_PWR_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(IMU_PWR_GPIO_Port, &GPIO_InitStruct);
+
+  /*Configure GPIO pin : IrRx_Pin */
   GPIO_InitStruct.Pin = IrRx_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(IrRx_GPIO_Port, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : PAPin PAPin PAPin PAPin
-                           PAPin PAPin PAPin PAPin */
+  /*Configure GPIO pins : BtnB_Pin BtnC_Pin BtnD_Pin BtnE_Pin
+                           BtnF_Pin BtnG_Pin BtnH_Pin BtnA_Pin */
   GPIO_InitStruct.Pin = BtnB_Pin|BtnC_Pin|BtnD_Pin|BtnE_Pin
                           |BtnF_Pin|BtnG_Pin|BtnH_Pin|BtnA_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_PULLUP;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : PBPin PBPin PBPin PBPin
-                           PBPin PBPin PBPin PBPin
-                           PBPin PBPin PBPin PBPin */
+  /*Configure GPIO pins : LedCh_Pin LedCg_Pin LedCf_Pin LedCe_Pin
+                           LedCd_Pin LedCc_Pin LedCb_Pin LedCa_Pin
+                           LedA0_Pin LedA1_Pin DEC_EN_Pin LedA2_Pin
+                           LedA3_Pin */
   GPIO_InitStruct.Pin = LedCh_Pin|LedCg_Pin|LedCf_Pin|LedCe_Pin
                           |LedCd_Pin|LedCc_Pin|LedCb_Pin|LedCa_Pin
-                          |LedA0_Pin|LedA1_Pin|LedA2_Pin|LedA3_Pin;
+                          |LedA0_Pin|LedA1_Pin|DEC_EN_Pin|LedA2_Pin
+                          |LedA3_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+
+  /* EXTI interrupt init*/
+  HAL_NVIC_SetPriority(EXTI15_10_IRQn, 14, 0);
+  HAL_NVIC_EnableIRQ(EXTI15_10_IRQn);
 
 }
 

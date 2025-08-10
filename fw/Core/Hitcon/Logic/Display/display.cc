@@ -252,3 +252,14 @@ void display_set_mode_editor(hitcon::TextEditorDisplay *editor) {
 void display_set_orientation(int orientation) {
   display_set_mode_orientation = orientation;
 }
+
+int display_get_scroll_count() {
+  if (display_mode != DISPLAY_MODE_SCROLL) {
+    return -1;
+  }
+
+  int total_width = DISPLAY_WIDTH + display_scroll_info.n_col + 1;
+  int period = total_width * display_scroll_info.speed;
+  int frame = display_current_frame - display_scroll_info.first_frame;
+  return frame / period;
+}

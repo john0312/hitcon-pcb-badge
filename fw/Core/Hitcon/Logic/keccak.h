@@ -68,6 +68,14 @@ enum SHA3_FLAGS sha3_SetFlags(void *priv, enum SHA3_FLAGS);
 // Takes up to 1 keccakf() call.
 void sha3_UpdateWord(void *priv, void const *bufIn);
 
+// Returns the next round to be called.
+// For round=0, proceed to the next word.
+// For round=1 to KECCAK_ROUNDS, it should call keccakf(round-1)
+int sha3_UpdateWord_split(void *priv, void const *bufIn, int round);
+
+// Called for updating the final few bytes that's shorter than a word.
+void sha3_UpdateFinalWord(void *priv, void const *bufIn, size_t len);
+
 // Takes multiple keccakf() call and should not be used on STM32.
 void sha3_Update(void *priv, void const *bufIn, size_t len);
 

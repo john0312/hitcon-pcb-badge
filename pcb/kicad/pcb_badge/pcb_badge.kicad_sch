@@ -871,6 +871,16 @@
 		)
 		(uuid "f5e5ec59-86e5-4da1-bfe2-06dc825a38d5")
 	)
+	(text "R90-R97\nRED LED: 300Ω\nBLUE LED: 100Ω\n"
+		(exclude_from_sim no)
+		(at 190.754 106.426 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+		)
+		(uuid "ccafa70f-19e1-40c5-bbf5-6796421f2de0")
+	)
 	(symbol
 		(lib_id "Device:R")
 		(at 181.61 97.79 90)

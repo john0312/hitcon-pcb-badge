@@ -1,7 +1,6 @@
 #ifndef LOGIC_GAME_SCORE_H_
 #define LOGIC_GAME_SCORE_H_
 
-#include <Secret/secret.h>
 #include <Service/Sched/Scheduler.h>
 
 namespace hitcon {
@@ -25,7 +24,6 @@ class GameScore {
   int GetScore(GameScoreType game_type);
 
  private:
-  uint8_t sent[kGameAchievementDataCount / 8 + 1];
   int scores[static_cast<size_t>(GameScoreType::GAME_UNUSED_MAX)];
 
   hitcon::service::sched::DelayedTask routine_task_delayed;
@@ -34,8 +32,6 @@ class GameScore {
   bool nv_fetched_;
 
   void Routine(void* args);
-  bool RoutineInternal();
-  bool TryAcceptData(size_t row_id);
 };
 
 extern GameScore g_game_score;

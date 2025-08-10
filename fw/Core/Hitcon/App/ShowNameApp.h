@@ -19,7 +19,7 @@ enum ShowNameMode {
 class ShowNameApp : public App {
  public:
   static constexpr int NAME_LEN = kDisplayMaxNameLength;
-  static constexpr char *DEFAULT_NAME = "HITCON2024";
+  static constexpr char *DEFAULT_NAME = "HITCON2025";
 
   char name[NAME_LEN + 1] = {0};
   char display_buf[DISPLAY_SCROLL_MAX_COLUMNS];
@@ -34,7 +34,10 @@ class ShowNameApp : public App {
 
   void SetName(const char *name);
   void SetMode(const enum ShowNameMode mode);
+  void SetScore(uint32_t score);
   enum ShowNameMode GetMode();
+
+  void SetSurpriseMsg(const char *msg);
 
   void check_update();
 
@@ -44,6 +47,7 @@ class ShowNameApp : public App {
   hitcon::service::sched::PeriodicTask _routine_task;
   uint32_t score_cache = 0;
 
+  char surprise_msg[kDisplayScrollMaxTextLen + 1];
   bool starting_up;
   unsigned last_disp_update;
 };
