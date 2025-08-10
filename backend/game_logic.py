@@ -124,6 +124,8 @@ class _GameLogic:
             start_time = datetime.now()
         self.start_time = start_time
 
+        self.player_scoreboard_lock = asyncio.Lock()
+
     async def clear_database(self):
         await self.attack_history.delete_many({})
         await self.score_history.delete_many({})
@@ -477,77 +479,78 @@ class _GameLogic:
             before = datetime.now()
         before = self._round_to_granularity(before)
 
-        # check cache, if granularity is set
-        # if granularity is not set, the cache will be meaningless, since it is practically impossible to hit the cache with two same "before" timestamps
-        if self.redis_client is not None and const.GAME_SCORE_GRANULARITY is not None:
-            tmp = await self.redis_client.get(f"player_scoreboard:{before.isoformat()}")
-            if tmp is not None:
-                return pickle.loads(tmp)
+        # Ensure that only one request can calculate the scoreboard at a time
+        async with self.player_scoreboard_lock:
 
-        # TODO: maybe lock to make sure only one process is updating the cache at a time
+            # check cache, if granularity is set
+            # if granularity is not set, the cache will be meaningless, since it is practically impossible to hit the cache with two same "before" timestamps
+            if self.redis_client is not None and const.GAME_SCORE_GRANULARITY is not None:
+                tmp = await self.redis_client.get(f"player_scoreboard:{before.isoformat()}")
+                if tmp is not None:
+                    return pickle.loads(tmp)
 
-        cursor = await self.score_history.aggregate([
-            {
-                "$match": {
-                    "log_only": { "$ne": True },
-                    "timestamp": { "$lt": before }
-                }
-            },
-            {
-                "$group": {
-                    "_id": {
-                        "player_id": "$player_id",
-                        "game_type": "$game_type"
-                    },
-                    "total_score": { "$sum": "$score" },
-                    "connected_sponsors": { "$addToSet": "$sponsor_id" }
-                }
-            },
-            {
-                "$group": {
-                    "_id": "$_id.player_id",
-                    "scores": {
-                        "$push": { "k": "$_id.game_type", "v": "$total_score" }
-                    },
-                    "total_score": { "$sum": "$total_score" },
-                    "connected_sponsors": { "$addToSet": "$connected_sponsors" }
-                }
-            },
-            {
-                "$project": {
-                    "_id": 0,
-                    "player_id": "$_id",
-                    "scores": { "$arrayToObject": "$scores" },
-                    "total_score": 1,
-                    "connected_sponsors": {
-                        "$filter": {
-                            "input": {
-                                "$reduce": {
-                                    "input": "$connected_sponsors",
-                                    "initialValue": [],
-                                    "in": { "$setUnion": ["$$value", "$$this"] }
-                                }
-                            },
-                            "as": "item",
-                            "cond": { "$ne": ["$$item", None] }
+            cursor = await self.score_history.aggregate([
+                {
+                    "$match": {
+                        "log_only": { "$ne": True },
+                        "timestamp": { "$lt": before }
+                    }
+                },
+                {
+                    "$group": {
+                        "_id": {
+                            "player_id": "$player_id",
+                            "game_type": "$game_type"
+                        },
+                        "total_score": { "$sum": "$score" },
+                        "connected_sponsors": { "$addToSet": "$sponsor_id" }
+                    }
+                },
+                {
+                    "$group": {
+                        "_id": "$_id.player_id",
+                        "scores": {
+                            "$push": { "k": "$_id.game_type", "v": "$total_score" }
+                        },
+                        "total_score": { "$sum": "$total_score" },
+                        "connected_sponsors": { "$addToSet": "$connected_sponsors" }
+                    }
+                },
+                {
+                    "$project": {
+                        "_id": 0,
+                        "player_id": "$_id",
+                        "scores": { "$arrayToObject": "$scores" },
+                        "total_score": 1,
+                        "connected_sponsors": {
+                            "$filter": {
+                                "input": {
+                                    "$reduce": {
+                                        "input": "$connected_sponsors",
+                                        "initialValue": [],
+                                        "in": { "$setUnion": ["$$value", "$$this"] }
+                                    }
+                                },
+                                "as": "item",
+                                "cond": { "$ne": ["$$item", None] }
+                            }
                         }
                     }
                 }
-            }
-        ])
-        result = await cursor.to_list(length=None)
+            ])
+            result = await cursor.to_list(length=None)
 
-        # give missing game types a score of 0
-        for record in result:
-            for game_type in GameType:
-                if game_type not in record["scores"]:
-                    record["scores"][game_type] = 0
+            # give missing game types a score of 0
+            for record in result:
+                for game_type in GameType:
+                    if game_type not in record["scores"]:
+                        record["scores"][game_type] = 0
 
-        # If granularity is set, cache the score
-        if self.redis_client is not None and const.GAME_SCORE_GRANULARITY is not None:
-            await self.redis_client.set(f"player_scoreboard:{before.isoformat()}", pickle.dumps(result))
+            # If granularity is set, cache the score
+            if self.redis_client is not None and const.GAME_SCORE_GRANULARITY is not None:
+                await self.redis_client.set(f"player_scoreboard:{before.isoformat()}", pickle.dumps(result))
 
-        return result
+            return result
 
     async def update_player_buff(self, player_id: int, buff_a_count: int, buff_b_count: int, timestamp: datetime):
         """
