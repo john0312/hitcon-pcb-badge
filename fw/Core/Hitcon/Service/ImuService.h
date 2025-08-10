@@ -65,6 +65,7 @@ class ImuService {
   void I2CCallback();
 
   volatile State state = State::INIT;
+  bool IsBusy() { return state != State::IDLE; };
 
  private:
   CircularQueue<ReadOp, QUEUE_SIZE> _rx_queue;

@@ -55,6 +55,22 @@ void ImuLogic::AccSelfTest(callback_t cb, void* cb_arg1) {
 }
 
 void ImuLogic::Routine(void* arg1) {
+  static RoutineState last_state = RoutineState::INIT;
+  static uint16_t count = 0;
+  if (last_state != _state) {
+    last_state = _state;
+    count = 0;
+  } else
+    count++;
+
+  // if state stuck for 5s reset I2C
+  if (count >= 5000 / ROUTINE_INTERVAL) {
+    g_imu_service.ResetI2C();
+    g_imu_logic.Reset();
+    return;
+  }
+
+  if (g_imu_service.IsBusy()) return;
   if (_state == RoutineState::WAIT_800 &&
       SysTimer::GetTime() - _start_time >= 800) {
     _state = RoutineState::INIT;

@@ -96,6 +96,20 @@ void ImuService::I2CCallback() {
 
 void ImuService::Routine(void* arg) {
   static unsigned op_start_tick = 0;
+  static State last_state = State::INIT;
+  static uint16_t count = 0;
+  if (last_state != state) {
+    last_state = state;
+    count = 0;
+  } else
+    count++;
+
+  // if state stuck for 10s reset I2C
+  if (count >= 100 && state != State::INIT) {
+    g_imu_service.ResetI2C();
+    g_imu_logic.Reset();
+    return;
+  }
 
   switch (state) {
     case State::INIT:
@@ -157,8 +171,8 @@ void ImuService::Routine(void* arg) {
         op_start_tick = SysTimer::GetTime();
       }
       if (status != HAL_OK) {
-        state = State::IDLE;
-        my_assert(false);
+        g_imu_service.ResetI2C();
+        g_imu_logic.Reset();
       }
       break;
     }
