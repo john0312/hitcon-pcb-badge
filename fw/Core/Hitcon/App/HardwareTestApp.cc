@@ -1,6 +1,8 @@
 #include "HardwareTestApp.h"
 
+#include <App/DebugApp.h>
 #include <App/EditNameApp.h>
+#include <Logic/BadgeController.h>
 #include <Logic/Display/display.h>
 #include <Logic/ImuLogic.h>
 #include <Logic/RandomPool.h>
@@ -144,8 +146,7 @@ void HardwareTestApp::OnButton(button_t button) {
       break;
     case TS_GYRO:
       if (button == BUTTON_OK) {
-        HAL_Delay(500);
-        g_imu_logic.GyroSelfTest((callback_t)&HardwareTestApp::CheckImu, this);
+        badge_controller.change_app(&g_debug_accel_app);
       }
       break;
   }
