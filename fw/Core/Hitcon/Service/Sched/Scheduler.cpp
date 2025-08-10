@@ -7,6 +7,9 @@
 
 #include "Scheduler.h"
 
+#ifdef DEBUG
+#include <App/TamaApp.h>
+#endif
 #include <Service/Sched/Checks.h>
 
 #include "SysTimer.h"
@@ -164,7 +167,13 @@ void Scheduler::Run() {
     record.task = &top;
 
     currentTask = &top;
+#ifdef DEBUG
+    my_assert(hitcon::app::tama::tama_app.IsDataValid());
+#endif
     top.Run();
+#ifdef DEBUG
+    my_assert(hitcon::app::tama::tama_app.IsDataValid());
+#endif
     currentTask = nullptr;
     record.endTime = SysTimer::GetTime();
     taskRecords[record_index] = record;

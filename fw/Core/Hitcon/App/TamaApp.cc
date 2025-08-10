@@ -61,6 +61,8 @@ void TamaApp::Init() {
   }
   hitcon::service::sched::scheduler.Queue(&_hunger_task, nullptr);
   hitcon::service::sched::scheduler.EnablePeriodic(&_hunger_task);
+  hitcon::service::sched::scheduler.Queue(&_level_up_task, nullptr);
+  hitcon::service::sched::scheduler.EnablePeriodic(&_level_up_task);
   qte.Init();
 }
 
@@ -338,7 +340,10 @@ void TamaApp::OnButton(button_t button) {
   }
 
   if (needs_save && (_state != _tama_data.state)) {
-    _tama_data.state = _state;
+    if (static_cast<uint8_t>(_state) &
+        static_cast<uint8_t>(TAMA_APP_STATE::SAVE_STATE)) {
+      _tama_data.state = _state;
+    }
     g_nv_storage.MarkDirty();
   }
   if (needs_update_fb) {

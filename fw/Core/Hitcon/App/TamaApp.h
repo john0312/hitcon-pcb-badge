@@ -37,13 +37,13 @@ namespace tama {
 
 enum class TAMA_APP_STATE : uint8_t {
   SAVE_STATE = 0x80,
-  INTRO_TEXT = 0,          // Displaying introductory text
-  CHOOSE_TYPE = 1,         // Player is selecting a pet type
-  EGG_1 = 2 | SAVE_STATE,  // 0% hatching progress
-  EGG_2 = 3 | SAVE_STATE,  // 25% hatching progress
-  EGG_3 = 4 | SAVE_STATE,  // 50% hatching progress
-  EGG_4 = 5 | SAVE_STATE,  // 75% hatching progress
-  HATCHING = 6,            // 100% animation
+  INTRO_TEXT = 0,             // Displaying introductory text
+  CHOOSE_TYPE = 1,            // Player is selecting a pet type
+  EGG_1 = 2 | SAVE_STATE,     // 0% hatching progress
+  EGG_2 = 3 | SAVE_STATE,     // 25% hatching progress
+  EGG_3 = 4 | SAVE_STATE,     // 50% hatching progress
+  EGG_4 = 5 | SAVE_STATE,     // 75% hatching progress
+  HATCHING = 6 | SAVE_STATE,  // 100% animation
   IDLE = 7 | SAVE_STATE,
   LV_DETAIL = 8,
   FEED_CONFIRM = 9,
@@ -274,7 +274,6 @@ class TamaApp : public App {
   void HungerRoutine(void* unused);
   void LevelUpRoutine(void* unused);
   void SponsorRegister(uint8_t sponsor_id);
-  bool IsDataValid();
 
   // XBoard related
   uint8_t _my_nounce;
@@ -314,6 +313,7 @@ class TamaApp : public App {
   bool ShouldRestore(const tama_storage_t& t);
   bool TrySendSave(bool force);
   bool OnRestorePacket(struct hitcon::ir::RestorePetPacket* pkt);
+  bool IsDataValid();
 };
 
 void SetSingleplayer();
