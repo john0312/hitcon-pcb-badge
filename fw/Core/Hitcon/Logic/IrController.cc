@@ -31,10 +31,13 @@ static char SURPRISE_NAME[] = "You got pwned!";
 
 IrController irController;
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpmf-conversions"
 IrController::IrController()
     : routine_task(950, (callback_t)&IrController::RoutineTask, this, 1000),
       showtext_task(800, (callback_t)&IrController::ShowText, this),
       broadcast_task(800, (callback_t)&IrController::BroadcastIr, this) {}
+#pragma GCC diagnostic pop
 
 void IrController::ShowText(void* arg) {
   struct ShowPacket* pkt = reinterpret_cast<struct ShowPacket*>(arg);
@@ -45,10 +48,13 @@ void IrController::ShowText(void* arg) {
 }
 
 void IrController::Init() {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpmf-conversions"
   irLogic.SetOnPacketReceived((callback_t)&IrController::OnPacketReceived,
                               this);
   badge_controller.SetCallback((callback_t)&IrController::SendShowPacket, this,
                                SURPRISE_NAME);
+#pragma GCC diagnostic pop
   scheduler.Queue(&routine_task, nullptr);
   scheduler.EnablePeriodic(&routine_task);
 }
@@ -185,9 +191,12 @@ void IrController::MaintainQueued() {
       // Waiting for hash processor to be available.
       if (current_hashing_slot == -1) {
         // Start hashing the payload.
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpmf-conversions"
         bool ret = hitcon::hash::g_hash_service.StartHash(
             pckt_data, pckt_size, (callback_t)&IrController::OnPacketHashResult,
             this);
+#pragma GCC diagnostic pop
         if (ret) {
           // Hashing started successfully. Update status to Waiting for hash
           // processor to finish.

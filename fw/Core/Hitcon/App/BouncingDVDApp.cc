@@ -82,6 +82,8 @@ using hitcon::service::sched::task_callback_t;
 
 unsigned bouncing_dvd_rand() { return g_fast_random_pool.GetRandom(); }
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpmf-conversions"
 BouncingDVDApp::BouncingDVDApp()
     : bouncing_dvd(bouncing_dvd_rand),
       periodic_task(UPDATE_PRIORITY,
@@ -89,6 +91,7 @@ BouncingDVDApp::BouncingDVDApp()
                     this, UPDATE_INTERVAL) {
   hitcon::service::sched::scheduler.Queue(&periodic_task, nullptr);
 }
+#pragma GCC diagnostic pop
 
 void BouncingDVDApp::OnEntry() {
   display_set_orientation(0);

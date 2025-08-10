@@ -11,8 +11,11 @@ BadUsbApp::BadUsbApp() {}
 
 void BadUsbApp::OnEntry() {
   _skip_crc = false;
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpmf-conversions"
   g_usb_logic.RunScript((callback_t)&BadUsbApp::OnScriptFinished, this,
                         (callback_t)&BadUsbApp::OnScriptError, this, true);
+#pragma GCC diagnostic pop
 }
 
 void BadUsbApp::OnExit() { g_usb_logic.StopScript(); }
@@ -24,9 +27,12 @@ void BadUsbApp::OnButton(button_t button) {
       break;
     case BUTTON_OK:
       if (_skip_crc) {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpmf-conversions"
         g_usb_logic.RunScript((callback_t)&BadUsbApp::OnScriptFinished, this,
                               (callback_t)&BadUsbApp::OnScriptError, this,
                               false);
+#pragma GCC diagnostic pop
       }
       break;
   }

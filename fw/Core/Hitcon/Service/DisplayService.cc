@@ -17,9 +17,12 @@ DisplayService g_display_service;
 uint8_t g_display_brightness = 3;
 uint8_t g_display_standby = 0;
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpmf-conversions"
 DisplayService::DisplayService()
     : task(169, (task_callback_t)&DisplayService::RequestFrameWrapper,
            (void*)this) {}
+#pragma GCC diagnostic pop
 
 /*
  * DMA Mode: Circular

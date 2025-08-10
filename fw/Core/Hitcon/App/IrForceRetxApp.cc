@@ -9,9 +9,12 @@ namespace hitcon {
 
 IrForceRetxApp g_ir_force_retx_app;
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpmf-conversions"
 IrForceRetxApp::IrForceRetxApp()
     : routine_task_(950, (callback_t)&IrForceRetxApp::RoutineTask, this, 500),
       state_(0) {}
+#pragma GCC diagnostic pop
 
 void IrForceRetxApp::OnEntry() {
   state_ = 1;

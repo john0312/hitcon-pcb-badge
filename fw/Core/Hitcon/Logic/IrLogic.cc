@@ -18,16 +18,22 @@ namespace hitcon {
 namespace ir {
 
 IrLogic irLogic;
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpmf-conversions"
 service::sched::Task OnBufferReceivedTask(
     490, (service::sched::task_callback_t)&IrLogic::OnBufferReceived, &irLogic);
+#pragma GCC diagnostic pop
 
 IrLogic::IrLogic()
     : lf_total_period(0), lf_nonzero_period(0), lowpass_loadfactor(0) {}
 
 void IrLogic::Init() {
   // Set callback
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpmf-conversions"
   irService.SetOnBufferReceived(
       (callback_t)&IrLogic::OnBufferReceivedEnqueueTask, this);
+#pragma GCC diagnostic pop
 }
 
 size_t packet_buf{0};

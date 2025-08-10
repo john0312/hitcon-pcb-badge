@@ -124,9 +124,12 @@ bool ModNum::operator==(const uint64_t other) const { return val == other; }
 
 ModDivService g_mod_div_service;
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpmf-conversions"
 ModDivService::ModDivService()
     : routineTask(803, (callback_t)&ModDivService::routineFunc, this),
       finalizeTask(803, (callback_t)&ModDivService::finalize, this) {}
+#pragma GCC diagnostic pop
 
 void ModDivService::start(uint64_t a, uint64_t b, uint64_t m,
                           callback_t callback, void *callbackArg1) {
@@ -227,11 +230,14 @@ PointAddContext::PointAddContext() : l(0, 1) {}
 
 PointAddService g_point_add_service;
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpmf-conversions"
 PointAddService::PointAddService()
     : routineTask(802, (callback_t)&PointAddService::routineFunc, this),
       finalizeTask(802, (callback_t)&PointAddService::finalize, this),
       genXTask(802, (callback_t)&PointAddService::genX, this),
       genYTask(802, (callback_t)&PointAddService::genY, this) {}
+#pragma GCC diagnostic pop
 
 void PointAddService::start(const EcPoint &a, const EcPoint &b,
                             callback_t callback, void *callbackArg1) {
@@ -260,14 +266,20 @@ void PointAddService::routineFunc() {
     l_top = l_top + l_top + l_top + ModNum(g_curve.A, l_top.mod);
     // Same applies here, original formula is 2 * y
     ModNum l_bot = context.a.y + context.a.y;
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpmf-conversions"
     g_mod_div_service.start(l_top.val, l_bot.val, l_top.mod,
                             (callback_t)&PointAddService::onDivDone, this);
+#pragma GCC diagnostic pop
   } else {
     // intersect directly
     ModNum l_top = context.b.y - context.a.y;
     ModNum l_bot = context.b.x - context.a.x;
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpmf-conversions"
     g_mod_div_service.start(l_top.val, l_bot.val, l_top.mod,
                             (callback_t)&PointAddService::onDivDone, this);
+#pragma GCC diagnostic pop
   }
 }
 
@@ -292,25 +304,34 @@ PointMultContext::PointMultContext() : p(g_generator), res(g_generator) {}
 
 PointMultService g_point_mult_service;
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpmf-conversions"
 PointMultService::PointMultService()
     : routineTask(801, (task_callback_t)&PointMultService::routineFunc,
                   (void *)this) {}
+#pragma GCC diagnostic pop
 
 void PointMultService::routineFunc() {
   if (context.i == 128) {
     callback(callbackArg1, &context.res);
   } else {
     if (context.i & 1) {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpmf-conversions"
       if (context.times & UINT64_MSB)
         g_point_add_service.start(context.p, context.res,
                                   (callback_t)&PointMultService::onAddDone,
                                   this);
       else
         scheduler.Queue(&routineTask, this);
+#pragma GCC diagnostic pop
       context.times <<= 1;
     } else {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpmf-conversions"
       g_point_add_service.start(context.res, context.res,
                                 (callback_t)&PointMultService::onAddDone, this);
+#pragma GCC diagnostic pop
     }
     ++context.i;
   }
@@ -354,9 +375,12 @@ bool EcLogic::StartSign(uint8_t const *message, uint32_t len,
                         callback_t callback, void *callbackArg1) {
   if (busy) return false;
   if (!publicKeyReady) return false;
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpmf-conversions"
   if (!g_hash_service.StartHash(message, len,
                                 (callback_t)&EcLogic::onSignHashFinish, this))
     return false;
+#pragma GCC diagnostic pop
   busy = true;
   this->callback = callback;
   this->callback_arg1 = callbackArg1;
@@ -367,9 +391,12 @@ bool EcLogic::StartVerify(uint8_t const *message, uint32_t len,
                           uint8_t *signature, callback_t callback,
                           void *callbackArg1) {
   if (busy) return false;
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpmf-conversions"
   if (!g_hash_service.StartHash(message, len,
                                 (callback_t)&EcLogic::onVerifyHashFinish, this))
     return false;
+#pragma GCC diagnostic pop
   busy = true;
   // Init the context
   tmpSignature.fromBuffer(signature);
@@ -388,16 +415,22 @@ void EcLogic::onSignHashFinish(HashResult *hashResult) {
 void EcLogic::onVerifyHashFinish(HashResult *HashResult) {
   context.z = reinterpret_cast<uint64_t *>(HashResult->digest)[0];
   // u1 = z / s
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpmf-conversions"
   g_mod_div_service.start(context.z, context.s.val, g_curveOrder,
                           (callback_t)&EcLogic::onU1Generated, this);
+#pragma GCC diagnostic pop
 }
 
 void EcLogic::genRand() {
   context.k =
       g_fast_random_pool.GetRandom() << 32 | g_fast_random_pool.GetRandom();
   // r = k * G
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpmf-conversions"
   g_point_mult_service.start(g_generator, context.k,
                              (callback_t)&EcLogic::onRGenerated, this);
+#pragma GCC diagnostic pop
 }
 
 void EcLogic::onRGenerated(EcPoint *p) {
@@ -407,8 +440,11 @@ void EcLogic::onRGenerated(EcPoint *p) {
   else {
     ModNum a = (context.z + privateKey * context.r);
     // s = (z + r * d) / k
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpmf-conversions"
     g_mod_div_service.start(a.val, context.k, a.mod,
                             (callback_t)&EcLogic::onSGenerated, this);
+#pragma GCC diagnostic pop
   }
 }
 
@@ -430,8 +466,11 @@ void EcLogic::finalizeSign() {
 void EcLogic::onU1Generated(ModNum *u1) {
   context.u1 = *u1;
   // u2 = r / s
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpmf-conversions"
   g_mod_div_service.start(context.r.val, context.s.val, g_curveOrder,
                           (callback_t)&EcLogic::onU2Generated, this);
+#pragma GCC diagnostic pop
 }
 
 void EcLogic::onU2Generated(ModNum *u2) {
@@ -441,21 +480,30 @@ void EcLogic::onU2Generated(ModNum *u2) {
   // m = u1 * G
   // n = u2 * pub
   // P = m + n
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpmf-conversions"
   g_point_mult_service.start(g_generator, context.u1.val,
                              (callback_t)&EcLogic::onMGenerated, this);
+#pragma GCC diagnostic pop
 }
 
 void EcLogic::onMGenerated(EcPoint *m) {
   context.m = *m;
   // n = u2 * pub
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpmf-conversions"
   g_point_mult_service.start(g_serverPubKey, context.u2.val,
                              (callback_t)&EcLogic::onNGenerated, this);
+#pragma GCC diagnostic pop
 }
 
 void EcLogic::onNGenerated(EcPoint *n) {
   // P = m + n
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpmf-conversions"
   g_point_add_service.start(context.m, *n, (callback_t)&EcLogic::finalizeVerify,
                             this);
+#pragma GCC diagnostic pop
 }
 
 void EcLogic::finalizeVerify(EcPoint *P) {
@@ -485,15 +533,21 @@ const uint8_t *EcLogic::GetPublicKey() {
   return nullptr;
 }
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpmf-conversions"
 EcLogic::EcLogic()
     : genRandTask(800, (callback_t)&EcLogic::genRand, this),
       finalizeTask(800, (callback_t)&EcLogic::finalizeSign, this) {}
+#pragma GCC diagnostic pop
 
 void EcLogic::SetPrivateKey(uint64_t privkey) {
   privateKey = privkey;
   privateKey = privateKey % g_curveOrder;
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpmf-conversions"
   g_point_mult_service.start(g_generator, privateKey,
                              (callback_t)&EcLogic::onPubkeyDone, this);
+#pragma GCC diagnostic pop
 }
 
 }  // namespace ecc

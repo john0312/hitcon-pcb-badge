@@ -25,14 +25,20 @@ namespace sponsor {
 
 constexpr int kSponsorReqTaskInterval = 500;
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpmf-conversions"
 SponsorReq::SponsorReq()
     : main_task_(850, (task_callback_t)&SponsorReq::RoutineTask, this,
                  kSponsorReqTaskInterval),
       main_task_scheduled_(false) {}
+#pragma GCC diagnostic pop
 
 void SponsorReq::Init() {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpmf-conversions"
   g_xboard_logic.SetOnPacketArrive(
       (callback_t)&SponsorReq::XBoardResponseHandler, this, SPONSOR_RESP_ID);
+#pragma GCC diagnostic pop
 }
 
 void SponsorReq::OnXBoardConnect() {

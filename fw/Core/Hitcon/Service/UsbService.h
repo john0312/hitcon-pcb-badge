@@ -42,11 +42,14 @@ struct Report {
 
 class UsbService {
  public:
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpmf-conversions"
   UsbService()
       : interrupt_handler_task(
             808, (task_callback_t)&UsbService::InterruptHandler, (void*)this),
         _retry_task(809, (task_callback_t)&UsbService::RetryHandler,
                     (void*)this, 20) {}
+#pragma GCC diagnostic pop
 
   // set callback when report id 2 is received
   void SetOnReportReceived();

@@ -16,10 +16,13 @@ hitcon::game::GameController g_game_controller;
 
 namespace game {
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpmf-conversions"
 GameController::GameController()
     : state_(0), pubAnnounceCnt(kPubAnnounceCycleInterval - 2),
       pubAnnounceTask(960, (callback_t)&GameController::TrySendPubAnnounce,
                       this, 1490) {}
+#pragma GCC diagnostic pop
 
 void GameController::Init() {
   hitcon::ecc::g_ec_logic.SetPrivateKey(g_per_board_data.GetPrivKey());

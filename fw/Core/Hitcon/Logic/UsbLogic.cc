@@ -14,17 +14,23 @@ namespace usb {
 
 UsbLogic g_usb_logic;
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpmf-conversions"
 UsbLogic::UsbLogic()
     : _routine_task(810, (task_callback_t)&UsbLogic::Routine, (void*)this,
                     DELAY_INTERVAL),
       _write_routine_task(810, (task_callback_t)&UsbLogic::WriteRoutine,
                           (void*)this, WAIT_INTERVAL) {}
+#pragma GCC diagnostic pop
 
 void UsbLogic::Init() {
   _state = USB_STATE_IDLE;
   scheduler.Queue(&_routine_task, nullptr);
   scheduler.Queue(&_write_routine_task, nullptr);
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpmf-conversions"
   g_usb_service.SetOnDataRecv((callback_t)&UsbLogic::OnDataRecv, this);
+#pragma GCC diagnostic pop
 }
 
 // first byte of the report must be CUSTOM_REPORT_ID

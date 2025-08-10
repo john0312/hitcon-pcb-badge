@@ -22,9 +22,12 @@ DebugAccelApp g_debug_accel_app;
 IrRetxDebugApp g_ir_retx_debug_app;
 DebugApp g_debug_app;
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpmf-conversions"
 DebugAccelApp::DebugAccelApp()
     : main_task_(850, (task_callback_t)&DebugAccelApp::MainTaskFn, this, 800),
       main_task_scheduled_(false) {}
+#pragma GCC diagnostic pop
 
 void DebugAccelApp::OnEntry() {
   running_ = true;

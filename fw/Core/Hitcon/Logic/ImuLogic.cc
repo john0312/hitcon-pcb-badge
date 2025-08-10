@@ -14,17 +14,23 @@ namespace hitcon {
 
 ImuLogic g_imu_logic;
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpmf-conversions"
 ImuLogic::ImuLogic()
     : _routine_task(419, (task_callback_t)&ImuLogic::Routine, (void*)this,
                     ROUTINE_INTERVAL),
       _proximity_task(420, (task_callback_t)&ImuLogic::ProximityRoutine,
                       (void*)this, PROXIMITY_INTERVAL),
       _state(RoutineState::INIT), _init_state(InitState::CHECK_ID), _step(0) {}
+#pragma GCC diagnostic pop
 
 void ImuLogic::Init() {
 #ifndef DUMMY_STEP
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpmf-conversions"
   g_imu_service.SetRxCallback((callback_t)&ImuLogic::OnRxDone, this);
   g_imu_service.SetTxCallback((callback_t)&ImuLogic::OnTxDone, this);
+#pragma GCC diagnostic pop
   _start_time = SysTimer::GetTime();
 #else
   _state = RoutineState::DUMMY;

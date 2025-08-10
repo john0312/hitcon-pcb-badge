@@ -10,10 +10,13 @@ namespace xboard {
 
 XBoardService g_xboard_service;
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpmf-conversions"
 XBoardService::XBoardService()
     : _on_rx_callback(nullptr), _on_rx_callback_arg1(nullptr),
       _rx_task(480, (callback_t)&XBoardService::OnRxWrapper, this),
       _routine_task(490, (task_callback_t)&XBoardService::Routine, this, 10) {}
+#pragma GCC diagnostic pop
 
 void XBoardService::Init() {
   scheduler.Queue(&_routine_task, nullptr);

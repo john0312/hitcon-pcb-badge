@@ -113,8 +113,11 @@ void MultiplayerGame::SendAttack(uint8_t atk) {
 
 void MultiplayerGame::OnEntry() {
   GameEntry();
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpmf-conversions"
   g_xboard_logic.SetOnPacketArrive((callback_t)&MultiplayerGame::OnXboardRecv,
                                    this, GetXboardRecvId());
+#pragma GCC diagnostic pop
 }
 
 void MultiplayerGame::OnExit() { GameExit(); }

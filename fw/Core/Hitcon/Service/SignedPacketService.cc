@@ -15,11 +15,14 @@ SignedPacket::SignedPacket() : status(kFree) {}
 
 using namespace hitcon::signed_packet;
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpmf-conversions"
 SignedPacketService::SignedPacketService()
     : sigRoutineTask(950, (callback_t)&SignedPacketService::SigRoutineFunc,
                      this, 500),
       verRoutineTask(950, (callback_t)&SignedPacketService::VerRoutineFunc,
                      this, 500) {}
+#pragma GCC diagnostic pop
 
 void SignedPacketService::Init() {
   hitcon::service::sched::scheduler.Queue(&sigRoutineTask, nullptr);
@@ -175,9 +178,12 @@ void SignedPacketService::VerRoutineFunc() {
   if (FindPacketOfState(ver_packet_queue_, PacketStatus::kWaitVerStart,
                         packetId)) {
     SignedPacket &packet = ver_packet_queue_[packetId];
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpmf-conversions"
     bool ret = hitcon::ecc::g_ec_logic.StartVerify(
         packet.data, packet.dataSize, packet.sig,
         (callback_t)&SignedPacketService::OnPacketVerFinish, this);
+#pragma GCC diagnostic pop
     if (ret) {
       packet.status = PacketStatus::kWaitVerDone;
       verifyingPacketId = packetId;
@@ -195,9 +201,12 @@ void SignedPacketService::SigRoutineFunc() {
   if (FindPacketOfState(sig_packet_queue_, PacketStatus::kWaitSignStart,
                         packetId)) {
     SignedPacket &packet = sig_packet_queue_[packetId];
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpmf-conversions"
     bool ret = hitcon::ecc::g_ec_logic.StartSign(
         packet.data, packet.dataSize,
         (callback_t)&SignedPacketService::OnPacketSignFinish, this);
+#pragma GCC diagnostic pop
     if (ret) {
       packet.status = PacketStatus::kWaitSignDone;
       signingPacketId = packetId;

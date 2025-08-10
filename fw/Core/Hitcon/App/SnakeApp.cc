@@ -22,9 +22,12 @@ namespace snake {
 
 SnakeApp snake_app;
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpmf-conversions"
 SnakeApp::SnakeApp()
     : _routine_task(30, (task_callback_t)&SnakeApp::Routine, (void*)this,
                     INTERVAL) {}
+#pragma GCC diagnostic pop
 
 /* TODO:
  *  3. event when _len = 128

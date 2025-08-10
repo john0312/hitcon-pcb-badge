@@ -19,9 +19,12 @@ constexpr size_t kMaxAdcSeedCount = 32;
 
 }  // namespace
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpmf-conversions"
 EntropyHub::EntropyHub()
     : routine_task(980, (task_callback_t)&EntropyHub::Routine, this, 100),
       state(0), last_sched_tasks(0), random_ready(false) {}
+#pragma GCC diagnostic pop
 
 void EntropyHub::AcceptNoiseFromSource(void* arg1) {
   if (adc_seed_count >= kMaxAdcSeedCount) return;
@@ -45,8 +48,11 @@ void EntropyHub::Init() {
   hitcon::service::sched::scheduler.Queue(&routine_task, nullptr);
   hitcon::service::sched::scheduler.EnablePeriodic(&routine_task);
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpmf-conversions"
   g_noise_source.SetOnNoiseBytes(
       (task_callback_t)&EntropyHub::AcceptNoiseFromSource, this);
+#pragma GCC diagnostic pop
 }
 
 bool EntropyHub::EntropyReady() { return random_ready; }

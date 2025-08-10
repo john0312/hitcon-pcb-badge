@@ -16,8 +16,11 @@ constexpr int kMinFlushInterval = 500;
 
 NvStorage g_nv_storage;
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpmf-conversions"
 NvStorage::NvStorage()
     : routine_task(800, (callback_t)&NvStorage::Routine, this, 100) {}
+#pragma GCC diagnostic pop
 
 void NvStorage::Init() {
   int32_t newest_version = -1;

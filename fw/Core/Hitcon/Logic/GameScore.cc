@@ -21,9 +21,12 @@ constexpr int kBusyRoutineDelay = 100;
 
 }  // namespace
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpmf-conversions"
 GameScore::GameScore()
     : routine_task_delayed(920, (callback_t)&GameScore::Routine, this, 0),
       nv_fetched_(false) {}
+#pragma GCC diagnostic pop
 
 void GameScore::Init() {
   last_operation_progress_ = 0;

@@ -18,8 +18,11 @@ void HAL_FLASH_OperationErrorCallback(uint32_t ReturnValue) {
 namespace hitcon {
 FlashService g_flash_service;
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpmf-conversions"
 FlashService::FlashService()
     : routine_task(980, (task_callback_t)&FlashService::Routine, this, 20) {}
+#pragma GCC diagnostic pop
 
 void FlashService::Init() {
   scheduler.Queue(&routine_task, nullptr);

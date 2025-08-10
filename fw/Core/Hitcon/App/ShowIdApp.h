@@ -8,12 +8,15 @@
 namespace hitcon {
 class ShowIdApp : public App {
  public:
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpmf-conversions"
   ShowIdApp()
       : _get_id_task(900, (service::sched::task_callback_t)&ShowIdApp::GetId,
                      this, 50000),
         _type_id_task(
             810, (service::sched::task_callback_t)&ShowIdApp::TypeIdRoutine,
             this, 20) {}
+#pragma GCC diagnostic pop
   virtual ~ShowIdApp() = default;
 
   void Init();

@@ -7,10 +7,13 @@ using namespace hitcon::service::sched;
 namespace hitcon {
 NoiseSource g_noise_source;
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpmf-conversions"
 NoiseSource::NoiseSource()
     : _routine_task(810, (task_callback_t)&NoiseSource::Routine, this,
                     kRoutinePeriod / kNoiseLen),
       _cb_task(805, (task_callback_t)&NoiseSource::CallbackWrapper, this) {}
+#pragma GCC diagnostic pop
 
 void AdcCpltCallback(ADC_HandleTypeDef* hadc) {
   if (hadc == &hadc1) {

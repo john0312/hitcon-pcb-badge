@@ -30,9 +30,12 @@ static constexpr unsigned SURPRISE_TIME = 10 * 1000;
 }  // namespace
 ShowNameApp show_name_app;
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpmf-conversions"
 ShowNameApp::ShowNameApp()
     : _routine_task(490, (task_callback_t)&ShowNameApp::check_update, this,
                     1000) {}
+#pragma GCC diagnostic pop
 
 void ShowNameApp::Init() {
   nv_storage_content &content = g_nv_storage.GetCurrentStorage();

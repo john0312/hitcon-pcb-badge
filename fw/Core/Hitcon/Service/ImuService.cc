@@ -35,9 +35,12 @@ namespace hitcon {
 
 ImuService g_imu_service;
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpmf-conversions"
 ImuService::ImuService()
     : _routine_task(417, (task_callback_t)&ImuService::Routine, this, 100),
       interrupt_task(416, (task_callback_t)&ImuService::I2CCallback, this) {}
+#pragma GCC diagnostic pop
 
 void ImuService::Init() {
 #ifdef DUMMY_STEP

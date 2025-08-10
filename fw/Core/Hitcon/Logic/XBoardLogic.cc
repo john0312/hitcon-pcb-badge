@@ -30,18 +30,24 @@ constexpr size_t HEADER_SZ = sizeof(Frame);
 
 // public functions
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpmf-conversions"
 XBoardLogic::XBoardLogic()
     : _parse_routine(490, (task_callback_t)&XBoardLogic::ParseRoutine, this,
                      20),
       _ping_routine(490, (task_callback_t)&XBoardLogic::PingRoutine, this,
                     200) {}
+#pragma GCC diagnostic pop
 
 void XBoardLogic::Init() {
   scheduler.Queue(&_parse_routine, nullptr);
   scheduler.EnablePeriodic(&_parse_routine);
   scheduler.Queue(&_ping_routine, nullptr);
   scheduler.EnablePeriodic(&_ping_routine);
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpmf-conversions"
   g_xboard_service.SetOnByteRx((callback_t)&XBoardLogic::OnByteArrive, this);
+#pragma GCC diagnostic pop
 }
 
 void XBoardLogic::QueueDataForTx(const uint8_t *packet, uint8_t packet_len,

@@ -22,9 +22,12 @@ int combo_button_ctr = 0;
 
 DinoApp dino_app;
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpmf-conversions"
 DinoApp::DinoApp()
     : _routine_task(930, (task_callback_t)&DinoApp::Routine, (void*)this,
                     INTERVAL) {}
+#pragma GCC diagnostic pop
 
 void DinoApp::Init() { scheduler.Queue(&_routine_task, nullptr); }
 

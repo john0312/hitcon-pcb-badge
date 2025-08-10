@@ -35,12 +35,15 @@ unsigned int tetris_random() { return g_fast_random_pool.GetRandom(); }
 
 TetrisApp tetris_app;
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpmf-conversions"
 TetrisApp::TetrisApp()
     : periodic_task(hitcon::tetris::UPDATE_PRIORITY,
                     (task_callback_t)&TetrisApp::periodic_task_callback, this,
                     hitcon::tetris::UPDATE_INTERVAL) {
   hitcon::service::sched::scheduler.Queue(&periodic_task, nullptr);
 }
+#pragma GCC diagnostic pop
 
 static void SendAttackEnemyPacket(int n_lines) {
   uint8_t data[2] = {XboardPacketType::PACKET_ATTACK, (uint8_t)n_lines};

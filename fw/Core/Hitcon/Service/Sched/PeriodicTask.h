@@ -23,6 +23,8 @@ class PeriodicTask : public DelayedTask {
   void AutoRequeueCb(void *arg);
 
  public:
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpmf-conversions"
   // For prio, see Scheduler.h
   constexpr PeriodicTask(unsigned prio, task_callback_t callback, void *thisptr,
                          unsigned interval)
@@ -30,6 +32,7 @@ class PeriodicTask : public DelayedTask {
                     (void *)this, 0),
         enabled(false), interval(interval), savedThisptr(thisptr),
         savedCallback(callback) {}
+#pragma GCC diagnostic pop
 
   virtual ~PeriodicTask();
   void Enable();

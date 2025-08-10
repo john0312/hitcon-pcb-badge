@@ -24,15 +24,21 @@ constexpr unsigned kStateInit = 1;
 
 IrxbBridge g_irxb_bridge;
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpmf-conversions"
 IrxbBridge::IrxbBridge()
     : routine_task_(950, (callback_t)&IrxbBridge::RoutineTask, this,
                     kIrxbDelayTime),
       state_(0) {}
+#pragma GCC diagnostic pop
 
 void IrxbBridge::Init() {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpmf-conversions"
   service::xboard::g_xboard_logic.SetOnPacketArrive(
       (callback_t)&IrxbBridge::OnPacketReceived, this,
       service::xboard::RecvFnId::IR_TO_ATTENDEE);
+#pragma GCC diagnostic pop
 }
 
 void IrxbBridge::OnXBoardBasestnConnect() {

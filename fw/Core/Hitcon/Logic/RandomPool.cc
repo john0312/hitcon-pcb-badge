@@ -10,10 +10,13 @@ namespace hitcon {
 FastRandomPool g_fast_random_pool;
 SecureRandomPool g_secure_random_pool;
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpmf-conversions"
 SecureRandomPool::SecureRandomPool()
     : init_finished(false), seed_count(0),
       routine_task(950, (task_callback_t)&SecureRandomPool::Routine, this, 20) {
 }
+#pragma GCC diagnostic pop
 
 void SecureRandomPool::Init() {
   sha3_Init256(&keccak_context);

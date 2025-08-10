@@ -16,9 +16,12 @@ using namespace hitcon::ir;
 
 namespace hitcon {
 HardwareTestApp hardware_test_app;
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpmf-conversions"
 HardwareTestApp::HardwareTestApp()
     : task(30, (task_callback_t)&HardwareTestApp::Routine, (void*)this,
            PERIOD / 5) {}
+#pragma GCC diagnostic pop
 
 constexpr uint8_t _xboard_data[] = {'T', 'U', 'Z', 'K', 'I'};
 constexpr uint8_t _xboard_data_len = sizeof(_xboard_data) / sizeof(uint8_t);
@@ -37,8 +40,11 @@ void HardwareTestApp::CheckXBoard(void* arg1) {
 
 void HardwareTestApp::Init() {
   scheduler.Queue(&task, nullptr);
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpmf-conversions"
   g_xboard_logic.SetOnPacketArrive((callback_t)&HardwareTestApp::CheckXBoard,
                                    this, TEST_APP_RECV_ID);
+#pragma GCC diagnostic pop
 }
 
 void HardwareTestApp::CheckIr(void* arg1) {
@@ -64,7 +70,10 @@ void HardwareTestApp::CheckImu(void* arg) {
     return;
   }
   if (current_state == TS_GYRO) {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpmf-conversions"
     g_imu_logic.AccSelfTest((callback_t)&HardwareTestApp::CheckImu, this);
+#pragma GCC diagnostic pop
     next_state = TS_ACC;
   } else if (current_state == TS_ACC)
     next_state = TS_PASS;
@@ -145,7 +154,10 @@ void HardwareTestApp::OnButton(button_t button) {
     case TS_GYRO:
       if (button == BUTTON_OK) {
         HAL_Delay(500);
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpmf-conversions"
         g_imu_logic.GyroSelfTest((callback_t)&HardwareTestApp::CheckImu, this);
+#pragma GCC diagnostic pop
       }
       break;
   }

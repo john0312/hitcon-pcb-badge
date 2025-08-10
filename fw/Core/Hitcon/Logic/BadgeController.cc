@@ -34,11 +34,16 @@ int combo_button_ctr = 0;
 BadgeController::BadgeController() : current_app(nullptr) {}
 
 void BadgeController::Init() {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpmf-conversions"
   g_button_logic.SetCallback((callback_t)&BadgeController::OnButton, this);
   g_button_logic.SetEdgeCallback((callback_t)&BadgeController::OnEdgeButton,
                                  this);
+#pragma GCC diagnostic pop
   current_app = &show_name_app;
   current_app->OnEntry();
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpmf-conversions"
   hitcon::service::xboard::g_xboard_logic.SetOnConnectPeer2025(
       (callback_t)&BadgeController::OnXBoardConnect, this);
   hitcon::service::xboard::g_xboard_logic.SetOnDisconnectPeer2025(
@@ -58,6 +63,7 @@ void BadgeController::Init() {
                                     this);
   usb::g_usb_service.SetOnUsbPlugOut((callback_t)&BadgeController::OnUsbPlugOut,
                                      this);
+#pragma GCC diagnostic pop
 }
 
 void BadgeController::SetCallback(callback_t callback, void *callback_arg1,

@@ -8,14 +8,20 @@ using namespace hitcon::service::sched;
 namespace hitcon {
 ButtonLogic g_button_logic;
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpmf-conversions"
 ButtonLogic::ButtonLogic()
     : _callback_task(642, (callback_t)&ButtonLogic::CallbackWrapper, this),
       _edge_callback_task(643, (callback_t)&ButtonLogic::EdgeCallbackWrapper,
                           this) {}
+#pragma GCC diagnostic pop
 
 void ButtonLogic::Init() {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpmf-conversions"
   g_button_service.SetDataInCallback((callback_t)&ButtonLogic::OnReceiveData,
                                      this);
+#pragma GCC diagnostic pop
   for (uint8_t i = 0; i < BUTTON_AMOUNT; i++) {
     _count[i] = 0;
     _edge_flag[i] = 0;

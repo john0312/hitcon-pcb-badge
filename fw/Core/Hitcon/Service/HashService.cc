@@ -106,8 +106,11 @@ void HashService::doHashDone() {
   scheduler.DisablePeriodic(&hashTask);
 }
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpmf-conversions"
 HashService::HashService()
     : hashTask(880, (task_callback_t)&HashService::doHash, (void *)this, 0) {}
+#pragma GCC diagnostic pop
 
 }  // namespace hash
 
