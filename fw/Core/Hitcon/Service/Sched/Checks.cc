@@ -9,7 +9,7 @@ namespace sched {
 void my_assert(bool expr) {
 #ifdef DEBUG
   if (!expr) {
-    unsigned x = 0U / 0U; // Force a divide by zero to trigger a fault
+    unsigned x = 0U / 0U;  // Force a divide by zero to trigger a fault
   }
 #endif  // DEBUG
 };

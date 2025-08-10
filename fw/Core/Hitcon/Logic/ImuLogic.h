@@ -57,6 +57,7 @@ class ImuLogic {
     IDLE,
     GET_STEP,
     WAIT_STEP,
+    DUMMY,  // generate fake step
   };
 
   enum class InitState {
