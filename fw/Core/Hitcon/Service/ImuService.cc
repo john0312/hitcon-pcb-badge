@@ -9,7 +9,8 @@ using namespace hitcon;
 
 namespace {
 void I2CCallbackWrapper(I2C_HandleTypeDef* hi2c) {
-  if (hi2c == I2C_HANDLE) g_imu_service.I2CCallback();
+  if (hi2c == I2C_HANDLE)
+    scheduler.Queue(&g_imu_service.interrupt_task, nullptr);
 }
 
 void I2CErrorCallback(I2C_HandleTypeDef* hi2c) {
@@ -35,7 +36,8 @@ namespace hitcon {
 ImuService g_imu_service;
 
 ImuService::ImuService()
-    : _routine_task(417, (task_callback_t)&ImuService::Routine, this, 100) {}
+    : _routine_task(417, (task_callback_t)&ImuService::Routine, this, 100),
+      interrupt_task(416, (task_callback_t)&ImuService::I2CCallback, this) {}
 
 void ImuService::Init() {
 #ifdef DUMMY_STEP
@@ -79,7 +81,7 @@ void ImuService::SetTxCallback(callback_t callback, void* callback_arg1) {
   _tx_cb_arg1 = callback_arg1;
 }
 
-void ImuService::I2CCallback() {
+void ImuService::I2CCallback(void* arg2) {
   if (state == State::READING) {
     _rx_queue.PopBack();
 

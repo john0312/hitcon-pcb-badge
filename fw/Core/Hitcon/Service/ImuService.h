@@ -63,10 +63,11 @@ class ImuService {
   void SetRxCallback(callback_t callback, void* callback_arg1);
   // the callback will be called when all write operations are done
   void SetTxCallback(callback_t callback, void* callback_arg1);
-  void I2CCallback();
+  void I2CCallback(void* arg2);
 
   volatile State state = State::INIT;
   bool IsBusy() { return state != State::IDLE; };
+  Task interrupt_task;
 
  private:
   CircularQueue<ReadOp, QUEUE_SIZE> _rx_queue;
