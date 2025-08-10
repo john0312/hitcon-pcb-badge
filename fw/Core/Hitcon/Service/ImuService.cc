@@ -107,7 +107,7 @@ bool ImuService::IsI2CIdle() {
   if (__HAL_I2C_GET_FLAG(I2C_HANDLE, I2C_FLAG_BUSY) != RESET) {
     // I2C is busy.
     i2c_busy_cnt++;
-    if (i2c_busy_cnt >= 12) {
+    if (i2c_busy_cnt >= 4) {
       g_imu_service.ResetI2C();
       g_imu_logic.Reset();
       i2c_busy_cnt = 0;
@@ -154,21 +154,21 @@ void ImuService::Routine(void* arg) {
 #ifdef V2_2
       HAL_GPIO_WritePin(IMU_PWR_GPIO_Port, IMU_PWR_Pin, GPIO_PIN_SET);
       op_start_tick = SysTimer::GetTime();
-      state = State::WAIT_200_1;
+      state = State::WAIT_POWEROFF;
 #else
       state = State::IDLE;
 #endif
       break;
 #ifdef V2_2
-    case State::WAIT_200_1:
-      if (SysTimer::GetTime() - op_start_tick >= 200) {
-        state = State::WAIT_200_2;
+    case State::WAIT_POWEROFF:
+      if (SysTimer::GetTime() - op_start_tick >= 50) {
+        state = State::WAIT_POWERON;
         op_start_tick = SysTimer::GetTime();
         HAL_GPIO_WritePin(IMU_PWR_GPIO_Port, IMU_PWR_Pin, GPIO_PIN_RESET);
       }
       break;
-    case State::WAIT_200_2:
-      if (SysTimer::GetTime() - op_start_tick >= 200) state = State::IDLE;
+    case State::WAIT_POWERON:
+      if (SysTimer::GetTime() - op_start_tick >= 50) state = State::IDLE;
       break;
 #endif
     case State::READING:

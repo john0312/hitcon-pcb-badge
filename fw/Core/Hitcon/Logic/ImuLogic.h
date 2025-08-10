@@ -57,7 +57,7 @@ class ImuLogic {
  private:
   // private enum definition, do not place in anonymous namespace
   enum class RoutineState {
-    WAIT_800,  // wait for 800 ms for stable
+    WAIT_INIT_DELAY,  // wait for 800 ms for stable
     INIT,
     ST_GYRO,
     ST_ACC,

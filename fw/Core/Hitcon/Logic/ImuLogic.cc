@@ -96,7 +96,7 @@ void ImuLogic::Routine(void* arg1) {
     count++;
 
   // if state stuck for 5s reset I2C
-  if (count >= 10000 / ROUTINE_INTERVAL) {
+  if (count >= 50000 / ROUTINE_INTERVAL) {
     count = 0;
     g_imu_service.ResetI2C();
     g_imu_logic.Reset();
@@ -104,8 +104,8 @@ void ImuLogic::Routine(void* arg1) {
   }
 
   if (g_imu_service.IsBusy()) return;
-  if (_state == RoutineState::WAIT_800 &&
-      SysTimer::GetTime() - _start_time >= 800) {
+  if (_state == RoutineState::WAIT_INIT_DELAY &&
+      SysTimer::GetTime() - _start_time >= 50) {
     _state = RoutineState::INIT;
   } else if (_state == RoutineState::INIT) {
     switch (_init_state) {

@@ -24,8 +24,9 @@ class ImuService {
  public:
   enum class State {
     INIT,
-    WAIT_200_1,  // set IMU_PWR high for 200 ms
-    WAIT_200_2,  // set IMU_PWR low for 200 ms
+    WAIT_POWEROFF,  // IMU_PWR is high so power is off
+    WAIT_POWERON,   // IMU_PWR is low so power is on, we need to wait for it to
+                    // init.
     IDLE,
     READING,
     WRITING,
