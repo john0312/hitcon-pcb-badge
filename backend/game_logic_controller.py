@@ -429,6 +429,24 @@ class GameLogicController:
 
 
     @staticmethod
+    async def send_show_msg(user: int, msg: str, packet_processor: 'PacketProcessor'):
+        """
+            Send a message to the user.
+        """
+        pkt = IrPacket(
+            data=b"".join([
+                b"\x00",                                    # TTL
+                bytes([PacketType.kShowMsg.value]),         # PacketType
+                user.to_bytes(4, 'little'),                 # User
+                msg.encode('utf-8')[:MESSAGE_LEN]           # Message
+            ]),
+            to_stn=True
+        )
+        signed_pkt = CryptoAuth.sign_packet(pkt)
+        await packet_processor.send_packet_to_user(signed_pkt, user)
+
+
+    @staticmethod
     async def send_restore_pet(user: int, packet_processor: 'PacketProcessor'):
         """
             Send a restore pet event to the user.
