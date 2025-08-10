@@ -9,6 +9,7 @@
 #include <App/ShowIdApp.h>
 #include <App/ShowNameApp.h>
 #include <App/SnakeApp.h>
+#include <App/SpaceshipApp.h>
 #include <App/TamaApp.h>
 #include <App/TetrisApp.h>
 #include <Logic/BadgeController.h>
@@ -20,6 +21,7 @@ namespace hitcon {
 using hitcon::app::bouncing_dvd::bouncing_dvd_app;
 using hitcon::app::dino::dino_app;
 using hitcon::app::snake::snake_app;
+using hitcon::app::spaceship::spaceship_app;
 using hitcon::app::tama::tama_app;
 using hitcon::app::tetris::tetris_app;
 
@@ -28,6 +30,7 @@ constexpr menu_entry_t main_menu_entries[] = {
     {"Hacker Pet", &tama_app, &hitcon::app::tama::SetSingleplayer},
     {"Snake", &snake_app, &hitcon::app::snake::SetSingleplayer},
     {"Tetris", &tetris_app, &hitcon::app::tetris::SetSingleplayer},
+    {"Spaceship", &spaceship_app, nullptr},
     {"Dino", &dino_app, nullptr},
     {"Show ID", &show_id_app, nullptr},
     {"Show Scores", &score_hist::g_score_hist, nullptr},

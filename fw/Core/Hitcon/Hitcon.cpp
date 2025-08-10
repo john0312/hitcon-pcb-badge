@@ -10,6 +10,7 @@
 #include <App/ShowIdApp.h>
 #include <App/ShowNameApp.h>
 #include <App/SnakeApp.h>
+#include <App/SpaceshipApp.h>
 #include <App/SponsorResp.h>
 #include <App/TamaApp.h>
 #include <App/UsbMenuApp.h>
@@ -98,12 +99,12 @@ void hitcon_run() {
   g_irxb_bridge.Init();
   show_name_app.Init();
 
-  // this call shownameapp onentry
   badge_controller.Init();
   hitcon::ir::irService.Init();
   hitcon::ir::irLogic.Init();
   hitcon::ir::irController.Init();
   hitcon::app::snake::snake_app.Init();
+  hitcon::app::spaceship::spaceship_app.Init();
   hitcon::app::dino::dino_app.Init();
   hitcon::app::tama::tama_app.Init();
   hitcon::usb::g_usb_logic.Init();
