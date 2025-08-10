@@ -1,5 +1,5 @@
 from config import Config
-from database import db
+from database import mongo, db
 from typing import Optional, Union
 import jwt
 
@@ -7,6 +7,7 @@ config = Config("config.yaml")
 
 class BadgeLinkController:
     DB_NAME = "badge_link"
+    COLLECTION_NAME = "links"
 
     @staticmethod
     async def translate_uid_to_user(uid: str) -> Optional[int]:
@@ -14,7 +15,7 @@ class BadgeLinkController:
         Translate attendee UID to user ID.
         Return None if the attendee is not yet linked to with a badge.
         """
-        result = await db[BadgeLinkController.DB_NAME].find_one({"uid": uid})
+        result = await mongo[BadgeLinkController.DB_NAME][BadgeLinkController.COLLECTION_NAME].find_one({"uid": uid})
         return result["badge_user"] if result else None
 
 
@@ -42,17 +43,17 @@ class BadgeLinkController:
         if not result:
             raise ValueError(f"Non-official badge!")
 
-        existing_badge_link = await db[BadgeLinkController.DB_NAME].find_one({"badge_user": badge_user})
+        existing_badge_link = await mongo[BadgeLinkController.DB_NAME][BadgeLinkController.COLLECTION_NAME].find_one({"badge_user": badge_user})
         if existing_badge_link:
             raise ValueError(f"Badge {badge_user} is already linked to another user!")
 
         old_badge_user = await BadgeLinkController.translate_uid_to_user(uid)
         if old_badge_user is not None and old_badge_user != badge_user:
-            await db[BadgeLinkController.DB_NAME].delete_one({"uid": uid, "badge_user": old_badge_user})
+            await mongo[BadgeLinkController.DB_NAME][BadgeLinkController.COLLECTION_NAME].delete_one({"uid": uid, "badge_user": old_badge_user})
 
         # skip same badge duplicated linking
         if old_badge_user == badge_user:
             return None, badge_user
 
-        await db[BadgeLinkController.DB_NAME].insert_one({"uid": uid, "badge_user": badge_user, "name": name})
+        await mongo[BadgeLinkController.DB_NAME][BadgeLinkController.COLLECTION_NAME].insert_one({"uid": uid, "badge_user": badge_user, "name": name})
         return old_badge_user, badge_user  # Return None for the previous badge user, and the new badge user ID
