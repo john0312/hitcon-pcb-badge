@@ -46,7 +46,11 @@ void SetSingleplayer() { snake_app.SetPlayerCount(PlayerCount::SINGLEPLAYER); }
 
 void SetMultiplayer() { snake_app.SetPlayerCount(PlayerCount::MULTIPLAYER); }
 
-void SnakeApp::GameExit() { scheduler.DisablePeriodic(&_routine_task); }
+void SnakeApp::GameExit() {
+  if (_routine_task.IsEnabled()) {
+    scheduler.DisablePeriodic(&_routine_task);
+  }
+}
 
 void SnakeApp::StartGame() {
   _state = STATE_PLAYING;
