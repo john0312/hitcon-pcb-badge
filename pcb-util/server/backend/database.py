@@ -9,13 +9,12 @@ class PrivKeyExistsError(Exception):
     pass
 
 class BoardData(Document):
-    board_secret: bytes
     priv_key: bytes
     user_id: Annotated[bytes, Indexed(unique=True)]
     commit: bool
 
     def __repr__(self) -> str:
-        return f"BoardData(board_secret={self.board_secret}, priv_key={self.priv_key}, id={self.id})"
+        return f"BoardData(priv_key={self.priv_key}, id={self.id})"
 
 class Storage:
     def __init__(self, connection_string: str, database_name: str):
@@ -38,8 +37,8 @@ class Storage:
     async def close(self) -> None:
         self.client.close()
 
-async def store_item(board_secret: bytes, priv_key: bytes) -> Optional[BoardData]:
-    data = BoardData(board_secret=board_secret, priv_key=priv_key, user_id=ecc.privkey_to_username(priv_key), commit=False)
+async def store_item(priv_key: bytes) -> Optional[BoardData]:
+    data = BoardData(priv_key=priv_key, user_id=ecc.privkey_to_username(priv_key), commit=False)
     try:
         return await data.insert()
     except DuplicateKeyError:
