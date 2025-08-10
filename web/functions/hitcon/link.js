@@ -3,7 +3,7 @@ export async function onRequest(context) {
 
     if (method !== "GET" && method !== "POST") {
         return new Response(
-            {"detail": "Method Not Allowed"},
+            JSON.stringify({"detail": "Method Not Allowed"}),
             {
                 status: 405,
                 headers: {
@@ -16,7 +16,7 @@ export async function onRequest(context) {
 
     if (!context.request.headers.has("Authorization")) {
         return new Response(
-            {"detail": "Unauthorized"},
+            JSON.stringify({"detail": "Unauthorized"}),
             {
                 status: 401,
                 headers: {
@@ -32,7 +32,7 @@ export async function onRequest(context) {
         (!context.request.headers.has("Content-Type") || context.request.headers.get("Content-Type") !== "application/json")
     ) {
         return new Response(
-            {"detail": "Bad Request"},
+            JSON.stringify({"detail": "Bad Request"}),
             {
                 status: 400,
                 headers: {
