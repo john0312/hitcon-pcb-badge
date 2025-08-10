@@ -1,3 +1,4 @@
+#include <Hitcon.h>
 #include <Logic/GameController.h>
 #include <Logic/ImuLogic.h>
 #include <Logic/lsm6ds3tr-c_reg.h>
@@ -21,13 +22,17 @@ ImuLogic::ImuLogic()
       _state(RoutineState::INIT), _init_state(InitState::CHECK_ID), _step(0) {}
 
 void ImuLogic::Init() {
+#ifndef DUMMY_STEP
   g_imu_service.SetRxCallback((callback_t)&ImuLogic::OnRxDone, this);
   g_imu_service.SetTxCallback((callback_t)&ImuLogic::OnTxDone, this);
+  _start_time = SysTimer::GetTime();
+#else
+  _state = RoutineState::DUMMY;
+#endif
   scheduler.Queue(&_routine_task, nullptr);
   scheduler.EnablePeriodic(&_routine_task);
   scheduler.Queue(&_proximity_task, nullptr);
   scheduler.EnablePeriodic(&_proximity_task);
-  _start_time = SysTimer::GetTime();
 }
 
 void ImuLogic::Reset() {
@@ -55,6 +60,10 @@ void ImuLogic::AccSelfTest(callback_t cb, void* cb_arg1) {
 }
 
 void ImuLogic::Routine(void* arg1) {
+  if (_state == RoutineState::DUMMY) {
+    _step += SHAKING_THRESHOLD;
+    return;
+  }
   static RoutineState last_state = RoutineState::INIT;
   static uint16_t count = 0;
   if (last_state != _state) {

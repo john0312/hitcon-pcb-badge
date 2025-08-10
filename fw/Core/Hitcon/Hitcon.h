@@ -21,6 +21,9 @@
 #error "You must define one of: V1_1, V2_0, V2_1, V2_2"
 #endif
 
+// comment this if you want to disable dummy step generation
+#define DUMMY_STEP
+
 void hitcon_run();
 
 #endif /* HITCON_HITCON_H_ */

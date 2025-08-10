@@ -29,6 +29,7 @@ class ImuService {
     IDLE,
     READING,
     WRITING,
+    DUMMY,  // do nothing
   };
 
   struct ReadOp {
