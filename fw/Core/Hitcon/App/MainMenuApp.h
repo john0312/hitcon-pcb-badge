@@ -32,6 +32,7 @@ constexpr menu_entry_t main_menu_entries[] = {
     {"Show ID", &show_id_app, nullptr},
     {"Show Scores", &score_hist::g_score_hist, nullptr},
     {"Bouncing DVD", &bouncing_dvd_app, nullptr},
+    {"Step Counter", &g_debug_accel_app, nullptr},
     //,{"Debug", &g_debug_app, nullptr}
 };
 
