@@ -444,7 +444,7 @@ void TamaApp::Routine(void* unused) {
           SetQteLevel(_tama_data.qte_level + 10);
           needs_save = true;
         } else if (qte.GetSuccess() >= QTE_TOTAL_ROUNDS - 2) {
-          SetQteLevel(_tama_data.qte_level + 3);
+          SetQteLevel(_tama_data.qte_level + 1);
           needs_save = true;
         }
         UpdateFrameBuffer();
