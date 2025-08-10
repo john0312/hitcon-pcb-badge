@@ -37,7 +37,7 @@ TamaApp::TamaApp()
       _level_up_task(
           600,
           (hitcon::service::sched::task_callback_t)&TamaApp::LevelUpRoutine,
-          this, 300000),
+          this, 30000),
       _tama_data(g_nv_storage.GetCurrentStorage().tama_storage),
       _state(_tama_data.state),
       _current_selection_in_choose_mode(TAMA_TYPE::CAT), _fb() {}
