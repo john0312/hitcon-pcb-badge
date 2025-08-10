@@ -105,7 +105,9 @@ export async function onRequest(context) {
         requestOptions.body = JSON.stringify(await context.request.json());
     }
 
-    const res = (await fetch(backendUrl, requestOptions)).clone();
+    const backendResponse = await fetch(backendUrl, requestOptions);
+
+    const res = new Response(backendResponse.body, backendResponse);
     if (origin && isAllowedOrigin(origin)) {
         res.headers.set("Access-Control-Allow-Origin", origin.toLowerCase());
     }
