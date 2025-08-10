@@ -1,3 +1,4 @@
+#include <App/TamaApp.h>
 #include <Logic/BadgeController.h>
 #include <Logic/Display/display.h>
 #include <Logic/GameController.h>
@@ -108,6 +109,12 @@ bool SponsorReq::RoutineTaskInternal() {
     to_queue = true;
   } else if (state_ >= 6 && state_ < 19) {
     // Waiting to clear out the text.
+    if (state_ == 6) {
+      uint8_t sponsor_id = ir_data_.opaq.sponsor_activity.sponsor_id;
+      if (sponsor_id < 32) {
+        hitcon::app::tama::tama_app.SponsorRegister(sponsor_id);
+      }
+    }
     state_++;
     to_queue = true;
   } else if (state_ == 19) {

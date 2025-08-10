@@ -273,7 +273,8 @@ class TamaApp : public App {
   void HatchingRoutine(void* unused);
   void HungerRoutine(void* unused);
   void LevelUpRoutine(void* unused);
-  void SponsorRegister(uint8_t sponsor_id);
+
+  static uint16_t SecretLevelFromSponsor(uint32_t sponsors);
 
   // XBoard related
   uint8_t _my_nounce;
@@ -304,6 +305,9 @@ class TamaApp : public App {
   // BaseStation
   bool CanAcceptHeal();
   void TamaHeal();
+
+  // Sponsor
+  void SponsorRegister(uint8_t sponsor_id);
 
   // Save/Restore related.
   static bool TamaDataToBuffer(uint8_t* buffer, const tama_storage_t& data);

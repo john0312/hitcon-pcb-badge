@@ -225,6 +225,8 @@ void TamaApp::OnButton(button_t button) {
           break;
         case TAMA_APP_STATE::LV_DETAIL:
           if (_tama_data.secret_level < TAMA_MAX_SECRET_LEVEL) {
+            // Note: This testing feature may no longer work because of
+            // SecretLevelFromSponsor()
             _tama_data.secret_level++;
           } else {
             _tama_data.secret_level = 0;
@@ -405,7 +407,8 @@ void TamaApp::Routine(void* unused) {
         _state = TAMA_APP_STATE::IDLE;
         _tama_data.qte_level = 1;
         _tama_data.step_level = 0;
-        _tama_data.secret_level = 0;
+        _tama_data.secret_level =
+            SecretLevelFromSponsor(_tama_data.sponsor_register);
         _tama_data.hp = 3;
         SetHunger(4);
         needs_save = true;
@@ -1076,8 +1079,8 @@ void TamaApp::SponsorRegister(uint8_t sponsor_id) {
   if (_tama_data.sponsor_register & mask) {
     return;
   }
-  _tama_data.secret_level++;
   _tama_data.sponsor_register |= mask;
+  _tama_data.secret_level = SecretLevelFromSponsor(_tama_data.sponsor_register);
   g_nv_storage.MarkDirty();
 }
 
@@ -1154,15 +1157,20 @@ bool TamaApp::BufferToTamaData(const uint8_t* buffer, tama_storage_t& data) {
   if (data.step_level >= 500) return false;
 
   // Secret level is the number of bits in sponsor_register.
+
+  data.secret_level = SecretLevelFromSponsor(data.sponsor_register);
+
+  return true;
+}
+
+uint16_t TamaApp::SecretLevelFromSponsor(uint32_t sponsors) {
   unsigned int popcount = 0;
-  uint32_t s_reg = data.sponsor_register;
+  uint32_t s_reg = sponsors;
   while (s_reg > 0) {
     s_reg &= (s_reg - 1);  // Brian Kernighan's algorithm
     popcount++;
   }
-  data.secret_level = popcount;
-
-  return true;
+  return popcount;
 }
 
 bool TamaApp::SaveToBuffer(uint8_t* buffer) {
