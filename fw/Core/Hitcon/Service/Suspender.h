@@ -1,6 +1,9 @@
 #ifndef HITCON_SERVICE_SUSPENDER_H_
 #define HITCON_SERVICE_SUSPENDER_H_
 
+#include <Service/Sched/SysTimer.h>
+#include <stdint.h>
+
 namespace hitcon {
 
 // In charge of suspending interrupts for longer task.
@@ -20,6 +23,10 @@ class Suspender {
  private:
   int blockers_;
 
+#ifdef DEBUG
+  uint32_t last_suspend_ = 0;
+  uint32_t last_resume_ = 0;
+#endif
   bool suspended_;
 };
 

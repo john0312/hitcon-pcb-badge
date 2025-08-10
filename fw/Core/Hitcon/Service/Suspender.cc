@@ -22,12 +22,18 @@ bool Suspender::TrySuspend() {
   }
   my_assert(suspended_ == false);
   suspended_ = true;
+#ifdef DEBUG
+  last_suspend_ = hitcon::service::sched::SysTimer::GetTime();
+#endif
   return true;
 }
 
 bool Suspender::TryResume() {
   my_assert(suspended_ == true);
   suspended_ = false;
+#ifdef DEBUG
+  last_resume_ = hitcon::service::sched::SysTimer::GetTime();
+#endif
   return true;
 }
 
