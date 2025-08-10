@@ -637,7 +637,9 @@ void TamaApp::UpdateFrameBuffer() {
       TAMA_PREPARE_FB(_fb, me->frame_count);
       TAMA_COPY_FB(_fb, *me, 4);
       if (qte.GetSuccess() == QTE_TOTAL_ROUNDS) {
-        StackOnFrameBlinking(&TAMA_COMPONENT_TRAINING_LV_UP, 2);
+        StackOnFrameBlinking(&TAMA_COMPONENT_TRAINING_LV_UP_TEN, 0);
+      } else if (qte.GetSuccess() >= QTE_TOTAL_ROUNDS - 2) {
+        StackOnFrameBlinking(&TAMA_COMPONENT_TRAINING_LV_UP_ONE, 2);
       }
       break;
     }

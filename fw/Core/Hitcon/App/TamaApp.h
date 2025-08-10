@@ -36,7 +36,7 @@ namespace app {
 namespace tama {
 
 enum class TAMA_APP_STATE : uint8_t {
-  SAVE_STATE = 0xF0,
+  SAVE_STATE = 0x80,
   INTRO_TEXT = 0,          // Displaying introductory text
   CHOOSE_TYPE = 1,         // Player is selecting a pet type
   EGG_1 = 2 | SAVE_STATE,  // 0% hatching progress
@@ -663,7 +663,8 @@ constexpr display_buf_t TAMA_NUM_ZERO[3] = {0b11111000, 0b10001000, 0b11111000};
 constexpr display_buf_t TAMA_QTE_WINNING_EFFECT[15] = {0x02, 0x04, 0x08, 0x01, 0x02, 0x04, 0x00, 0x03, 0x00, 0x04, 0x02, 0x01, 0x08, 0x04, 0x02};
 constexpr display_buf_t TAMA_QTE_LOSING_EFFECT[11] = {0x04, 0x00, 0x04, 0x00, 0x04, 0x00, 0x04, 0x00, 0x04, 0x00, 0x04};
 constexpr display_buf_t TAMA_TRAINING_FACILITY[6] = {0x26, 0x39, 0x26, 0x4C, 0x72, 0x4C};
-constexpr display_buf_t TAMA_TRAINING_LV_UP[12] = {0x7, 0x4, 0, 0x3, 0x4, 0x3, 0, 0x2, 0x7, 0x2, 0, 0x7};
+constexpr display_buf_t TAMA_TRAINING_LV_UP_ONE[12] = {0x7, 0x4, 0, 0x3, 0x4, 0x3, 0, 0x2, 0x7, 0x2, 0, 0x7};
+constexpr display_buf_t TAMA_TRAINING_LV_UP_TEN[16] = {0x7, 0x4, 0, 0x3, 0x4, 0x3, 0, 0x2, 0x7, 0x2, 0, 0x7, 0, 0x7, 0x5, 0x7};
 // clang-format on
 
 constexpr tama_display_component_t TAMA_COMPONENT_PET_SELECTION_CURSOR = {
@@ -738,9 +739,13 @@ constexpr tama_display_component_t TAMA_COMPONENT_TRAINING_FACILITY = {
     .data = TAMA_TRAINING_FACILITY,
     .length = 6,
 };
-constexpr tama_display_component_t TAMA_COMPONENT_TRAINING_LV_UP = {
-    .data = TAMA_TRAINING_LV_UP,
+constexpr tama_display_component_t TAMA_COMPONENT_TRAINING_LV_UP_ONE = {
+    .data = TAMA_TRAINING_LV_UP_ONE,
     .length = 12,
+};
+constexpr tama_display_component_t TAMA_COMPONENT_TRAINING_LV_UP_TEN = {
+    .data = TAMA_TRAINING_LV_UP_TEN,
+    .length = 16,
 };
 
 #define ASSERT_COMPONENT_PROPERTIES(TYPE_NAME_STR)                             \
@@ -768,7 +773,8 @@ ASSERT_COMPONENT_PROPERTIES(NUM_ZERO);
 ASSERT_COMPONENT_PROPERTIES(QTE_WINNING_EFFECT);
 ASSERT_COMPONENT_PROPERTIES(QTE_LOSING_EFFECT)
 ASSERT_COMPONENT_PROPERTIES(TRAINING_FACILITY);
-ASSERT_COMPONENT_PROPERTIES(TRAINING_LV_UP);
+ASSERT_COMPONENT_PROPERTIES(TRAINING_LV_UP_ONE);
+ASSERT_COMPONENT_PROPERTIES(TRAINING_LV_UP_TEN);
 
 constexpr tama_display_component_t TAMA_NUM_FONT[10] = {
     TAMA_COMPONENT_NUM_ZERO,  TAMA_COMPONENT_NUM_ONE,
