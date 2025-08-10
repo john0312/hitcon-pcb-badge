@@ -24,7 +24,7 @@ class BadgeLinkController:
         Retrieve UID and Name from badge token (JWT).
         Return None if the token is invalid.
         """
-        user = jwt.decode(token, config.get("hitcon", {}).get("secret", ""))
+        user = jwt.decode(token, config.get("hitcon", {}).get("secret", ""), algorithms=["HS256"])
 
         if "scope" not in user or "badge" not in user["scope"]: return
 
