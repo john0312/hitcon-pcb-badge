@@ -105,7 +105,7 @@ void ImuService::Routine(void* arg) {
     count++;
 
   // if state stuck for 10s reset I2C
-  if (count >= 100 && state != State::INIT) {
+  if (count >= 100 && state != State::IDLE) {
     g_imu_service.ResetI2C();
     g_imu_logic.Reset();
     return;
