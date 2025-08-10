@@ -48,6 +48,13 @@ void TamaApp::Init() {
   // If it's a fresh start (e.g., NvStorage is zeroed), _tama_data.type will be
   // 0 (NONE_TYPE).
 #endif
+  my_assert(g_nv_storage.IsStorageValid());
+  if (!IsDataValid()) {
+    my_assert(false);
+    _tama_data = {};
+    _tama_data.state = TAMA_APP_STATE::INTRO_TEXT;
+    g_nv_storage.MarkDirty();
+  }
   _state = _tama_data.state;
   _previous_hatching_step = 0;
   hitcon::service::sched::scheduler.Queue(&_routine_task, nullptr);
@@ -1223,6 +1230,19 @@ bool TamaApp::ShouldRestore(const tama_storage_t& t) {
   int total_level_ours =
       _tama_data.qte_level + _tama_data.secret_level + _tama_data.step_level;
   return total_level_theirs > total_level_ours;
+}
+
+bool TamaApp::IsDataValid() {
+  if (_tama_data.hp > 3) return false;
+  if (_tama_data.hunger > 4) return false;
+  if (_tama_data.qte_level > 499) return false;
+  if (_tama_data.step_level > 499) return false;
+  if (_tama_data.secret_level > TAMA_MAX_SECRET_LEVEL) return false;
+  if (_tama_data.state != TAMA_APP_STATE::INTRO_TEXT) return false;
+  if (!(static_cast<uint16_t>(_tama_data.state) &
+        static_cast<uint16_t>(TAMA_APP_STATE::SAVE_STATE)))
+    return false;
+  return true;
 }
 
 bool TamaApp::TrySendSave(bool force) {
