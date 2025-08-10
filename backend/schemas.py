@@ -249,5 +249,5 @@ class ReCTFScoreSchema(BaseModel):
 
 ## Badge Linking related
 class BadgeLinkSchema(BaseModel):
-    badge_user: int
+    badge_user: Optional[int]
     name: Optional[str]

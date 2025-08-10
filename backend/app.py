@@ -144,20 +144,23 @@ async def hitcon_link(schema: BadgeLinkSchema, credentials: HTTPAuthorizationCre
         raise HTTPException(status_code=401, detail="Invalid token")
 
     if not schema.badge_user:
-        raise HTTPException(status_code=422, detail="badge_user is required")
+        old_badge_user = await BadgeLinkController.unlink_badge(uid)
+        if old_badge_user:
+            # reset rectf buff for the old badge user
+            await GameLogicController.apply_rectf_score(uid, old_badge_user, ReCTFSolves(a=0, b=0))
+    else:
+        # Link the badge with the attendee
+        try:
+            old_badge_user, _ = await BadgeLinkController.link_badge_with_attendee(uid, schema.badge_user, name)
+        except ValueError as e:
+            raise HTTPException(status_code=400, detail=str(e))
 
-    # Link the badge with the attendee
-    try:
-        old_badge_user, _ = await BadgeLinkController.link_badge_with_attendee(uid, schema.badge_user, name)
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        if old_badge_user is not None:
+            # remove old badge buff
+            await GameLogicController.apply_rectf_score(uid, old_badge_user, ReCTFSolves(a=0, b=0))
 
-    if old_badge_user is not None:
-        # remove old badge buff
-        await GameLogicController.apply_rectf_score(uid, old_badge_user, ReCTFSolves(a=0, b=0))
-
-    # apply rectf buff to the new badge
-    await GameLogicController.apply_rectf_score(uid, schema.badge_user)
+        # apply rectf buff to the new badge
+        await GameLogicController.apply_rectf_score(uid, schema.badge_user)
 
     return {"status": "ok"}
 

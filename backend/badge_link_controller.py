@@ -57,3 +57,15 @@ class BadgeLinkController:
 
         await mongo[BadgeLinkController.DB_NAME][BadgeLinkController.COLLECTION_NAME].insert_one({"uid": uid, "badge_user": badge_user, "name": name})
         return old_badge_user, badge_user  # Return None for the previous badge user, and the new badge user ID
+
+
+    @staticmethod
+    async def unlink_badge(uid: str) -> Optional[int]:
+        """
+        Unlink the badge from the attendee.
+        """
+        result = await mongo[BadgeLinkController.DB_NAME][BadgeLinkController.COLLECTION_NAME].find_one({"uid": uid})
+        if not result: return None
+
+        await mongo[BadgeLinkController.DB_NAME][BadgeLinkController.COLLECTION_NAME].delete_one({"uid": uid})
+        return result["badge_user"]
