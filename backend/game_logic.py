@@ -59,7 +59,7 @@ class Constants:
     BUFF_A_MODIFIER: float = 0.04
     BUFF_B_MODIFIER: float = 0.04
 
-    SPONSOR_STATION_ID_LIST: list[int] = field(default_factory=lambda: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
+    SPONSOR_BADGE_ID_LIST: list[int] = field(default_factory=lambda: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
     SPONSOR_CONNECT_SCORE: int = 50
     SPONSOR_ALL_COLLECTED_BONUS: int = 300
 
@@ -81,7 +81,7 @@ class ConstantsProduction(Constants):
     STATION_SCORE_DECAY_INTERVAL: int = 60 # seconds
     STATION_SCORE_DECAY_AMOUNT: int = 120
 
-    SPONSOR_STATION_ID_LIST: list[int] = field(default_factory=lambda: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13])
+    SPONSOR_BADGE_ID_LIST: list[int] = field(default_factory=lambda: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13])
     SPONSOR_CONNECT_SCORE: int = 200
     SPONSOR_ALL_COLLECTED_BONUS: int = 1200
 
@@ -290,7 +290,7 @@ class _GameLogic:
                     raise ValueError(f"score must be {const.SPONSOR_CONNECT_SCORE} for CONNECT_SPONSOR game type, got {score}")
                 if sponsor_id is None:
                     raise ValueError("sponsor_id must be provided for CONNECT_SPONSOR game type")
-                if sponsor_id not in const.SPONSOR_STATION_ID_LIST:
+                if sponsor_id not in const.SPONSOR_BADGE_ID_LIST:
                     raise ValueError(f"sponsor_id {sponsor_id} is not a valid sponsor ID")
 
                 # Get the list of collected sponsor IDs
@@ -303,7 +303,7 @@ class _GameLogic:
                     return  # No need to insert a duplicate record
 
                 # If the player has collected all sponsor badges, attack the station with a bonus score
-                if len(sponsors) == len(const.SPONSOR_STATION_ID_LIST) - 1:
+                if len(sponsors) == len(const.SPONSOR_BADGE_ID_LIST) - 1:
                     await self.attack_station(player_id, station_id, const.SPONSOR_ALL_COLLECTED_BONUS, timestamp)
 
         await self.score_history.insert_one({
@@ -777,8 +777,8 @@ async def test_game_score_history_single_player(with_redis = False, game_score_g
 
     # Simulate
     for game_type, scores in table.items():
-        await gl.receive_game_score_single_player(player_id, station_id, scores[0], game_type, time_base + timedelta(seconds=0.5), sponsor_id=(None if game_type != GameType.CONNECT_SPONSOR else const.SPONSOR_STATION_ID_LIST[0]))
-        await gl.receive_game_score_single_player(player_id, station_id, scores[1], game_type, time_base + timedelta(seconds=1.5), sponsor_id=(None if game_type != GameType.CONNECT_SPONSOR else const.SPONSOR_STATION_ID_LIST[1]))
+        await gl.receive_game_score_single_player(player_id, station_id, scores[0], game_type, time_base + timedelta(seconds=0.5), sponsor_id=(None if game_type != GameType.CONNECT_SPONSOR else const.SPONSOR_BADGE_ID_LIST[0]))
+        await gl.receive_game_score_single_player(player_id, station_id, scores[1], game_type, time_base + timedelta(seconds=1.5), sponsor_id=(None if game_type != GameType.CONNECT_SPONSOR else const.SPONSOR_BADGE_ID_LIST[1]))
 
     # Test
     for game_type, scores in table.items():
@@ -881,7 +881,7 @@ async def test_game_score_log_only():
 async def test_sponsor_bonus(with_redis = False):
     const.reset()
     const.STATION_SCORE_DECAY_INTERVAL = 1000 # a very large value to avoid decay during the test
-    const.SPONSOR_STATION_ID_LIST = [1, 2, 3]
+    const.SPONSOR_BADGE_ID_LIST = [1, 2, 3]
     const.GAME_SCORE_GRANULARITY = 0.1
     eps = 0.1
 
@@ -899,23 +899,23 @@ async def test_sponsor_bonus(with_redis = False):
     station_id = 1
 
     # Score should be 0 when sponsor are not fully collected
-    for i in range(len(const.SPONSOR_STATION_ID_LIST) - 1):
-        await gl.receive_game_score_single_player(player_id, station_id, const.SPONSOR_CONNECT_SCORE, GameType.CONNECT_SPONSOR, time_base + timedelta(seconds=2*i + 0.5), sponsor_id=const.SPONSOR_STATION_ID_LIST[i])
+    for i in range(len(const.SPONSOR_BADGE_ID_LIST) - 1):
+        await gl.receive_game_score_single_player(player_id, station_id, const.SPONSOR_CONNECT_SCORE, GameType.CONNECT_SPONSOR, time_base + timedelta(seconds=2*i + 0.5), sponsor_id=const.SPONSOR_BADGE_ID_LIST[i])
         assert 0 == await gl.get_station_score(station_id=station_id, before=time_base + timedelta(seconds=2*i + 0.5 + eps))
 
         # sponsor score should not duplicate
         assert (i+1) * const.SPONSOR_CONNECT_SCORE == await gl.get_game_score(player_id=player_id, game_type=GameType.CONNECT_SPONSOR, before=time_base + timedelta(seconds=2*i + 0.5 + eps))
-        await gl.receive_game_score_single_player(player_id, station_id, const.SPONSOR_CONNECT_SCORE, GameType.CONNECT_SPONSOR, time_base + timedelta(seconds=2*i + 1 + 0.5), sponsor_id=const.SPONSOR_STATION_ID_LIST[i])
+        await gl.receive_game_score_single_player(player_id, station_id, const.SPONSOR_CONNECT_SCORE, GameType.CONNECT_SPONSOR, time_base + timedelta(seconds=2*i + 1 + 0.5), sponsor_id=const.SPONSOR_BADGE_ID_LIST[i])
         assert (i+1) * const.SPONSOR_CONNECT_SCORE == await gl.get_game_score(player_id=player_id, game_type=GameType.CONNECT_SPONSOR, before=time_base + timedelta(seconds=2*i + 1 + 0.5 + eps))
 
     # Buff should be applied when all sponsors are collected
-    await gl.receive_game_score_single_player(player_id, station_id, const.SPONSOR_CONNECT_SCORE, GameType.CONNECT_SPONSOR, time_base + timedelta(seconds=len(const.SPONSOR_STATION_ID_LIST) - 1), sponsor_id=const.SPONSOR_STATION_ID_LIST[-1])
-    assert const.SPONSOR_ALL_COLLECTED_BONUS == await gl.get_station_score(station_id=station_id, before=time_base + timedelta(seconds=len(const.SPONSOR_STATION_ID_LIST) - 1 + eps))
+    await gl.receive_game_score_single_player(player_id, station_id, const.SPONSOR_CONNECT_SCORE, GameType.CONNECT_SPONSOR, time_base + timedelta(seconds=len(const.SPONSOR_BADGE_ID_LIST) - 1), sponsor_id=const.SPONSOR_BADGE_ID_LIST[-1])
+    assert const.SPONSOR_ALL_COLLECTED_BONUS == await gl.get_station_score(station_id=station_id, before=time_base + timedelta(seconds=len(const.SPONSOR_BADGE_ID_LIST) - 1 + eps))
 
     # Duplicate sponsor score should have no effect
-    for i in range(len(const.SPONSOR_STATION_ID_LIST)):
-        await gl.receive_game_score_single_player(player_id, station_id, const.SPONSOR_CONNECT_SCORE, GameType.CONNECT_SPONSOR, time_base + timedelta(seconds=len(const.SPONSOR_STATION_ID_LIST) + i + 0.5), sponsor_id=const.SPONSOR_STATION_ID_LIST[-1])
-        assert const.SPONSOR_ALL_COLLECTED_BONUS == await gl.get_station_score(station_id=station_id, before=time_base + timedelta(seconds=len(const.SPONSOR_STATION_ID_LIST) + i + 0.5 + eps))
+    for i in range(len(const.SPONSOR_BADGE_ID_LIST)):
+        await gl.receive_game_score_single_player(player_id, station_id, const.SPONSOR_CONNECT_SCORE, GameType.CONNECT_SPONSOR, time_base + timedelta(seconds=len(const.SPONSOR_BADGE_ID_LIST) + i + 0.5), sponsor_id=const.SPONSOR_BADGE_ID_LIST[-1])
+        assert const.SPONSOR_ALL_COLLECTED_BONUS == await gl.get_station_score(station_id=station_id, before=time_base + timedelta(seconds=len(const.SPONSOR_BADGE_ID_LIST) + i + 0.5 + eps))
 
 
 @test_func
