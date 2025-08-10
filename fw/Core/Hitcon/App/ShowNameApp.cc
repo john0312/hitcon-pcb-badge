@@ -84,6 +84,9 @@ void ShowNameApp::OnButton(button_t button) {
         badge_controller.change_app(&main_menu);
       }
       break;
+
+    default:
+      break;
   }
 }
 

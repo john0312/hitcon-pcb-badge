@@ -51,6 +51,9 @@ void EditNameApp::OnButton(button_t button) {
       show_name_app.SetName(editor.text);
       badge_controller.change_app(&show_name_app);
       break;
+
+    default:
+      break;
   }
 }
 

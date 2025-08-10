@@ -15,7 +15,10 @@ void my_assert(bool expr) {
     for (int i = 0; i < 32; i++) {
       __NOP();
     }
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdiv-by-zero"
     unsigned x = 0U / 0U;  // Force a divide by zero to trigger a fault
+#pragma GCC diagnostic pop
     (void)x;
     while (true) {
       __NOP();
