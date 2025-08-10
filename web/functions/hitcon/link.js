@@ -1,21 +1,50 @@
+const allowedOrigins = [
+    "http://localhost",
+    "https://hitcon.org"
+];
+
+function isAllowedOrigin(origin) {
+    return allowedOrigins.includes(origin);
+}
+
+function getAccessControlAllowOriginHeader(origin) {
+    origin = origin.toLowerCase();
+    if (isAllowedOrigin(origin)) {
+        return {"Access-Control-Allow-Origin": origin, "Vary": "Origin"};
+    }
+    return {};
+}
+
+function getCORSHeaders(origin) {
+    origin = origin.toLowerCase();
+
+    const headers = new Headers();
+    headers.set("Access-Control-Allow-Origin", origin);
+    headers.set("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+    headers.set("Access-Control-Allow-Headers", "Authorization, Content-Type");
+    headers.set("Access-Control-Allow-Credentials", "true");
+    headers.set("Access-Control-Max-Age", "3600"); // 1 hour
+    return headers;
+}
+
 export async function onRequest(context) {
     const method = context.request.method;
+    const origin = context.request.headers.get("Origin");
 
-    const allowedOrigins = [
-        "http://localhost",
-        "https://hitcon.org"
-    ];
+    // Allow direct API calls
+    if (origin) {
+        if (!isAllowedOrigin(origin)) {
+            return new Response(null, {
+                status: 403
+            });
+        }
 
-    if (context.request.headers.has("Origin") && !allowedOrigins.includes(context.request.headers.get("Origin"))) {
-        return new Response(
-            JSON.stringify({"detail": "Origin not allowed"}),
-            {
-                status: 403,
-                headers: {
-                    "Access-Control-Allow-Origin": "https://hitcon.org"
-                }
-            }
-        );
+        if (method === "OPTIONS") {
+            return new Response(null, {
+                status: 204,
+                headers: getCORSHeaders(origin)
+            });
+        }
     }
 
     if (method !== "GET" && method !== "POST") {
@@ -25,7 +54,8 @@ export async function onRequest(context) {
                 status: 405,
                 headers: {
                     "Allow": "GET, POST",
-                    "Content-Type": "application/json"
+                    "Content-Type": "application/json",
+                    ...getAccessControlAllowOriginHeader(origin)
                 }
             }
         );
@@ -38,7 +68,8 @@ export async function onRequest(context) {
                 status: 401,
                 headers: {
                     "WWW-Authenticate": "Bearer",
-                    "Content-Type": "application/json"
+                    "Content-Type": "application/json",
+                    ...getAccessControlAllowOriginHeader(origin)
                 }
             }
         );
@@ -53,7 +84,8 @@ export async function onRequest(context) {
             {
                 status: 400,
                 headers: {
-                    "Content-Type": "application/json"
+                    "Content-Type": "application/json",
+                    ...getAccessControlAllowOriginHeader(origin)
                 }
             }
         );
@@ -73,5 +105,10 @@ export async function onRequest(context) {
         requestOptions.body = JSON.stringify(await context.request.json());
     }
 
-    return await fetch(backendUrl, requestOptions);
+    const res = (await fetch(backendUrl, requestOptions)).clone();
+    if (origin && isAllowedOrigin(origin)) {
+        res.headers.set("Access-Control-Allow-Origin", origin.toLowerCase());
+    }
+
+    return res;
 }
