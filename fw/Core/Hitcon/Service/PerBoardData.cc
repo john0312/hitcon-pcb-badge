@@ -25,6 +25,8 @@ constexpr uint8_t kPrivKey[PerBoardData::kPrivKeySize] = {
 
 constexpr PerBoardData::PerBoardData() {}
 
+#pragma GCC push_options
+#pragma GCC optimize("O0")
 const uint8_t* PerBoardData::GetPerBoardRandom() { return kPerBoardRandom; }
 
 const uint8_t* PerBoardData::GetPerBoardSecret() { return kPerBoardSecret; }
@@ -36,5 +38,6 @@ const uint64_t PerBoardData::GetPrivKey() {
   memcpy(&privkey, kPrivKey, PerBoardData::kPrivKeySize);
   return privkey;
 }
+#pragma GCC pop_options
 
 }  // namespace hitcon

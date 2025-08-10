@@ -16,7 +16,6 @@ import pcb_logger
 # Global
 flag_HTTPServerConnnectionError = False
 flag_FwElfNotFound = False
-PerBoardSecret = b''
 PrivKey: bytes = b''
 
 # status enum class
@@ -144,7 +143,6 @@ class STLINK():
 
         # specify global variables
         global flag_HTTPServerConnnectionError
-        global PerBoardSecret
         global PrivKey
         global flag_FwElfNotFound
 
@@ -156,16 +154,12 @@ class STLINK():
                 pass
             elif self.current_state == ST_STATUS.UPLOADING:
 
-                # Modify fw.elf with random PerBoardData and PerBoardSecret
+                # Modify fw.elf with the private key
                 try:
-                    PerBoardSecret, PrivKey = ReplaceELF.modify_fw_elf()
+                    PrivKey = ReplaceELF.modify_fw_elf()
                     flag_FwElfNotFound = False
 
-                    # Record PerBoardSecret
-                    if len(PerBoardSecret) == 16 :
-                        print(f"PerBoardSecret = {PerBoardSecret}")
-                    else:
-                        raise ValueError("Invalid PerBoardSecret Array Length")
+                    # Record Private key
                     if len(PrivKey) == 7 :
                         print(f"PrivKey = {PrivKey}")
                     else:
@@ -188,11 +182,10 @@ class STLINK():
                     print("-- skip verify")
 
             elif self.current_state == ST_STATUS.TRIGGER_EXEC:
-                # Post PerBoardSecret to Cloud Server
+                # Post Private key to Cloud Server
                 print("FW download verified, log PerBoardData to Server")
-                print(f"PerBoardSecret = {PerBoardSecret}")
                 print(f"PrivKey = {PrivKey}")
-                pcb_logger.post_commit_privkey(PerBoardSecret, PrivKey)
+                pcb_logger.post_commit_privkey(PrivKey)
 
                 self.trigger_exec()
 

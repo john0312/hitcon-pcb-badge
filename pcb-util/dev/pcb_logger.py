@@ -28,25 +28,19 @@ def post_data(url: str, data: dict):
         raise InternalServerError()
     elif response.status_code != 200:
         raise UnknownError(f'Unknown status code{response.status_code}')
-    
+
     return response.text
 
-def post_board_data(per_board_secret: bytes, priv_key: bytes) -> bytes:
+def post_board_data(priv_key: bytes) -> bytes:
     response = post_data(
         f'{config.POST_URL}/log_board',
-        {
-            'board_secret': encode_b64(per_board_secret),
-            'priv_key': encode_b64(priv_key)
-        }
+        {'priv_key': encode_b64(priv_key)}
     )
 
     return decode_b64(json.loads(response)['cert'])
-    
-def post_commit_privkey(per_board_secret: bytes, priv_key: bytes):
+
+def post_commit_privkey(priv_key: bytes):
     post_data(
         f'{config.POST_URL}/commit_board',
-        {
-            'board_secret': encode_b64(per_board_secret),
-            'priv_key': encode_b64(priv_key)
-        }
+        {'priv_key': encode_b64(priv_key)}
     )

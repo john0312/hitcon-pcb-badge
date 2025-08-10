@@ -15,11 +15,6 @@ search_array_PerBoardRandom = [
         0x3d, 0xc2, 0x9c, 0x8c, 0xec, 0x36, 0x83, 0x49
     ]  # Array to find for PerBoardRandom
 
-search_array_PerBoardSecret = [
-        0x13, 0xac, 0x76, 0xfc, 0x1a, 0xa7, 0x0f, 0x92,
-        0x05, 0x31, 0x1d, 0xa6, 0x28, 0x4c, 0x8e, 0x94
-    ]  # Array to find for PerBoardSecret
-
 search_array_PubKeyCert = [
     0x7d, 0xf0, 0xde, 0x4c, 0xe2, 0x23, 0x19,
     0xf6, 0xb4, 0xfa, 0xbe, 0x12, 0x6d, 0x41
@@ -128,13 +123,12 @@ def search_and_reaplce_array(elf_file_path, search_array, replace_array):
     else:
         raise ValueError("Array not found in the ELF file.")
 
-def modify_fw_elf() -> Tuple[bytes, bytes]:
+def modify_fw_elf() -> bytes:
     replace_array_PerBoardRandom = bytes(np.random.randint(0, 256, size=16, dtype=np.uint8))
-    replace_array_PerBoardSecret = bytes(np.random.randint(0, 256, size=16, dtype=np.uint8))
     while True:
         try:
             replace_array_PrivKey = ecc.gen_key(config.TEAM == 'RED')
-            replace_array_PubKeyCert = pcb_logger.post_board_data(replace_array_PerBoardSecret, replace_array_PrivKey)
+            replace_array_PubKeyCert = pcb_logger.post_board_data(replace_array_PrivKey)
             break
         except pcb_logger.PrivKeyExistsException:
             print('existing privkey')
@@ -143,13 +137,12 @@ def modify_fw_elf() -> Tuple[bytes, bytes]:
             print(f'got exception {e}')
             raise
 
-    
+
     # Duplicate the ELF file
     duplicate_elf_file(config.FW_ELF_PATH, config.MOD_ELF_PATH)
     # Modify array in ELF
     array_offset_PerBoardRandom = search_and_reaplce_array(config.MOD_ELF_PATH, search_array_PerBoardRandom, replace_array_PerBoardRandom)
-    array_offset_PerBoardSecret = search_and_reaplce_array(config.MOD_ELF_PATH, search_array_PerBoardSecret, replace_array_PerBoardSecret)
     array_offset_PubKeyCert = search_and_reaplce_array(config.MOD_ELF_PATH, search_array_PubKeyCert, replace_array_PubKeyCert)
     array_offset_PrivKey = search_and_reaplce_array(config.MOD_ELF_PATH, search_array_PrivKey, replace_array_PrivKey)
 
-    return replace_array_PerBoardSecret, replace_array_PrivKey
+    return replace_array_PrivKey
