@@ -957,25 +957,6 @@ void TamaApp::HungerRoutine(void* unused) {
   if (needs_save) g_nv_storage.MarkDirty();
 }
 
-static unsigned int IntSqrt(unsigned int x) {
-  unsigned int res = 0;
-  unsigned int bit = 1 << 30;
-  while (bit > x) bit >>= 2;
-
-  while (bit) {
-    if (x >= res + bit) {
-      x -= res + bit;
-      res = (res >> 1) + bit;
-    } else
-      res >>= 1;
-  }
-  return res;
-}
-
-static inline unsigned int min(unsigned int a, unsigned int b) {
-  return (a < b) ? a : b;
-}
-
 void TamaApp::LevelUpRoutine(void* unused) {
   if (_tama_data.hp == 0 || _tama_data.hunger == 0) return;
 
@@ -984,9 +965,11 @@ void TamaApp::LevelUpRoutine(void* unused) {
     _level_up_progress += step - _last_level_check_steps;
   _last_level_check_steps = step;
 
-  // Steps needed to level up = min(100, current_level ^ 1.5)
-  if (_level_up_progress >=
-      min(100, _tama_data.step_level * IntSqrt(_tama_data.step_level))) {
+  if (((_tama_data.step_level < 100) && (_level_up_progress >= 100)) ||
+      ((_tama_data.step_level < 200) && (_level_up_progress >= 200)) ||
+      ((_tama_data.step_level < 300) && (_level_up_progress >= 300)) ||
+      ((_tama_data.step_level < 400) && (_level_up_progress >= 400)) ||
+      ((_tama_data.step_level < 500) && (_level_up_progress >= 45000))) {
     SetStepLevel(_tama_data.step_level + 1);
   }
 }
