@@ -1,4 +1,5 @@
 #include <Hitcon.h>
+#include <Logic/Display/display.h>
 #include <Logic/GameController.h>
 #include <Logic/ImuLogic.h>
 #include <Logic/lsm6ds3tr-c_reg.h>
@@ -39,6 +40,11 @@ void ImuLogic::Reset() {
   _state = RoutineState::INIT;
   _init_state = InitState::CHECK_ID;
   _start_time = SysTimer::GetTime();
+  _reset_cnt_without_success++;
+  if (_reset_cnt_without_success >= 8) {
+    display_set_mode_text("ST");
+    if (_reset_cnt_without_success >= 11) my_assert(false);
+  }
 }
 
 void ImuLogic::GyroSelfTest(callback_t cb, void* cb_arg1) {
@@ -74,6 +80,7 @@ void ImuLogic::Routine(void* arg1) {
 
   // if state stuck for 5s reset I2C
   if (count >= 10000 / ROUTINE_INTERVAL) {
+    count = 0;
     g_imu_service.ResetI2C();
     g_imu_logic.Reset();
     return;
@@ -343,6 +350,7 @@ void ImuLogic::OnRxDone(void* arg1) {
   }
 
   if (_state == RoutineState::WAIT_STEP) {
+    _reset_cnt_without_success = 0;
     uint16_t val = _buf[0] | (_buf[1] << 8);
     uint16_t increment = 0;
     if (val < _last_step_reg) {  // handle STEP_COUNTER (16bit) overflow

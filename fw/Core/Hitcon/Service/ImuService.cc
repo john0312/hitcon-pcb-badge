@@ -50,6 +50,9 @@ void ImuService::Init() {
 }
 
 void ImuService::ResetI2C() {
+  SET_BIT((I2C_HANDLE)->Instance->CR1, I2C_CR1_SWRST);
+  for (int i = 0; i < 32; i++) __NOP();
+  CLEAR_BIT((I2C_HANDLE)->Instance->CR1, I2C_CR1_SWRST);
   HAL_I2C_DeInit(I2C_HANDLE);
   HAL_I2C_Init(I2C_HANDLE);
   state = State::INIT;
@@ -99,6 +102,21 @@ void ImuService::I2CCallback(void* arg2) {
   }
 
   state = State::IDLE;
+}
+
+bool ImuService::IsI2CIdle() {
+  if (__HAL_I2C_GET_FLAG(I2C_HANDLE, I2C_FLAG_BUSY) != RESET) {
+    // I2C is busy.
+    i2c_busy_cnt++;
+    if (i2c_busy_cnt >= 12) {
+      g_imu_service.ResetI2C();
+      g_imu_logic.Reset();
+      i2c_busy_cnt = 0;
+    }
+    return false;
+  }
+  i2c_busy_cnt = 0;
+  return true;
 }
 
 void ImuService::Routine(void* arg) {
@@ -163,19 +181,25 @@ void ImuService::Routine(void* arg) {
     case State::IDLE: {
       HAL_StatusTypeDef status = HAL_OK;
       if (!_tx_queue.IsEmpty()) {
-        WriteOp& op = _tx_queue.Back();
-        state = State::WRITING;
+        bool ret = IsI2CIdle();
+        if (ret) {
+          WriteOp& op = _tx_queue.Back();
+          state = State::WRITING;
 
-        status = HAL_I2C_Mem_Write_IT(I2C_HANDLE, SLAVE_ADDR, op.addr,
-                                      I2C_MEMADD_SIZE_8BIT, &op.value, 1);
-        op_start_tick = SysTimer::GetTime();
+          status = HAL_I2C_Mem_Write_IT(I2C_HANDLE, SLAVE_ADDR, op.addr,
+                                        I2C_MEMADD_SIZE_8BIT, &op.value, 1);
+          op_start_tick = SysTimer::GetTime();
+        }
       } else if (!_rx_queue.IsEmpty()) {
-        ReadOp& op = _rx_queue.Back();
-        state = State::READING;
+        bool ret = IsI2CIdle();
+        if (ret) {
+          ReadOp& op = _rx_queue.Back();
+          state = State::READING;
 
-        status = HAL_I2C_Mem_Read_IT(I2C_HANDLE, SLAVE_ADDR, op.addr,
-                                     I2C_MEMADD_SIZE_8BIT, op.value_ptr, 1);
-        op_start_tick = SysTimer::GetTime();
+          status = HAL_I2C_Mem_Read_IT(I2C_HANDLE, SLAVE_ADDR, op.addr,
+                                       I2C_MEMADD_SIZE_8BIT, op.value_ptr, 1);
+          op_start_tick = SysTimer::GetTime();
+        }
       }
       if (status != HAL_OK) {
         g_imu_service.ResetI2C();
