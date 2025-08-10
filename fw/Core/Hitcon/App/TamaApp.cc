@@ -666,8 +666,8 @@ void TamaApp::XbOnButton(button_t button) {
           } else {
             my_assert(xboard_battle_invite ==
                       TAMA_XBOARD_BATTLE_INVITE::XBOARD_BATTLE_Y);
-            my_packet.state = TAMA_XBOARD_STATE::XBOARD_BATTLE_ENCOUNTER;
             my_packet.type = _tama_data.type;
+            my_packet.state = TAMA_XBOARD_STATE::XBOARD_BATTLE_ENCOUNTER;
             display_set_mode_scroll_text("Waiting for enemy...");
           }
           UpdateFrameBuffer();
@@ -834,10 +834,10 @@ void TamaApp::XbRoutine(void* unused) {
       display_set_mode_scroll_text("Waiting for enemy...");
       _my_nounce = (g_fast_random_pool.GetRandom() % (UINT16_MAX - 1)) + 1;
 
-      my_packet.state = TAMA_XBOARD_STATE::XBOARD_BATTLE_SENT_SCORE;
       my_packet.result.score = qte.GetScore(GetCombatLevel()),
       my_packet.result.nonce = _my_nounce;
       g_game_controller.SetBufferToUsername(my_packet.result.user);
+      my_packet.state = TAMA_XBOARD_STATE::XBOARD_BATTLE_SENT_SCORE;
 
       UpdateFrameBuffer();
     }
