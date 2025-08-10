@@ -47,12 +47,12 @@ struct TaskRecord {
 
 class Scheduler {
  private:
-  static constexpr size_t kAddQueueSize = 8;
+  static constexpr size_t kAddQueueSize = 10;
   static constexpr size_t kRecordSize = 20;
 
-  Heap<Task, 32> tasks;
-  Heap<DelayedTask, 24> delayedTasks;
-  Array<PeriodicTask, 24> enabledPeriodicTasks, disabledPeriodicTasks;
+  Heap<Task, 40> tasks;
+  Heap<DelayedTask, 32> delayedTasks;
+  Array<PeriodicTask, 32> enabledPeriodicTasks, disabledPeriodicTasks;
 
   // Queue used to temporarily hold calls to Queue() so we can defer heap
   // operations to later.
