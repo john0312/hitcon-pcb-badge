@@ -1,8 +1,7 @@
-#include <Service/SignedPacketService.h>
-#include <string.h>
 #include <App/ShowNameApp.h>
 #include <App/TamaApp.h>
-
+#include <Service/SignedPacketService.h>
+#include <string.h>
 
 namespace hitcon {
 
@@ -86,16 +85,20 @@ static bool getPacketSigInfo(packet_type packetType, size_t &sigOffset,
   return true;
 }
 
-bool SignedPacketService::FindPacketOfState(SignedPacket *queue, PacketStatus status, size_t &packetId) {
+bool SignedPacketService::FindPacketOfState(SignedPacket *queue,
+                                            PacketStatus status,
+                                            size_t &packetId) {
   for (packetId = 0; packetId < PACKET_QUEUE_SIZE; ++packetId) {
     if (queue[packetId].status == status) return true;
   }
   return false;
 }
 
-bool SignedPacketService::VerifyAndReceivePacket(hitcon::ir::IrPacket *irpacket) {
+bool SignedPacketService::VerifyAndReceivePacket(
+    hitcon::ir::IrPacket *irpacket) {
   size_t packetId;
-  hitcon::ir::IrData *irdata = reinterpret_cast<hitcon::ir::IrData *>(irpacket->data_);
+  hitcon::ir::IrData *irdata =
+      reinterpret_cast<hitcon::ir::IrData *>(irpacket->data_);
   if (!FindPacketOfState(ver_packet_queue_, PacketStatus::kFree, packetId))
     return false;
 
@@ -155,10 +158,12 @@ void SignedPacketService::OnPacketVerFinish(void *isValid) {
 void SignedPacketService::ReceivePacket(SignedPacket &packet) {
   switch (packet.type) {
     case packet_type::kScoreAnnonce:
-      show_name_app.SetScore(*reinterpret_cast<uint32_t *>(packet.data + offsetof(hitcon::ir::ScoreAnnouncePacket, score)));
+      show_name_app.SetScore(*reinterpret_cast<uint32_t *>(
+          packet.data + offsetof(hitcon::ir::ScoreAnnouncePacket, score)));
       break;
     case packet_type::kRestorePet:
-      hitcon::app::tama::tama_app.OnRestorePacket(reinterpret_cast<hitcon::ir::RestorePetPacket *>(&packet.data));
+      hitcon::app::tama::tama_app.OnRestorePacket(
+          reinterpret_cast<hitcon::ir::RestorePetPacket *>(&packet.data));
       break;
     default:
       my_assert(false);
@@ -167,23 +172,28 @@ void SignedPacketService::ReceivePacket(SignedPacket &packet) {
 
 void SignedPacketService::VerRoutineFunc() {
   size_t packetId;
-  if (FindPacketOfState(ver_packet_queue_, PacketStatus::kWaitVerStart, packetId)) {
+  if (FindPacketOfState(ver_packet_queue_, PacketStatus::kWaitVerStart,
+                        packetId)) {
     SignedPacket &packet = ver_packet_queue_[packetId];
-    bool ret = hitcon::ecc::g_ec_logic.StartVerify(packet.data, packet.dataSize, packet.sig, (callback_t)&SignedPacketService::OnPacketVerFinish, this);
+    bool ret = hitcon::ecc::g_ec_logic.StartVerify(
+        packet.data, packet.dataSize, packet.sig,
+        (callback_t)&SignedPacketService::OnPacketVerFinish, this);
     if (ret) {
       packet.status = PacketStatus::kWaitVerDone;
       verifyingPacketId = packetId;
     }
   }
 
-  if (FindPacketOfState(ver_packet_queue_, PacketStatus::kWaitReceive, packetId)) {
+  if (FindPacketOfState(ver_packet_queue_, PacketStatus::kWaitReceive,
+                        packetId)) {
     ReceivePacket(ver_packet_queue_[packetId]);
   }
 }
 
 void SignedPacketService::SigRoutineFunc() {
   size_t packetId;
-  if (FindPacketOfState(sig_packet_queue_, PacketStatus::kWaitSignStart, packetId)) {
+  if (FindPacketOfState(sig_packet_queue_, PacketStatus::kWaitSignStart,
+                        packetId)) {
     SignedPacket &packet = sig_packet_queue_[packetId];
     bool ret = hitcon::ecc::g_ec_logic.StartSign(
         packet.data, packet.dataSize,
@@ -195,7 +205,8 @@ void SignedPacketService::SigRoutineFunc() {
   }
 
   // Find signed packets and transmit if possible
-  if (FindPacketOfState(sig_packet_queue_, PacketStatus::kWaitTransmit, packetId)) {
+  if (FindPacketOfState(sig_packet_queue_, PacketStatus::kWaitTransmit,
+                        packetId)) {
     SignedPacket &packet = sig_packet_queue_[packetId];
     hitcon::ir::IrData irdata = {.ttl = 0, .type = packet.type};
     memcpy(&irdata.opaq, packet.data, packet.dataSize);

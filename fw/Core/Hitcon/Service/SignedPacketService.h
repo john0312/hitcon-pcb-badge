@@ -63,7 +63,8 @@ class SignedPacketService {
   void OnPacketVerFinish(void *isValid);
   void ReceivePacket(signed_packet::SignedPacket &packet);
   void OnPacketSignFinish(hitcon::ecc::Signature *signature);
-  bool FindPacketOfState(signed_packet::SignedPacket *queue, signed_packet::PacketStatus status, size_t &packetId);
+  bool FindPacketOfState(signed_packet::SignedPacket *queue,
+                         signed_packet::PacketStatus status, size_t &packetId);
 };
 
 extern SignedPacketService g_signed_packet_service;
