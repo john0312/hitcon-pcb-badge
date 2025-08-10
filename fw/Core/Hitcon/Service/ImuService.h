@@ -76,8 +76,12 @@ class ImuService {
   void *_rx_cb_arg1 = nullptr, *_tx_cb_arg1 = nullptr;
   bool _is_rx_done, _is_tx_done;
 
+  int i2c_busy_cnt = 0;
+
   PeriodicTask _routine_task;
   void Routine(void* arg);
+
+  bool IsI2CIdle();
 };
 
 extern ImuService g_imu_service;

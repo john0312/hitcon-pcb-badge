@@ -102,6 +102,7 @@ class ImuLogic {
   uint32_t _start_time;
   uint32_t _step;
   bool _is_shaking;
+  uint16_t _reset_cnt_without_success = 0;
 
   void OnRxDone(void *arg1);
   void OnTxDone(void *arg1);
