@@ -147,7 +147,10 @@ async def hitcon_link(schema: BadgeLinkSchema, credentials: HTTPAuthorizationCre
         raise HTTPException(status_code=422, detail="badge_user is required")
 
     # Link the badge with the attendee
-    old_badge_user, _ = await BadgeLinkController.link_badge_with_attendee(uid, schema.badge_user, name)
+    try:
+        old_badge_user, _ = await BadgeLinkController.link_badge_with_attendee(uid, schema.badge_user, name)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
 
     if old_badge_user is not None:
         # remove old badge buff
