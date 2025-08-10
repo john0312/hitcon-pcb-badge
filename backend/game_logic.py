@@ -614,7 +614,7 @@ async def profile_attack_station(with_redis, time_limit_sec):
     attack_interval = 30
     total_attacks = num_players * (all_seconds // attack_interval)
 
-    print(f"Profiling attack_station {with_redis=} {time_limit_sec=}")
+    print(f"[*] Profiling attack_station {with_redis=} {time_limit_sec=}")
 
     # prepare data
     start = time.perf_counter()
@@ -629,6 +629,85 @@ async def profile_attack_station(with_redis, time_limit_sec):
         count += 1
 
     print(f"Executed {count}/{total_attacks} attacks within {time_limit_sec} seconds. (avg. {count / time_limit_sec:.2f} attacks/sec)")
+
+
+async def profile_receive_game_score_and_get_scoreboard(with_redis, time_limit_sec):
+    const.reset()
+    const.STATION_SCORE_DECAY_INTERVAL = 1
+    const.GAME_SCORE_GRANULARITY = 0.1
+    eps = 0.1
+
+    if with_redis:
+        redis_client = Redis(host='localhost', port=6379)
+        await redis_client.flushall()  # Clear all keys in Redis for testing
+    else:
+        redis_client = None
+
+    time_base = datetime.now()
+    gl = _GameLogic(pymongo.AsyncMongoClient("mongodb://localhost:27017?uuidRepresentation=standard"), redis_client, time_base)
+    await gl.clear_database()
+
+    # 2 days, 8 hours per day, 21 station
+    # Assume 800 players, each player plays 50 games everyday
+
+    random.seed("chiffoncake") # for reproducibility
+    all_seconds = 2 * 8 * 3600
+    num_players = 800
+    num_stations = 21
+    play_interval = 8 * 3600 // 50 # 50 games per day, 8 hours per day
+    total_attacks = num_players * (all_seconds // play_interval)
+
+    print(f"[*] Profiling get_player_scoreboard {with_redis=} {time_limit_sec=}")
+
+    # prepare data
+    records = []
+    player_connected_sponsors = {player_id: set() for player_id in range(1, num_players + 1)}
+    for player_id, t in itertools.product(range(1, num_players + 1), range(0, all_seconds, play_interval)):
+        station_id = random.choice(range(1, num_stations + 1))
+        tmp = random.randrange(total_attacks // 10)
+        if tmp == 0 and len(player_connected_sponsors[player_id]) < len(const.SPONSOR_BADGE_ID_LIST):
+            game_type = GameType.CONNECT_SPONSOR
+            sponsor_id = random.choice(list(set(const.SPONSOR_BADGE_ID_LIST) - player_connected_sponsors[player_id]))
+            player_connected_sponsors[player_id].add(sponsor_id)
+            score = const.SPONSOR_CONNECT_SCORE
+            records.append((gl.receive_game_score_single_player, player_id, station_id, score, game_type, time_base + timedelta(seconds=t), False, sponsor_id))
+        elif tmp % 4 < 3:
+            game_type = random.choice((GameType.SHAKE_BADGE, GameType.DINO, GameType.SNAKE, GameType.TETRIS))
+            sponsor_id = None
+            score = random.randrange(100, 500)
+            records.append((gl.receive_game_score_single_player, player_id, station_id, score, game_type, time_base + timedelta(seconds=t), False, sponsor_id))
+        else:
+            game_type = random.choice((GameType.SNAKE, GameType.TETRIS, GameType.TAMA))
+            player2_id = random.choice([i for i in range(1, num_players + 1) if i != player_id])
+            score1 = random.randrange(100, 500)
+            score2 = random.randrange(100, 500)
+            records.append((gl.receive_game_score_two_player, uuid.uuid4(), player_id, player2_id, station_id, score1, score2, game_type, time_base + timedelta(seconds=t)))
+
+    # profile the insertion of game scores
+    start = time.perf_counter()
+    count = 0
+    for record in records:
+        if time.perf_counter() - start > time_limit_sec:
+            break
+        await record[0](*record[1:])
+        count += 1
+    print(f"Executed {count} game score records within {time_limit_sec} seconds. (avg. {count / time_limit_sec:.2f} records/sec)")
+
+    # insert the records (fast way)
+    await gl.clear_database()  # Clear the database before inserting new records
+    await gl.score_history.insert_many([
+        await gl._get_mongo_query_game_score_single_player(*record[1:]) for record in records if record[0] == gl.receive_game_score_single_player
+    ] + [
+        r for record in records if record[0] == gl.receive_game_score_two_player for r in await gl._get_mongo_query_game_score_two_player(*record[1:])
+    ])
+
+    # profile the get_player_scoreboard
+    start = time.perf_counter()
+    count = 0
+    while time.perf_counter() - start < time_limit_sec:
+        await gl.get_player_scoreboard(before=time_base + timedelta(all_seconds + eps))
+        count += 1
+    print(f"Executed {count} get_player_scoreboard calls within {time_limit_sec} seconds. (avg. {count / time_limit_sec:.2f} calls/sec)")
 
 
 _executed_test = set()
@@ -1050,6 +1129,8 @@ async def test_scoreboard_api(with_redis = False, game_score_granularity = None)
 if __name__ == "__main__":
     asyncio.run(profile_attack_station(with_redis=False, time_limit_sec=5))
     asyncio.run(profile_attack_station(with_redis=True, time_limit_sec=5))
+    asyncio.run(profile_receive_game_score_and_get_scoreboard(with_redis=False, time_limit_sec=5))
+    asyncio.run(profile_receive_game_score_and_get_scoreboard(with_redis=True, time_limit_sec=5))
     # exit(0)  # Exit early for profiling
 
     asyncio.run(test_attack_station_score_history())
