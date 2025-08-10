@@ -8,8 +8,6 @@
 #include <Service/Sched/Scheduler.h>
 #include <Util/uint_to_str.h>
 
-#include <algorithm>
-
 using namespace hitcon::service::sched;
 using hitcon::game::EventType;
 
@@ -33,17 +31,13 @@ void SpaceshipApp::OnEntry() {
 }
 // 2. OnExit
 void SpaceshipApp::OnExit() {
-  if (_routine_task.IsEnabled()) {
-    scheduler.DisablePeriodic(&_routine_task);
-  }
+  scheduler.DisablePeriodic(&_routine_task);
   _state = END;
 }
 // 3. OnButton
 void SpaceshipApp::OnButton(button_t button) {}
 // 4. OnEdgeButton
 void SpaceshipApp::OnEdgeButton(button_t button) {
-  constexpr int last_row = DISPLAY_WIDTH * (DISPLAY_HEIGHT - 2);
-
   if ((button & BUTTON_VALUE_MASK) == BUTTON_BACK) {
     badge_controller.BackToMenu(this);
     return;
@@ -52,15 +46,17 @@ void SpaceshipApp::OnEdgeButton(button_t button) {
   if (_state == RUN) {
     switch (button & BUTTON_VALUE_MASK) {
       case BUTTON_DOWN:  // move _my_position down
-        if (_my_position < last_row) _SyncMyPlane(_my_position + DISPLAY_WIDTH);
+        if (_my_position < PLANE_UPPER_BOUND) {
+          _SyncMyPlane(_my_position << 1);
+        }
         break;
       case BUTTON_UP:  // move _my_position up
-        if (_my_position > DISPLAY_WIDTH)
-          _SyncMyPlane(_my_position - DISPLAY_WIDTH);
+        if (_my_position > PLANE_LOWER_BOUND) {
+          _SyncMyPlane(_my_position >> 1);
+        }
         break;
       case BUTTON_RIGHT:  // emit bullet
-        _bullets[_num_bullets] = _my_position + 2;
-        _num_bullets += 1;
+        _bullets[2] |= _my_position;
         break;
       default:
         break;
@@ -76,14 +72,18 @@ void SpaceshipApp::OnEdgeButton(button_t button) {
 
 void SpaceshipApp::_StartGame() {
   // setup my plane
-  _SyncMyPlane(DISPLAY_WIDTH);
+  _my_plane[2] = {0};
+  _my_position = 0;
+  _SyncMyPlane(PLANE_LOWER_BOUND);
   // setup enemy
+  _enemy_position[DISPLAY_WIDTH] = {0};
   _GenerateEnemy();
-  _has_enemy = true;
-  // setup bullets
-  _num_bullets = 0;
   // setup score
   _score = 0;
+  // setup bullets
+  _bullets[DISPLAY_WIDTH] = {0};
+  // setup display
+  _frame_buf[DISPLAY_WIDTH] = {0};
   // setup state
   _state = RUN;
   scheduler.EnablePeriodic(&_routine_task);
@@ -105,47 +105,35 @@ void SpaceshipApp::Routine(void* unused) {
 
   // render current status
   _Render();
-
   // move on
   // ## 1. move all bullets to right
   _MoveBulletsToRight();
   // ## 2. generate enemy or move enemy to left
-  if (_has_enemy) {
-    _enemy_position -= 1;
-  } else {
-    _GenerateEnemy();
-    _has_enemy = true;
-  }
+  _MoveEnemyToLeft();
+  if (!_has_enemy) _GenerateEnemy();
 }
 
 void SpaceshipApp::_SyncMyPlane(uint8_t new_position) {
   if (new_position != _my_position) {
     _my_position = new_position;
-    _my_plane[0] = _my_position;
-    _my_plane[1] = _my_position + 1;
-    _my_plane[2] = _my_position - DISPLAY_WIDTH;
-    _my_plane[3] = _my_position + DISPLAY_WIDTH;
+    _my_plane[0] = _my_position | _my_position << 1 | _my_position >> 1;
+    _my_plane[1] = _my_position;
   }
 }
 
 void SpaceshipApp::_Render() {
-  uint8_t frame_buf[DISPLAY_HEIGHT * DISPLAY_WIDTH] = {0};
-  // ## 1. render plane
-  for (uint8_t i = 0; i < 4; i++) {
-    frame_buf[_my_plane[i]] = 1;
+  for (uint8_t i = 0; i < DISPLAY_WIDTH; i++) {
+    _frame_buf[i] = _enemy_position[i] | _bullets[i];
+    if (i < 2) {
+      _frame_buf[i] |= _my_plane[i];
+    }
   }
-  // ## 2. render enemy
-  frame_buf[_enemy_position] = 1;
-  // ## 3. render bullets
-  for (uint8_t i = 0; i < _num_bullets; i++) {
-    frame_buf[_bullets[i]] = 1;
-  }
-  display_set_mode_fixed(frame_buf);
+  display_set_mode_fixed_packed(_frame_buf);
 }
 
 void SpaceshipApp::_CheckCollision() {
-  for (uint8_t i = 0; i < 4; i++) {
-    if (_my_plane[i] == _enemy_position) {
+  for (uint8_t i = 0; i < 2; i++) {
+    if ((_my_plane[i] & _enemy_position[i]) > 0) {
       _state = GAME_OVER;  // game over!
       break;
     }
@@ -153,35 +141,39 @@ void SpaceshipApp::_CheckCollision() {
 }
 
 void SpaceshipApp::_UpdateScoreBullets() {
-  uint8_t left_bullets = 0;
-  for (uint8_t i = 0; i < _num_bullets; i++) {
-    if (_bullets[i] == _enemy_position) {
+  for (uint8_t i = 0; i < DISPLAY_WIDTH; i++) {
+    if ((_bullets[i] & _enemy_position[i]) > 0) {
       _score += 1;
+      _bullets[i] &= ~_enemy_position[i];  // remove bullet
+      _enemy_position[i] = 0;              // remove enemy
       _has_enemy = false;
-      // this bullet is used.
-    } else {
-      _bullets[left_bullets] = _bullets[i];
-      left_bullets += 1;
+      break;
     }
   }
-  _num_bullets = left_bullets;  // update _num_bullets
 }
 
 void SpaceshipApp::_MoveBulletsToRight() {
-  uint8_t left_bullets = 0;
-  for (uint8_t i = 0; i < _num_bullets; i++) {
-    _bullets[i] += 1;
-    if (_bullets[i] % DISPLAY_WIDTH > 0) {  // check bullet within region
-      _bullets[left_bullets] = _bullets[i];
-      left_bullets += 1;
-    }
+  for (uint8_t i = DISPLAY_WIDTH - 1; i >= 2; i--) {
+    _bullets[i] = _bullets[i - 1];
   }
-  _num_bullets = left_bullets;  // update _num_bullets
 }
 
 void SpaceshipApp::_GenerateEnemy() {
   uint8_t row = g_fast_random_pool.GetRandom() % (DISPLAY_HEIGHT - 2);
-  _enemy_position = (row + 2) * DISPLAY_WIDTH - 1;
+  _enemy_position[DISPLAY_WIDTH - 1] = 1 << (row + 1);
+  _has_enemy = true;
+}
+
+void SpaceshipApp::_MoveEnemyToLeft() {
+  if (!_has_enemy) return;
+  _has_enemy = false;
+  for (uint8_t i = 0; i < (DISPLAY_WIDTH - 1); i++) {
+    _enemy_position[i] = _enemy_position[i + 1];
+    _enemy_position[i + 1] = 0;
+    if (_enemy_position[i] > 0) {
+      _has_enemy = true;
+    }
+  }
 }
 
 }  // namespace spaceship
