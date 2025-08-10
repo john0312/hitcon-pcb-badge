@@ -44,7 +44,7 @@ class BadgeLinkController:
             raise ValueError(f"Non-official badge!")
 
         existing_badge_link = await mongo[BadgeLinkController.DB_NAME][BadgeLinkController.COLLECTION_NAME].find_one({"badge_user": badge_user})
-        if existing_badge_link:
+        if existing_badge_link and not existing_badge_link["uid"] == uid:
             raise ValueError(f"Badge {badge_user} is already linked to another user!")
 
         old_badge_user = await BadgeLinkController.translate_uid_to_user(uid)
