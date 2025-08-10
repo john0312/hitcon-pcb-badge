@@ -1,0 +1,60 @@
+export async function onRequest(context) {
+    const method = context.request.method;
+
+    if (method !== "GET" && method !== "POST") {
+        return new Response(
+            {"detail": "Method Not Allowed"},
+            {
+                status: 405,
+                headers: {
+                    "Allow": "GET, POST",
+                    "Content-Type": "application/json"
+                }
+            }
+        );
+    }
+
+    if (!context.request.headers.has("Authorization")) {
+        return new Response(
+            {"detail": "Unauthorized"},
+            {
+                status: 401,
+                headers: {
+                    "WWW-Authenticate": "Bearer",
+                    "Content-Type": "application/json"
+                }
+            }
+        );
+    }
+
+    if (
+        method === "POST" &&
+        (!context.request.headers.has("Content-Type") || context.request.headers.get("Content-Type") !== "application/json")
+    ) {
+        return new Response(
+            {"detail": "Bad Request"},
+            {
+                status: 400,
+                headers: {
+                    "Content-Type": "application/json"
+                }
+            }
+        );
+    }
+
+    const backendUrl = `${context.env.BACKEND}/hitcon/link`;
+    const headers = new Headers(context.request.headers);
+    headers.set("Authorization", context.request.headers.get("Authorization"));
+    headers.set("Content-Type", "application/json");
+
+    const requestOptions = {
+        method: method,
+        headers: headers
+    };
+
+    if (method === "POST") {
+        requestOptions.body = JSON.stringify(await context.request.json());
+    }
+
+    return await fetch(backendUrl, requestOptions);
+}
