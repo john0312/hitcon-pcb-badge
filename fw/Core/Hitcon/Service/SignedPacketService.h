@@ -17,7 +17,10 @@ enum PacketStatus : uint8_t {
   kFree,
   kWaitSignStart,
   kWaitSignDone,
-  kWaitTransmit
+  kWaitTransmit,
+  kWaitVerStart,
+  kWaitVerDone,
+  kWaitReceive
 };
 
 struct SignedPacket {
@@ -40,18 +43,27 @@ class SignedPacketService {
    */
   bool SignAndSendData(packet_type packetType, const uint8_t *data,
                        size_t size);
+  bool VerifyAndReceivePacket(hitcon::ir::IrPacket *irpacket);
 
   SignedPacketService();
   void Init();
 
  private:
   hitcon::service::sched::PeriodicTask sigRoutineTask;
+  hitcon::service::sched::PeriodicTask verRoutineTask;
   size_t signingPacketId;
+  size_t verifyingPacketId;
   signed_packet::SignedPacket
       sig_packet_queue_[signed_packet::PACKET_QUEUE_SIZE];
+  signed_packet::SignedPacket
+      ver_packet_queue_[signed_packet::PACKET_QUEUE_SIZE];
 
+  void VerRoutineFunc();
   void SigRoutineFunc();
+  void OnPacketVerFinish(void *isValid);
+  void ReceivePacket(signed_packet::SignedPacket &packet);
   void OnPacketSignFinish(hitcon::ecc::Signature *signature);
+  bool FindPacketOfState(signed_packet::SignedPacket *queue, signed_packet::PacketStatus status, size_t &packetId);
 };
 
 extern SignedPacketService g_signed_packet_service;
