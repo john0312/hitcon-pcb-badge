@@ -1,4 +1,4 @@
-from schemas import utcnow, PacketType, ProximityEvent, PubAnnounceEvent, TwoBadgeActivityEvent, GameActivityEvent, ScoreAnnounceEvent, SingleBadgeActivityEvent, SponsorActivityEvent, IrPacket, ReCTFSolves
+from schemas import utcnow, PacketType, IrPacket, ReCTFSolves, ProximityEvent, PubAnnounceEvent, TwoBadgeActivityEvent, GameActivityEvent, ScoreAnnounceEvent, SingleBadgeActivityEvent, SponsorActivityEvent, ShowMsgEvent, RequestScoreEvent, SavePetEvent, RestorePetEvent
 from config import Config
 from database import mongo, db, redis_client
 from game_logic import _GameLogic as GameLogic, GameType, Constants
@@ -310,6 +310,26 @@ class GameLogicController:
 
     @staticmethod
     async def on_score_announce_event(evt: ScoreAnnounceEvent, packet_processor: 'PacketProcessor'):
+        pass
+
+
+    @staticmethod
+    async def on_show_msg_event(evt: ShowMsgEvent, packet_processor: 'PacketProcessor'):
+        pass
+
+
+    @staticmethod
+    async def on_request_score_event(evt: RequestScoreEvent, packet_processor: 'PacketProcessor'):
+        pass
+
+
+    @staticmethod
+    async def on_save_pet_event(evt: SavePetEvent, packet_processor: 'PacketProcessor'):
+        pass
+
+
+    @staticmethod
+    async def on_restore_pet_event(evt: RestorePetEvent, packet_processor: 'PacketProcessor'):
         pass
 
 

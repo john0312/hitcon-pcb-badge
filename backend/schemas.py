@@ -36,6 +36,8 @@ PyBinary = Annotated[bytes, BeforeValidator(bytes)]
 
 PACKET_HASH_LEN = 6
 IR_USERNAME_LEN = 4
+TAMA_DATA_LEN = 6
+MESSAGE_LEN = 24
 
 class PacketType(Enum):
     kGame = 0  # disabled
@@ -49,6 +51,10 @@ class PacketType(Enum):
     kScoreAnnounce = 7
     kSingleBadgeActivity = 8
     kSponsorActivity = 9
+    kShowMsg = 10
+    kRequestScore = 11
+    kSavePet = 12
+    kRestorePet = 13
 
 
 class IrPacket(BaseModel):
@@ -156,6 +162,27 @@ class SponsorActivityEvent(Event):
     signature: bytes
 
 
+class ShowMsgEvent(Event):
+    user: int
+    msg: bytes
+
+
+class RequestScoreEvent(Event):
+    user: int
+
+
+class SavePetEvent(Event):
+    user: int
+    pet_data: bytes
+    signature: bytes
+
+
+class RestorePetEvent(Event):
+    user: int
+    pet_data: bytes
+    signature: bytes
+
+
 # For Mongo collections `stations`
 class Station(BaseModel):
     id: Optional[PyObjectId] = Field(alias="_id", default=None)
@@ -176,6 +203,7 @@ class User(BaseModel):
     id: Optional[PyObjectId] = Field(alias="_id", default=None)
     user: int
     pubkey: int
+    pet_data: bytes
 
 
 # Elliptic Curve Crytography related.

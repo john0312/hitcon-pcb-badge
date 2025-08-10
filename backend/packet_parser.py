@@ -1,7 +1,7 @@
 from typing import Optional, Union
 from io import BytesIO
-from schemas import Event, ProximityEvent, PubAnnounceEvent, TwoBadgeActivityEvent, GameActivityEvent, ScoreAnnounceEvent, SingleBadgeActivityEvent, SponsorActivityEvent
-from schemas import PacketType, IrPacket, IrPacketRequestSchema, IR_USERNAME_LEN
+from schemas import Event, ProximityEvent, PubAnnounceEvent, TwoBadgeActivityEvent, GameActivityEvent, ScoreAnnounceEvent, SingleBadgeActivityEvent, SponsorActivityEvent, ShowMsgEvent, RequestScoreEvent, SavePetEvent, RestorePetEvent
+from schemas import PacketType, IrPacket, IrPacketRequestSchema, IR_USERNAME_LEN, TAMA_DATA_LEN, MESSAGE_LEN
 from ecc_utils import ECC_SIGNATURE_SIZE, ECC_PUBKEY_SIZE
 
 
@@ -62,6 +62,31 @@ class PacketParser:
                 nonce = b2i(buf.read(1))
                 signature = buf.read(ECC_SIGNATURE_SIZE)
                 return SponsorActivityEvent(packet_id=packet_id, station_id=station_id, user=user, sponsor_id=sponsor_id, nonce=nonce, signature=signature)
+
+            case PacketType.kShowMsg:
+                # Show message packet
+                user = b2i(buf.read(IR_USERNAME_LEN))
+                message = buf.read(MESSAGE_LEN)
+                return ShowMsgEvent(packet_id=packet_id, station_id=station_id, user=user, message=message)
+
+            case PacketType.kRequestScore:
+                # Request score packet
+                user = b2i(buf.read(IR_USERNAME_LEN))
+                return RequestScoreEvent(packet_id=packet_id, station_id=station_id, user=user)
+
+            case PacketType.kSavePet:
+                # Save pet packet
+                user = b2i(buf.read(IR_USERNAME_LEN))
+                pet_data = buf.read(TAMA_DATA_LEN)
+                signature = buf.read(ECC_SIGNATURE_SIZE)
+                return SavePetEvent(packet_id=packet_id, station_id=station_id, user=user, pet_data=pet_data, signature=signature)
+
+            case PacketType.kRestorePet:
+                # Restore pet packet
+                user = b2i(buf.read(IR_USERNAME_LEN))
+                pet_data = buf.read(TAMA_DATA_LEN)
+                signature = buf.read(ECC_SIGNATURE_SIZE)
+                return RestorePetEvent(packet_id=packet_id, station_id=station_id, user=user, pet_data=pet_data, signature=signature)
 
             case _:
                 # Unknown packet type
