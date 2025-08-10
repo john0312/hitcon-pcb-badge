@@ -9,6 +9,7 @@ enum class GameScoreType {
   GAME_TETRIS = 0,
   GAME_SNAKE,
   GAME_DINO,
+  GAME_SPACESHIP,
   GAME_UNUSED_MAX
 };
 
