@@ -319,7 +319,7 @@ class GameLogicController:
 
     @staticmethod
     async def on_request_score_event(evt: RequestScoreEvent, packet_processor: 'PacketProcessor'):
-        pass
+        await GameLogicController.score_announce(evt.user, packet_processor)
 
 
     @staticmethod
