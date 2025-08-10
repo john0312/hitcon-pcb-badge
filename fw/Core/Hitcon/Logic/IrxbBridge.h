@@ -21,8 +21,10 @@ class IrxbBridge {
   void RoutineTask();
   bool RoutineInternal();
   void OnPacketReceived(void* arg);
+  void OnSavePetSignFinish(hitcon::ecc::Signature* signature);
 
   hitcon::service::sched::DelayedTask routine_task_;
+  hitcon::ir::IrData save_pet_data_;
   int state_;
 
   int tx_cnt_;

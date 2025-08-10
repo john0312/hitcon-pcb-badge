@@ -18,7 +18,9 @@ constexpr int kIrxbShowCyclesStart = 60;
 constexpr int kIrxbShowCyclesExtra = 50;
 constexpr unsigned kStateBase = 32;
 constexpr unsigned kStateTxEnd = kStateBase + 16 * ir::RETX_QUEUE_SIZE;
-constexpr unsigned kStateMenu = 2;
+constexpr unsigned kStateMenu = 4;
+constexpr unsigned kStateWaitSignDone = 3;
+constexpr unsigned kStateWaitSignStart = 2;
 constexpr unsigned kStateInit = 1;
 }  // namespace
 
@@ -46,6 +48,16 @@ void IrxbBridge::OnXBoardBasestnConnect() {
 
 void IrxbBridge::OnXBoardBasestnDisconnect() { state_ = 0; }
 
+void IrxbBridge::OnSavePetSignFinish(hitcon::ecc::Signature *signature) {
+  signature->toBuffer(save_pet_data_.opaq.save_pet.sig);
+  disp_txt_[2] = '-';
+  hitcon::ir::irController.SendPacketWithRetransmit(
+      reinterpret_cast<uint8_t *>(&save_pet_data_),
+      hitcon::ir::IR_DATA_HEADER_SIZE + sizeof(hitcon::ir::SavePetPacket), 1,
+      hitcon::ir::AckTag::ACK_TAG_NONE);
+  state_ = kStateBase;
+}
+
 void IrxbBridge::RoutineTask() {
   bool ret = RoutineInternal();
   if (!ret) return;
@@ -56,18 +68,31 @@ void IrxbBridge::RoutineTask() {
 bool IrxbBridge::RoutineInternal() {
   if (state_ == 0) return false;
 
-  if (state_ == kStateMenu) return true;
+  if (state_ == kStateMenu || state_ == kStateWaitSignDone) return true;
 
   bool show_text = false;
   bool set_txrx_text = false;
   if (state_ == kStateInit) {
     // Start of the loop
-    state_ = kStateBase;
+    state_ = kStateWaitSignStart;
     disp_txt_[0] = '-';
-    disp_txt_[1] = '-';
-    disp_txt_[2] = '-';
+    disp_txt_[1] = '.';
+    disp_txt_[2] = '.';
     disp_txt_[3] = 0;
+    save_pet_data_.ttl = 0;
+    save_pet_data_.type = packet_type::kSavePet;
+    g_game_controller.SetBufferToUsername(save_pet_data_.opaq.save_pet.user);
+    tama_app.SaveToBuffer(save_pet_data_.opaq.save_pet.pet_data);
     show_text = true;
+  } else if (state_ == kStateWaitSignStart) {
+    bool ret = hitcon::ecc::g_ec_logic.StartSign(
+        reinterpret_cast<uint8_t *>(&save_pet_data_),
+        sizeof(save_pet_data_) - sizeof(ECC_SIGNATURE_SIZE),
+        (callback_t)&IrxbBridge::OnSavePetSignFinish, this);
+    if (ret) {
+      disp_txt_[1] = '-';
+      state_ = kStateWaitSignDone;
+    }
   } else if (state_ >= kStateBase &&
              state_ < kStateBase + 16 * ir::RETX_QUEUE_SIZE) {
     int slot = (state_ - kStateBase) / 16;
@@ -133,9 +158,9 @@ bool IrxbBridge::RoutineInternal() {
   return true;
 }
 
-void IrxbBridge::OnPacketReceived(void* arg) {
-  service::xboard::PacketCallbackArg* packet_arg =
-      reinterpret_cast<service::xboard::PacketCallbackArg*>(arg);
+void IrxbBridge::OnPacketReceived(void *arg) {
+  service::xboard::PacketCallbackArg *packet_arg =
+      reinterpret_cast<service::xboard::PacketCallbackArg *>(arg);
 
   rx_cnt_++;
   show_cycles_ = std::max(show_cycles_, kIrxbShowCyclesExtra);
