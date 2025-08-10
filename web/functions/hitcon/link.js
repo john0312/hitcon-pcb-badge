@@ -1,10 +1,22 @@
 const allowedOrigins = [
-    "http://localhost",
+    /^http:\/\/localhost(:\d{1,5})?$/m,
     "https://hitcon.org"
 ];
 
 function isAllowedOrigin(origin) {
-    return allowedOrigins.includes(origin);
+    for (const allowedOrigin of allowedOrigins) {
+        if (typeof allowedOrigin === "string") {
+            if (origin === allowedOrigin) {
+                return true;
+            }
+        } else if (allowedOrigin instanceof RegExp) {
+            if (allowedOrigin.test(origin)) {
+                return true;
+            }
+        }
+    }
+
+    return false;
 }
 
 function getAccessControlAllowOriginHeader(origin) {
@@ -110,6 +122,7 @@ export async function onRequest(context) {
     const res = new Response(backendResponse.body, backendResponse);
     if (origin && isAllowedOrigin(origin)) {
         res.headers.set("Access-Control-Allow-Origin", origin.toLowerCase());
+        res.headers.set("Vary", "Origin");
     }
 
     return res;
