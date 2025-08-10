@@ -1,8 +1,9 @@
-from schemas import utcnow, PacketType, IrPacket, ReCTFSolves, ProximityEvent, PubAnnounceEvent, TwoBadgeActivityEvent, GameActivityEvent, ScoreAnnounceEvent, SingleBadgeActivityEvent, SponsorActivityEvent, ShowMsgEvent, RequestScoreEvent, SavePetEvent, RestorePetEvent
+from schemas import utcnow, PacketType, IrPacket, MESSAGE_LEN, ReCTFSolves, Event, ProximityEvent, PubAnnounceEvent, TwoBadgeActivityEvent, GameActivityEvent, ScoreAnnounceEvent, SingleBadgeActivityEvent, SponsorActivityEvent, ShowMsgEvent, RequestScoreEvent, SavePetEvent, RestorePetEvent
 from config import Config
 from database import mongo, db, redis_client
 from game_logic import _GameLogic as GameLogic, GameType, Constants
 from crypto_auth import CryptoAuth
+from bson import Binary
 
 # Simply for type notation
 import typing
@@ -323,7 +324,10 @@ class GameLogicController:
 
     @staticmethod
     async def on_save_pet_event(evt: SavePetEvent, packet_processor: 'PacketProcessor'):
-        pass
+        await db["users"].update_one(
+            {"user": evt.user},
+            {"$set": {"pet_data": Binary(evt.pet_data)}}
+        )
 
 
     @staticmethod
