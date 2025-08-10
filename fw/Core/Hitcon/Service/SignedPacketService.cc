@@ -14,12 +14,12 @@ SignedPacket::SignedPacket() : status(kFree) {}
 using namespace hitcon::signed_packet;
 
 SignedPacketService::SignedPacketService()
-    : routineTask(950, (callback_t)&SignedPacketService::RoutineFunc, this,
-                  500) {}
+    : sigRoutineTask(950, (callback_t)&SignedPacketService::SigRoutineFunc,
+                     this, 500) {}
 
 void SignedPacketService::Init() {
-  hitcon::service::sched::scheduler.Queue(&routineTask, nullptr);
-  hitcon::service::sched::scheduler.EnablePeriodic(&routineTask);
+  hitcon::service::sched::scheduler.Queue(&sigRoutineTask, nullptr);
+  hitcon::service::sched::scheduler.EnablePeriodic(&sigRoutineTask);
 }
 
 static bool getPacketSigInfo(packet_type packetType, size_t &sigOffset,
@@ -83,11 +83,11 @@ bool SignedPacketService::SignAndSendData(packet_type packetType,
   // TODO: include ttl and packet type
   size_t packetId;
   for (packetId = 0; packetId < PACKET_QUEUE_SIZE; ++packetId) {
-    if (packet_queue_[packetId].status == PacketStatus::kFree) break;
+    if (sig_packet_queue_[packetId].status == PacketStatus::kFree) break;
   }
   if (packetId == PACKET_QUEUE_SIZE) return false;
 
-  SignedPacket &packet = packet_queue_[packetId];
+  SignedPacket &packet = sig_packet_queue_[packetId];
   size_t sigOffset, sizeReq;
   if (!getPacketSigInfo(packetType, sigOffset, sizeReq)) return false;
   if (size != sizeReq) return false;
@@ -101,15 +101,15 @@ bool SignedPacketService::SignAndSendData(packet_type packetType,
 
 void SignedPacketService::OnPacketSignFinish(
     hitcon::ecc::Signature *signature) {
-  SignedPacket &packet = packet_queue_[signingPacketId];
+  SignedPacket &packet = sig_packet_queue_[signingPacketId];
   signature->toBuffer(packet.sig);
   packet.status = PacketStatus::kWaitTransmit;
 }
 
-void SignedPacketService::RoutineFunc() {
+void SignedPacketService::SigRoutineFunc() {
   for (size_t packetId = 0; packetId < PACKET_QUEUE_SIZE; ++packetId) {
-    if (packet_queue_[packetId].status != kWaitSignStart) continue;
-    SignedPacket &packet = packet_queue_[packetId];
+    if (sig_packet_queue_[packetId].status != kWaitSignStart) continue;
+    SignedPacket &packet = sig_packet_queue_[packetId];
     bool ret = hitcon::ecc::g_ec_logic.StartSign(
         packet.data, packet.dataSize,
         (callback_t)&SignedPacketService::OnPacketSignFinish, this);
@@ -118,8 +118,8 @@ void SignedPacketService::RoutineFunc() {
   }
   // Scan the packet queue and transmit them if possible
   for (size_t packetId = 0; packetId < PACKET_QUEUE_SIZE; ++packetId) {
-    if (packet_queue_[packetId].status != kWaitTransmit) continue;
-    SignedPacket &packet = packet_queue_[packetId];
+    if (sig_packet_queue_[packetId].status != kWaitTransmit) continue;
+    SignedPacket &packet = sig_packet_queue_[packetId];
     hitcon::ir::IrData irdata = {.ttl = 0, .type = packet.type};
     memcpy(&irdata.opaq, packet.data, packet.dataSize);
     memcpy(reinterpret_cast<uint8_t *>(&irdata.opaq) + packet.signatureOffset,

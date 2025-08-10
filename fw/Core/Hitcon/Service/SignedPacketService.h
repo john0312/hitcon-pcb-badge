@@ -45,11 +45,12 @@ class SignedPacketService {
   void Init();
 
  private:
-  hitcon::service::sched::PeriodicTask routineTask;
+  hitcon::service::sched::PeriodicTask sigRoutineTask;
   size_t signingPacketId;
-  signed_packet::SignedPacket packet_queue_[signed_packet::PACKET_QUEUE_SIZE];
+  signed_packet::SignedPacket
+      sig_packet_queue_[signed_packet::PACKET_QUEUE_SIZE];
 
-  void RoutineFunc();
+  void SigRoutineFunc();
   void OnPacketSignFinish(hitcon::ecc::Signature *signature);
 };
 
