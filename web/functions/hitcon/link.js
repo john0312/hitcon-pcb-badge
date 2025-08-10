@@ -8,7 +8,7 @@ function isAllowedOrigin(origin) {
 }
 
 function getAccessControlAllowOriginHeader(origin) {
-    origin = origin.toLowerCase();
+    origin = origin?.toLowerCase();
     if (isAllowedOrigin(origin)) {
         return {"Access-Control-Allow-Origin": origin, "Vary": "Origin"};
     }
@@ -16,7 +16,7 @@ function getAccessControlAllowOriginHeader(origin) {
 }
 
 function getCORSHeaders(origin) {
-    origin = origin.toLowerCase();
+    origin = origin?.toLowerCase();
 
     const headers = new Headers();
     headers.set("Access-Control-Allow-Origin", origin);
