@@ -45,11 +45,15 @@ void ImuLogic::Reset() {
   _state = RoutineState::INIT;
   _init_state = InitState::CHECK_ID;
   _start_time = SysTimer::GetTime();
+#ifdef DEBUG
   _reset_cnt_without_success++;
-  if (_reset_cnt_without_success >= 8) {
-    display_set_mode_text("ST");
-    if (_reset_cnt_without_success >= 11) my_assert(false);
+  if (kEnableAssertionSTForUnresponsiveI2C) {
+    if (_reset_cnt_without_success >= 8) {
+      display_set_mode_text("ST");
+      if (_reset_cnt_without_success >= 11) my_assert(false);
+    }
   }
+#endif
 }
 
 void ImuLogic::GyroSelfTest(callback_t cb, void* cb_arg1) {
@@ -363,7 +367,9 @@ void ImuLogic::OnRxDone(void* arg1) {
   }
 
   if (_state == RoutineState::WAIT_STEP) {
+#ifdef DEBUG
     _reset_cnt_without_success = 0;
+#endif
     uint16_t val = _buf[0] | (_buf[1] << 8);
     uint16_t increment = 0;
     if (val < _last_step_reg) {  // handle STEP_COUNTER (16bit) overflow

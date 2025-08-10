@@ -28,6 +28,11 @@ constexpr uint32_t PROXIMITY_INTERVAL = 3 * 60 * 1000;  // 3 minutes
 // step count within PROXIMITY_INTERVAL will be divided by this factor then call
 // GameController SendProximity
 constexpr uint8_t SCALE_FACTOR = 4;
+
+#ifdef DEBUG
+constexpr bool kEnableAssertionSTForUnresponsiveI2C = false;
+#endif
+
 }  // namespace
 
 class ImuLogic {
@@ -103,7 +108,9 @@ class ImuLogic {
   uint32_t _start_time;
   uint32_t _step;
   bool _is_shaking;
+#ifdef DEBUG
   uint16_t _reset_cnt_without_success = 0;
+#endif
 
   void OnRxDone(void *arg1);
   void OnTxDone(void *arg1);
