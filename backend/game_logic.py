@@ -8,7 +8,7 @@ from enum import Enum
 from redis.asyncio import Redis
 import random
 import itertools
-import pickle
+import pickle  # we just want to use it for fast caching (not for security)
 
 try:
     from enum import StrEnum
