@@ -102,13 +102,10 @@ void EntropyHub::Routine(void* unused) {
       }
       break;
     case kTaskInitialRounds:
-      switch (ti % 2) {
-        case 0:
-          ret = TrySeedSched();
-          break;
-        case 1:
-          ret = FeedFast();
-          break;
+      if (ti % 2 == 0) {
+        ret = TrySeedSched();
+      } else {
+        ret = FeedFast();
       }
       if (ret) {
         ti++;

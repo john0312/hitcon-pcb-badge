@@ -107,7 +107,7 @@ void TetrisGame::fall_down_tetromino() {
 }
 
 bool TetrisGame::generate_new_tetromino() {
-  int new_tetromino;
+  int new_tetromino = current_tetromino;
   do {
     if (__rand == nullptr) {
       new_tetromino ^= 1;
