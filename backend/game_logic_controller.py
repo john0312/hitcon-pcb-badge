@@ -395,8 +395,8 @@ class GameLogicController:
                 # apply the buff with received ReCTF score
                 await game.update_player_buff(
                     player_id=user,
-                    buff_a=solves.a,
-                    buff_b=solves.b,
+                    buff_a_count=solves.a,
+                    buff_b_count=solves.b,
                     timestamp=utcnow()
                 )
             else:
@@ -406,8 +406,8 @@ class GameLogicController:
                     solves = ReCTFSolves(**result["solves"])
                     await game.update_player_buff(
                         player_id=user,
-                        buff_a=solves.a,
-                        buff_b=solves.b,
+                        buff_a_count=solves.a,
+                        buff_b_count=solves.b,
                         timestamp=result["timestamp"]
                     )
                     await db["unapplied_rectf_scores"].delete_one({"uid": uid})
