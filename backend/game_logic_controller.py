@@ -2,9 +2,7 @@ from schemas import utcnow, PacketType, IrPacket, ReCTFSolves, ProximityEvent, P
 from config import Config
 from database import mongo, db, redis_client
 from game_logic import _GameLogic as GameLogic, GameType, Constants
-from ecc_utils import ECC_SIGNATURE_SIZE
 from crypto_auth import CryptoAuth
-from badge_link_controller import BadgeLinkController
 
 # Simply for type notation
 import typing
