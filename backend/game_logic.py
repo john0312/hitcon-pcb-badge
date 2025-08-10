@@ -8,6 +8,7 @@ from enum import Enum
 from redis.asyncio import Redis
 import random
 import itertools
+import pickle
 
 try:
     from enum import StrEnum
@@ -267,7 +268,7 @@ class _GameLogic:
 
         return total_score
 
-    async def receive_game_score_single_player(self, player_id: int, station_id: int, score: int, game_type: GameType, timestamp: datetime, log_only: bool = False, sponsor_id: int = None):
+    async def _get_mongo_query_game_score_single_player(self, player_id: int, station_id: int, score: int, game_type: GameType, timestamp: datetime, log_only: bool = False, sponsor_id: int = None):
         match game_type:
             case GameType.SHAKE_BADGE:
                 # TODO: validate the score and timestamp
@@ -306,7 +307,7 @@ class _GameLogic:
                 if len(sponsors) == len(const.SPONSOR_BADGE_ID_LIST) - 1:
                     await self.attack_station(player_id, station_id, const.SPONSOR_ALL_COLLECTED_BONUS, timestamp)
 
-        await self.score_history.insert_one({
+        return {
             "player_id": player_id,
             "station_id": station_id,
             "sponsor_id": sponsor_id,
@@ -314,9 +315,15 @@ class _GameLogic:
             "game_type": game_type,
             "timestamp": timestamp,
             "log_only": log_only,
-        })
+        }
 
-    async def receive_game_score_two_player(self, two_player_event_id: uuid.UUID, player1_id: int, player2_id: int, station_id: int, score1: int, score2: int, game_type: GameType, timestamp: datetime, log_only: bool = False):
+    async def receive_game_score_single_player(self, player_id: int, station_id: int, score: int, game_type: GameType, timestamp: datetime, log_only: bool = False, sponsor_id: int = None):
+        query = await self._get_mongo_query_game_score_single_player(player_id, station_id, score, game_type, timestamp, log_only, sponsor_id)
+        if query is None:
+            return
+        await self.score_history.insert_one(query)
+
+    async def _get_mongo_query_game_score_two_player(self, two_player_event_id: uuid.UUID, player1_id: int, player2_id: int, station_id: int, score1: int, score2: int, game_type: GameType, timestamp: datetime, log_only: bool = False):
         match game_type:
             case GameType.SNAKE:
                 # winner has double score
@@ -336,7 +343,7 @@ class _GameLogic:
                 # TODO: validate the score and timestamp
                 log_only = True
 
-        await self.score_history.insert_many([
+        return (
             {
                 "player_id": player1_id,
                 "station_id": station_id,
@@ -355,7 +362,13 @@ class _GameLogic:
                 "two_player_event_id": two_player_event_id,
                 "log_only": log_only,
             },
-        ])
+        )
+
+    async def receive_game_score_two_player(self, two_player_event_id: uuid.UUID, player1_id: int, player2_id: int, station_id: int, score1: int, score2: int, game_type: GameType, timestamp: datetime, log_only: bool = False):
+        queries = await self._get_mongo_query_game_score_two_player(two_player_event_id, player1_id, player2_id, station_id, score1, score2, game_type, timestamp, log_only)
+        if queries is None:
+            return
+        await self.score_history.insert_many(queries)
 
     async def get_game_history(self, *, player_id: int = None, station_id: int = None, game_type: GameType = None, num_of_player: GameNumOfPlayerType = None, start: datetime = None, before: datetime = None, log_only: bool = None):
         # TODO: support "log_only" field to filter out log-only events
@@ -467,8 +480,11 @@ class _GameLogic:
         # check cache, if granularity is set
         # if granularity is not set, the cache will be meaningless, since it is practically impossible to hit the cache with two same "before" timestamps
         if self.redis_client is not None and const.GAME_SCORE_GRANULARITY is not None:
-            # TODO: cache
-            pass
+            tmp = await self.redis_client.get(f"player_scoreboard:{before.isoformat()}")
+            if tmp is not None:
+                return pickle.loads(tmp)
+
+        # TODO: maybe lock to make sure only one process is updating the cache at a time
 
         cursor = await self.score_history.aggregate([
             {
@@ -529,8 +545,7 @@ class _GameLogic:
 
         # If granularity is set, cache the score
         if self.redis_client is not None and const.GAME_SCORE_GRANULARITY is not None:
-            # TODO: cache
-            pass
+            await self.redis_client.set(f"player_scoreboard:{before.isoformat()}", pickle.dumps(result))
 
         return result
 
@@ -658,11 +673,15 @@ async def test_attack_station_score_history(with_redis = False, cache_min_interv
         elif total_score < 0:
             total_score = min(0, total_score + const.STATION_SCORE_DECAY_AMOUNT)
 
+        # repeat the query to test the cache
+        assert total_score == await gl.get_station_score(station_id=station_id, before=time_base + timedelta(seconds=i + eps))
         assert total_score == await gl.get_station_score(station_id=station_id, before=time_base + timedelta(seconds=i + eps))
 
         # add the score
         total_score = clamp(total_score + scores[i], const.STATION_SCORE_LB, const.STATION_SCORE_UB)
 
+        # repeat the query to test the cache
+        assert total_score == await gl.get_station_score(station_id=station_id, before=time_base + timedelta(seconds=i + 0.5 + eps))
         assert total_score == await gl.get_station_score(station_id=station_id, before=time_base + timedelta(seconds=i + 0.5 + eps))
 
     for i in range(len(scores), len(scores) + 10):
@@ -672,6 +691,8 @@ async def test_attack_station_score_history(with_redis = False, cache_min_interv
         elif total_score < 0:
             total_score = min(0, total_score + const.STATION_SCORE_DECAY_AMOUNT)
 
+        # repeat the query to test the cache
+        assert total_score == await gl.get_station_score(station_id=station_id, before=time_base + timedelta(seconds=i + eps))
         assert total_score == await gl.get_station_score(station_id=station_id, before=time_base + timedelta(seconds=i + eps))
 
     # test, random order query
@@ -700,6 +721,8 @@ async def test_attack_station_score_history(with_redis = False, cache_min_interv
         # test if the cache works in random order
         await redis_client.flushall()
     for timestamp, expected_score in ground_truth:
+        # repeat the query to test the cache
+        assert expected_score == await gl.get_station_score(station_id=station_id, before=timestamp)
         assert expected_score == await gl.get_station_score(station_id=station_id, before=timestamp)
 
 
@@ -738,12 +761,16 @@ async def test_attack_station_score_buff(buff_a_count, buff_b_count, with_redis 
         elif total_score < 0:
             total_score = min(0, total_score + const.STATION_SCORE_DECAY_AMOUNT)
 
+        # repeat the query to test the cache
+        assert total_score == await gl.get_station_score(station_id=station_id, before=time_base + timedelta(seconds=i + eps))
         assert total_score == await gl.get_station_score(station_id=station_id, before=time_base + timedelta(seconds=i + eps))
 
         # add the score
         modifier = 1 + const.BUFF_A_MODIFIER * buff_a_count + const.BUFF_B_MODIFIER * buff_b_count
         total_score = clamp(total_score + int(scores[i] * modifier), const.STATION_SCORE_LB, const.STATION_SCORE_UB)
 
+        # repeat the query to test the cache
+        assert total_score == await gl.get_station_score(station_id=station_id, before=time_base + timedelta(seconds=i + 0.5 + eps))
         assert total_score == await gl.get_station_score(station_id=station_id, before=time_base + timedelta(seconds=i + 0.5 + eps))
 
 
@@ -782,26 +809,30 @@ async def test_game_score_history_single_player(with_redis = False, game_score_g
 
     # Test
     for game_type, scores in table.items():
-        assert 0 == await gl.get_game_score(player_id=player_id, station_id=station_id, game_type=game_type, before=time_base + timedelta(seconds=0 + eps))
-        assert scores[0] == await gl.get_game_score(player_id=player_id, station_id=station_id, game_type=game_type, before=time_base + timedelta(seconds=1 + eps))
-        assert scores[0] + scores[1] == await gl.get_game_score(player_id=player_id, station_id=station_id, game_type=game_type, before=time_base + timedelta(seconds=2 + eps))
-        assert scores[0] + scores[1] == await gl.get_game_score(player_id=player_id, station_id=station_id, game_type=game_type, before=time_base + timedelta(seconds=3 + eps))
+        # repeat the query to test the cache
+        for _ in range(2):
+            assert 0 == await gl.get_game_score(player_id=player_id, station_id=station_id, game_type=game_type, before=time_base + timedelta(seconds=0 + eps))
+            assert scores[0] == await gl.get_game_score(player_id=player_id, station_id=station_id, game_type=game_type, before=time_base + timedelta(seconds=1 + eps))
+            assert scores[0] + scores[1] == await gl.get_game_score(player_id=player_id, station_id=station_id, game_type=game_type, before=time_base + timedelta(seconds=2 + eps))
+            assert scores[0] + scores[1] == await gl.get_game_score(player_id=player_id, station_id=station_id, game_type=game_type, before=time_base + timedelta(seconds=3 + eps))
 
-        assert 0 == await gl.get_game_score(player_id=player_id, station_id=station_id, game_type=game_type, num_of_player=GameNumOfPlayerType.SINGLE, before=time_base + timedelta(seconds=0 + eps))
-        assert scores[0] == await gl.get_game_score(player_id=player_id, station_id=station_id, game_type=game_type, num_of_player=GameNumOfPlayerType.SINGLE, before=time_base + timedelta(seconds=1 + eps))
-        assert scores[0] + scores[1] == await gl.get_game_score(player_id=player_id, station_id=station_id, game_type=game_type, num_of_player=GameNumOfPlayerType.SINGLE, before=time_base + timedelta(seconds=2 + eps))
-        assert scores[0] + scores[1] == await gl.get_game_score(player_id=player_id, station_id=station_id, game_type=game_type, num_of_player=GameNumOfPlayerType.SINGLE, before=time_base + timedelta(seconds=3 + eps))
+            assert 0 == await gl.get_game_score(player_id=player_id, station_id=station_id, game_type=game_type, num_of_player=GameNumOfPlayerType.SINGLE, before=time_base + timedelta(seconds=0 + eps))
+            assert scores[0] == await gl.get_game_score(player_id=player_id, station_id=station_id, game_type=game_type, num_of_player=GameNumOfPlayerType.SINGLE, before=time_base + timedelta(seconds=1 + eps))
+            assert scores[0] + scores[1] == await gl.get_game_score(player_id=player_id, station_id=station_id, game_type=game_type, num_of_player=GameNumOfPlayerType.SINGLE, before=time_base + timedelta(seconds=2 + eps))
+            assert scores[0] + scores[1] == await gl.get_game_score(player_id=player_id, station_id=station_id, game_type=game_type, num_of_player=GameNumOfPlayerType.SINGLE, before=time_base + timedelta(seconds=3 + eps))
 
-    assert await gl.get_game_score(player_id=player_id, before=time_base + timedelta(seconds=0 + eps)) == 0
-    assert await gl.get_game_score(player_id=player_id, before=time_base + timedelta(seconds=1 + eps)) == sum([
-        scores[0] for _, scores in table.items()
-    ])
-    assert await gl.get_game_score(player_id=player_id, before=time_base + timedelta(seconds=2 + eps)) == sum([
-        scores[0] + scores[1] for _, scores in table.items()
-    ])
-    assert await gl.get_game_score(player_id=player_id, before=time_base + timedelta(seconds=3 + eps)) == sum([
-        scores[0] + scores[1] for _, scores in table.items()
-    ])
+    # repeat the query to test the cache
+    for _ in range(2):
+        assert await gl.get_game_score(player_id=player_id, before=time_base + timedelta(seconds=0 + eps)) == 0
+        assert await gl.get_game_score(player_id=player_id, before=time_base + timedelta(seconds=1 + eps)) == sum([
+            scores[0] for _, scores in table.items()
+        ])
+        assert await gl.get_game_score(player_id=player_id, before=time_base + timedelta(seconds=2 + eps)) == sum([
+            scores[0] + scores[1] for _, scores in table.items()
+        ])
+        assert await gl.get_game_score(player_id=player_id, before=time_base + timedelta(seconds=3 + eps)) == sum([
+            scores[0] + scores[1] for _, scores in table.items()
+        ])
 
 
 @test_func
@@ -838,15 +869,17 @@ async def test_game_score_history_two_player(with_redis = False, game_score_gran
     # Test
     # Note that winner's score is doubled in SNAKE and TETRIS
     for game_type, scores in table.items():
-        assert 0 == await gl.get_game_score(player_id=player1_id, station_id=station_id, game_type=game_type, num_of_player=GameNumOfPlayerType.TWO, before=time_base + timedelta(seconds=0 + eps))
-        assert scores[0][0] == await gl.get_game_score(player_id=player1_id, station_id=station_id, game_type=game_type, num_of_player=GameNumOfPlayerType.TWO, before=time_base + timedelta(seconds=1 + eps))
-        assert scores[0][0] + 2*scores[1][0] == await gl.get_game_score(player_id=player1_id, station_id=station_id, game_type=game_type, num_of_player=GameNumOfPlayerType.TWO, before=time_base + timedelta(seconds=2 + eps))
-        assert scores[0][0] + 2*scores[1][0] == await gl.get_game_score(player_id=player1_id, station_id=station_id, game_type=game_type, num_of_player=GameNumOfPlayerType.TWO, before=time_base + timedelta(seconds=3 + eps))
+        # repeat the query to test the cache
+        for _ in range(2):
+            assert 0 == await gl.get_game_score(player_id=player1_id, station_id=station_id, game_type=game_type, num_of_player=GameNumOfPlayerType.TWO, before=time_base + timedelta(seconds=0 + eps))
+            assert scores[0][0] == await gl.get_game_score(player_id=player1_id, station_id=station_id, game_type=game_type, num_of_player=GameNumOfPlayerType.TWO, before=time_base + timedelta(seconds=1 + eps))
+            assert scores[0][0] + 2*scores[1][0] == await gl.get_game_score(player_id=player1_id, station_id=station_id, game_type=game_type, num_of_player=GameNumOfPlayerType.TWO, before=time_base + timedelta(seconds=2 + eps))
+            assert scores[0][0] + 2*scores[1][0] == await gl.get_game_score(player_id=player1_id, station_id=station_id, game_type=game_type, num_of_player=GameNumOfPlayerType.TWO, before=time_base + timedelta(seconds=3 + eps))
 
-        assert 0 == await gl.get_game_score(player_id=player2_id, station_id=station_id, game_type=game_type, num_of_player=GameNumOfPlayerType.TWO, before=time_base + timedelta(seconds=0 + eps))
-        assert 2*scores[0][1] == await gl.get_game_score(player_id=player2_id, station_id=station_id, game_type=game_type, num_of_player=GameNumOfPlayerType.TWO, before=time_base + timedelta(seconds=1 + eps))
-        assert 2*scores[0][1] + scores[1][1] == await gl.get_game_score(player_id=player2_id, station_id=station_id, game_type=game_type, num_of_player=GameNumOfPlayerType.TWO, before=time_base + timedelta(seconds=2 + eps))
-        assert 2*scores[0][1] + scores[1][1] == await gl.get_game_score(player_id=player2_id, station_id=station_id, game_type=game_type, num_of_player=GameNumOfPlayerType.TWO, before=time_base + timedelta(seconds=3 + eps))
+            assert 0 == await gl.get_game_score(player_id=player2_id, station_id=station_id, game_type=game_type, num_of_player=GameNumOfPlayerType.TWO, before=time_base + timedelta(seconds=0 + eps))
+            assert 2*scores[0][1] == await gl.get_game_score(player_id=player2_id, station_id=station_id, game_type=game_type, num_of_player=GameNumOfPlayerType.TWO, before=time_base + timedelta(seconds=1 + eps))
+            assert 2*scores[0][1] + scores[1][1] == await gl.get_game_score(player_id=player2_id, station_id=station_id, game_type=game_type, num_of_player=GameNumOfPlayerType.TWO, before=time_base + timedelta(seconds=2 + eps))
+            assert 2*scores[0][1] + scores[1][1] == await gl.get_game_score(player_id=player2_id, station_id=station_id, game_type=game_type, num_of_player=GameNumOfPlayerType.TWO, before=time_base + timedelta(seconds=3 + eps))
 
 
 @test_func
@@ -901,6 +934,8 @@ async def test_sponsor_bonus(with_redis = False):
     # Score should be 0 when sponsor are not fully collected
     for i in range(len(const.SPONSOR_BADGE_ID_LIST) - 1):
         await gl.receive_game_score_single_player(player_id, station_id, const.SPONSOR_CONNECT_SCORE, GameType.CONNECT_SPONSOR, time_base + timedelta(seconds=2*i + 0.5), sponsor_id=const.SPONSOR_BADGE_ID_LIST[i])
+        # repeat the query to test the cache
+        assert 0 == await gl.get_station_score(station_id=station_id, before=time_base + timedelta(seconds=2*i + 0.5 + eps))
         assert 0 == await gl.get_station_score(station_id=station_id, before=time_base + timedelta(seconds=2*i + 0.5 + eps))
 
         # sponsor score should not duplicate
@@ -909,7 +944,9 @@ async def test_sponsor_bonus(with_redis = False):
         assert (i+1) * const.SPONSOR_CONNECT_SCORE == await gl.get_game_score(player_id=player_id, game_type=GameType.CONNECT_SPONSOR, before=time_base + timedelta(seconds=2*i + 1 + 0.5 + eps))
 
     # Buff should be applied when all sponsors are collected
+    # repeat the query to test the cache
     await gl.receive_game_score_single_player(player_id, station_id, const.SPONSOR_CONNECT_SCORE, GameType.CONNECT_SPONSOR, time_base + timedelta(seconds=len(const.SPONSOR_BADGE_ID_LIST) - 1), sponsor_id=const.SPONSOR_BADGE_ID_LIST[-1])
+    assert const.SPONSOR_ALL_COLLECTED_BONUS == await gl.get_station_score(station_id=station_id, before=time_base + timedelta(seconds=len(const.SPONSOR_BADGE_ID_LIST) - 1 + eps))
     assert const.SPONSOR_ALL_COLLECTED_BONUS == await gl.get_station_score(station_id=station_id, before=time_base + timedelta(seconds=len(const.SPONSOR_BADGE_ID_LIST) - 1 + eps))
 
     # Duplicate sponsor score should have no effect
@@ -919,14 +956,20 @@ async def test_sponsor_bonus(with_redis = False):
 
 
 @test_func
-async def test_scoreboard_api(game_score_granularity = None):
+async def test_scoreboard_api(with_redis = False, game_score_granularity = None):
     const.reset()
     const.STATION_SCORE_DECAY_INTERVAL = 1
     const.GAME_SCORE_GRANULARITY = game_score_granularity
     eps = 0.1
 
+    if with_redis:
+        redis_client = Redis(host='localhost', port=6379)
+        await redis_client.flushall()  # Clear all keys in Redis for testing
+    else:
+        redis_client = None
+
     time_base = datetime.now()
-    gl = _GameLogic(pymongo.AsyncMongoClient("mongodb://localhost:27017?uuidRepresentation=standard"), None, time_base)
+    gl = _GameLogic(pymongo.AsyncMongoClient("mongodb://localhost:27017?uuidRepresentation=standard"), redis_client, time_base)
     await gl.clear_database()
 
     operations = [
@@ -976,30 +1019,32 @@ async def test_scoreboard_api(game_score_granularity = None):
     scoreboard = await gl.get_player_scoreboard(before=time_base + timedelta(seconds=10 + eps))
     scoreboard.sort(key=lambda x: x["player_id"])  # Sort by player_id for consistency
 
-    assert scoreboard[0]["player_id"] == 1
-    assert scoreboard[0]["total_score"] == total_score_1
-    assert set(scoreboard[0]["connected_sponsors"]) == set(sponsors_1)
-    assert scoreboard[0]["scores"] == {
-        GameType.SHAKE_BADGE: 4,
-        GameType.DINO: 5,
-        GameType.SNAKE: 3,
-        GameType.TETRIS: 6*2,
-        GameType.TAMA: 0,
-        GameType.CONNECT_SPONSOR: const.SPONSOR_CONNECT_SCORE*3,
-        GameType.RECTF: 0,
-    }
-    assert scoreboard[1]["player_id"] == 2
-    assert scoreboard[1]["total_score"] == total_score_2
-    assert set(scoreboard[1]["connected_sponsors"]) == set(sponsors_2)
-    assert scoreboard[1]["scores"] == {
-        GameType.SHAKE_BADGE: 0,
-        GameType.DINO: 0,
-        GameType.SNAKE: 4*2,
-        GameType.TETRIS: 5,
-        GameType.TAMA: 0,
-        GameType.CONNECT_SPONSOR: 0,
-        GameType.RECTF: 0,
-    }
+    # run multiple times to ensure the scoreboard is consistent and also check if the cache works
+    for _ in range(2):
+        assert scoreboard[0]["player_id"] == 1
+        assert scoreboard[0]["total_score"] == total_score_1
+        assert set(scoreboard[0]["connected_sponsors"]) == set(sponsors_1)
+        assert scoreboard[0]["scores"] == {
+            GameType.SHAKE_BADGE: 4,
+            GameType.DINO: 5,
+            GameType.SNAKE: 3,
+            GameType.TETRIS: 6*2,
+            GameType.TAMA: 0,
+            GameType.CONNECT_SPONSOR: const.SPONSOR_CONNECT_SCORE*3,
+            GameType.RECTF: 0,
+        }
+        assert scoreboard[1]["player_id"] == 2
+        assert scoreboard[1]["total_score"] == total_score_2
+        assert set(scoreboard[1]["connected_sponsors"]) == set(sponsors_2)
+        assert scoreboard[1]["scores"] == {
+            GameType.SHAKE_BADGE: 0,
+            GameType.DINO: 0,
+            GameType.SNAKE: 4*2,
+            GameType.TETRIS: 5,
+            GameType.TAMA: 0,
+            GameType.CONNECT_SPONSOR: 0,
+            GameType.RECTF: 0,
+        }
 
 
 if __name__ == "__main__":
@@ -1031,8 +1076,10 @@ if __name__ == "__main__":
     asyncio.run(test_game_score_log_only())
     asyncio.run(test_sponsor_bonus())
     asyncio.run(test_sponsor_bonus(with_redis=True))
-    asyncio.run(test_scoreboard_api(game_score_granularity=0.1))
-    asyncio.run(test_scoreboard_api(game_score_granularity=0.3))
+    asyncio.run(test_scoreboard_api(with_redis=False, game_score_granularity=0.1))
+    asyncio.run(test_scoreboard_api(with_redis=False, game_score_granularity=0.3))
+    asyncio.run(test_scoreboard_api(with_redis=True, game_score_granularity=0.1))
+    asyncio.run(test_scoreboard_api(with_redis=True, game_score_granularity=0.3))
 
     import sys
     import inspect
