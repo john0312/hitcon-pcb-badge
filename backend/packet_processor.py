@@ -1,24 +1,20 @@
-from typing import Optional, AsyncIterator, Callable, Awaitable, Dict, ClassVar, Union
+from typing import Optional, AsyncIterator, Union
 from bson import Binary
 from crypto_auth import CryptoAuth, UnsignedPacketError
-from schemas import Event
 from schemas import IrPacket, IrPacketRequestSchema, IrPacketObject, Station, PacketType, PACKET_HASH_LEN
 from config import Config
 from hashlib import sha3_256
 from database import db, redis_client
-import inspect
 import uuid
 import typing
 
 if typing.TYPE_CHECKING:
     import redis.asyncio as redis
 
-from game_logic_controller import GameLogicController
+from game_logic_controller import GameLogicController, PACKET_HANDLERS
 from packet_parser import PacketParser
 
 class PacketProcessor:
-    packet_handlers: ClassVar[Dict[type[Event], Callable[[Event, 'PacketProcessor'], Awaitable[None]]]] = dict()
-
     def __init__(self, config: Config):
         self.config = config
         self.stations = db["stations"]
@@ -26,31 +22,6 @@ class PacketProcessor:
         self.users = db["users"]
         self.user_queue = db["user_queue"]
         self.redis = redis_client
-
-        for k, v in GameLogicController.__dict__.items():
-            if k.startswith("on_") and isinstance(v, staticmethod):
-                # Register the static method as an event handler
-                PacketProcessor.event_handler(v.__func__)
-
-
-    @staticmethod
-    def event_handler(func: Callable):
-        """
-        Register a handler for a specific packet type.
-        """
-        # Get the event type from the function's signature.
-        signature = inspect.signature(func)
-        if "evt" not in signature.parameters:
-            raise ValueError("Function must have a parameter named 'evt'.")
-        event_type = signature.parameters["evt"].annotation
-
-        if not issubclass(event_type, Event):
-            raise ValueError("Function must accept an Event type as the first parameter.")
-
-        # Register the function as a handler for the event type.
-        PacketProcessor.packet_handlers[event_type] = func
-
-        return func
 
 
     # ===== Interface to HTTP =====
@@ -103,7 +74,7 @@ class PacketProcessor:
                 await self.deque_user_packets(user, station)
 
             # handle the event
-            await PacketProcessor.packet_handlers[event.__class__](event, self)
+            await PACKET_HANDLERS.get(event.__class__, GameLogicController.on_unimplemented_event)(event, self)
         except UnsignedPacketError as e:
             print(f"Invalid packet received: {e}")
         except AssertionError as e:

@@ -1,9 +1,11 @@
+from typing import Callable, Awaitable, Dict
 from schemas import utcnow, PacketType, IrPacket, MESSAGE_LEN, ReCTFSolves, Event, ProximityEvent, PubAnnounceEvent, TwoBadgeActivityEvent, GameActivityEvent, ScoreAnnounceEvent, SingleBadgeActivityEvent, SponsorActivityEvent, ShowMsgEvent, RequestScoreEvent, SavePetEvent, RestorePetEvent
 from config import Config
 from database import mongo, db, redis_client
 from game_logic import _GameLogic as GameLogic, GameType, Constants
 from crypto_auth import CryptoAuth
 from bson import Binary
+import inspect
 
 # Simply for type notation
 import typing
@@ -336,6 +338,12 @@ class GameLogicController:
 
 
     @staticmethod
+    async def on_unimplemented_event(evt: Event, packet_processor: 'PacketProcessor'):
+        print(f"Unimplemented event handler: {evt.event_id}, packet_id: {evt.packet_id}, type: {type(evt)}")
+
+
+    # ===== APIs for APP =====
+    @staticmethod
     async def get_user_score(user: int):
         return await game.get_game_score(player_id=user)
 
@@ -467,3 +475,31 @@ class GameLogicController:
         )
         signed_pkt = CryptoAuth.sign_packet(pkt)
         await packet_processor.send_packet_to_user(signed_pkt, user)
+
+
+PACKET_HANDLERS: Dict[type[Event], Callable[[Event, 'PacketProcessor'], Awaitable[None]]] = dict()
+
+
+def register_event_handler(func: Callable):
+    """
+    Register a handler for a specific packet type.
+    """
+    # Get the event type from the function's signature.
+    signature = inspect.signature(func)
+    if "evt" not in signature.parameters:
+        raise ValueError("Function must have a parameter named 'evt'.")
+    event_type = signature.parameters["evt"].annotation
+
+    if not issubclass(event_type, Event):
+        raise ValueError("Function must accept an Event type as the first parameter.")
+
+    # Register the function as a handler for the event type.
+    PACKET_HANDLERS[event_type] = func
+
+    return func
+
+
+for k, v in GameLogicController.__dict__.items():
+    if k.startswith("on_") and isinstance(v, staticmethod):
+        # Register the static method as an event handler
+        register_event_handler(v.__func__)
