@@ -730,29 +730,6 @@ void TamaApp::XbUpdateFrameBuffer() {
       ConcateAnimtaions(2, me, enemy);
       break;
     }
-    case TAMA_XBOARD_STATE::XBOARD_BATTLE_RESULT: {
-      const tama_ani_t *me = nullptr, *enemy = nullptr;
-      if (_xb_qte_me_winning) {
-        me = _tama_data.type == TAMA_TYPE::DOG
-                 ? &TAMA_GET_ANIMATION_DATA(XB_PLAYER_DOG)
-                 : &TAMA_GET_ANIMATION_DATA(XB_PLAYER_CAT);
-      } else {
-        me = _tama_data.type == TAMA_TYPE::DOG
-                 ? &TAMA_GET_ANIMATION_DATA(XB_PLAYER_DOG_HURT)
-                 : &TAMA_GET_ANIMATION_DATA(XB_PLAYER_CAT_HURT);
-      }
-      if (_xb_qte_enemy_winning) {
-        enemy = _tama_data.type == TAMA_TYPE::DOG
-                    ? &TAMA_GET_ANIMATION_DATA(XB_ENEMY_DOG)
-                    : &TAMA_GET_ANIMATION_DATA(XB_ENEMY_CAT);
-      } else {
-        enemy = _tama_data.type == TAMA_TYPE::DOG
-                    ? &TAMA_GET_ANIMATION_DATA(XB_ENEMY_DOG_HURT)
-                    : &TAMA_GET_ANIMATION_DATA(XB_ENEMY_CAT_HURT);
-      }
-      ConcateAnimtaions(2, me, enemy);
-      break;
-    }
     case TAMA_XBOARD_STATE::XBOARD_BATTLE_END: {
       const tama_ani_t* me = _tama_data.type == TAMA_TYPE::DOG
                                  ? &TAMA_GET_ANIMATION_DATA(XB_PLAYER_DOG)
@@ -847,7 +824,7 @@ void TamaApp::XbRoutine(void* unused) {
     if (enemy_packet.state < TAMA_XBOARD_STATE::XBOARD_BATTLE_SENT_SCORE) {
       return;
     }
-    my_packet.state = TAMA_XBOARD_STATE::XBOARD_BATTLE_RESULT;
+    my_packet.state = TAMA_XBOARD_STATE::XBOARD_BATTLE_END;
     // We need to know enemy score to update our frames
     my_assert(enemy_packet.result.nonce);
     // Send result with TwoBadgeActivity
@@ -877,12 +854,6 @@ void TamaApp::XbRoutine(void* unused) {
       _tama_data.hp = _tama_data.hp ? _tama_data.hp - 1 : 0;
     needs_save = true;
     UpdateFrameBuffer();
-  }
-  if (my_packet.state == TAMA_XBOARD_STATE::XBOARD_BATTLE_RESULT) {
-    if (_frame_count >= 8) {
-      my_packet.state = TAMA_XBOARD_STATE::XBOARD_BATTLE_END;
-      UpdateFrameBuffer();
-    }
   }
   if (my_packet.state == TAMA_XBOARD_STATE::XBOARD_BATTLE_END) {
     if (_frame_count >= 8) {
