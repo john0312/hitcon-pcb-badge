@@ -118,7 +118,6 @@ class _GameLogic:
         self.score_history = self.db[const.SCORE_HISTORY_COLLECTION]
         self.player_buff = self.db[const.PLAYER_BUFF_COLLECTION]
         self.redis_client = redis_client
-        # TODO: test if create index is necessary for performance
 
         if start_time is None:
             start_time = datetime.now()
@@ -373,7 +372,6 @@ class _GameLogic:
         await self.score_history.insert_many(queries)
 
     async def get_game_history(self, *, player_id: int = None, station_id: int = None, game_type: GameType = None, num_of_player: GameNumOfPlayerType = None, start: datetime = None, before: datetime = None, log_only: bool = None):
-        # TODO: support "log_only" field to filter out log-only events
         if start is None:
             start = self.start_time
         if before is None:
