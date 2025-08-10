@@ -1,5 +1,6 @@
 from fastapi import FastAPI, APIRouter, Depends, Security, HTTPException
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+from operator import itemgetter
 from packet_processor import PacketProcessor
 from badge_link_controller import BadgeLinkController
 from game_logic_controller import GameLogicController
@@ -36,6 +37,11 @@ async def read_root():
 @app.get("/api/scores")
 async def get_scoreboard() -> list[ScoreEntry]:
     scoreboard = await GameLogicController.get_user_scoreboard()
+
+    for score_entry in scoreboard:
+        score_entry["name"] = " ".join(map(lambda x: f"{x:02x}", int.to_bytes(score_entry["player_id"], 4, 'little')))
+
+    scoreboard.sort(key=itemgetter("total_score"), reverse=True)
 
     return scoreboard
 
