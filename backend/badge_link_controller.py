@@ -45,7 +45,7 @@ class BadgeLinkController:
 
         existing_badge_link = await mongo[BadgeLinkController.DB_NAME][BadgeLinkController.COLLECTION_NAME].find_one({"badge_user": badge_user})
         if existing_badge_link and not existing_badge_link["uid"] == uid:
-            raise ValueError(f"Badge {badge_user} is already linked to another user!")
+            raise ValueError(f"Badge not registered, please boot your badge and interact with base stations.")
 
         old_badge_user = await BadgeLinkController.translate_uid_to_user(uid)
         if old_badge_user is not None and old_badge_user != badge_user:
@@ -56,7 +56,7 @@ class BadgeLinkController:
             return None, badge_user
 
         await mongo[BadgeLinkController.DB_NAME][BadgeLinkController.COLLECTION_NAME].insert_one({"uid": uid, "badge_user": badge_user, "name": name})
-        return old_badge_user, badge_user  # Return None for the previous badge user, and the new badge user ID
+        return old_badge_user, badge_user
 
 
     @staticmethod
