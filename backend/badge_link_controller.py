@@ -47,7 +47,7 @@ class BadgeLinkController:
         if existing_badge_link and not existing_badge_link["uid"] == uid:
             raise ValueError(f"Badge {badge_user} is already linked to another user!")
 
-        old_badge_user = existing_badge_link["badge_user"] if existing_badge_link else None
+        old_badge_user = await BadgeLinkController.translate_uid_to_user(uid)
         if old_badge_user is not None and old_badge_user != badge_user:
             await mongo[BadgeLinkController.DB_NAME][BadgeLinkController.COLLECTION_NAME].delete_one({"uid": uid, "badge_user": old_badge_user})
 
