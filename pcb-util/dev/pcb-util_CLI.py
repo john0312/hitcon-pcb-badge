@@ -8,7 +8,7 @@ Created on Fri Jul 12 14:16:46 2024
 
 import curses
 import threading
-import time
+from typing import List
 
 import fw_flash
 import config
@@ -83,7 +83,7 @@ def flashing_ui(stdscr: curses.window):
         raise e
 
     stlink_alive_sn_list = stlink_sn_list
-    st_obj_list = []
+    st_obj_list: List[fw_flash.STLINK] = []
     print(f"init with : {stlink_sn_list}")
     for init_sn in stlink_sn_list:
         st_obj_list.append(fw_flash.STLINK(init_sn))
@@ -115,13 +115,21 @@ def flashing_ui(stdscr: curses.window):
         
         # Show "Remove!" message if FNINSHED
         for index, st_obj in enumerate(st_obj_list):
-            if str(st_obj.current_state) == "ST_STATUS.FINISHED":
+            if st_obj.current_state == fw_flash.ST_STATUS.FINISHED:
                 stdscr.addstr(
                     config.CURSES_RESERVE_LINE + index,
                     0,
                     f"ST-00{index}({st_obj.SN}) : "
-                    + f" Upload Completed. Remove the device!"
-                    , curses.color_pair(2)
+                    + f" Upload Completed. Remove the device!",
+                    curses.color_pair(2)
+                )
+            elif st_obj.current_state == fw_flash.ST_STATUS.ERROR:
+                stdscr.addstr(
+                    config.CURSES_RESERVE_LINE + index,
+                    0,
+                    f"ST-00{index}({st_obj.SN}) : "
+                    + f" ERROR. PLEASE RECONNECT STLINK AND REFRESH",
+                    curses.color_pair(1)
                 )
 
         # input scan of list and quit

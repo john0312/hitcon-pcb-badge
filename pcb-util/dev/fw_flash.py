@@ -12,17 +12,19 @@ import ReplaceELF
 import config
 from utils import run_command
 import pcb_logger
+from typing import IO
+import ecc
 
 # Global
 flag_HTTPServerConnnectionError = False
 flag_FwElfNotFound = False
-PrivKey: bytes = b''
 
 # status enum class
 class ST_STATUS(Enum):
+    ERROR = -1
     NO_DEVICE = 0
+    ERASING = auto()
     UPLOADING = auto()
-    VERIFYING = auto()
     TRIGGER_EXEC = auto()
     FINISHED = auto()
 
@@ -37,10 +39,9 @@ class STLINK():
 
     #--- state relative ---
     def state_move_to_next(self) -> None:
-        state_val = self.current_state.value
-        # will stuck at FINISHED
-        shift = 0 if (state_val == ST_STATUS.FINISHED.value) else 1
-        self.current_state = ST_STATUS(state_val + shift)
+        terminal_states = ST_STATUS.FINISHED, ST_STATUS.ERROR
+        shift = 0 if self.current_state in terminal_states else 1
+        self.current_state = ST_STATUS(self.current_state.value + shift)
 
     def state_reset(self) -> None:
         self.current_state = ST_STATUS.NO_DEVICE
@@ -73,45 +74,31 @@ class STLINK():
             return is_connceted
         else:
             # input command error, e.g. xxx not recognized as an internal or external command
-            raise ValueError(err)
-            # TODO: re-initialize the ST-Link
+            self.current_state = ST_STATUS.ERROR
+            return False
 
-    def upload(self) -> None:
-        cmd = config.st_config.gen_upload_command(self.SN)
+    def erase(self) -> None:
+        cmd = config.st_config.gen_erase_command(self.SN)
 
-        # trigger exec
-        ## send cmd to the board
-        out, err = run_command(cmd)  # out : Start operation achieved successfully
+        out, err = run_command(cmd)
 
-        # stderr check
-        if not err:
-            ## parse the return val
-            if "Error" in out:
-                raise Exception("Error when uploading")
-            elif "File download complete" in out:
-                print("-- File download complete")
-            else :
-                raise Exception("Unknown situation when uploading")
-        else:
-            # input command error, e.g. xxx not recognized as an internal or external command
+        if 'Mass erase successfully achieved' not in out:
+            self.current_state = ST_STATUS.ERROR
             raise ValueError(err)
 
-    def upload_n_verify(self):
-        cmd = config.st_config.gen_upload_verify_command(self.SN)
+    def upload_n_verify(self, elf_file: IO[bytes]):
+        cmd = config.st_config.gen_upload_verify_command(self.SN, elf_file.name)
 
         # trigger upload
         ## send cmd to the board
         out, err = run_command(cmd)
 
-        # stderr check
-        if not err:
-            ## parse the return val
-
-            # before calling verify, change UPLOADING to VERIFYING
-            self.state_move_to_next()
+        if err or 'error' in out.lower():
+            self.current_state = ST_STATUS.ERROR
+            raise ValueError(out, err)
         else:
-            # input command error, e.g. xxx not recognized as an internal or external command
-            raise ValueError(err)
+            ## parse the return val
+            self.state_move_to_next()
 
     def trigger_exec(self):
         cmd = config.st_config.gen_trigger_exec_command(self.SN)
@@ -119,18 +106,14 @@ class STLINK():
         ## send cmd to the board
         out, err = run_command(cmd)  # out : Start operation achieved successfully
 
-        # stderr check
-        if not err:
-            ## parse the return val
-            if "Error" in out:
-                raise Exception("Error when trigger_exec")
-            ### success msg -- "Start operation achieved successfully"
+        if err or 'error' in out.lower():
+            self.current_state = ST_STATUS.ERROR
+            raise ValueError(out, err)
         else:
-            # input command error, e.g. xxx not recognized as an internal or external command
-            raise ValueError(err)
+            ## parse the return val
+            self.state_move_to_next()
 
-
-    def do_next(self, is_need_verify=False) -> None:
+    def do_next(self) -> None:
         """
         Will trigger
         1. board check
@@ -150,52 +133,46 @@ class STLINK():
         if not is_connceted:
             self.state_reset()
         else:
+            if self.current_state == ST_STATUS.ERROR:
+                pass
             if self.current_state == ST_STATUS.NO_DEVICE:
                 pass
+            elif self.current_state == ST_STATUS.ERASING:
+                self.erase()
+
             elif self.current_state == ST_STATUS.UPLOADING:
+
+                while True:
+                    try:
+                        PrivKey = ecc.gen_key(config.TEAM == 'RED')
+                        PubKeyCert = pcb_logger.post_board_data(PrivKey)
+                        break
+                    except pcb_logger.PrivKeyExistsException:
+                        pass
 
                 # Modify fw.elf with the private key
                 try:
-                    PrivKey = ReplaceELF.modify_fw_elf()
                     flag_FwElfNotFound = False
-
-                    # Record Private key
-                    if len(PrivKey) == 7 :
-                        print(f"PrivKey = {PrivKey}")
-                    else:
-                        raise ValueError("Invalid PrivKey Array Length")
+                    with ReplaceELF.modify_fw_elf(PrivKey, PubKeyCert) as elf_file:
+                        self.upload_n_verify(elf_file)
 
                 except FileNotFoundError as f:
                     flag_FwElfNotFound = True
-                    print("Cannot find fw.elf in this folder")
                     self.current_state = ST_STATUS.NO_DEVICE
+                    raise f
 
-                if is_need_verify:
-                    self.upload_n_verify()
-                else:
-                    self.upload()
-
-            elif self.current_state == ST_STATUS.VERIFYING:
-                if is_need_verify:
-                    print("-- verifying")
-                else:
-                    print("-- skip verify")
-
-            elif self.current_state == ST_STATUS.TRIGGER_EXEC:
-                # Post Private key to Cloud Server
-                print("FW download verified, log PerBoardData to Server")
-                print(f"PrivKey = {PrivKey}")
                 pcb_logger.post_commit_privkey(PrivKey)
 
+            elif self.current_state == ST_STATUS.TRIGGER_EXEC:
                 self.trigger_exec()
-
 
             elif self.current_state == ST_STATUS.FINISHED:
                 pass
+
             self.state_move_to_next()
 
 
-    def bg_daemon(self, stop_event) -> None:
+    def bg_daemon(self, stop_event: threading.Event) -> None:
         """
         The only function for thread creation.
 
@@ -209,6 +186,32 @@ class STLINK():
             # trigger every device do next, then repeat again and again
             print("\nSN : " + str(self.SN))
             print("State : " + str(self.current_state))
-            self.do_next(is_need_verify=True)
+            self.do_next()
             time.sleep(config.THREAD_SLEEP_INTERVAL)
         print("Thread stop -- SN : " + str(self.SN))
+
+def list_stlink() -> list:
+    import re
+    out, err = run_command(config.st_config.gen_stlink_list_command())
+
+    if not err:
+        # regex
+        pattern = r"ST-LINK SN\s+:\s+(\S+)"
+        matches = re.findall(pattern, out)
+
+        return matches
+    else:
+        # input command error, e.g. xxx not recognized as an internal or external command
+        raise ValueError(err)
+
+if __name__ == '__main__':
+    stlinks = list_stlink()
+    assert len(stlinks) == 1
+    stlink = STLINK(stlinks[0])
+    import threading
+    stop_event = threading.Event()
+    try:
+        stlink.bg_daemon(stop_event)
+    except Exception as e:
+        stop_event.set()
+        raise e

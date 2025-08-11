@@ -19,7 +19,6 @@ def decode_b64(data: bytes | str) -> bytes:
     return base64.b64decode(data)
 
 def post_data(url: str, data: dict):
-    print(f'posting {data}')
     response = requests.post(url, json.dumps(data))
 
     if response.status_code == 409:

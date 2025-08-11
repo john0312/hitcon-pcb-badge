@@ -1,7 +1,6 @@
 import os
 os.chdir(os.path.dirname(__file__))
 FW_ELF_PATH = 'fw.elf'
-MOD_ELF_PATH = 'fwMOD.elf'
 ST_PRO_PATH = r'C:\Program Files\STMicroelectronics\STM32Cube\STM32CubeProgrammer\bin\STM32_Programmer_CLI.exe'
 POST_URL = 'https://pcb-log.hitcon2025.online/'
 CLI_QUIT_SCAN_INTERVAL = 0.1
@@ -30,16 +29,20 @@ class ST_CONFIG:
         cmd = f'{self.gen_bin_path_command()} -l'
         return cmd
     
+    def gen_erase_command(self, SN: str) -> str:
+        cmd = f'{self.gen_connection_command(SN)} -e all'
+        return cmd
+    
     def gen_connection_command(self, SN: str) -> str:
         cmd = f'{self.gen_bin_path_command()} -c port={self.STLINK_PORT} SN={SN}'
         return cmd
 
-    def gen_upload_command(self, SN: str) -> str:
-        cmd = f'{self.gen_connection_command(SN)} -w "{self.FW_ELF_PATH}"'
+    def gen_upload_command(self, SN: str, filename: str) -> str:
+        cmd = f'{self.gen_connection_command(SN)} -w "{filename}"'
         return cmd
 
-    def gen_upload_verify_command(self, SN: str) -> str:
-        cmd = f'{self.gen_upload_command(SN)} -v'
+    def gen_upload_verify_command(self, SN: str, filename: str) -> str:
+        cmd = f'{self.gen_upload_command(SN, filename)} -v'
         return cmd
     
     def gen_trigger_exec_command(self, SN: str) -> str:
