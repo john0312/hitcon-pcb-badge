@@ -110,7 +110,7 @@ bool TetrisGame::generate_new_tetromino() {
   int new_tetromino = current_tetromino;
   do {
     if (__rand == nullptr) {
-      new_tetromino ^= 1;
+      new_tetromino = (current_tetromino + 1) % TETROMINO_COUNT;
     } else {
       new_tetromino = rand() % TETROMINO_COUNT;
     }
