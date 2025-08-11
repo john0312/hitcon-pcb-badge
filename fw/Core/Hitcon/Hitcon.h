@@ -22,6 +22,7 @@
 #endif
 
 // comment this if you want to disable dummy step generation
+// if enable, it will add one step every 5 seconds
 #define DUMMY_STEP
 
 void hitcon_run();

@@ -26,16 +26,12 @@ ImuLogic::ImuLogic()
 #pragma GCC diagnostic pop
 
 void ImuLogic::Init() {
-#ifndef DUMMY_STEP
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wpmf-conversions"
   g_imu_service.SetRxCallback((callback_t)&ImuLogic::OnRxDone, this);
   g_imu_service.SetTxCallback((callback_t)&ImuLogic::OnTxDone, this);
 #pragma GCC diagnostic pop
   _start_time = SysTimer::GetTime();
-#else
-  _state = RoutineState::DUMMY;
-#endif
   scheduler.Queue(&_routine_task, nullptr);
   scheduler.EnablePeriodic(&_routine_task);
   scheduler.Queue(&_proximity_task, nullptr);
@@ -72,10 +68,17 @@ void ImuLogic::AccSelfTest(callback_t cb, void* cb_arg1) {
 }
 
 void ImuLogic::Routine(void* arg1) {
-  if (_state == RoutineState::DUMMY) {
-    _step += SHAKING_THRESHOLD;
-    return;
+#ifdef DUMMY_STEP
+  // add one step every 5 seconds
+  static uint8_t dummy_count = 0;
+  if (dummy_count >= 5000 / ROUTINE_INTERVAL) {
+    dummy_count = 0;
+    Increment();
+  } else {
+    dummy_count++;
   }
+#endif
+
   static RoutineState last_state = RoutineState::INIT;
   static uint16_t count = 0;
   if (last_state != _state) {

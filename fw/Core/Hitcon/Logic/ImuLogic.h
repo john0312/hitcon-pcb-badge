@@ -47,6 +47,8 @@ class ImuLogic {
   // update every ROUTINE_INTERVAL
   bool IsShaking() { return _is_shaking; }
 
+  void Increment() { _step++; }
+
  private:
   // private enum definition, do not place in anonymous namespace
   enum class RoutineState {
@@ -57,7 +59,6 @@ class ImuLogic {
     IDLE,
     GET_STEP,
     WAIT_STEP,
-    DUMMY,  // generate fake step
   };
 
   enum class InitState {

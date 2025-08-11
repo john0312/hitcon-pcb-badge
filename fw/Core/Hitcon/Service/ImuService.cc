@@ -43,13 +43,9 @@ ImuService::ImuService()
 #pragma GCC diagnostic pop
 
 void ImuService::Init() {
-#ifdef DUMMY_STEP
-  state = State::DUMMY;
-#else
   state = State::INIT;
   scheduler.Queue(&_routine_task, nullptr);
   scheduler.EnablePeriodic(&_routine_task);
-#endif
 }
 
 void ImuService::ResetI2C() {
