@@ -2,7 +2,7 @@ from typing import Optional
 from schemas import IrPacket, Event, TwoBadgeActivityEvent, ScoreAnnounceEvent, SponsorActivityEvent, PubAnnounceEvent
 from schemas import EccPoint, EccPublicKey, EccPrivateKey, EccSignature
 from database import db
-from ecc_utils import ECC_SIGNATURE_SIZE, ecc_sign, ecc_derive_pub, ecc_verify, ecc_get_point_by_x
+from ecc_utils import ECC_PUBKEY_SIZE, ECC_SIGNATURE_SIZE, ecc_sign, ecc_derive_pub, ecc_verify, ecc_get_point_by_x
 from config import Config
 
 config = Config("config.yaml")
@@ -21,7 +21,18 @@ class CryptoAuth:
 
     # ===== Generic methods for any other layers =====
     @staticmethod
-    def parse_pubkey(pub_x: int) -> EccPublicKey:
+    def parse_pubkey_bytes(pubkey: bytes) -> EccPublicKey:
+        if len(pubkey) != ECC_PUBKEY_SIZE:
+            raise ValueError(f"Invalid public key length: {len(pubkey)}")
+
+        x = int.from_bytes(pubkey[:ECC_PUBKEY_SIZE - 1], 'little', signed=False)
+        sign = bool(pubkey[-1])
+
+        return EccPublicKey(point=ecc_get_point_by_x(x, sign))
+
+
+    @staticmethod
+    def decode_pubkey(pub_x: int) -> EccPublicKey:
         pub = abs(pub_x)
         sign = pub_x < 0
         return EccPublicKey(point=ecc_get_point_by_x(pub, sign))
@@ -43,7 +54,7 @@ class CryptoAuth:
         if u is None:
             return
 
-        return CryptoAuth.parse_pubkey(u["pubkey"])
+        return CryptoAuth.decode_pubkey(u["pubkey"])
 
 
     @staticmethod
@@ -53,7 +64,7 @@ class CryptoAuth:
         """
         sponsors = db["users"].find({"sponsor_id": sponsor_id})
 
-        return [CryptoAuth.parse_pubkey(s["pubkey"]) async for s in sponsors]
+        return [CryptoAuth.decode_pubkey(s["pubkey"]) async for s in sponsors]
 
 
     @staticmethod
@@ -121,11 +132,7 @@ class CryptoAuth:
             ):
                 raise UnsignedPacketError("Invalid signature for the public key")
 
-            x = int.from_bytes(event.pubkey[:ECC_SIGNATURE_SIZE - 1], 'little', signed=False)
-            sign = bool(event.pubkey[-1])
-
-            p = ecc_get_point_by_x(x, sign)
-            pub = EccPublicKey(point=EccPoint(x=p.x, y=p.y))
+            pub = CryptoAuth.parse_pubkey_bytes(event.pubkey)
 
             user = await CryptoAuth.derive_user_by_pubkey(pub)
             return user
@@ -180,7 +187,8 @@ class CryptoAuth:
         Create a user with the given public key.
         Returns the user ID.
         """
-        user = pubkey.point.x.to_bytes(7, 'little', signed=False)[3:6]
+        # Use last 4 bytes of x as user ID (shift 1 more byte for sign)
+        user = pubkey.point.x >> (8 * ECC_PUBKEY_SIZE - 1 - 4)
 
         x = CryptoAuth.encode_pubkey(pubkey)
 
