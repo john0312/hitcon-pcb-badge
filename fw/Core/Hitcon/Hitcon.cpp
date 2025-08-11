@@ -83,8 +83,8 @@ void hitcon_run() {
   g_display_logic.Init();
 #ifndef V1_1
   g_imu_service.Init();
-  g_imu_logic.Init();
 #endif
+  g_imu_logic.Init();
 #if BADGE_ROLE == BADGE_ROLE_ATTENDEE
   hitcon::sponsor::g_sponsor_req.Init();
 #elif BADGE_ROLE == BADGE_ROLE_SPONSOR

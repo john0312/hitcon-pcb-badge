@@ -26,6 +26,9 @@ ImuLogic::ImuLogic()
 #pragma GCC diagnostic pop
 
 void ImuLogic::Init() {
+#ifdef V1_1
+  _state = RoutineState::IDLE;
+#endif
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wpmf-conversions"
   g_imu_service.SetRxCallback((callback_t)&ImuLogic::OnRxDone, this);
@@ -68,7 +71,7 @@ void ImuLogic::AccSelfTest(callback_t cb, void* cb_arg1) {
 }
 
 void ImuLogic::Routine(void* arg1) {
-#ifdef DUMMY_STEP
+#if defined(DUMMY_STEP) || defined(V1_1)
   // add one step every 5 seconds
   static uint8_t dummy_count = 0;
   if (dummy_count >= 5000 / ROUTINE_INTERVAL) {
@@ -78,6 +81,7 @@ void ImuLogic::Routine(void* arg1) {
     dummy_count++;
   }
 #endif
+  if (_state == RoutineState::IDLE) return;
 
   static RoutineState last_state = RoutineState::INIT;
   static uint16_t count = 0;
@@ -368,7 +372,8 @@ void ImuLogic::OnRxDone(void* arg1) {
       increment = (val - _last_step_reg);
     }
     // increment must be reasonable
-    if (increment <= SHAKING_THRESHOLD * 2) _step += increment;
+    if (increment > SHAKING_THRESHOLD * 2) increment = SHAKING_THRESHOLD * 2;
+    _step += increment;
     _last_step_reg = val;
     _is_shaking = (increment >= SHAKING_THRESHOLD);
     _state = RoutineState::GET_STEP;
