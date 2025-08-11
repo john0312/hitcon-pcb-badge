@@ -110,7 +110,8 @@ export async function onRequest(context) {
 
     const requestOptions = {
         method: method,
-        headers: headers
+        headers: headers,
+        cache: "no-cache"
     };
 
     if (method === "POST") {
@@ -120,6 +121,7 @@ export async function onRequest(context) {
     const backendResponse = await fetch(backendUrl, requestOptions);
 
     const res = new Response(backendResponse.body, backendResponse);
+    res.headers.set("Cache-Control", "no-store");
     if (origin && isAllowedOrigin(origin)) {
         res.headers.set("Access-Control-Allow-Origin", origin.toLowerCase());
         res.headers.set("Vary", "Origin");
