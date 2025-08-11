@@ -68,7 +68,6 @@ typedef struct {
   uint8_t hp;
   uint8_t hunger;
   uint16_t qte_level;
-  uint16_t secret_level;
   uint16_t step_level;
   unsigned int sponsor_register;
 } tama_storage_t;

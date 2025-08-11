@@ -224,13 +224,7 @@ void TamaApp::OnButton(button_t button) {
           needs_update_fb = true;
           break;
         case TAMA_APP_STATE::LV_DETAIL:
-          if (_tama_data.secret_level < TAMA_MAX_SECRET_LEVEL) {
-            // Note: This testing feature may no longer work because of
-            // SecretLevelFromSponsor()
-            _tama_data.secret_level++;
-          } else {
-            _tama_data.secret_level = 0;
-          }
+          SponsorRegister(hitcon::g_fast_random_pool.GetRandom() % 16);
           needs_update_fb = true;
           needs_save = true;
           break;
@@ -407,8 +401,6 @@ void TamaApp::Routine(void* unused) {
         _state = TAMA_APP_STATE::IDLE;
         _tama_data.qte_level = 1;
         _tama_data.step_level = 0;
-        _tama_data.secret_level =
-            SecretLevelFromSponsor(_tama_data.sponsor_register);
         _tama_data.hp = 3;
         SetHunger(4);
         needs_save = true;
@@ -499,6 +491,7 @@ void TamaApp::UpdateFrameBuffer() {
     return;
   }
   _frame_count = 0;
+  int secret_level = 0;
   switch (_state) {
     case TAMA_APP_STATE::CHOOSE_TYPE:
       TAMA_PREPARE_FB(_fb, TAMA_GET_ANIMATION_DATA(PET_SELECTION).frame_count);
@@ -568,8 +561,8 @@ void TamaApp::UpdateFrameBuffer() {
       StackOnFrame(&TAMA_NUM_FONT[GetDisplayLevel() / 100], 5);
       StackOnFrame(&TAMA_NUM_FONT[(GetDisplayLevel() % 100) / 10], 9);
       StackOnFrame(&TAMA_NUM_FONT[GetDisplayLevel() % 10], 13);
-      for (int i = 0;
-           (i < _tama_data.secret_level && i < TAMA_MAX_SECRET_LEVEL); i++) {
+      secret_level = SecretLevelFromSponsor(_tama_data.sponsor_register);
+      for (int i = 0; (i < secret_level && i < TAMA_MAX_SECRET_LEVEL); i++) {
         const display_buf_t indicator = 1 << (i / (TAMA_MAX_SECRET_LEVEL / 2));
         const tama_display_component_t indicator_component = {
             .data = &indicator, .length = 1};
@@ -1006,7 +999,8 @@ uint16_t TamaApp::GetDisplayLevel() const {
 }
 
 uint16_t TamaApp::GetCombatLevel() const {
-  return _tama_data.step_level + _tama_data.qte_level + _tama_data.secret_level;
+  int secret_level = SecretLevelFromSponsor(_tama_data.sponsor_register);
+  return _tama_data.step_level + _tama_data.qte_level + secret_level;
 }
 
 void TamaApp::HatchingRoutine(void* unused) {
@@ -1080,7 +1074,6 @@ void TamaApp::SponsorRegister(uint8_t sponsor_id) {
     return;
   }
   _tama_data.sponsor_register |= mask;
-  _tama_data.secret_level = SecretLevelFromSponsor(_tama_data.sponsor_register);
   g_nv_storage.MarkDirty();
 }
 
@@ -1156,9 +1149,7 @@ bool TamaApp::BufferToTamaData(const uint8_t* buffer, tama_storage_t& data) {
   if (data.qte_level >= 500) return false;
   if (data.step_level >= 500) return false;
 
-  // Secret level is the number of bits in sponsor_register.
-
-  data.secret_level = SecretLevelFromSponsor(data.sponsor_register);
+  // Note: Secret level is the number of bits in sponsor_register.
 
   return true;
 }
@@ -1188,9 +1179,12 @@ bool TamaApp::RestoreFromBuffer(const uint8_t* buffer) {
 }
 
 bool TamaApp::ShouldRestore(const tama_storage_t& t) {
-  int total_level_theirs = t.qte_level + t.secret_level + t.step_level;
+  uint16_t their_secret_level = SecretLevelFromSponsor(t.sponsor_register);
+  int total_level_theirs = t.qte_level + their_secret_level + t.step_level;
+  uint16_t our_secret_level =
+      SecretLevelFromSponsor(_tama_data.sponsor_register);
   int total_level_ours =
-      _tama_data.qte_level + _tama_data.secret_level + _tama_data.step_level;
+      _tama_data.qte_level + our_secret_level + _tama_data.step_level;
   return total_level_theirs > total_level_ours;
 }
 
@@ -1199,7 +1193,9 @@ bool TamaApp::IsDataValid() {
   if (_tama_data.hunger > 4) return false;
   if (_tama_data.qte_level > 499) return false;
   if (_tama_data.step_level > 499) return false;
-  if (_tama_data.secret_level > TAMA_MAX_SECRET_LEVEL) return false;
+  if (SecretLevelFromSponsor(_tama_data.sponsor_register) >
+      TAMA_MAX_SECRET_LEVEL)
+    return false;
   if ((_tama_data.state != TAMA_APP_STATE::INTRO_TEXT) &&
       !(static_cast<uint16_t>(_tama_data.state) &
         static_cast<uint16_t>(TAMA_APP_STATE::SAVE_STATE)))
@@ -1208,8 +1204,9 @@ bool TamaApp::IsDataValid() {
 }
 
 bool TamaApp::TrySendSave(bool force) {
+  int secret_level = SecretLevelFromSponsor(_tama_data.sponsor_register);
   int current_level =
-      _tama_data.qte_level + _tama_data.secret_level + _tama_data.step_level;
+      _tama_data.qte_level + secret_level + _tama_data.step_level;
   if (current_level > _last_save_level || force) {
     // Should save.
     hitcon::ir::SavePetPacket save_pkt;
