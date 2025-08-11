@@ -6,7 +6,7 @@ execute `fw/merge.py` to merge STM32CubeIDE generated `main.c` with user code in
 
 ### Choose your hardware
 
-In STM32CubeIDE, go to **Project > Build Configurations > Set Active > V1.1 / V2.0 / V2.1** to switch between hardware versions.  
+In STM32CubeIDE, go to **Project > Build Configurations > Set Active > V1.1 / V2.0 / V2.1 / V2.2** to switch between hardware versions.  
 Then go to **Run > Run Configurations** choose the correct Run Configuration
 There are different firmware versions for each hardware revision.  
 To identify your hardware version, check the back of your badge.
