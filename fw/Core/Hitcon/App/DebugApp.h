@@ -19,6 +19,7 @@ class DebugAccelApp : public App {
   void OnEntry() override;
   void OnExit() override;
   void OnButton(button_t button) override;
+  void OnEdgeButton(button_t button) override;
 
  private:
   hitcon::service::sched::DelayedTask main_task_;

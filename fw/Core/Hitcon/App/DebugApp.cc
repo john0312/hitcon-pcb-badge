@@ -44,6 +44,12 @@ void DebugAccelApp::OnButton(button_t button) {
   }
 }
 
+void DebugAccelApp::OnEdgeButton(button_t button) {
+  if (button & BUTTON_KEYUP_BIT) {
+    g_imu_logic.Increment();
+  }
+}
+
 void DebugAccelApp::EnsureQueued() {
   if (!main_task_scheduled_ && running_) {
     main_task_.SetWakeTime(SysTimer::GetTime() + 800);
