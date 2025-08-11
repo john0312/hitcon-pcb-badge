@@ -95,9 +95,13 @@ from config import Config
 import asyncio
 import time
 from dataclasses import dataclass
-from typing import Optional, List
+from typing import Optional, Dict
 import logging
-logging.basicConfig(level=logging.DEBUG)
+from abc import abstractmethod
+
+FORMAT = '%(levelname)s %(module)s %(lineno)d:%(message)s'
+
+logging.basicConfig(level=logging.INFO, format=FORMAT)
 logger = logging.getLogger(__name__)
 
 # Information prefixes in PacketType.
@@ -355,122 +359,400 @@ class Packet:
                 size += len(self.get(f)) if self.get(f) != None else 0
         return size
 
+class BackgroundRunner:
+    raise_exception = True  # If True, will raise exception in run_forever() if any error occurs.
 
-class Badge:
-    # Badge status
-    class BS(enum.Enum):
-        EMPTY_RX = 0
-        EMPTY_TX = 1
-        FULL_RX = 2
-        FULL_TX = 3
+    def  __init__(self):
+        self.run_task: asyncio.Task = None
+        self.is_running = False
 
-    status_reject_packet_type_map = {
-        # status set -> packet_type set
-
-        frozenset({BS.EMPTY_RX}): {PT.RRQ},
-        frozenset({BS.FULL_TX}): {PT.QTQ},
-    }
-
-    status_transition_map = { 
-        # packet_type -> list[(condition(PF, value) list, pop status set, push status set), ..]
-        # match only once in order.
-
-        PT.PTQ: [([], {BS.FULL_TX}, set())],                                    # PushTxBufferRequest
-        PT.PRQ: [([], {BS.EMPTY_RX}, set())],                                   # PopRxBufferRequest
-        PT.QTR: [([(PF.IS_SUCCESS, PC.FAILURE.value)], set(), {BS.FULL_TX})],   # QueueTxBufferResponse
-        PT.RRR: [([(PF.SIZE, PC.EMPTY.value)], set(), {BS.EMPTY_RX})],          # RetrieveRxBufferResponse
-    }
-
-    status = set()
-
-    def check_packet_type_accept(self, packet_type: PT) -> bool:
-        for s in self.status_reject_packet_type_map.keys():
-            if s <= self.status and packet_type in self.status_reject_packet_type_map.get(s, set()):
-                return False
-
-        return True
-    
-    def update_status(self, packet: Packet) -> None:        
-        packet_type = packet.packet_type.get_PT()
-
-        for condition, pop_status, push_status in self.status_transition_map.get(packet_type, []):
-            if all(packet.get(f) == v for f, v in condition):
-                self.status -= pop_status
-                self.status |= push_status
-                return # match only once
-            
-class WriteDataIncompleteError(Exception):
-    def __init__(self, expect, result):
-        self.expect_len = expect
-        self.result_len = result
+    def run(self):
+        # Run the background task.
+        if self.run_task is not None:
+            raise RuntimeError(f"{self.__class__.__name__} is already running")
         
-    def __str__(self):
-        return f"Writing data incomplete: expect writing data size={self.expect_len}, but result data size={self.result_len}"
-    
-class PacketQue:
-    def __init__(self, maxsize: int = 1000, stay_timeout = 0.3):
-        self.que = list()
-        self.maxsize = maxsize
-        self.stay_timeout = stay_timeout
-        self.lock = asyncio.Lock()
+        self.is_running = True
+        self.run_task = asyncio.create_task(self.run_forever())
 
-    def print_que(self):
-        print("\n")
-        logger.debug("Packet_Que:")
-        for i, element in enumerate(self.que):
-            logger.debug(f"{i}: timestamp = {element[1]} packet = {element[0].__bytes__()}\n")
+    async def run_forever(self):
+        self.is_running = True
+        logger.info(f"{self.__class__.__name__} start")
+        while self.is_running:
+            try:
+                await self._run_forever()
+            except Exception as e:
+                logger.error(f"Error in {self.__class__.__name__}: {e}")
+                if self.raise_exception:
+                    raise
 
-    async def put(self, packet: bytes):
-        async with self.lock:
-            current_time = time.time()
+        logger.info(f"{self.__class__.__name__} is stopped")
 
-            while len(self.que) != 0:
-                if self.que[0][0] == packet:
-                    self.que.pop(0)
-                    self.print_que()
-                    return False
-                elif (current_time - self.que[0][1]) < self.stay_timeout:
-                    break
 
-                self.que.pop(0)  # Remove the oldest packet
+    # Override this method to implement the background task logic.
+    @abstractmethod
+    async def _run_forever(self):
+        pass
 
-            for i in range(1, len(self.que)):
-                if self.que[i][0] == packet:
-                    self.que.pop(i)
-                    self.print_que()
-                    return False
-                
-            if len(self.que) >= self.maxsize:
-                logger.debug(f"Packet queue is full, dropping oldest packet: {self.que[0][0]}")
-                self.que.pop(0)
+    async def stop(self):
+        # Stop the background task.
+        self._stop()
+        try:
+            if self.run_task is not None:
+                await self.run_task
+            self.run_task = None
+        except Exception as e:
+            logger.error(f"Error while stopping {self.__class__.__name__}: {e}")
 
-            self.que.append((packet, current_time))
-            self.print_que()
+    def _stop(self):
+        self.is_running = False
+
+# Handling serial reading.
+class Reader(BackgroundRunner):
+    def __init__(self, serial: serial.Serial, pkg_que: asyncio.Queue[Packet]):
+        super().__init__()
+        self.serial = serial
+        self.pkg_que = pkg_que
+
+    async def _run_forever(self):
+        packet = await self._read_packet()
+
+        if packet is None:
+            return self._stop()
+        elif packet is False:
+            return
+        
+        self.pkg_que.put_nowait(packet)
+
+    async def _read_packet(self) -> Packet | None | bool:
+        if not await self._read_until_preamble():
+            return None
+
+        data = await self._read(Packet.get_necessary_packet_size())
+        packet = Packet.parse_bytes_to_packet(data, Packet.necessary_fields, Packet.get_necessary_packet_size())
+        data = await self._read(int.from_bytes(packet.packet_size_raw))
+        packet_type = packet.packet_type.get_PT()
+        packet = Packet.parse_bytes_to_packet(data, Packet.optional_fields.get(packet_type, []), int.from_bytes(packet.packet_size_raw), packet=packet)
+            
+        if not packet.is_valid():
+            logger.warning("Received invalid packet, dropping it")
+            return False
+
+        logger.debug(f"Received packet: \ntype = {packet.packet_type.get_type_name()} \npayload = {packet.payload} \npacket = {packet.__bytes__()}")
+        return packet
+
+    async def _read_until_preamble(self) -> bool:
+        plen = len(PC.PREAMBLE.value)
+        
+        if plen <= 0:
             return True
         
+        byte = b''
+        while self.is_running:
+            byte += await self._read(plen - len(byte))
+            if byte == PC.PREAMBLE.value:
+                logger.debug("Successfully read preamble")
+                return True
 
-class IrInterface:
-    def __init__(self, config: Config):
+            while PC.PREAMBLE.value[0] in byte:
+                i = byte.find(PC.PREAMBLE.value[0])
+
+                if not byte[i:] in PC.PREAMBLE.value:
+                    byte = byte[i + 1:] 
+                else:
+                    byte = byte[i:]
+                    break
+            else:
+                byte = b''
+        return False
+
+    async def _read(self, size: int) -> bytes:
+        if size <= 0:
+            return b''
+        
+        data = await asyncio.to_thread(self.serial.read, size)
+
+        if len(data) != 0:
+            logger.debug(f"Successfully read data {data}")
+
+        return data
+
+# Handling serial writing.
+class Writer(BackgroundRunner):
+    def __init__(self, serial: serial.Serial, pkg_que: asyncio.Queue[Packet]):
+        super().__init__()
+        self.serial = serial
+        self.pkg_que: asyncio.Queue[Packet] = pkg_que
+
+    async def _run_forever(self):
+        packet: Packet = await self.pkg_que.get()
+
+        if packet is None:
+            return self._stop()
+
+        logger.debug(f"Sending packet: \ntype = {packet.packet_type.get_type_name()} \npayload = {packet.payload} \npacket = {packet.__bytes__()}")
+
+        written_bytes = PC.PREAMBLE.value + packet.__bytes__()
+        written_len = await asyncio.to_thread(self.serial.write, written_bytes)
+
+        while written_len != len(written_bytes):
+            logger.warning(f"Writing data incomplete: expect writing data size={len(written_bytes)}, but result data size={written_len}. Try to write again.")
+            written_len += await asyncio.to_thread(self.serial.write, written_bytes[written_len:])
+        else:
+            logger.debug(f"Successfully written data {written_bytes}")
+
+    async def stop(self):
+        self.pkg_que.put_nowait(None)
+        await super().stop()
+
+    
+class FilterPool:
+    def __init__(self, maxsize: int = 1000, stay_timeout = 0.3):
+        self.pool = list()
+        self.maxsize = maxsize
+        self.stay_timeout = stay_timeout
+
+    def print_pool(self):
+        logger.debug("Filter_Pool:")
+        for i, element in enumerate(self.pool):
+            logger.debug(f"{i}: timestamp = {element[1]} packet = {element[0].__bytes__()}\n")
+
+    def put(self, packet: bytes) -> bool:
+        try:
+            for i, (pkt, _) in enumerate(self.pool):
+                if pkt == packet:
+                    self.pool.pop(i)
+                    return False
+            self.pool.append((packet, time.time()))
+            return True
+        finally:
+            self._prune_pool()
+            self.print_pool()
+
+    def _prune_pool(self):
+        # Remove packets that have been in the pool for too long.
+        current_time = time.time()
+        self.pool = [(pkt, ts) for pkt, ts in self.pool if current_time - ts < self.stay_timeout]
+
+        # Limit the size of the pool.
+        if len(self.pool) > self.maxsize:
+            self.pool = self.pool[-self.maxsize:]
+
+
+# Filtering packets from Reader.
+class Filter(BackgroundRunner):
+    raise_exception = False
+
+    def __init__(self, in_que: asyncio.Queue[Packet], out_que: asyncio.Queue[Packet]):
+        super().__init__()
+        self.in_que: asyncio.Queue[Packet] = in_que
+        self.out_que: asyncio.Queue[Packet] = out_que
+        self.filter_pool = FilterPool()
+
+    async def _run_forever(self):
+        packet: Packet = await self.in_que.get()
+
+        if packet is None:
+            return self._stop()
+
+        if self.filter_pool.put(packet.__bytes__()):
+            self.out_que.put_nowait(packet)
+        else:
+            logger.info(f"Filtered out packet: {packet.__bytes__()}")
+
+    async def stop(self):
+        self.in_que.put_nowait(None)
+        await super().stop()
+
+
+# Create and keep serial.Serial Obj in the entire lifetime of Reader and Writer.
+class IOHandler(BackgroundRunner):
+    def __init__(self, config: Config,  read_pkg_que: asyncio.Queue, write_pkg_que: asyncio.Queue):
+        super().__init__()
+        self.config = config
+        self.serial: serial.Serial = None
         self.port = config.get(key="usb_port")
         self.baudrate = config.get(key="usb_baudrate")
         self.usb_timeout = config.get(key="usb_timeout", default=1)
-        self.wait_timeout = config.get(key="wait_timeout", default=3)
+        self.pkg_que_max = config.get(key="packet_que_max", default=1000)
+        self.read_pkg_que: asyncio.Queue[Packet] = read_pkg_que
+        self.write_pkg_que: asyncio.Queue[Packet] = write_pkg_que
+        self.reader: Reader = None
+        self.writer: Writer = None
+
+    async def _run_forever(self):
+        s: serial.Serial = await asyncio.wait_for(asyncio.to_thread(serial.Serial,
+            port=self.port,
+            baudrate=self.baudrate,
+            timeout=self.usb_timeout,
+            write_timeout=self.usb_timeout
+        ), timeout=self.usb_timeout)
+
+        with s as self.serial:
+            self.reader = Reader(self.serial, self.read_pkg_que)
+            self.writer = Writer(self.serial, self.write_pkg_que)
+            await asyncio.gather(
+                self.reader.run_forever(),
+                self.writer.run_forever()
+            )
+
+    async def stop(self):
+        if self.writer is not None:
+            await self.writer.stop()
+        if self.reader is not None:
+            await self.reader.stop()
+        self.writer = None
+        self.reader = None
+        await super().stop()
+
+class SeqObj:
+    def __init__(self):
+        self.event: asyncio.Event = asyncio.Event()
+        self.waiting_time = 0
+        self.waiting_task: asyncio.Task = None
+        self.waiting_result: Packet = None
+
+    def set_waiting_task(self):
+        if self.waiting_task is None:
+            self.waiting_task = asyncio.create_task(self._waiting_func())
+            self.waiting_time = time.time()
+
+    async def _waiting_func(self):
+        await self.event.wait()
+        return self.waiting_result
+
+# Keeping maintain of sequence numbers table.
+class SeqHandler(BackgroundRunner):
+    def __init__(self, timeout = 3, clear_interval = 1):
+        super().__init__()
+        self.seq_table: Dict[bytes, SeqObj] = dict()
+        self.seq_size = Packet.field_size.get(PF.SEQ, 1)
+        self.max_seq = 2 ** (8 * self.seq_size)
+        self.current_seq = 1 # reserve 0 as non response pkg seq
+        self.timeout = timeout  # Timeout for waiting sequence number
+        self.clear_interval = clear_interval  # Interval for clearing expired sequences
+
+    async def _run_forever(self): # Clear expired sequences
+        current_time = time.time()
+        for seq, seq_obj in list(self.seq_table.items()):
+            if seq_obj.waiting_task is not None and current_time - seq_obj.waiting_time >= self.timeout:
+                await self.reply(seq) # Timeout, reply None
+        await asyncio.sleep(self.clear_interval)
+
+    async def reply(self, seq: int | bytes, result: Optional[Packet] = None):
+        seq_obj = self.get_obj(seq)
+        if seq_obj is None:
+            return
+        seq_obj.waiting_result = result
+        seq_obj.event.set()
+        try:
+            await seq_obj.waiting_task
+        except Exception as e:
+            logger.error(f"Error in reply: {e}")
+        finally:
+            self.remove_seq(seq)
+
+    def get_idle_seq(self) -> tuple[bytes, SeqObj]:
+        seq: bytes = b''
+        for _ in range(self.max_seq - 1):
+            self.current_seq = (self.current_seq + 1) % self.max_seq
+            if self.current_seq == 0:
+                self.current_seq = 1
+
+            seq = self.convert_seq(self.current_seq)
+            if seq not in self.seq_table:
+                self.seq_table[seq] = SeqObj()
+                break
+        else:
+            raise RuntimeError("No available sequence numbers")
+        return seq, self.seq_table[seq]
+
+    def get_obj(self, seq: int | bytes) -> Optional[SeqObj]:
+        return self.seq_table.get(self.convert_seq(seq), None)
+
+    def convert_seq(self, seq: int | bytes) -> bytes:
+        if isinstance(seq, int):
+            return seq.to_bytes(self.seq_size, byteorder='big')
+        elif isinstance(seq, bytes):
+            return seq
+        raise TypeError("seq must be int or bytes")
+
+    def remove_seq(self, seq: int | bytes):
+        self.seq_table.pop(self.convert_seq(seq), None)
+
+# Packet Handler to handle packets from Reader and process them based on their type.
+class PacketHandler(BackgroundRunner):
+    def __init__(self, seq_handler: SeqHandler, in_que: asyncio.Queue[Packet], out_que: asyncio.Queue[Packet], write_pkg_que: asyncio.Queue[Packet]):
+        super().__init__()
+        self.seq_handler = seq_handler
+        self.in_que = in_que
+        self.out_que = out_que
+        self.write_pkg_que = write_pkg_que
+
+    async def _run_forever(self):
+        packet = await self.in_que.get()
+        if packet is None:
+            return self._stop()
+
+        packet_type = packet.packet_type.get_PT()
+        match packet_type:
+            case PT.QTR | PT.RRR | PT.GSR: # QueueTxBufferResponse | RetrieveRxBufferResponse | GetStatusResponse
+                await self.seq_handler.reply(packet.seq, packet)
+
+            case PT.PTQ | PT.SSQ: # PushTxBufferRequest | SendStatusRequest
+                self._response(packet)
+
+            case PT.PRQ:        # PopRxBufferRequest
+                self._response(packet)
+                self.out_que.put_nowait(packet)
+
+
+    def send_packet(self, packet: Packet):
+        packet.seq = self.seq_handler.convert_seq(0)  # Use 0 for non-response packets
+        self.write_pkg_que.put_nowait(packet)
+
+    async def send_packet_and_wait(self, packet: Packet) -> Optional[Packet]:
+        # Write packet and wait for response.
+        seq, seq_obj = self.seq_handler.get_idle_seq()
+        packet.seq = seq
+        self.write_pkg_que.put_nowait(packet)
+        seq_obj.set_waiting_task()
+        return await seq_obj.waiting_task
+
+    async def get_packet(self):
+        return await self.out_que.get()
+
+    def _response(self, packet: Packet) -> None:
+        r_packet = Packet()
+        r_packet.packet_type = packet.packet_type.transfer_infos_to_other(packet.packet_type.get_PT().get_response().value)
+        r_packet.seq = packet.seq
+
+        match PT(packet.packet_type.get_PT()):
+            case PT.PRQ: # PopRxBufferRequest
+                r_packet.is_success = PC.SUCCESS.value
+        
+        r_packet.complete_packet_size()
+
+        self.write_pkg_que.put_nowait(r_packet)
+
+    async def stop(self):
+        self.in_que.put_nowait(None)
+        await super().stop()
+
+
+class IrInterface:
+    def __init__(self, config: Config):
+        self.config = config
         self.failure_try = config.get(key="failure_try", default=3)
         self.failure_wait = config.get(key="failure_wait", default=0.1)
-        self.packet_que_max = config.get(key="packet_que_max", default=1000)
-        self.duplex = config.get(key="duplex", default=True)
-        self.seq_set = set()
-        self.current_seq = 0
-        self.waiting_que_table = {} # (PT, seq) -> asyncio.Queue
-        self.write_lock = asyncio.Lock()
-        self.read_lock = asyncio.Lock()
-        self.half_duplex_lock = asyncio.Lock()
-        self.badge = Badge()
-        self.read_packet_que = asyncio.Queue(maxsize=self.packet_que_max)
-        self.serial: serial.Serial = None
-        self.send_payload_buffer = dict() # payload -> send time
-        self.recv_packet_que = PacketQue(maxsize=self.packet_que_max, stay_timeout=config.get(key="packet_stay_timeout", default=0.3))
-        self._read_forever_task: asyncio.Task = None
+        self.pkg_que_max = config.get(key="packet_que_max", default=1000)
+        self.read_pkg_que = asyncio.Queue(maxsize=self.pkg_que_max)
+        self.filtered_pkg_que = asyncio.Queue(maxsize=self.pkg_que_max)
+        self.non_response_pkg_que = asyncio.Queue(maxsize=self.pkg_que_max)
+        self.write_pkg_que = asyncio.Queue(maxsize=self.pkg_que_max)
+        self.io_handler = IOHandler(config, self.read_pkg_que, self.write_pkg_que)
+        self.filter = Filter(self.read_pkg_que, self.filtered_pkg_que)
+        self.seq_handler = SeqHandler()
+        self.pkg_handler = PacketHandler(self.seq_handler, self.filtered_pkg_que, self.non_response_pkg_que, self.write_pkg_que)
 
     # response: ((bool is_success | bytes payload or status), list of PT_INFO)
     async def trigger_send_packet(self, data: bytes, packet_type = PT.QTQ, wait_response = True, to_cross_board = False, print_on_badge = False):
@@ -491,37 +773,39 @@ class IrInterface:
             infos.clear() # Clear all infos, since print on badge does not need any infos.
             wait_response = False # Print on badge does not need response.
 
+
+        packet = Packet(packet_type=PTP.from_PT_and_infos(packet_type, infos), payload=data)
+        packet.complete_packet_size()
+
         for _ in range(self.failure_try):          
             try:
 
-                result = await self._write_packet(data, packet_type, wait_response=wait_response, infos=infos)
-
-                if packet_type == PT.QTQ and (result == True or (type(result) == Packet and result.is_success == PC.SUCCESS.value)):
-                    # If QueueTxBufferRequest is sent successfully, update the send_payload_buffer
-                    self.send_payload_buffer[data] = time.time()
-
-                if type(result) == Packet: # wait response case
-
-                    if result.packet_size_raw == PC.EMPTY.value: # RetrieveRxBufferRequest case
-                        return False, result.packet_type.get_all_info()
-
-                    if result.payload and type(result.payload) == bytes: # RetrieveRxBufferRequest case
-                        return result.payload, result.packet_type.get_all_info()
-
-                    if result.is_success == PC.SUCCESS.value and result.status and type(result.status) == bytes: # GetStatusRequest case
-                        return result.status, result.packet_type.get_all_info()
-
-                    return (result.is_success == PC.SUCCESS.value), result.packet_type.get_all_info() # QueueTxBufferRequest case
-
-                elif result == True: # no wait response case
+                if not wait_response:
+                    self.pkg_handler.send_packet(packet)
                     return True, []
                 
-                # else re-send
+                result: Optional[Packet] = await self.pkg_handler.send_packet_and_wait(packet)
 
-            except serial.serialutil.SerialException: # raise serial connection broken error
-                raise
+                if result is None: # Timeout or error
+                    logger.warning("No response received, retrying...")
+                    await asyncio.sleep(self.failure_wait)
+                    continue
+
+
+                if result.packet_size_raw == PC.EMPTY.value: # RetrieveRxBufferRequest return empty case
+                    return False, result.packet_type.get_all_info()
+
+                if result.payload and type(result.payload) == bytes: # RetrieveRxBufferRequest case
+                    return result.payload, result.packet_type.get_all_info()
+
+                if result.is_success == PC.SUCCESS.value and result.status and type(result.status) == bytes: # GetStatusRequest case
+                    return result.status, result.packet_type.get_all_info()
+
+                return (result.is_success == PC.SUCCESS.value), result.packet_type.get_all_info() # QueueTxBufferRequest case
+                
+
             except Exception as e:
-                print(f"Error sending packet: {type(e)}, {e}")
+                logger.error(f"Error sending packet: {e}")
             
             await asyncio.sleep(self.failure_wait)
 
@@ -532,229 +816,19 @@ class IrInterface:
         # Wait until the next packet arrives, then return its raw data.    
         for _ in range(self.failure_try):
             try:     
-                packet = await self._read_until_response(self.read_packet_que)
+                packet = await self.pkg_handler.get_packet()
                 if packet != None:
                     return packet.payload, packet.packet_type.get_all_info()
 
-            except serial.serialutil.SerialException: # raise serial connection broken error
-                raise
-            except TimeoutError as e:
-                # No packets, this is expected.
-                pass
             except Exception as e:
                 import traceback
                 traceback.print_exc()
-                print(f"Error getting packet: {type(e)}, {e}")
+                logger.error(f"Error getting packet: {e}")
 
             await asyncio.sleep(self.failure_wait)
 
         return b'', [] # No packet received after retries
     
-
-    async def _write_packet(self, data: bytes, packet_type = PT.QTQ, wait_response = True, lock = True, infos = []) -> bool | Packet:
-        # will return reponse if exists
-        async def wait_func():
-            if not self.badge.check_packet_type_accept(packet_type):
-                return False
-
-            packet = Packet(packet_type=PTP.from_PT_and_infos(packet_type, infos)
-                            , seq=self._get_seq() if wait_response else b'\x00', payload=data)
-            packet.complete_packet_size() 
-
-            logger.debug(f"Sending packet: \ntype = {packet.packet_type.get_type_name()} \npayload = {data} \npacket = {packet.__bytes__()}")
-
-            await self.recv_packet_que.put(packet.__bytes__()) # Add to recv_packet_que to prevent duplicate packets
-
-            if wait_response:
-                return await self._write_packet_and_wait_for_response(packet)
-            else:
-                await self._write(packet.__bytes__(), lock=lock)
-                return True
-        
-        return await asyncio.wait_for(wait_func(), timeout=self.wait_timeout)
-    
-    async def _write_packet_and_wait_for_response(self, packet: Packet) -> Packet:
-        waiting_que_key = self._get_waiting_que_key(packet)
-
-        if not waiting_que_key in self.waiting_que_table:
-            self.waiting_que_table[waiting_que_key] = asyncio.Queue(maxsize=1)
-        else:
-            raise ValueError("Waiting queue already exists")
-        
-        await self._write(packet.__bytes__(), lock=True)
-
-        try:
-            logger.debug(f"Waiting for response: packet_type = {waiting_que_key[0].get_type_name()}, seq = {waiting_que_key[1]}")
-            return await self._read_until_response(self.waiting_que_table.get(waiting_que_key))
-        finally:
-            self._remove_seq(packet.seq)
-            self.waiting_que_table.pop(waiting_que_key, None)
-
-    async def _read_until_response(self, waiting_que: asyncio.Queue) -> Packet:
-        # Must ensure waiting_que is exists
-        i = 0
-        while waiting_que.empty():
-            if i >= self.failure_try:
-                logger.debug("No data received")
-                return None
-
-            i += 1
-            await asyncio.sleep(self.failure_wait) # Yield control to allow other tasks to run
-
-        return waiting_que.get_nowait()
-
-    async def _read_packet(self) -> Packet:
-        async with self._get_lock(read=True):
-            await self._read_until_preamble()
-            data = await self._read(Packet.get_necessary_packet_size())
-            packet = Packet.parse_bytes_to_packet(data, Packet.necessary_fields, Packet.get_necessary_packet_size())
-            data = await self._read(int.from_bytes(packet.packet_size_raw))
-            packet_type = packet.packet_type.get_PT()
-            packet = Packet.parse_bytes_to_packet(data, Packet.optional_fields.get(packet_type, []), int.from_bytes(packet.packet_size_raw), packet=packet)
-            
-        if not packet.is_valid():
-            raise ValueError("Received invalid packet")
-
-        logger.debug(f"Received packet: \ntype = {packet.packet_type.get_type_name()} \npayload = {packet.payload} \npacket = {packet.__bytes__()}")
-        return packet
-
-    def _response(self, packet: Packet) -> None:
-        r_packet = Packet()
-        r_packet.packet_type = packet.packet_type.transfer_infos_to_other(packet.packet_type.get_PT().get_response().value)
-        r_packet.seq = packet.seq
-
-        match PT(packet.packet_type.get_PT()):
-            case PT.PRQ: # PopRxBufferRequest
-                r_packet.is_success = PC.SUCCESS.value
-        
-        r_packet.complete_packet_size()
-
-        asyncio.create_task(self._write(r_packet.__bytes__(), lock=True))
-
-    def _get_waiting_que_key(self, packet: Packet) -> tuple:
-        # Get the waiting queue key for the packet.
-        # Convert packet_type to response packet type for request.     
-        return (packet.packet_type.get_PT().get_response(), packet.seq)
-
-    def _get_lock(self, read: bool) -> asyncio.Lock:
-        if read:
-            return self.read_lock if self.duplex else self.half_duplex_lock
-        return self.write_lock if self.duplex else self.half_duplex_lock
-
-
-    def _get_seq(self) -> bytes:
-        seq_limit = 2 ** (8 * Packet.field_size.get(PF.SEQ, 1))
-        for _ in range(seq_limit):
-            self.current_seq = (self.current_seq + 1) % seq_limit
-            if self.current_seq.to_bytes(1, byteorder='big') not in self.seq_set:
-                break
-        else:
-            raise RuntimeError("No available sequence numbers")
-
-        self.seq_set.add(self.current_seq.to_bytes(1, byteorder='big'))
-        return self.current_seq.to_bytes(1, byteorder='big')
-
-
-    def _remove_seq(self, seq: bytes):
-        if seq in self.seq_set:
-            self.seq_set.remove(seq)
-
-
-    async def _read_until_preamble(self, timeout = None, lock = False) -> bool:
-        plen = len(PC.PREAMBLE.value)
-        
-        if plen <= 0:
-            return True
-        
-        async def loop() -> bool:
-            timer = time.time()
-            byte = b''
-            while True:
-                byte += await self._read(plen - len(byte))
-                if byte == PC.PREAMBLE.value:
-                    logger.debug("Successfully read preamble")
-                    return True
-
-                while PC.PREAMBLE.value[0] in byte:
-                    i = byte.find(PC.PREAMBLE.value[0])
-
-                    if not byte[i:] in PC.PREAMBLE.value:
-                        byte = byte[i + 1:] 
-                    else:
-                        byte = byte[i:]
-                        break
-                else:
-                    byte = b''
-                
-                if timeout != None and time.time() - timer >= timeout:
-                    return False
-
-        if lock:
-            async with self._get_lock(read=True):
-                return await loop()
-            
-        return await loop()
-
-
-    async def _write(self, data: bytes, lock = False) -> None:
-        if len(data) <= 0:
-            return
-
-        written_len = 0
-
-        if lock:
-            async with self._get_lock(read=False):
-                written_len = await asyncio.wait_for(asyncio.to_thread(self.serial.write, PC.PREAMBLE.value + data), timeout=None)
-        else:
-            written_len = await asyncio.wait_for(asyncio.to_thread(self.serial.write, PC.PREAMBLE.value + data), timeout=None)
-
-        if written_len != len(PC.PREAMBLE.value + data):
-            raise WriteDataIncompleteError(len(PC.PREAMBLE.value + data), written_len)
-        else:
-            logger.debug(f"Successfully written data {PC.PREAMBLE.value + data}")
-        
-
-    async def _read(self, size: int, lock = False) -> bytes:
-        if size <= 0:
-            return b''
-        data = b''
-        
-        if lock:
-            async with self._get_lock(read=True):
-                data = await asyncio.wait_for(asyncio.to_thread(self.serial.read, size), timeout=None)
-        else:
-            data = await asyncio.wait_for(asyncio.to_thread(self.serial.read, size), timeout=None)
-
-        if len(data) != 0:
-            logger.debug(f"Successfully read data {data}")
-
-        return data
-    
-    async def _read_forever(self) -> None:
-        while True:
-            packet = await self._read_packet()
-
-            if not await self.recv_packet_que.put(packet.__bytes__()):
-                logger.debug(f"Packet {packet.__bytes__()} already exists in recv_packet_que, skipping")
-                continue
-
-            self.badge.update_status(packet)
-            packet_type = packet.packet_type.get_PT()
-            match packet_type:
-                case PT.QTR | PT.RRR | PT.GSR: # QueueTxBufferResponse | RetrieveRxBufferResponse | GetStatusResponse
-                    waiting_que_key = self._get_waiting_que_key(packet)
-
-                    if waiting_que_key in self.waiting_que_table and not self.waiting_que_table[waiting_que_key].full():
-                        self.waiting_que_table.get(waiting_que_key).put_nowait(packet)
-
-                case PT.PTQ | PT.SSQ: # PushTxBufferRequest | SendStatusRequest
-                    self._response(packet)
-
-                case PT.PRQ:        # PopRxBufferRequest
-                    self._response(packet)
-                    self.read_packet_que.put_nowait(packet)
-
-            await asyncio.sleep(0) # Yield control to allow other tasks to run
 
     async def show_graphic(self, display_data: bytes):
         """
@@ -766,36 +840,18 @@ class IrInterface:
         return await self.trigger_send_packet(display_data, packet_type=PT.PBR, wait_response=False, print_on_badge=True)
 
     async def __aenter__(self):
-        try:
-            self.serial = await asyncio.wait_for(asyncio.to_thread(serial.Serial,
-                port=self.port,
-                baudrate=self.baudrate,
-                timeout=self.usb_timeout,
-                write_timeout=self.usb_timeout
-            ), timeout=self.usb_timeout)
-            self._read_forever_task = asyncio.create_task(self._read_forever())
-            return self
-        except serial.SerialException as e:
-            raise RuntimeError(f"Failed to initialize serial port: {e}")
-        except asyncio.TimeoutError as e:
-            raise RuntimeError("Timeout while initializing serial port: {e}")
+        self.io_handler.run()
+        self.filter.run()
+        self.seq_handler.run()
+        self.pkg_handler.run()
+        return self
             
 
     async def __aexit__(self, *args, **kwargs):
-        if self.serial is not None:
-            try:
-                self._read_forever_task.cancel()
-                try:
-                    await self._read_forever_task
-                except asyncio.CancelledError:
-                    pass
-
-                await asyncio.to_thread(self.serial.close)
-                await asyncio.sleep(0)
-            except Exception as e:
-                logger.error(f"Error closing serial port: {e}")
-            finally:
-                self.serial = None
+        await self.io_handler.stop()
+        await self.filter.stop()
+        await self.seq_handler.stop()
+        await self.pkg_handler.stop()
 
 
 async def test():
@@ -808,12 +864,11 @@ async def test():
         while 1:
             result = await ir.get_next_packet()
             if result:
-                print("\n", result, "\n")
+                print(result)
 
             if result == b'\x00\x05H\x02\x8b\x0f\x7f]\x8f\x00\\\xfc\xca$\xbb\xe98\xae\x02\x128\xa2\xf5H':
                 await ir.trigger_send_packet(b'\x00\x03\xac`7Nc\xfe')
             await asyncio.sleep(1)
-
 
 
 if __name__ == '__main__':
