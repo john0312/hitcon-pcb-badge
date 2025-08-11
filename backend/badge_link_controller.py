@@ -41,11 +41,11 @@ class BadgeLinkController:
         """
         result = await db["users"].find_one({"user": badge_user})  # Ensure the official badge
         if not result:
-            raise ValueError(f"Non-official badge!")
+            raise ValueError(f"Badge not registered, please boot your badge and interact with base stations.")
 
         existing_badge_link = await mongo[BadgeLinkController.DB_NAME][BadgeLinkController.COLLECTION_NAME].find_one({"badge_user": badge_user})
         if existing_badge_link and not existing_badge_link["uid"] == uid:
-            raise ValueError(f"Badge not registered, please boot your badge and interact with base stations.")
+            raise ValueError(f"Badge {badge_user} is already linked to another user.")
 
         old_badge_user = await BadgeLinkController.translate_uid_to_user(uid)
         if old_badge_user is not None and old_badge_user != badge_user:
