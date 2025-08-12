@@ -41,9 +41,9 @@ IrController::IrController()
 #pragma GCC diagnostic pop
 
 void IrController::ShowText(void* arg) {
-  struct ShowPacket* pkt = reinterpret_cast<struct ShowPacket*>(arg);
+  char* text = reinterpret_cast<char*>(arg);
   badge_controller.SetStoredApp(badge_controller.GetCurrentApp());
-  show_name_app.SetSurpriseMsg(pkt->message);
+  show_name_app.SetSurpriseMsg(text);
   show_name_app.SetMode(Surprise);
   badge_controller.change_app(&show_name_app);
 }
@@ -72,7 +72,13 @@ void IrController::OnPacketReceived(void* arg) {
   } else if (data->type == packet_type::kTest) {
     hardware_test_app.CheckIr(&data->opaq.show);
   } else if (data->type == packet_type::kShow) {
-    scheduler.Queue(&showtext_task, &data->opaq.show);
+    scheduler.Queue(&showtext_task, &data->opaq.show.message);
+  } else if (data->type == packet_type::kShowMsg) {
+    const uint8_t* user = g_game_controller.GetUsername();
+    if (user &&
+        (memcmp(data->opaq.show_msg.user, user, IR_USERNAME_LEN) == 0)) {
+      scheduler.Queue(&showtext_task, &data->opaq.show_msg.msg);
+    }
   } else if (data->type == packet_type::kAcknowledge) {
     OnAcknowledgePacket(&data->opaq.acknowledge);
   } else if (data->type == packet_type::kScoreAnnonce) {
