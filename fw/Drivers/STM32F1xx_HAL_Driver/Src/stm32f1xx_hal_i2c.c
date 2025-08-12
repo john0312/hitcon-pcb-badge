@@ -335,7 +335,7 @@
   * @{
   */
 #define I2C_TIMEOUT_FLAG          35U         /*!< Timeout 35 ms             */
-#define I2C_TIMEOUT_BUSY_FLAG     25U         /*!< Timeout 25 ms             */
+#define I2C_TIMEOUT_BUSY_FLAG     1U         /*!< Timeout 1 ms             */
 #define I2C_TIMEOUT_STOP_FLAG     5U          /*!< Timeout 5 ms              */
 #define I2C_NO_OPTION_FRAME       0xFFFF0000U /*!< XferOptions default value */
 
