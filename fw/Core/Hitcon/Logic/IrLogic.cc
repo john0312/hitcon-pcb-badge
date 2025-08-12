@@ -157,6 +157,10 @@ void IrLogic::OnBufferReceived(uint8_t *buffer) {
             if (rx_packet.size_ >= MAX_PACKET_PAYLOAD_BYTES) {
               // Packet too large.
               packet_state = STATE_RESET;
+            } else if (rx_packet.size_ < (2 + IR_CHKSUM_SZ / 8)) {
+              // Packet size cannot be lower than 3 because we need the size,
+              // type and checksum.
+              packet_state = STATE_RESET;
             } else {
               rx_packet.data_[0] = rx_packet.size_;
               packet_state = STATE_DATA;
@@ -177,6 +181,7 @@ void IrLogic::OnBufferReceived(uint8_t *buffer) {
             }
             const uint8_t pos = (packet_buf / DECODE_SAMPLE_RATIO - 1) / 8 + 1;
             const uint8_t bitpos = (packet_buf / DECODE_SAMPLE_RATIO - 1) % 8;
+            my_assert(pos < MAX_PACKET_PAYLOAD_BYTES + 4);
             rx_packet.data_[pos] |= decode_bit(bit) << bitpos;
             if (pos == rx_packet.size_ - 2 && bitpos == 7) {
               // packet data end
@@ -185,6 +190,7 @@ void IrLogic::OnBufferReceived(uint8_t *buffer) {
               packet_state = STATE_CHKSUM;
               break;
             }
+            my_assert(pos <= rx_packet.size_ - 2);
           }
           break;
         case STATE_CHKSUM:
