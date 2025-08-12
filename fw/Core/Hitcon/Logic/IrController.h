@@ -125,7 +125,7 @@ struct SponsorActivityPacket {
 // This packet is from base station to badge.
 struct ShowMsgPacket {
   uint8_t user[IR_USERNAME_LEN];
-  uint8_t msg[24];
+  char msg[24];
 };
 
 // This packet is from badge to base station.
@@ -210,7 +210,7 @@ class IrController {
   IrController();
 
   void Init();
-  void ShowText(void* arg);
+  void ShowText(char* text);
   void InitBroadcastService(uint8_t game_types);
 
   void SetDisableBroadcast() { disable_broadcast = true; }
@@ -242,7 +242,6 @@ class IrController {
   size_t received_packet_cnt = 0;
 
   hitcon::service::sched::PeriodicTask routine_task;
-  hitcon::service::sched::Task showtext_task;
   hitcon::service::sched::Task broadcast_task;
 
   IrData priority_data_;

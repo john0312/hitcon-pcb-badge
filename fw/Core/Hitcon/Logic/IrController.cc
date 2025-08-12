@@ -36,12 +36,10 @@ IrController irController;
 #pragma GCC diagnostic ignored "-Wpmf-conversions"
 IrController::IrController()
     : routine_task(950, (callback_t)&IrController::RoutineTask, this, 1000),
-      showtext_task(800, (callback_t)&IrController::ShowText, this),
       broadcast_task(800, (callback_t)&IrController::BroadcastIr, this) {}
 #pragma GCC diagnostic pop
 
-void IrController::ShowText(void* arg) {
-  char* text = reinterpret_cast<char*>(arg);
+void IrController::ShowText(char* text) {
   badge_controller.SetStoredApp(badge_controller.GetCurrentApp());
   show_name_app.SetSurpriseMsg(text);
   show_name_app.SetMode(Surprise);
@@ -72,12 +70,12 @@ void IrController::OnPacketReceived(void* arg) {
   } else if (data->type == packet_type::kTest) {
     hardware_test_app.CheckIr(&data->opaq.show);
   } else if (data->type == packet_type::kShow) {
-    scheduler.Queue(&showtext_task, &data->opaq.show.message);
+    ShowText(data->opaq.show.message);
   } else if (data->type == packet_type::kShowMsg) {
     const uint8_t* user = g_game_controller.GetUsername();
     if (user &&
         (memcmp(data->opaq.show_msg.user, user, IR_USERNAME_LEN) == 0)) {
-      scheduler.Queue(&showtext_task, &data->opaq.show_msg.msg);
+      ShowText(data->opaq.show_msg.msg);
     }
   } else if (data->type == packet_type::kAcknowledge) {
     OnAcknowledgePacket(&data->opaq.acknowledge);
