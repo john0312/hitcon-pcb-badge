@@ -309,7 +309,11 @@ void ImuLogic::Routine(void* arg1) {
 void ImuLogic::OnRxDone(void* arg1) {
   switch (_init_state) {
     case InitState::WAIT_ID:
-      my_assert(_buf[0] == LSM6DS3TR_C_ID);
+      if (_buf[0] != LSM6DS3TR_C_ID) {
+        g_imu_service.ResetI2C();
+        g_imu_logic.Reset();
+        return;
+      }
       _init_state = InitState::SW_RESET;
       break;
     case InitState::WAIT_SW_RESET: {
