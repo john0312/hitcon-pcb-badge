@@ -101,7 +101,7 @@ bool SignedPacketService::VerifyAndReceivePacket(
     hitcon::ir::IrPacket *irpacket) {
   size_t packetId;
   hitcon::ir::IrData *irdata =
-      reinterpret_cast<hitcon::ir::IrData *>(irpacket->data_);
+      reinterpret_cast<hitcon::ir::IrData *>(&(irpacket->data_[1]));
   if (!FindPacketOfState(ver_packet_queue_, PacketStatus::kFree, packetId))
     return false;
 
@@ -193,6 +193,7 @@ void SignedPacketService::VerRoutineFunc() {
   if (FindPacketOfState(ver_packet_queue_, PacketStatus::kWaitReceive,
                         packetId)) {
     ReceivePacket(ver_packet_queue_[packetId]);
+    ver_packet_queue_[packetId].status = PacketStatus::kFree;
   }
 }
 
