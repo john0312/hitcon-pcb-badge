@@ -149,9 +149,9 @@ void IrController::OnPacketHashResult(void* arg_ptr) {
   current_hashing_slot = -1;
 }
 
-// - if there are same packet_type: replaced with the new one first (only
-// Proximity, RequestScore, SavePet)
-// - else: replace the empty slot
+// - if there's empty slot, use it
+// - else if there are same packet_type: replaced with the new one  (only
+// RequestScore, SavePet)
 // - else: find the lowest priority (lower than input priority) slot to replace
 bool IrController::SendPacketWithRetransmit(uint8_t* data, size_t len,
                                             uint8_t retries, AckTag ack_tag) {
@@ -162,22 +162,20 @@ bool IrController::SendPacketWithRetransmit(uint8_t* data, size_t len,
   uint8_t lowest_priority = input_priority;
   uint8_t available_index = RETX_QUEUE_SIZE;
   for (int i = 0; i < RETX_QUEUE_SIZE; i++) {
-    const IrData* queued_ir_data =
-        reinterpret_cast<IrData*>(queued_packets_[i].data);
-    uint8_t queue_priority = GetPriority(queued_ir_data->type);
-
-    if (queued_ir_data->type == input_ir_data->type &&
-        (input_ir_data->type == packet_type::kProximity ||
-         input_ir_data->type == packet_type::kRequestScore ||
-         input_ir_data->type == packet_type::kSavePet)) {
-      available_index = i;
-      break;
-    }
-
     // Check if slot is empty by checking the status mask
     if ((queued_packets_[i].status & kRetransmitStatusMask) ==
         kRetransmitStatusSlotUnused) {
       // Slot is empty.
+      available_index = i;
+      break;
+    }
+
+    const IrData* queued_ir_data =
+        reinterpret_cast<IrData*>(queued_packets_[i].data);
+    uint8_t queue_priority = GetPriority(queued_ir_data->type);
+    if (queued_ir_data->type == input_ir_data->type &&
+        (input_ir_data->type == packet_type::kRequestScore ||
+         input_ir_data->type == packet_type::kSavePet)) {
       queue_priority = LOWEST_PRIORITY;
     }
 
