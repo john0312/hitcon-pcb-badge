@@ -149,25 +149,50 @@ void IrController::OnPacketHashResult(void* arg_ptr) {
   current_hashing_slot = -1;
 }
 
+// find the empty slot first
+// if no empty slot, find the lowest priority (lower than input priority) slot
+// to replace
 bool IrController::SendPacketWithRetransmit(uint8_t* data, size_t len,
                                             uint8_t retries, AckTag ack_tag) {
   my_assert(len <= MAX_PACKET_PAYLOAD_BYTES);
   my_assert(retries < 8);  // Max retries fits in 3 bits
+  const IrData* input_ir_data = reinterpret_cast<IrData*>(data);
+  uint8_t input_priority = GetPriority(input_ir_data->type);
+  uint8_t lowest_priority = input_priority;
+  uint8_t available_index = RETX_QUEUE_SIZE;
   for (int i = 0; i < RETX_QUEUE_SIZE; i++) {
+    const IrData* queued_ir_data =
+        reinterpret_cast<IrData*>(queued_packets_[i].data);
+    uint8_t queue_priority = GetPriority(queued_ir_data->type);
     // Check if slot is empty by checking the status mask
     if ((queued_packets_[i].status & kRetransmitStatusMask) ==
         kRetransmitStatusSlotUnused) {
       // Slot is empty.
-      memcpy(&(queued_packets_[i].data[0]), data, len);
-      queued_packets_[i].size = len;
-      // Set status to Waiting for hashing processor and store retry limit
-      queued_packets_[i].status =
-          kRetransmitStatusWaitHashAvail | (retries & kRetransmitLimitMask);
-      queued_packets_[i].ack_tag = ack_tag;
-      return true;
+      available_index = i;
+      break;
+    } else if (lowest_priority < queue_priority) {
+      // find the lowest priority slot to replace
+      available_index = i;
+      lowest_priority = queue_priority;
     }
   }
-  return false;  // No empty slot found
+
+  if (available_index < RETX_QUEUE_SIZE) {
+    // stop hash if the replaced slot is waiting for hash done
+    if ((queued_packets_[available_index].status & kRetransmitStatusMask) ==
+        kRetransmitStatusWaitHashDone) {
+      hash::g_hash_service.StopHash();
+    }
+
+    memcpy(&(queued_packets_[available_index].data[0]), data, len);
+    queued_packets_[available_index].size = len;
+    // Set status to Waiting for hashing processor and store retry limit
+    queued_packets_[available_index].status =
+        kRetransmitStatusWaitHashAvail | (retries & kRetransmitLimitMask);
+    queued_packets_[available_index].ack_tag = ack_tag;
+    return true;
+  }
+  return false;  // No available slot found
 }
 
 void IrController::MaintainQueued() {
