@@ -9,7 +9,7 @@ namespace sched {
 #pragma GCC push_options
 #pragma GCC optimize("O0")
 void my_assert(bool expr) {
-#ifdef DEBUG
+#ifdef ASSERTION_ENABLED
   if (!expr) {
     __disable_irq();
     for (int i = 0; i < 32; i++) {
@@ -24,7 +24,7 @@ void my_assert(bool expr) {
       __NOP();
     }
   }
-#endif  // DEBUG
+#endif  // ASSERTION_ENABLED
 };
 #pragma GCC pop_options
 

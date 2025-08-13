@@ -1,4 +1,8 @@
 
+#ifdef DEBUG
+#define ASSERTION_ENABLED
+#endif  // #ifdef DEBUG
+
 namespace hitcon {
 namespace service {
 namespace sched {
