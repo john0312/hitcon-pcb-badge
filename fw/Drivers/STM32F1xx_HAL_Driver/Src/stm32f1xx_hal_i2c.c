@@ -2990,22 +2990,15 @@ HAL_StatusTypeDef HAL_I2C_Mem_Write_IT(I2C_HandleTypeDef *hi2c, uint16_t DevAddr
 
   if (hi2c->State == HAL_I2C_STATE_READY)
   {
-    /* Wait until BUSY flag is reset */
-    count = I2C_TIMEOUT_BUSY_FLAG * (SystemCoreClock / 25U / 1000U);
-    do
-    {
-      count--;
-      if (count == 0U)
-      {
-        hi2c->PreviousState       = I2C_STATE_NONE;
-        hi2c->State               = HAL_I2C_STATE_READY;
-        hi2c->Mode                = HAL_I2C_MODE_NONE;
-        hi2c->ErrorCode           |= HAL_I2C_ERROR_TIMEOUT;
+    /* Fail directly if flag is not reset. */
+    if (__HAL_I2C_GET_FLAG(hi2c, I2C_FLAG_BUSY) != RESET) {
+      hi2c->PreviousState       = I2C_STATE_NONE;
+      hi2c->State               = HAL_I2C_STATE_READY;
+      hi2c->Mode                = HAL_I2C_MODE_NONE;
+      hi2c->ErrorCode           |= HAL_I2C_ERROR_TIMEOUT;
 
-        return HAL_BUSY;
-      }
+      return HAL_BUSY;
     }
-    while (__HAL_I2C_GET_FLAG(hi2c, I2C_FLAG_BUSY) != RESET);
 
     /* Process Locked */
     __HAL_LOCK(hi2c);
@@ -3075,22 +3068,15 @@ HAL_StatusTypeDef HAL_I2C_Mem_Read_IT(I2C_HandleTypeDef *hi2c, uint16_t DevAddre
 
   if (hi2c->State == HAL_I2C_STATE_READY)
   {
-    /* Wait until BUSY flag is reset */
-    count = I2C_TIMEOUT_BUSY_FLAG * (SystemCoreClock / 25U / 1000U);
-    do
-    {
-      count--;
-      if (count == 0U)
-      {
-        hi2c->PreviousState       = I2C_STATE_NONE;
-        hi2c->State               = HAL_I2C_STATE_READY;
-        hi2c->Mode                = HAL_I2C_MODE_NONE;
-        hi2c->ErrorCode           |= HAL_I2C_ERROR_TIMEOUT;
+    /* Fail directly if flag is not reset. */
+    if (__HAL_I2C_GET_FLAG(hi2c, I2C_FLAG_BUSY) != RESET) {
+      hi2c->PreviousState       = I2C_STATE_NONE;
+      hi2c->State               = HAL_I2C_STATE_READY;
+      hi2c->Mode                = HAL_I2C_MODE_NONE;
+      hi2c->ErrorCode           |= HAL_I2C_ERROR_TIMEOUT;
 
-        return HAL_BUSY;
-      }
+      return HAL_BUSY;
     }
-    while (__HAL_I2C_GET_FLAG(hi2c, I2C_FLAG_BUSY) != RESET);
 
     /* Process Locked */
     __HAL_LOCK(hi2c);
