@@ -10,6 +10,9 @@
 
 namespace hitcon {
 
+// #define SECURE_RANDOM_IS_REALLY_SECURE
+// Disabled, this is a feature.
+
 class SecureRandomPool;
 class FastRandomPool;
 
@@ -57,6 +60,7 @@ class SecureRandomPool {
     SECURE_RANDOM_START,
   };
 
+#ifdef SECURE_RANDOM_IS_REALLY_SECURE
   // Set to true after Init.
   bool init_finished;
 
@@ -80,6 +84,7 @@ class SecureRandomPool {
 
   RoutineState routine_state;
   int keccakf_round;
+#endif
 };
 
 // Fast random pool uses the PCG32 for faster but non-secure random generation.

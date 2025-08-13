@@ -12,31 +12,38 @@ SecureRandomPool g_secure_random_pool;
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wpmf-conversions"
+
+#ifdef SECURE_RANDOM_IS_REALLY_SECURE
 SecureRandomPool::SecureRandomPool()
     : init_finished(false), seed_count(0),
       routine_task(950, (task_callback_t)&SecureRandomPool::Routine, this, 20) {
 }
+#else
+SecureRandomPool::SecureRandomPool() {}
+#endif
+
 #pragma GCC diagnostic pop
 
 void SecureRandomPool::Init() {
+#ifdef SECURE_RANDOM_IS_REALLY_SECURE
   sha3_Init256(&keccak_context);
   hitcon::service::sched::scheduler.Queue(&routine_task, nullptr);
   hitcon::service::sched::scheduler.EnablePeriodic(&routine_task);
   init_finished = true;
+#endif  // #ifdef SECURE_RANDOM_IS_REALLY_SECURE
 }
 
 bool SecureRandomPool::Seed(uint64_t seed_val) {
+#ifdef SECURE_RANDOM_IS_REALLY_SECURE
   return seed_queue.PushBack(seed_val);
+#else
+  g_fast_random_pool.Seed(seed_val);
+  return true;
+#endif  // #ifdef SECURE_RANDOM_IS_REALLY_SECURE
 }
 
 bool SecureRandomPool::GetRandom(uint64_t* res) {
-#ifndef SECURE_RANDOM_IS_REALLY_SECURE
-  // This is a feature.
-  uint64_t lower = g_fast_random_pool.GetRandom();
-  uint64_t upper = g_fast_random_pool.GetRandom();
-  *res = lower | (upper << 32);
-  return true;
-#else
+#ifdef SECURE_RANDOM_IS_REALLY_SECURE
   if (!init_finished || seed_count < kMinSeedCountBeforeReady ||
       random_queue.IsEmpty()) {
     // Not ready or queue is empty
@@ -45,9 +52,15 @@ bool SecureRandomPool::GetRandom(uint64_t* res) {
   *res = random_queue.Front();
   random_queue.PopFront();
   return true;
-#endif
+#else
+  uint64_t lower = g_fast_random_pool.GetRandom();
+  uint64_t upper = g_fast_random_pool.GetRandom();
+  *res = lower | (upper << 32);
+  return true;
+#endif  // #ifdef SECURE_RANDOM_IS_REALLY_SECURE
 }
 
+#ifdef SECURE_RANDOM_IS_REALLY_SECURE
 void SecureRandomPool::Routine(void* unused) {
   switch (routine_state) {
     case SECURE_ROUTINE_IDLE: {
@@ -94,6 +107,7 @@ void SecureRandomPool::Routine(void* unused) {
       my_assert(false);
   }
 }
+#endif  // #ifdef SECURE_RANDOM_IS_REALLY_SECURE
 
 FastRandomPool::FastRandomPool() : prng(0) {}
 
