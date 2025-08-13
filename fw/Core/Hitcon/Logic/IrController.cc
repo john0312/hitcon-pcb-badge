@@ -163,20 +163,22 @@ bool IrController::SendPacketWithRetransmit(uint8_t* data, size_t len,
   uint8_t available_index = RETX_QUEUE_SIZE;
   for (int i = 0; i < RETX_QUEUE_SIZE; i++) {
     // Check if slot is empty by checking the status mask
+    uint8_t queue_priority = lowest_priority;
     if ((queued_packets_[i].status & kRetransmitStatusMask) ==
         kRetransmitStatusSlotUnused) {
       // Slot is empty.
       available_index = i;
-      break;
-    }
-
-    const IrData* queued_ir_data =
-        reinterpret_cast<IrData*>(queued_packets_[i].data);
-    uint8_t queue_priority = GetPriority(queued_ir_data->type);
-    if (queued_ir_data->type == input_ir_data->type &&
-        (input_ir_data->type == packet_type::kRequestScore ||
-         input_ir_data->type == packet_type::kSavePet)) {
-      queue_priority = LOWEST_PRIORITY;
+      queue_priority = RETX_EMPTY_PKT_PRIORITY;
+    } else {
+      const IrData* queued_ir_data =
+          reinterpret_cast<IrData*>(queued_packets_[i].data);
+      if ((input_ir_data->type == packet_type::kRequestScore ||
+           input_ir_data->type == packet_type::kSavePet) &&
+          queued_ir_data->type == input_ir_data->type) {
+        queue_priority = RETX_REPLACEMENT_PKT_PRIORITY;
+      } else {
+        queue_priority = GetPriority(queued_ir_data->type);
+      }
     }
 
     if (lowest_priority < queue_priority) {
