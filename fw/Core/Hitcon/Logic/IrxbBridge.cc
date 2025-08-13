@@ -55,19 +55,24 @@ void IrxbBridge::OnXBoardBasestnConnect() {
   tama_app.ResetRestorePacketPoll();
   show_name_app.ResetSetScorePacketPoll();
 
-  routine_task_.SetWakeTime(SysTimer::GetTime() + kIrxbDelayTime);
-  service::sched::scheduler.Queue(&routine_task_, nullptr);
+  EnsureRoutineQueued();
 }
 
 void IrxbBridge::OnXBoardBasestnDisconnect() { state_ = 0; }
 
 void IrxbBridge::RoutineTask() {
+  routine_queued_ = false;
   bool ret = RoutineInternal();
   if (!ret) return;
-  routine_task_.SetWakeTime(SysTimer::GetTime() + kIrxbDelayTime);
-  service::sched::scheduler.Queue(&routine_task_, nullptr);
+  EnsureRoutineQueued();
 }
 
+void IrxbBridge::EnsureRoutineQueued() {
+  if (!routine_queued_) {
+    routine_task_.SetWakeTime(SysTimer::GetTime() + kIrxbDelayTime);
+    service::sched::scheduler.Queue(&routine_task_, nullptr);
+  }
+}
 bool IrxbBridge::RoutineInternal() {
   if (state_ == 0) return false;
 

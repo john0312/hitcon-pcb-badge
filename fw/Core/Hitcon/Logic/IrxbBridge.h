@@ -43,6 +43,7 @@ class IrxbBridge {
   void TamaRoutine();
   void ScoreRoutine();
   void OnPacketReceived(void* arg);
+  void EnsureRoutineQueued();
 
   void OnTamaSignDone(hitcon::ecc::Signature* signature);
 
@@ -63,6 +64,8 @@ class IrxbBridge {
   char disp_txt_[4];
 
   int show_cycles_;
+
+  bool routine_queued_ = false;
 };
 
 extern IrxbBridge g_irxb_bridge;
