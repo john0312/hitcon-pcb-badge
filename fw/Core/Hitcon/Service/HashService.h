@@ -58,6 +58,7 @@ class HashService {
   // returns.
   bool StartHash(uint8_t const *message, size_t len, callback_t callback,
                  void *callbackArg1);
+  void StopHash();
 
   HashService();
 

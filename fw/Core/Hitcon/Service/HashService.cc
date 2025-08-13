@@ -52,6 +52,10 @@ bool HashService::StartHash(uint8_t const *message, size_t len,
   return true;
 }
 
+void HashService::StopHash() {
+  if (hashTask.IsEnabled()) scheduler.DisablePeriodic(&hashTask);
+}
+
 void HashService::doHash(void *unused) {
   switch (status.state) {
     case status.kUpdateState:
