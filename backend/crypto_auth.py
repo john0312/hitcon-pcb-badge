@@ -1,5 +1,5 @@
 from typing import Optional
-from schemas import IrPacket, Event, TwoBadgeActivityEvent, ScoreAnnounceEvent, SponsorActivityEvent, PubAnnounceEvent
+from schemas import IrPacket, Event, TwoBadgeActivityEvent, ScoreAnnounceEvent, RequestScoreEvent, ShowMsgEvent, SponsorActivityEvent, PubAnnounceEvent
 from schemas import EccPoint, EccPublicKey, EccPrivateKey, EccSignature
 from database import db
 from ecc_utils import ECC_PUBKEY_SIZE, ECC_SIGNATURE_SIZE, ecc_sign, ecc_derive_pub, ecc_verify, ecc_get_point_by_x
@@ -119,8 +119,8 @@ class CryptoAuth:
                     )
                 ):
                     return event.user
-        elif event.__class__ == ScoreAnnounceEvent:
-            # ScoreAnnounceEvent does not require signature verification
+        elif event.__class__ in [ScoreAnnounceEvent, RequestScoreEvent, ShowMsgEvent]:
+            # Does not require signature verification
             pass
         elif event.__class__ == PubAnnounceEvent:
             # Validate the public key with server key (CA)
