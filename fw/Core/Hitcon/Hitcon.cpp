@@ -51,8 +51,17 @@ using namespace hitcon::app::tama;
 #error "BADGE_ROLE not defined"
 #endif  // BADGE_ROLE
 
+int dbg_sign_cnt = 0;
+
+constexpr uint8_t msg1[] = "msg1\0\0\0";
+
 void TestTaskFunc(void* unused1, void* unused2) {}
-void TestTask2Func(void* unused1, void* unused2) {}
+void TestSignRes(void* unused1, void* unused2) {
+	dbg_sign_cnt++;
+}
+void TestTask2Func(void* unused1, void* unused2) {
+	hitcon::ecc::g_ec_logic.StartSign(msg1, 1, TestSignRes, nullptr);
+}
 
 Task TestTask1(900, (task_callback_t)&TestTaskFunc, nullptr);
 PeriodicTask TestTask2(950, (task_callback_t)&TestTask2Func, nullptr, 201);
