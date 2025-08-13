@@ -49,6 +49,8 @@ class Constants:
     STATION_SCORE_UB: int = 1000
     STATION_NEUTRAL_LB: int = -300
     STATION_NEUTRAL_UB: int = 300
+    STATION_SCORE_MULTIPLIER_POSITIVE: float = 1.0
+    STATION_SCORE_MULTIPLIER_NEGATIVE: float = 1.0
 
     STATION_SCORE_DECAY_INTERVAL: int = 30 # seconds
     STATION_SCORE_DECAY_AMOUNT: int = 10
@@ -174,10 +176,14 @@ class _GameLogic:
         # apply the buff
         amount_after_buff = int(amount * (1 + const.BUFF_A_MODIFIER * buff_a_count + const.BUFF_B_MODIFIER * buff_b_count))
 
+        # apply the multiplier
+        multiplier = const.STATION_SCORE_MULTIPLIER_POSITIVE if amount >= 0 else const.STATION_SCORE_MULTIPLIER_NEGATIVE
+        amount_after_multiplier = int(amount_after_buff * multiplier)
+
         await self.attack_history.insert_one({
             "player_id": player_id,
             "station_id": station_id,
-            "amount": amount_after_buff,
+            "amount": amount_after_multiplier,
             "timestamp": timestamp,
             "amount_before_buff": amount,
             "buff_a_count": buff_a_count,
@@ -807,9 +813,11 @@ async def test_attack_station_score_history(with_redis = False, cache_min_interv
 
 
 @test_func
-async def test_attack_station_score_buff(buff_a_count, buff_b_count, with_redis = False):
+async def test_attack_station_score_buff_and_multiplier(buff_a_count, buff_b_count, positive_multiplier, negative_multiplier, with_redis = False):
     const.reset()
     const.STATION_SCORE_DECAY_INTERVAL = 1
+    const.STATION_SCORE_MULTIPLIER_POSITIVE = positive_multiplier
+    const.STATION_SCORE_MULTIPLIER_NEGATIVE = negative_multiplier
     eps = 0.1
 
     if with_redis:
@@ -847,7 +855,8 @@ async def test_attack_station_score_buff(buff_a_count, buff_b_count, with_redis 
 
         # add the score
         modifier = 1 + const.BUFF_A_MODIFIER * buff_a_count + const.BUFF_B_MODIFIER * buff_b_count
-        total_score = clamp(total_score + int(scores[i] * modifier), const.STATION_SCORE_LB, const.STATION_SCORE_UB)
+        multiplier = const.STATION_SCORE_MULTIPLIER_POSITIVE if scores[i] >= 0 else const.STATION_SCORE_MULTIPLIER_NEGATIVE
+        total_score = clamp(total_score + int(int(scores[i] * modifier) * multiplier), const.STATION_SCORE_LB, const.STATION_SCORE_UB)
 
         # repeat the query to test the cache
         assert total_score == await gl.get_station_score(station_id=station_id, before=time_base + timedelta(seconds=i + 0.5 + eps))
@@ -1149,12 +1158,16 @@ if __name__ == "__main__":
     asyncio.run(test_game_score_history_two_player(with_redis=True, game_score_granularity=0.3))
     asyncio.run(test_game_score_history_two_player(with_redis=False, game_score_granularity=0.1))
     asyncio.run(test_game_score_history_two_player(with_redis=False, game_score_granularity=0.3))
-    asyncio.run(test_attack_station_score_buff(buff_a_count=2, buff_b_count=3))
-    asyncio.run(test_attack_station_score_buff(buff_a_count=0, buff_b_count=0))
-    asyncio.run(test_attack_station_score_buff(buff_a_count=10, buff_b_count=5))
-    asyncio.run(test_attack_station_score_buff(buff_a_count=2, buff_b_count=3, with_redis=True))
-    asyncio.run(test_attack_station_score_buff(buff_a_count=0, buff_b_count=0, with_redis=True))
-    asyncio.run(test_attack_station_score_buff(buff_a_count=10, buff_b_count=5, with_redis=True))
+    asyncio.run(test_attack_station_score_buff_and_multiplier(buff_a_count=2, buff_b_count=3, positive_multiplier=1.0, negative_multiplier=1.0))
+    asyncio.run(test_attack_station_score_buff_and_multiplier(buff_a_count=0, buff_b_count=0, positive_multiplier=1.0, negative_multiplier=1.0))
+    asyncio.run(test_attack_station_score_buff_and_multiplier(buff_a_count=10, buff_b_count=5, positive_multiplier=1.0, negative_multiplier=1.0))
+    asyncio.run(test_attack_station_score_buff_and_multiplier(buff_a_count=2, buff_b_count=3, positive_multiplier=1.0, negative_multiplier=1.0, with_redis=True))
+    asyncio.run(test_attack_station_score_buff_and_multiplier(buff_a_count=0, buff_b_count=0, positive_multiplier=1.0, negative_multiplier=1.0, with_redis=True))
+    asyncio.run(test_attack_station_score_buff_and_multiplier(buff_a_count=10, buff_b_count=5, positive_multiplier=1.0, negative_multiplier=1.0, with_redis=True))
+    asyncio.run(test_attack_station_score_buff_and_multiplier(buff_a_count=0, buff_b_count=0, positive_multiplier=1.1, negative_multiplier=1.0))
+    asyncio.run(test_attack_station_score_buff_and_multiplier(buff_a_count=0, buff_b_count=0, positive_multiplier=1.0, negative_multiplier=1.1))
+    asyncio.run(test_attack_station_score_buff_and_multiplier(buff_a_count=0, buff_b_count=0, positive_multiplier=1.1, negative_multiplier=1.0, with_redis=True))
+    asyncio.run(test_attack_station_score_buff_and_multiplier(buff_a_count=0, buff_b_count=0, positive_multiplier=1.0, negative_multiplier=1.1, with_redis=True))
     asyncio.run(test_game_score_log_only())
     asyncio.run(test_sponsor_bonus())
     asyncio.run(test_sponsor_bonus(with_redis=True))
