@@ -3,6 +3,7 @@
 
 #include <Service/ButtonService.h>
 #include <Service/Sched/Task.h>
+#include <Util/CircularQueue.h>
 #include <Util/callback.h>
 #include <main.h>
 #include <stdint.h>
@@ -84,6 +85,14 @@ class ButtonLogic {
   uint16_t _out;
   // store button has sent key up or not
   uint8_t _edge_flag[BUTTON_AMOUNT];
+  uint8_t _is_queued = 0;
+  // 0x02 for edge, 0x01 for btn callback.
+
+  CircularQueue<size_t, 4> _edge_queue;
+  CircularQueue<size_t, 4> _btn_queue;
+
+  void EnsureBtnQueued();
+  void EnsureEdgeQueued();
 
   void CallbackWrapper(void* arg2);
   void EdgeCallbackWrapper(void* arg2);

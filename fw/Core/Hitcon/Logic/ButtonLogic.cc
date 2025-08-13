@@ -40,14 +40,49 @@ void ButtonLogic::SetEdgeCallback(callback_t callback, void* callback_arg1) {
   this->edge_callback_arg1 = callback_arg1;
 }
 
-void ButtonLogic::CallbackWrapper(void* arg2) {
-  if (callback) callback(callback_arg1, arg2);
+void ButtonLogic::CallbackWrapper(void* unused) {
+  _is_queued = _is_queued & (~0x01);
+  if (_btn_queue.Size() != 0) {
+    if (callback) {
+      callback(callback_arg1, reinterpret_cast<void*>(_btn_queue.Front()));
+    }
+    _btn_queue.PopFront();
+    EnsureBtnQueued();
+  }
 }
 
 void ButtonLogic::EdgeCallbackWrapper(void* arg2) {
-  if (edge_callback) edge_callback(edge_callback_arg1, arg2);
+  _is_queued = _is_queued & (~0x02);
+  if (_edge_queue.Size() != 0) {
+    if (edge_callback) {
+      edge_callback(edge_callback_arg1,
+                    reinterpret_cast<void*>(_edge_queue.Front()));
+    }
+    _edge_queue.PopFront();
+    EnsureEdgeQueued();
+  }
 }
 
+int q_cnt1 = 0;
+int q_cnt2 = 0;
+
+void ButtonLogic::EnsureBtnQueued() {
+  if ((_is_queued & 0x01) == 0 && _edge_queue.Size() != 0) {
+    _is_queued = _is_queued | 0x01;
+    q_cnt1++;
+    if (q_cnt1 == 0) {
+    }
+    scheduler.Queue(&_callback_task, nullptr);
+  }
+}
+
+void ButtonLogic::EnsureEdgeQueued() {
+  if ((_is_queued & 0x02) == 0 && _btn_queue.Size() != 0) {
+    _is_queued = _is_queued | 0x02;
+    q_cnt2++;
+    scheduler.Queue(&_edge_callback_task, nullptr);
+  }
+}
 void ButtonLogic::OnReceiveData(uint8_t* data) {
   static uint8_t counter = 0;
   uint16_t pressed_btn = 0;
@@ -58,28 +93,28 @@ void ButtonLogic::OnReceiveData(uint8_t* data) {
         pressed_btn = j;
         if (_edge_flag[j] == 0 && _count[j] > BOUNCE_TIME_THRESHOLD) {
           _edge_flag[j] = 1;
-          scheduler.Queue(&_edge_callback_task,
-                          reinterpret_cast<void*>(static_cast<size_t>(
-                              ((BUTTON_MODE + j) | BUTTON_KEYDOWN_BIT))));
+          _edge_queue.PushBack(
+              static_cast<size_t>(((BUTTON_MODE + j) | BUTTON_KEYDOWN_BIT)));
+          EnsureEdgeQueued();
         }
       } else {
         if (_fire == j) _fire = 0;
         if (BOUNCE_TIME_THRESHOLD < _count[j] &&
             _count[j] <= LONG_PRESS_TIME_THRESHOLD) {  // handle short press
           _out = BUTTON_MODE + j;
-          scheduler.Queue(&_callback_task,
-                          reinterpret_cast<void*>(static_cast<size_t>((_out))));
+          _btn_queue.PushBack(static_cast<size_t>((_out)));
+          EnsureBtnQueued();
         } else if (LONG_PRESS_TIME_THRESHOLD < _count[j]) {
           _out = BUTTON_LONG_MODE + j;
-          scheduler.Queue(&_callback_task,
-                          reinterpret_cast<void*>(static_cast<size_t>((_out))));
+          _btn_queue.PushBack(static_cast<size_t>((_out)));
+          EnsureBtnQueued();
         }
         _count[j] = 0;
         if (_edge_flag[j]) {
           _edge_flag[j] = 0;
-          scheduler.Queue(&_edge_callback_task,
-                          reinterpret_cast<void*>(static_cast<size_t>(
-                              ((BUTTON_MODE + j) | BUTTON_KEYUP_BIT))));
+          _edge_queue.PushBack(
+              static_cast<size_t>(((BUTTON_MODE + j) | BUTTON_KEYUP_BIT)));
+          EnsureEdgeQueued();
         }
       }
     }
@@ -88,8 +123,8 @@ void ButtonLogic::OnReceiveData(uint8_t* data) {
     if (counter == 5) {
       counter = 0;
       _out = BUTTON_MODE + _fire;
-      scheduler.Queue(&_callback_task,
-                      reinterpret_cast<void*>(static_cast<size_t>((_out))));
+      _btn_queue.PushBack(static_cast<size_t>((_out)));
+      EnsureBtnQueued();
     }
     counter++;
   }
