@@ -107,6 +107,8 @@ void HashService::doHashFinalize() {
 
 void HashService::doHashDone() {
   serviceContext.callback(serviceContext.callbackArg1, &result);
+  // Be careful that the callback MUST start before disabling the periodic task,
+  // or we may have race condition due to Stop().
   scheduler.DisablePeriodic(&hashTask);
 }
 
