@@ -8,6 +8,8 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#define IR_ALLOW_TX_OVERRUN
+
 namespace hitcon {
 namespace ir {
 
@@ -68,6 +70,11 @@ class IrService {
   // If false, will skip sending header.
   bool tx_pending_send_header;
 
+ public:
+  bool tx_dma_queued_ = false;
+  uint16_t tx_dma_overrun_cnt_ = 0;
+
+ private:
   /*
   MSB meaning:
   0x00 - Ready to accept the next buffer.

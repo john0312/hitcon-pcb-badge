@@ -43,6 +43,14 @@ void ReceiveDmaCplt(DMA_HandleTypeDef *hdma) {
 
 void TransmitDmaHalfCplt(DMA_HandleTypeDef *hdma) {
   if (!g_suspender.IsSuspended()) {
+#ifdef IR_ALLOW_TX_OVERRUN
+    if (irService.tx_dma_queued_) {
+      // Overrun happened.
+      irService.tx_dma_overrun_cnt_++;
+      return;
+    }
+#endif
+    irService.tx_dma_queued_ = true;
     scheduler.Queue(&irService.dma_tx_populate_task,
                     reinterpret_cast<void *>(0));
   }
@@ -51,6 +59,14 @@ void TransmitDmaHalfCplt(DMA_HandleTypeDef *hdma) {
 
 void TransmitDmaCplt(DMA_HandleTypeDef *hdma) {
   if (!g_suspender.IsSuspended()) {
+#ifdef IR_ALLOW_TX_OVERRUN
+    if (irService.tx_dma_queued_) {
+      // Overrun happened.
+      irService.tx_dma_overrun_cnt_++;
+      return;
+    }
+#endif
+    irService.tx_dma_queued_ = true;
     scheduler.Queue(&irService.dma_tx_populate_task,
                     reinterpret_cast<void *>(1));
   }
@@ -155,6 +171,7 @@ void IrService::SetOnBufferReceived(callback_t callback, void *callback_arg1) {
 }
 
 void IrService::PopulateTxDmaBuffer(void *ptr_side) {
+  irService.tx_dma_queued_ = false;
   int side = reinterpret_cast<intptr_t>(ptr_side);
 
   uint32_t cstate = tx_state >> 24;
