@@ -15,7 +15,6 @@ namespace internal {
 
 class ModNum {
   friend ModNum operator+(const uint64_t a, const ModNum &b);
-  friend ModNum operator*(const uint64_t a, const ModNum &b);
 
  public:
   ModNum(uint64_t val, uint64_t mod);
@@ -25,13 +24,38 @@ class ModNum {
   ModNum operator-() const;
   ModNum operator+(const ModNum &other) const;
   ModNum operator-(const ModNum &other) const;
-  ModNum operator*(const ModNum &other) const;
   bool operator==(const ModNum &other) const;
   bool operator==(const uint64_t other) const;
 
   uint64_t val;
   uint64_t mod;
 };
+
+struct ModMulContext {
+  uint64_t a, b, m;
+  uint64_t res;
+  uint8_t i;
+};
+
+class ModMulService {
+ public:
+  void start(uint64_t a, uint64_t b, uint64_t m, callback_t callback,
+             void *callbackArg1);
+  ModMulService();
+
+ private:
+  callback_t callback;
+  void *callbackArg1;
+  service::sched::Task routineTask;
+  service::sched::Task finalizeTask;
+
+  void routineFunc();
+  void finalize();
+
+  ModMulContext context;
+};
+
+extern ModMulService g_mod_mul_service;
 
 /**
  * Context for performing res = (a / b) mod m.
@@ -40,7 +64,8 @@ class ModNum {
  */
 struct ModDivContext {
   uint64_t m;
-  uint64_t ppr, pr;
+  uint64_t q;
+  uint64_t ppr, pr, r;
   uint64_t ppx, px;
   uint64_t a;
   uint64_t res;
@@ -59,7 +84,9 @@ class ModDivService {
   service::sched::Task routineTask;
   service::sched::Task finalizeTask;
   void routineFunc();
+  void preFinalize(uint64_t *res);
   void finalize();
+  void onModMulDone(uint64_t *x);
 };
 
 extern ModDivService g_mod_div_service;
@@ -129,9 +156,12 @@ class PointAddService {
   service::sched::Task genXTask;
   service::sched::Task genYTask;
   void routineFunc();
-  void genX();
-  void genY();
+  void genXStep1();
+  void genXStep2(uint64_t *lPow2);
+  void genYStep1();
+  void genYStep2(uint64_t *lDx);
   void onDivDone(ModNum *l);
+  void onLtopDone(uint64_t *l_top);
   void finalize();
 };
 
@@ -307,6 +337,7 @@ class EcLogic {
   void onSignHashFinish(hitcon::hash::HashResult *hashResult);
   void onVerifyHashFinish(hitcon::hash::HashResult *hashResult);
   void onRGenerated(internal::EcPoint *p);
+  void genS(uint64_t *pkR);
   void onSGenerated(internal::ModNum *s);
   void finalizeSign();
   void onU1Generated(internal::ModNum *u1);

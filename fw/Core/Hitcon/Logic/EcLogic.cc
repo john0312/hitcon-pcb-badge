@@ -19,7 +19,7 @@ EcLogic g_ec_logic;
 
 namespace internal {
 
-#define UINT64_MSB (1ULL << 63)
+static constexpr uint64_t UINT64_MSB = 1ULL << 63;
 
 // Hardcoded curve parameters
 static const EllipticCurve g_curve(0x5e924cd447a56b, 0x892f0a953f589b);
@@ -50,35 +50,6 @@ constexpr inline uint64_t modsub(const uint64_t a, const uint64_t b,
     return a + m - b;
 }
 
-inline uint64_t modmul(uint64_t a, uint64_t b, uint64_t m) {
-  uint64_t res = 0;
-  for (int i = 0; i < 64; ++i) {
-    res = modadd(res, res, m);
-    if (b & UINT64_MSB) res = modadd(res, a, m);
-    b <<= 1;
-  }
-  return res;
-}
-
-uint64_t extgcd(uint64_t ppr, uint64_t pr) {
-  // return only coefficient of a
-  // only works under mod pr
-  // ignores division by zeroes
-  uint64_t m = pr;
-  uint64_t ppx = 1;
-  uint64_t px = 0;
-  while (pr != 1) {
-    uint64_t q = ppr / pr;
-    uint64_t r = ppr % pr;
-    uint64_t x = modsub(ppx, modmul(q, px, m), m);
-    ppr = pr;
-    pr = r;
-    ppx = px;
-    px = x;
-  }
-  return px;
-}
-
 ModNum::ModNum(uint64_t val, uint64_t mod) : val(val), mod(mod) {}
 
 ModNum ModNum::operator=(const ModNum &other) {
@@ -107,20 +78,45 @@ ModNum ModNum::operator-(const ModNum &other) const {
   return ModNum(modsub(a, b, m), m);
 }
 
-ModNum ModNum::operator*(const ModNum &other) const {
-  uint64_t a = val, b = other.val, m = mod;
-  return ModNum(modmul(a, b, m), m);
-}
-
-ModNum operator*(const uint64_t a, const ModNum &b) {
-  return ModNum(a, b.mod) * b;
-}
-
 bool ModNum::operator==(const ModNum &other) const {
   return val == other.val && mod == other.mod;
 }
 
 bool ModNum::operator==(const uint64_t other) const { return val == other; }
+
+ModMulService g_mod_mul_service;
+
+ModMulService::ModMulService()
+    : routineTask(804, (callback_t)&ModMulService::routineFunc, this),
+      finalizeTask(804, (callback_t)&ModMulService::finalize, this) {}
+
+void ModMulService::start(uint64_t a, uint64_t b, uint64_t m,
+                          callback_t callback, void *callbackArg1) {
+  this->callback = callback;
+  this->callbackArg1 = callbackArg1;
+  context.a = a;
+  context.b = b;
+  context.m = m;
+  context.res = 0;
+  context.i = 0;
+  scheduler.Queue(&routineTask, nullptr);
+}
+
+void ModMulService::routineFunc() {
+  do {
+    context.res = modadd(context.res, context.res, context.m);
+    if (context.b & UINT64_MSB)
+      context.res = modadd(context.res, context.a, context.m);
+    context.b <<= 1;
+    ++context.i;
+  } while (context.i & 0b11111);
+  if (context.i == 64)
+    scheduler.Queue(&finalizeTask, nullptr);
+  else
+    scheduler.Queue(&routineTask, nullptr);
+}
+
+void ModMulService::finalize() { callback(callbackArg1, &context.res); }
 
 ModDivService g_mod_div_service;
 
@@ -139,26 +135,44 @@ void ModDivService::start(uint64_t a, uint64_t b, uint64_t m,
   context.m = m;
   context.ppr = b;
   context.pr = m;
+  context.r = 0;
   context.ppx = 1;
   context.px = 0;
-  context.res = 0;
+  context.q = 0;
   scheduler.Queue(&routineTask, this);
 }
 
 void ModDivService::routineFunc() {
   if (context.pr == 1) {
-    context.res = modmul(context.a, context.px, context.m);
-    scheduler.Queue(&finalizeTask, this);
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpmf-conversions"
+    g_mod_mul_service.start(context.a, context.px, context.m,
+                            (callback_t)&ModDivService::preFinalize, this);
+#pragma GCC diagnostic pop
     return;
   }
-  uint64_t q = context.ppr / context.pr;
-  uint64_t r = context.ppr % context.pr;
-  uint64_t x = modsub(context.ppx, modmul(q, context.px, context.m), context.m);
+  context.q = context.ppr / context.pr;
+  context.r = context.ppr % context.pr;
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpmf-conversions"
+  g_mod_mul_service.start(context.q, context.px, context.m,
+                          (callback_t)&ModDivService::onModMulDone, this);
+#pragma GCC diagnostic pop
+}
+
+void ModDivService::onModMulDone(uint64_t *x) {
+  uint64_t _x = modsub(context.ppx, *x, context.m);
   context.ppr = context.pr;
-  context.pr = r;
+  context.ppr = context.pr;
+  context.pr = context.r;
   context.ppx = context.px;
-  context.px = x;
+  context.px = _x;
   scheduler.Queue(&routineTask, this);
+}
+
+void ModDivService::preFinalize(uint64_t *res) {
+  context.res = *res;
+  scheduler.Queue(&finalizeTask, nullptr);
 }
 
 void ModDivService::finalize() {
@@ -235,8 +249,8 @@ PointAddService g_point_add_service;
 PointAddService::PointAddService()
     : routineTask(802, (callback_t)&PointAddService::routineFunc, this),
       finalizeTask(802, (callback_t)&PointAddService::finalize, this),
-      genXTask(802, (callback_t)&PointAddService::genX, this),
-      genYTask(802, (callback_t)&PointAddService::genY, this) {}
+      genXTask(802, (callback_t)&PointAddService::genXStep1, this),
+      genYTask(802, (callback_t)&PointAddService::genYStep1, this) {}
 #pragma GCC diagnostic pop
 
 void PointAddService::start(const EcPoint &a, const EcPoint &b,
@@ -260,16 +274,11 @@ void PointAddService::routineFunc() {
     scheduler.Queue(&finalizeTask, this);
   } else if (context.a == context.b) {
     // double the point
-    // Original formula is 3 * x^2 + A, but we do the addition 3 times instead
-    // to avoid the expensive multiplication.
-    ModNum l_top = context.a.x * context.a.x;
-    l_top = l_top + l_top + l_top + ModNum(g_curve.A, l_top.mod);
-    // Same applies here, original formula is 2 * y
-    ModNum l_bot = context.a.y + context.a.y;
+    // Original formula is 3 * x^2 + A, we calculate x^2 here by doing x * x
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wpmf-conversions"
-    g_mod_div_service.start(l_top.val, l_bot.val, l_top.mod,
-                            (callback_t)&PointAddService::onDivDone, this);
+    g_mod_mul_service.start(context.a.x.val, context.a.x.val, context.a.x.mod,
+                            (callback_t)&PointAddService::onLtopDone, this);
 #pragma GCC diagnostic pop
   } else {
     // intersect directly
@@ -283,18 +292,51 @@ void PointAddService::routineFunc() {
   }
 }
 
+void PointAddService::onLtopDone(uint64_t *l_top) {
+  ModNum _l_top(*l_top, context.a.x.mod);
+  // Original formula is 3 * x^2 + A, we perform addition 3 times to avoid
+  // expensive operations.
+  _l_top = _l_top + _l_top + _l_top + ModNum(g_curve.A, _l_top.mod);
+  // same here for 2 * y
+  ModNum l_bot = context.a.y + context.a.y;
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpmf-conversions"
+  g_mod_div_service.start(_l_top.val, l_bot.val, _l_top.mod,
+                          (callback_t)&PointAddService::onDivDone, this);
+#pragma GCC diagnostic pop
+}
+
 void PointAddService::onDivDone(ModNum *l) {
   context.l = *l;
   scheduler.Queue(&genXTask, this);
 }
 
-void PointAddService::genX() {
-  context.res.x = context.l * context.l - context.a.x - context.b.x;
+void PointAddService::genXStep1() {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpmf-conversions"
+  g_mod_mul_service.start(context.l.val, context.l.val, context.l.mod,
+                          (callback_t)&PointAddService::genXStep2, this);
+#pragma GCC diagnostic pop
+}
+
+void PointAddService::genXStep2(uint64_t *lPow2) {
+  ModNum _lPow2(*lPow2, context.l.mod);
+  context.res.x = _lPow2 - context.a.x - context.b.x;
   scheduler.Queue(&genYTask, this);
 }
 
-void PointAddService::genY() {
-  context.res.y = context.l * (context.a.x - context.res.x) - context.a.y;
+void PointAddService::genYStep1() {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpmf-conversions"
+  g_mod_mul_service.start(context.l.val, (context.a.x - context.res.x).val,
+                          context.l.mod,
+                          (callback_t)&PointAddService::genYStep2, this);
+#pragma GCC diagnostic pop
+}
+
+void PointAddService::genYStep2(uint64_t *lDx) {
+  ModNum _lDx(*lDx, context.l.mod);
+  context.res.y = _lDx - context.a.y;
   scheduler.Queue(&finalizeTask, this);
 }
 
@@ -408,12 +450,14 @@ bool EcLogic::StartVerify(uint8_t const *message, uint32_t len,
 }
 
 void EcLogic::onSignHashFinish(HashResult *hashResult) {
-  context.z = reinterpret_cast<uint64_t *>(hashResult->digest)[0];
+  context.z =
+      reinterpret_cast<uint64_t *>(hashResult->digest)[0] % g_curveOrder;
   scheduler.Queue(&genRandTask, this);
 }
 
 void EcLogic::onVerifyHashFinish(HashResult *HashResult) {
-  context.z = reinterpret_cast<uint64_t *>(HashResult->digest)[0];
+  context.z =
+      reinterpret_cast<uint64_t *>(HashResult->digest)[0] % g_curveOrder;
   // u1 = z / s
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wpmf-conversions"
@@ -423,8 +467,8 @@ void EcLogic::onVerifyHashFinish(HashResult *HashResult) {
 }
 
 void EcLogic::genRand() {
-  context.k =
-      g_fast_random_pool.GetRandom() << 32 | g_fast_random_pool.GetRandom();
+  context.k = ((uint64_t)(g_fast_random_pool.GetRandom())) << 32 |
+              g_fast_random_pool.GetRandom();
   // r = k * G
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wpmf-conversions"
@@ -438,14 +482,24 @@ void EcLogic::onRGenerated(EcPoint *p) {
   if (context.r == 0)
     scheduler.Queue(&genRandTask, this);
   else {
-    ModNum a = (context.z + privateKey * context.r);
-    // s = (z + r * d) / k
+    // Start generating S
+    // We start by calculating r * d
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wpmf-conversions"
-    g_mod_div_service.start(a.val, context.k, a.mod,
-                            (callback_t)&EcLogic::onSGenerated, this);
+    g_mod_mul_service.start(privateKey, context.r.val, context.r.mod,
+                            (callback_t)&EcLogic::genS, this);
 #pragma GCC diagnostic pop
   }
+}
+
+void EcLogic::genS(uint64_t *pkR) {
+  ModNum a = context.z + ModNum(*pkR, context.r.mod);
+  // s = (z + r * d) / k
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpmf-conversions"
+  g_mod_div_service.start(a.val, context.k, a.mod,
+                          (callback_t)&EcLogic::onSGenerated, this);
+#pragma GCC diagnostic pop
 }
 
 void EcLogic::onSGenerated(ModNum *s) {
