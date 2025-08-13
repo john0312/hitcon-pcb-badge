@@ -79,7 +79,7 @@ void IrController::OnPacketReceived(void* arg) {
     }
   } else if (data->type == packet_type::kAcknowledge) {
     OnAcknowledgePacket(&data->opaq.acknowledge);
-  } else if (data->type == packet_type::kScoreAnnonce) {
+  } else if (data->type == packet_type::kScoreAnnounce) {
     const uint8_t* user = g_game_controller.GetUsername();
     if (user &&
         memcmp(data->opaq.score_announce.user, user, IR_USERNAME_LEN) == 0) {

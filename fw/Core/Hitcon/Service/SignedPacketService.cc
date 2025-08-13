@@ -55,7 +55,7 @@ static bool getPacketSigInfo(packet_type packetType, size_t &sigOffset,
                         ECC_SIGNATURE_SIZE <=
                     MAX_PACKET_DATA_SIZE);
       break;
-    case packet_type::kScoreAnnonce:
+    case packet_type::kScoreAnnounce:
       sigOffset = offsetof(hitcon::ir::ScoreAnnouncePacket, sig);
       dataSize = sizeof(hitcon::ir::ScoreAnnouncePacket) - ECC_SIGNATURE_SIZE;
       static_assert(sizeof(hitcon::ir::ScoreAnnouncePacket) -
@@ -160,7 +160,7 @@ void SignedPacketService::OnPacketVerFinish(void *isValid) {
 
 void SignedPacketService::ReceivePacket(SignedPacket &packet) {
   switch (packet.type) {
-    case packet_type::kScoreAnnonce:
+    case packet_type::kScoreAnnounce:
       show_name_app.SetScore(*reinterpret_cast<uint32_t *>(
           packet.data + offsetof(hitcon::ir::ScoreAnnouncePacket, score)));
       break;

@@ -23,7 +23,7 @@ enum class packet_type : uint8_t {
   kProximity = 4,
   kPubAnnounce = 5,
   kTwoBadgeActivity = 6,
-  kScoreAnnonce = 7,
+  kScoreAnnounce = 7,
   kSingleBadgeActivity = 8,
   kSponsorActivity = 9,
   kShowMsg = 10,
