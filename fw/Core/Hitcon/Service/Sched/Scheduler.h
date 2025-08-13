@@ -68,8 +68,10 @@ class Scheduler {
 
   size_t totalTasks = 0;
 
+#ifdef DEBUG
   TaskRecord taskRecords[kRecordSize];
   size_t record_index{0};
+#endif  // #ifdef DEBUG
 
   Task *currentTask = nullptr;
 

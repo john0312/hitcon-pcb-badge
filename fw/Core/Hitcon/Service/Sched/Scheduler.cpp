@@ -162,9 +162,11 @@ void Scheduler::Run() {
       top.ExitQueue();
     }
     totalTasks++;
+#ifdef DEBUG
     TaskRecord record;
     record.startTime = SysTimer::GetTime();
     record.task = &top;
+#endif DEBUG
 
     currentTask = &top;
 #ifdef DEBUG
@@ -175,10 +177,12 @@ void Scheduler::Run() {
     my_assert(hitcon::app::tama::tama_app.IsDataValid());
 #endif
     currentTask = nullptr;
+#ifdef DEBUG
     record.endTime = SysTimer::GetTime();
     taskRecords[record_index] = record;
     record_index++;
     if (record_index == kRecordSize) record_index = 0;
+#endif DEBUG
   }
 }
 
