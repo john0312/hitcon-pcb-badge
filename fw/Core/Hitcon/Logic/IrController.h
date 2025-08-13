@@ -32,6 +32,31 @@ enum class packet_type : uint8_t {
   kRestorePet = 13,
 };
 
+// smaller value means higher priority
+// only packets from badge need to have priority.
+constexpr uint8_t LOWEST_PRIORITY = 0xFF;
+constexpr uint8_t packet_priority[14] = {
+    LOWEST_PRIORITY,  // kGame
+    LOWEST_PRIORITY,  // kShow
+    LOWEST_PRIORITY,  // kTest
+    LOWEST_PRIORITY,  // kAcknowledge
+    10,               // kProximity
+    0,                // kPubAnnounce
+    2,                // kTwoBadgeActivity
+    LOWEST_PRIORITY,  // kScoreAnnounce
+    3,                // kSingleBadgeActivity
+    1,                // kSponsorActivity
+    LOWEST_PRIORITY,  // kShowMsg
+    4,                // kRequestScore
+    5,                // kSavePet
+    LOWEST_PRIORITY   // kRestorePet
+};
+constexpr uint8_t GetPriority(packet_type type) {
+  if (type < packet_type::kGame || type > packet_type::kRestorePet)
+    return LOWEST_PRIORITY;
+  return packet_priority[static_cast<uint8_t>(type)];
+}
+
 namespace hitcon {
 
 constexpr size_t kTamaDataSaveLen = 6;
