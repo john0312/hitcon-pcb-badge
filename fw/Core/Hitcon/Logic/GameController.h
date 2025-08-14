@@ -80,6 +80,7 @@ class GameController {
 
   int pubAnnounceCnt;
   hitcon::service::sched::PeriodicTask pubAnnounceTask;
+  bool pubAnnonceEnabled = false;
 
   void TrySendPubAnnounce();
 };

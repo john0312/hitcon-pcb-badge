@@ -28,6 +28,7 @@ void GameController::Init() {
   hitcon::ecc::g_ec_logic.SetPrivateKey(g_per_board_data.GetPrivKey());
   hitcon::service::sched::scheduler.Queue(&pubAnnounceTask, nullptr);
   hitcon::service::sched::scheduler.EnablePeriodic(&pubAnnounceTask);
+  pubAnnonceEnabled = true;
 }
 
 bool GameController::SendTwoBadgeActivity(const TwoBadgeActivity &data) {
@@ -87,9 +88,14 @@ bool GameController::SendSingleBadgeActivity(const SingleBadgeActivity &data) {
 }
 
 void GameController::NotifyPubkeyAck() {
-  g_nv_storage.GetCurrentStorage().game_storage.user_id_acknowledged = 1;
-  g_nv_storage.MarkDirty();
-  hitcon::service::sched::scheduler.DisablePeriodic(&pubAnnounceTask);
+  if (!g_nv_storage.GetCurrentStorage().game_storage.user_id_acknowledged) {
+    g_nv_storage.GetCurrentStorage().game_storage.user_id_acknowledged = 1;
+    g_nv_storage.MarkDirty();
+  }
+  if (pubAnnonceEnabled) {
+    pubAnnonceEnabled = false;
+    hitcon::service::sched::scheduler.DisablePeriodic(&pubAnnounceTask);
+  }
 }
 
 const uint8_t *GameController::GetUsername() {
