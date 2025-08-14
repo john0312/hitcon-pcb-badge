@@ -383,11 +383,19 @@ class GameLogicController:
 
         # postpone if the user has not bind the badge username
         if user is None and solves is not None:
-            await db["unapplied_rectf_scores"].insert_one({
-                "uid": uid,
-                "solves": solves.model_dump(),
-                "timestamp": utcnow()
-            })
+            await db["unapplied_rectf_scores"].update_one(
+                {"uid": uid},
+                {
+                    "$set": {
+                        "solves": solves.model_dump(),
+                        "timestamp": utcnow()
+                    },
+                    "$setOnInsert": {
+                        "uid": uid,
+                    }
+                },
+                upsert=True
+            )
 
         if user is not None:
             if solves is not None:
