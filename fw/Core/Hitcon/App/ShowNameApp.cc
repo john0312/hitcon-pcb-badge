@@ -148,8 +148,7 @@ void ShowNameApp::update_display() {
       display_str[num_len] = 0;
       break;
     case Surprise:
-      strncpy(display_str, SURPRISE_NAME, SURPRISE_NAME_LEN);
-      display_str[SURPRISE_NAME_LEN] = 0;
+      strncpy(display_str, surprise_msg, strlen(surprise_msg) + 1);
       break;
     default:
       break;
