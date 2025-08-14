@@ -88,6 +88,7 @@ bool IrxbBridge::RoutineInternal() {
     disp_txt_[2] = '-';
     disp_txt_[3] = 0;
     show_text = true;
+    tama_app.TamaHealOnly();
   } else if (state_ >= kStateBase &&
              state_ < kStateBase + 16 * ir::RETX_QUEUE_SIZE) {
     int slot = (state_ - kStateBase) / 16;

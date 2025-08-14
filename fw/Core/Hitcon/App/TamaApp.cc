@@ -880,9 +880,13 @@ bool TamaApp::CanAcceptHeal() {
   return false;
 }
 
-void TamaApp::TamaHeal() {
+void TamaApp::TamaHealOnly() {
   _tama_data.hp = 3;
   SetHunger(4);
+}
+
+void TamaApp::TamaHeal() {
+  TamaHealOnly();
   _state = TAMA_APP_STATE::PET_HEALING;
   UpdateFrameBuffer();
 }

@@ -306,6 +306,7 @@ class TamaApp : public App {
   // BaseStation
   bool CanAcceptHeal();
   void TamaHeal();
+  void TamaHealOnly();
 
   // Sponsor
   void SponsorRegister(uint8_t sponsor_id);
