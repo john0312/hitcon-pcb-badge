@@ -108,6 +108,13 @@ class PacketProcessor:
             await self.packets.delete_one({"_id": packet["_id"]})
 
 
+    async def get_tx_queue_length(self):
+        return {
+            station.station_id: len(station.tx)
+            for station in self.stations.find({})
+        }
+
+
     # ===== Interface for GameLogic =====
     async def send_packet_to_user(self, ir_packet: IrPacket, user: int) -> uuid.UUID:
         """
