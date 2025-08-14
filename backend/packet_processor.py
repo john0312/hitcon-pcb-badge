@@ -92,8 +92,8 @@ class PacketProcessor:
             await self.ack(ir_packet_schema, station)
 
 
-    async def has_packet_for_tx(self, station: Station) -> AsyncIterator[IrPacketRequestSchema]:
-        packets = self.packets.find({"_id": {"$in": station.tx}})
+    async def has_packet_for_tx(self, station: Station, num: int) -> AsyncIterator[IrPacketRequestSchema]:
+        packets = self.packets.find({"_id": {"$in": station.tx}}).limit(num)
         async for packet in packets:
             # Convert the packet to IrPacketRequestSchema and yield it.
             yield IrPacketRequestSchema(
@@ -106,6 +106,13 @@ class PacketProcessor:
                 {"$pull": {"tx": packet["_id"]}}
             )
             await self.packets.delete_one({"_id": packet["_id"]})
+
+
+    async def get_tx_queue_length(self):
+        return {
+            station.station_id: len(station.tx)
+            for station in self.stations.find({})
+        }
 
 
     # ===== Interface for GameLogic =====

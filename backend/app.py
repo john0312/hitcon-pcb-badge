@@ -57,10 +57,15 @@ async def get_stations_scores():
 
 
 ## ====== Station API Endpoints ======
+@router.get("/tx_queue")
+async def get_tx_queue() -> dict[str, int]:
+    return await packet_processor_instance.get_tx_queue_length()
+
+
 @router.get("/tx")
-async def tx(station: Station = Depends(get_station)) -> list[IrPacketRequestSchema]:
+async def tx(num: int, station: Station = Depends(get_station)) -> list[IrPacketRequestSchema]:
     # Backend asks the base station to send a packet.
-    packets = packet_processor_instance.has_packet_for_tx(station)
+    packets = packet_processor_instance.has_packet_for_tx(station, num)
 
     ret = []
     async for packet in packets:
