@@ -714,7 +714,8 @@ void TamaApp::XbUpdateFrameBuffer() {
               : 13);
       break;
     case TAMA_XBOARD_STATE::XBOARD_BATTLE_ENCOUNTER: {
-      if (enemy_packet.state < TAMA_XBOARD_STATE::XBOARD_BATTLE_ENCOUNTER) {
+      if (enemy_packet.state < TAMA_XBOARD_STATE::XBOARD_BATTLE_ENCOUNTER ||
+          enemy_packet.state == TAMA_XBOARD_STATE::XBOARD_BATTLE_END) {
         return;
       }
       const tama_ani_t *me = nullptr, *enemy = nullptr;
