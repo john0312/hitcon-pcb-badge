@@ -441,10 +441,10 @@ class GameLogicController:
         """
         pkt = IrPacket(
             data=b"".join([
-                b"\x00",                                    # TTL
-                bytes([PacketType.kShowMsg.value]),         # PacketType
-                user.to_bytes(4, 'little'),                 # User
-                msg.encode('ascii')[:MESSAGE_LEN]           # Message
+                b"\x00",                                                        # TTL
+                bytes([PacketType.kShowMsg.value]),                             # PacketType
+                user.to_bytes(4, 'little'),                                     # User
+                msg.encode('ascii')[:MESSAGE_LEN].ljust(MESSAGE_LEN, b"\x00")   # Message
             ]),
             to_stn=True
         )
