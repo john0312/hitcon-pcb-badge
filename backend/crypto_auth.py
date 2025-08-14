@@ -188,7 +188,7 @@ class CryptoAuth:
         Returns the user ID.
         """
         # Use last 4 bytes of x as user ID (shift 1 more byte for sign)
-        user = pubkey.point.x >> (8 * ECC_PUBKEY_SIZE - 1 - 4)
+        user = pubkey.point.x >> (8 * (ECC_PUBKEY_SIZE - 1 - 4))
 
         x = CryptoAuth.encode_pubkey(pubkey)
 
