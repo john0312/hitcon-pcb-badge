@@ -23,7 +23,9 @@ void I2CErrorCallback(I2C_HandleTypeDef* hi2c) {
     else
       i = 0;
     tick = SysTimer::GetTime();
+#ifdef DEBUG
     if (i > 10) my_assert(false);
+#endif
 
     g_imu_service.ResetI2C();
     g_imu_logic.Reset();
