@@ -360,7 +360,8 @@ class Packet:
         return size
 
 class BackgroundRunner:
-    raise_exception = True  # If True, will raise exception in run_forever() if any error occurs.
+    raise_exception = False  # If True, will raise exception in run_forever() if any error occurs. Else will log the error and restart the task.
+    restart_time = 0.5                 
 
     def  __init__(self):
         self.run_task: asyncio.Task = None
@@ -384,6 +385,12 @@ class BackgroundRunner:
                 logger.error(f"Error in {self.__class__.__name__}: {e}")
                 if self.raise_exception:
                     raise
+                else:
+                    logger.warning(f"Restarting {self.__class__.__name__} after {self.restart_time} seconds")
+                    await asyncio.sleep(self.restart_time)
+                    self.restart_init()
+                    logger.info(f"{self.__class__.__name__} start")
+
 
         logger.info(f"{self.__class__.__name__} is stopped")
 
@@ -406,8 +413,13 @@ class BackgroundRunner:
     def _stop(self):
         self.is_running = False
 
+    def restart_init(self):
+        pass
+
 # Handling serial reading.
 class Reader(BackgroundRunner):
+    raise_exception = True # raise error to IOHandler and restart it there
+
     def __init__(self, serial: serial.Serial, pkg_que: asyncio.Queue[Packet]):
         super().__init__()
         self.serial = serial
@@ -478,6 +490,8 @@ class Reader(BackgroundRunner):
 
 # Handling serial writing.
 class Writer(BackgroundRunner):
+    raise_exception = True # raise error to IOHandler and restart it there
+
     def __init__(self, serial: serial.Serial, pkg_que: asyncio.Queue[Packet]):
         super().__init__()
         self.serial = serial
@@ -563,9 +577,18 @@ class Filter(BackgroundRunner):
         self.in_que.put_nowait(None)
         await super().stop()
 
+    def restart_init(self):
+        while not self.in_que.empty():
+            self.in_que.get_nowait()
+        while not self.out_que.empty():
+            self.out_que.get_nowait()
+        self.filter_pool = FilterPool()
+
 
 # Create and keep serial.Serial Obj in the entire lifetime of Reader and Writer.
 class IOHandler(BackgroundRunner):
+    raise_exception = False # Handle serial errors in Reader and Writer, try restart always.
+
     def __init__(self, config: Config,  read_pkg_que: asyncio.Queue, write_pkg_que: asyncio.Queue):
         super().__init__()
         self.config = config
@@ -622,6 +645,8 @@ class SeqObj:
 
 # Keeping maintain of sequence numbers table.
 class SeqHandler(BackgroundRunner):
+    raise_exception = False
+
     def __init__(self, timeout = 3, clear_interval = 1):
         super().__init__()
         self.seq_table: Dict[bytes, SeqObj] = dict()
@@ -679,8 +704,13 @@ class SeqHandler(BackgroundRunner):
     def remove_seq(self, seq: int | bytes):
         self.seq_table.pop(self.convert_seq(seq), None)
 
+    def restart_init(self):
+        self.seq_table.clear()
+
 # Packet Handler to handle packets from Reader and process them based on their type.
 class PacketHandler(BackgroundRunner):
+    raise_exception = False
+
     def __init__(self, seq_handler: SeqHandler, in_que: asyncio.Queue[Packet], out_que: asyncio.Queue[Packet], write_pkg_que: asyncio.Queue[Packet]):
         super().__init__()
         self.seq_handler = seq_handler
@@ -737,6 +767,15 @@ class PacketHandler(BackgroundRunner):
     async def stop(self):
         self.in_que.put_nowait(None)
         await super().stop()
+
+    def restart_init(self):
+        while not self.in_que.empty():
+            self.in_que.get_nowait()
+        while not self.out_que.empty():
+            self.out_que.get_nowait()
+        while not self.write_pkg_que.empty():
+            self.write_pkg_que.get_nowait()
+        self.seq_handler.restart_init()
 
 
 class IrInterface:
@@ -838,6 +877,23 @@ class IrInterface:
         The first byte is the left most column.
         """
         return await self.trigger_send_packet(display_data, packet_type=PT.PBR, wait_response=False, print_on_badge=True)
+
+    async def get_any_exception(self):
+        """
+        Returns any exception that occurred in the background tasks.
+        This is useful for debugging and error handling.
+        """
+        if self.io_handler.run_task is not None and self.io_handler.run_task.done():
+            await self.io_handler.run_task
+        
+        if self.filter.run_task is not None and self.filter.run_task.done():
+            await self.filter.run_task
+
+        if self.seq_handler.run_task is not None and self.seq_handler.run_task.done():
+            await self.seq_handler.run_task
+
+        if self.pkg_handler.run_task is not None and self.pkg_handler.run_task.done():
+            await self.pkg_handler.run_task
 
     async def __aenter__(self):
         self.io_handler.run()
