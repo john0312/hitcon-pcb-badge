@@ -57,9 +57,9 @@ class PacketParser:
 
             case PacketType.kSponsorActivity:
                 # Sponsor activity packet
-                user = b2i(buf.read(IR_USERNAME_LEN))
                 sponsor_id = b2i(buf.read(1))
                 nonce = b2i(buf.read(1))
+                user = b2i(buf.read(IR_USERNAME_LEN))
                 signature = buf.read(ECC_SIGNATURE_SIZE)
                 return SponsorActivityEvent(packet_id=packet_id, station_id=station_id, user=user, sponsor_id=sponsor_id, nonce=nonce, signature=signature)
 
