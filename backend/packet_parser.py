@@ -66,8 +66,8 @@ class PacketParser:
             case PacketType.kShowMsg:
                 # Show message packet
                 user = b2i(buf.read(IR_USERNAME_LEN))
-                message = buf.read(MESSAGE_LEN)
-                return ShowMsgEvent(packet_id=packet_id, station_id=station_id, user=user, message=message)
+                msg = buf.read(MESSAGE_LEN)
+                return ShowMsgEvent(packet_id=packet_id, station_id=station_id, user=user, msg=msg)
 
             case PacketType.kRequestScore:
                 # Request score packet

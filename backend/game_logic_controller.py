@@ -57,6 +57,7 @@ class GameLogicController:
         nonce_key = f"single_badge:{evt.user}:{game_type}:{nonce}"
         if (await redis_client.get(nonce_key)) is not None:
             # Duplicate event, ignore it
+            print(f"SingleBadgeActivity::duplicate - {evt.event_id}, user: {evt.user}, game_type: {game_type}, nonce: {nonce}")
             return
 
         await redis_client.set(nonce_key, "1", ex=config.get("redis", {}).get("game_nonce_expire", 180)) # default 3 minutes
@@ -239,7 +240,6 @@ class GameLogicController:
             # Duplicate event, ignore it
             return
         await redis_client.set(nonce_key, "1", ex=config.get("redis", {}).get("game_nonce_expire", 180))
-        # TODO: do not add score from one sponsor twice
 
         await game.receive_game_score_single_player(
             player_id=evt.user,
@@ -444,12 +444,11 @@ class GameLogicController:
                 b"\x00",                                    # TTL
                 bytes([PacketType.kShowMsg.value]),         # PacketType
                 user.to_bytes(4, 'little'),                 # User
-                msg.encode('utf-8')[:MESSAGE_LEN]           # Message
+                msg.encode('ascii')[:MESSAGE_LEN]           # Message
             ]),
             to_stn=True
         )
-        signed_pkt = CryptoAuth.sign_packet(pkt)
-        await packet_processor.send_packet_to_user(signed_pkt, user)
+        await packet_processor.send_packet_to_user(pkt, user)
 
 
     @staticmethod
