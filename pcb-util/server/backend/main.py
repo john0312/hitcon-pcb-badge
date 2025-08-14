@@ -38,5 +38,6 @@ async def commit_key(data: BoardData):
     try:
         priv_key: bytes = decode_base64(data.priv_key)
         await database.commit_item(priv_key)
+        print(f'committed {priv_key}')
     finally:
         await storage.close()
