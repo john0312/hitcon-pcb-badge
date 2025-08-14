@@ -44,6 +44,12 @@ class BackendInterface:
         except aiohttp.ClientResponseError as e:
             print(f"send_received_packet got ClientResponseError, restarting")
             return False
+        except asyncio.exceptions.CancelledError as e:
+            print(f"(expected) send_received_packet was cancelled: {e}")
+            return None
+        except TimeoutError as e:
+            print(f"(expected) send_received_packet timed out: {e}")
+            return None
         except Exception as e:
             traceback.print_exc()
             print(f"[RX] Send failed: {e}")
@@ -73,6 +79,12 @@ class BackendInterface:
         except aiohttp.ClientResponseError as e:
             print(f"get_next_tx_packet got ClientResponseError, restarting")
             return []
+        except asyncio.exceptions.CancelledError as e:
+            print(f"(expected) get_next_tx_packet was cancelled: {e}")
+            return None
+        except TimeoutError as e:
+            print(f"(expected) get_next_tx_packet timed out: {e}")
+            return None
         except Exception as e:
             traceback.print_exc()
             print(f"[TX] Polling failed: {e}")
@@ -94,9 +106,15 @@ class BackendInterface:
             if repr(e).find("Session is closed") >= 0:
                 # This is an acceptable error.
                 print(f"get_station_score got 'Session is closed', restarting")
-                return None
+                return None     
         except aiohttp.ClientResponseError as e:
-            print(f"get_station_score got ClientResponseError, restarting")
+            print(f"(expected) get_station_score got ClientResponseError, restarting")
+            return None
+        except asyncio.exceptions.CancelledError as e:
+            print(f"(expected) get_station_score was cancelled: {e}")
+            return None
+        except TimeoutError as e:
+            print(f"(expected) get_station_score timed out: {e}")
             return None
         except Exception as e:
             traceback.print_exc()
