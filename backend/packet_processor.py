@@ -92,8 +92,8 @@ class PacketProcessor:
             await self.ack(ir_packet_schema, station)
 
 
-    async def has_packet_for_tx(self, station: Station) -> AsyncIterator[IrPacketRequestSchema]:
-        packets = self.packets.find({"_id": {"$in": station.tx}})
+    async def has_packet_for_tx(self, station: Station, num: int) -> AsyncIterator[IrPacketRequestSchema]:
+        packets = self.packets.find({"_id": {"$in": station.tx}}).limit(num)
         async for packet in packets:
             # Convert the packet to IrPacketRequestSchema and yield it.
             yield IrPacketRequestSchema(
