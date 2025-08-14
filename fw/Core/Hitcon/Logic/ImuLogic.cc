@@ -78,7 +78,7 @@ void ImuLogic::Routine(void* arg1) {
 #if defined(DUMMY_STEP) || defined(V1_1)
   // add one step every 5 seconds
   static uint8_t dummy_count = 0;
-  if (dummy_count >= 5000 / ROUTINE_INTERVAL) {
+  if (dummy_count >= 2000 / ROUTINE_INTERVAL) {
     dummy_count = 0;
     Increment();
   } else {
