@@ -51,28 +51,34 @@ void ImuService::Init() {
 }
 
 void ImuService::ResetI2C() {
+#ifndef DISABLE_IMU
   SET_BIT((I2C_HANDLE)->Instance->CR1, I2C_CR1_SWRST);
   for (int i = 0; i < 32; i++) __NOP();
   CLEAR_BIT((I2C_HANDLE)->Instance->CR1, I2C_CR1_SWRST);
   HAL_I2C_DeInit(I2C_HANDLE);
   HAL_I2C_Init(I2C_HANDLE);
   state = State::INIT;
+#endif  // #ifndef DISABLE_IMU
 }
 
 void ImuService::QueueReadReg(uint8_t addr, uint8_t* value) {
+#ifndef DISABLE_IMU
   if (_rx_queue.IsFull()) my_assert(false);
 
   ReadOp op = {addr, value};
   _rx_queue.PushFront(op);
   _is_rx_done = false;
+#endif  // #ifndef DISABLE_IMU
 }
 
 void ImuService::QueueWriteReg(uint8_t addr, uint8_t value) {
+#ifndef DISABLE_IMU
   if (_tx_queue.IsFull()) my_assert(false);
 
   WriteOp op = {addr, value};
   _tx_queue.PushFront(op);
   _is_tx_done = false;
+#endif  // #ifndef DISABLE_IMU
 }
 
 void ImuService::SetRxCallback(callback_t callback, void* callback_arg1) {
@@ -86,6 +92,7 @@ void ImuService::SetTxCallback(callback_t callback, void* callback_arg1) {
 }
 
 void ImuService::I2CCallback(void* arg2) {
+#ifndef DISABLE_IMU
   if (state == State::READING) {
     _rx_queue.PopBack();
 
@@ -101,11 +108,12 @@ void ImuService::I2CCallback(void* arg2) {
       _is_tx_done = true;
     }
   }
-
+#endif  // #ifndef DISABLE_IMU
   state = State::IDLE;
 }
 
 bool ImuService::IsI2CIdle() {
+#ifndef DISABLE_IMU
   if (__HAL_I2C_GET_FLAG(I2C_HANDLE, I2C_FLAG_BUSY) != RESET) {
     // I2C is busy.
     i2c_busy_cnt++;
@@ -117,10 +125,12 @@ bool ImuService::IsI2CIdle() {
     return false;
   }
   i2c_busy_cnt = 0;
+#endif  // #ifndef DISABLE_IMU
   return true;
 }
 
 void ImuService::Routine(void* arg) {
+#ifndef DISABLE_IMU
   static unsigned op_start_tick = 0;
   static State last_state = State::INIT;
   static uint16_t count = 0;
@@ -209,6 +219,7 @@ void ImuService::Routine(void* arg) {
       break;
     }
   }
+#endif  // #ifndef DISABLE_IMU
 }
 
 }  // namespace hitcon

@@ -10,6 +10,8 @@
 
 using namespace hitcon::service::sched;
 
+#define DISABLE_IMU
+
 #define I2C_HANDLE &hi2c1
 #define SLAVE_ADDR 0xD5U
 #define QUEUE_SIZE 10
