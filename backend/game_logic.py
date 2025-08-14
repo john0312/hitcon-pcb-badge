@@ -84,7 +84,7 @@ class ConstantsProduction(Constants):
     STATION_SCORE_DECAY_INTERVAL: int = 60 # seconds
     STATION_SCORE_DECAY_AMOUNT: int = 120
 
-    SPONSOR_BADGE_ID_LIST: list[int] = field(default_factory=lambda: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13])
+    SPONSOR_BADGE_ID_LIST: list[int] = field(default_factory=lambda: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12])
     SPONSOR_CONNECT_SCORE: int = 200
     SPONSOR_ALL_COLLECTED_BONUS: int = 1200
 
