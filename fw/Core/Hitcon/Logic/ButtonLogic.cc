@@ -67,7 +67,7 @@ int q_cnt1 = 0;
 int q_cnt2 = 0;
 
 void ButtonLogic::EnsureBtnQueued() {
-  if ((_is_queued & 0x01) == 0 && _edge_queue.Size() != 0) {
+  if ((_is_queued & 0x01) == 0 && _btn_queue.Size() != 0) {
     _is_queued = _is_queued | 0x01;
     q_cnt1++;
     if (q_cnt1 == 0) {
@@ -77,7 +77,7 @@ void ButtonLogic::EnsureBtnQueued() {
 }
 
 void ButtonLogic::EnsureEdgeQueued() {
-  if ((_is_queued & 0x02) == 0 && _btn_queue.Size() != 0) {
+  if ((_is_queued & 0x02) == 0 && _edge_queue.Size() != 0) {
     _is_queued = _is_queued | 0x02;
     q_cnt2++;
     scheduler.Queue(&_edge_callback_task, nullptr);
