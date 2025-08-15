@@ -74,6 +74,7 @@ class Constants:
                 setattr(self, field.name, field.default)
 
 
+@dataclass
 class ConstantsProduction(Constants):
     STATION_COUNT: int = 21
     STATION_SCORE_LB: int = -30000
