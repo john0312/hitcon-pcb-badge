@@ -66,3 +66,12 @@ class BadgeLinkController:
         """
         result = await mongo[BadgeLinkController.DB_NAME][BadgeLinkController.COLLECTION_NAME].find_one_and_delete({"uid": uid})
         return result["badge_user"] if result else None
+
+
+    @staticmethod
+    async def get_badge_linkage(badge_user: int) -> Optional[dict]:
+        """
+        Get the badge linkage for the given badge user.
+        """
+        result = await mongo[BadgeLinkController.DB_NAME][BadgeLinkController.COLLECTION_NAME].find_one({"badge_user": badge_user})
+        return result if result else None

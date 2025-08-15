@@ -40,7 +40,11 @@ async def get_scoreboard() -> list[ScoreEntry]:
     scoreboard = await GameLogicController.get_user_scoreboard()
 
     for score_entry in scoreboard:
-        score_entry["name"] = " ".join(map(lambda x: f"{x:02x}", int.to_bytes(score_entry["player_id"], 4, 'little')))
+        linkage = await BadgeLinkController.get_badge_linkage(score_entry["player_id"])
+        if linkage:
+            score_entry["name"] = linkage.get("name", "Unknown")
+        else:
+            score_entry["name"] = " ".join(map(lambda x: f"{x:02x}", int.to_bytes(score_entry["player_id"], 4, 'little')))
 
     scoreboard.sort(key=itemgetter("total_score"), reverse=True)
 
