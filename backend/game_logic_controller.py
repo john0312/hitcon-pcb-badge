@@ -2,7 +2,7 @@ from typing import Callable, Awaitable, Dict
 from schemas import utcnow, PacketType, IrPacket, MESSAGE_LEN, ReCTFSolves, Event, ProximityEvent, PubAnnounceEvent, TwoBadgeActivityEvent, GameActivityEvent, ScoreAnnounceEvent, SingleBadgeActivityEvent, SponsorActivityEvent, ShowMsgEvent, RequestScoreEvent, SavePetEvent, RestorePetEvent
 from config import Config
 from database import mongo, db, redis_client
-from game_logic import _GameLogic as GameLogic, GameType, Constants
+from game_logic import _GameLogic as GameLogic, GameType, const
 from crypto_auth import CryptoAuth
 from bson import Binary
 import inspect
@@ -244,7 +244,7 @@ class GameLogicController:
         await game.receive_game_score_single_player(
             player_id=evt.user,
             station_id=get_game_logic_station_id(evt.station_id),
-            score=Constants.SPONSOR_CONNECT_SCORE,
+            score=const.SPONSOR_CONNECT_SCORE,
             sponsor_id=evt.sponsor_id,
             game_type=GameType.CONNECT_SPONSOR,
             timestamp=evt.timestamp
@@ -253,7 +253,7 @@ class GameLogicController:
         await game.attack_station(
             player_id=evt.user,
             station_id=get_game_logic_station_id(evt.station_id),
-            amount=Constants.SPONSOR_CONNECT_SCORE,
+            amount=const.SPONSOR_CONNECT_SCORE,
             timestamp=evt.timestamp
         )
 
@@ -369,7 +369,7 @@ class GameLogicController:
 
     @staticmethod
     async def get_stations_scores():
-        for i in range(1, Constants.STATION_COUNT + 1):
+        for i in range(1, const.STATION_COUNT + 1):
             yield i, await game.get_station_score(station_id=i)
 
 
