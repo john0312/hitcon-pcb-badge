@@ -48,3 +48,7 @@ async def commit_item(priv_key: bytes):
     await BoardData.find_one(BoardData.user_id == ecc.privkey_to_username(priv_key)).update_one(
         {"$set": {BoardData.commit: True}}
     )
+
+async def get_all() -> list[BoardData]:
+    return await BoardData.find_all().to_list()
+
