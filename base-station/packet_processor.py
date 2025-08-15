@@ -26,7 +26,8 @@ class PacketProcessor:
         self._tx_producer_task_xb = None
         self._tx_consumer_task = None
         self._rx_queue = asyncio.Queue(maxsize=100)
-        self._tx_queue = asyncio.Queue(maxsize=100)
+        self._tx_queue_ir = asyncio.Queue(maxsize=4)
+        self._tx_queue_xb = asyncio.Queue(maxsize=4)
         self.recorder = PacketRecorder()
 
     async def _tx_producer_fn(self, station_key: str, is_cross_board: bool):
@@ -43,7 +44,10 @@ class PacketProcessor:
                     else:
                         print(f"[TX] Queuing packet {packet_id}, {station_id}")
                         await self.recorder.record_packet(packet_data, "TX", packet_id, station_id=station_id)
-                        await self._tx_queue.put((packet_data, packet_id, is_cross_board))
+                        if is_cross_board:
+                            await self._tx_queue_xb.put((packet_data, packet_id, is_cross_board))
+                        else:
+                            await self._tx_queue_ir.put((packet_data, packet_id, is_cross_board))
                         self.seen_packet_ids.add((packet_id, station_id))
                 if len(packets)-duplicate_count == 0:
                     await asyncio.sleep(2.0)
@@ -52,11 +56,14 @@ class PacketProcessor:
                 print(f"Exception in PacketProcessor._tx_producer_fn({station_key}): {e}")
                 raise
 
-    async def _tx_consumer_fn(self):
+    async def _tx_consumer_fn(self, is_cross_board_q:bool):
         """Take packets from TX queue and send via IR"""
         while True:
             try:
-                packet_data, packet_id, is_cross_board = await self._tx_queue.get()
+                if is_cross_board_q:
+                    packet_data, packet_id, is_cross_board = await self._tx_queue_xb.get()
+                else:
+                    packet_data, packet_id, is_cross_board = await self._tx_queue_ir.get()
                 assert type(packet_data) == bytes, "Packet data must be bytes"
                 await self.ir.trigger_send_packet(packet_data, to_cross_board=is_cross_board)
             except Exception as e:
@@ -130,7 +137,8 @@ class PacketProcessor:
     def start(self):
         self._tx_producer_task_ir = asyncio.create_task(self._tx_producer_fn(station_key=self.station_key_ir, is_cross_board=False))
         self._tx_producer_task_xb = asyncio.create_task(self._tx_producer_fn(station_key=self.station_key_xb, is_cross_board=True))
-        self._tx_consumer_task = asyncio.create_task(self._tx_consumer_fn())
+        self._tx_consumer_task_ir = asyncio.create_task(self._tx_consumer_fn(is_cross_board_q=False))
+        self._tx_consumer_task_xb = asyncio.create_task(self._tx_consumer_fn(is_cross_board_q=True))
         self._rx_producer_task = asyncio.create_task(self._rx_producer_fn())
         self._rx_consumer_task = asyncio.create_task(self._rx_consumer_fn())
         self._disp_task = asyncio.create_task(self._disp_task_fn())
@@ -140,7 +148,8 @@ class PacketProcessor:
         tasks = [
             self._tx_producer_task_ir,
             self._tx_producer_task_xb,
-            self._tx_consumer_task,
+            self._tx_consumer_task_ir,
+            self._tx_consumer_task_xb,
             self._rx_producer_task,
             self._rx_consumer_task
         ]
