@@ -30,7 +30,6 @@ SnakeApp::SnakeApp()
 #pragma GCC diagnostic pop
 
 /* TODO:
- *  3. event when _len = 128
  * 13. dynamic interval?
  * 14. show win/lose and score when game over
  */
@@ -119,7 +118,7 @@ void SnakeApp::OnEdgeButton(button_t button) {
 
 void SnakeApp::OnButton(button_t button) {}
 
-bool SnakeApp::OnSnake(uint8_t index) {
+bool SnakeApp::CollideSnake(uint8_t index) {
   bool on_snake = false;
 
   for (uint8_t i = 0; i < _len; i++) {
@@ -150,7 +149,7 @@ void SnakeApp::GenerateFood() {
 
   while (on_snake) {
     index = g_fast_random_pool.GetRandom() % (DISPLAY_HEIGHT * DISPLAY_WIDTH);
-    on_snake = OnSnake(index);
+    on_snake = CollideSnake(index);
   }
 
   _food_index = index;
@@ -176,27 +175,21 @@ void SnakeApp::Routine(void* unused) {
         new_head--;
       break;
     case DIRECTION_UP:
-      new_head -= DISPLAY_WIDTH;
+      if (_body[0] < DISPLAY_WIDTH)
+        _game_over = true;
+      else
+        new_head -= DISPLAY_WIDTH;
       break;
     case DIRECTION_DOWN:
-      new_head += DISPLAY_WIDTH;
+      if (_body[0] >= DISPLAY_HEIGHT * DISPLAY_WIDTH - DISPLAY_WIDTH)
+        _game_over = true;
+      else
+        new_head += DISPLAY_WIDTH;
       break;
     default:
       break;
   }
-  if (new_head > 127) _game_over = true;
-  if (OnSnake(new_head)) _game_over = true;
-
-  if (_game_over) {
-    // local game over
-    if (IsMultiplayer()) {
-      SendGameOver();
-    } else {
-      UploadSingleplayerScore();
-    }
-    GameOver();
-    return;
-  }
+  if (CollideSnake(new_head)) _game_over = true;
 
   if (_food_index == new_head) {
     _food_index = -1;
@@ -206,6 +199,21 @@ void SnakeApp::Routine(void* unused) {
       SendAttack(1);
     }
     _score++;
+  }
+
+  if (_len >= DISPLAY_HEIGHT * DISPLAY_WIDTH) {
+    // TODO: Maybe add bonus score if single player mode?
+    _game_over = true;
+  }
+
+  if (_game_over) {
+    if (IsMultiplayer()) {
+      SendGameOver();
+    } else {
+      UploadSingleplayerScore();
+    }
+    GameOver();
+    return;
   }
 
   // shift snake body

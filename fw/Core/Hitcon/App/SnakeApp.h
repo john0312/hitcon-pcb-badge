@@ -57,7 +57,7 @@ class SnakeApp : public hitcon::app::multiplayer::MultiplayerGame {
 
   void GenerateFood();
   void Routine(void* unused);
-  bool OnSnake(uint8_t index);
+  bool CollideSnake(uint8_t index);
 
  protected:
   virtual void GameEntry() override final;
