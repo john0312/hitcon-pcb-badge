@@ -133,6 +133,13 @@ class _GameLogic:
         await self.score_history.delete_many({})
         await self.player_buff.delete_many({})
 
+    async def debug_set_start_time(self):
+        result = await self.attack_history.find_one({}, sort=[("timestamp", 1)], projection={"timestamp": 1})
+        if result is None:
+            result = await self.score_history.find_one({}, sort=[("timestamp", 1)], projection={"timestamp": 1})
+        if result is not None:
+            self.start_time = result["timestamp"]
+
     def _round_to_granularity(self, timestamp: datetime):
         """
         Round the timestamp to the nearest granularity.

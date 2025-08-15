@@ -349,7 +349,7 @@ class GameLogicController:
 
     @staticmethod
     async def get_user_score_history(user: int):
-        return await game.get_game_history(player_id=user)
+        return game.get_game_history(player_id=user)
 
 
     @staticmethod
@@ -364,7 +364,7 @@ class GameLogicController:
 
     @staticmethod
     async def get_station_score_history(station_id: int):
-        return await game.get_station_attack_history(station_id=get_game_logic_station_id(station_id))
+        return game.get_station_attack_history(station_id=get_game_logic_station_id(station_id))
 
 
     @staticmethod
