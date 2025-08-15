@@ -22,6 +22,7 @@ export class LeaderboardComponent implements OnInit, OnDestroy {
   }
 
   private update() {
+    this.teamScore = [0, 0, 0];
     this.scoreService.getLeaderBoard().subscribe((scores) => {
       this.items = scores;
     });
