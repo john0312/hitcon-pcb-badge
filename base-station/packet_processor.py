@@ -109,7 +109,7 @@ class PacketProcessor:
                 print(f"Exception in _disp_task_fn(): {e}")
 
     def map_score_to_disp_data(self, score):
-        score = score / 10.0
+        score = (-score) / 10.0
         score = score + 8
         score = max(0, score)
         score = min(16, score)
