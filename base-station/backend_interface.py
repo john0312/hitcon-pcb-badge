@@ -81,10 +81,10 @@ class BackendInterface:
             return []
         except asyncio.exceptions.CancelledError as e:
             print(f"(expected) get_next_tx_packet was cancelled: {e}")
-            return None
+            return []
         except TimeoutError as e:
             print(f"(expected) get_next_tx_packet timed out: {e}")
-            return None
+            return []
         except Exception as e:
             traceback.print_exc()
             print(f"[TX] Polling failed: {e}")
