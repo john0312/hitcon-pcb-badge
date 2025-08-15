@@ -63,7 +63,7 @@ async def get_tx_queue() -> dict[str, int]:
 
 
 @router.get("/tx")
-async def tx(num: int, station: Station = Depends(get_station)) -> list[IrPacketRequestSchema]:
+async def tx(num: Optional[int] = 3, station: Station = Depends(get_station)) -> list[IrPacketRequestSchema]:
     # Backend asks the base station to send a packet.
     packets = packet_processor_instance.has_packet_for_tx(station, num)
 
