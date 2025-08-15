@@ -7,6 +7,7 @@ from game_logic_controller import GameLogicController
 from config import Config
 from database import db
 from schemas import Station, IrPacketRequestSchema, Display, ScoreEntry, ReCTFSolves, ReCTFScoreSchema, BadgeLinkSchema
+from typing import Optional
 
 config = Config("config.yaml")
 
