@@ -50,5 +50,5 @@ async def commit_item(priv_key: bytes):
     )
 
 async def get_all() -> list[BoardData]:
-    return await BoardData.find_all().to_list()
+    return await BoardData.find(BoardData.commit == True).to_list()
 

@@ -43,12 +43,13 @@ async def commit_key(data: BoardData):
         await storage.close()
 
 @app.get('/get_boards')
-async def get_boards() -> list[dict]:
+async def get_boards() -> list[str]:
     storage: database.Storage = await database.Storage.create(config.MONGO_CONNECT_STRING, config.MONGO_DATABASE_NAME)
     try:
         boards = await database.get_all()
     finally:
         await storage.close()
+    print([board.priv_key for board in boards])
     return [
-        {'privkey': base64.b64decode(board.priv_key) for board in boards}
+        base64.b64encode(board.priv_key).decode('utf-8') for board in boards
     ]
