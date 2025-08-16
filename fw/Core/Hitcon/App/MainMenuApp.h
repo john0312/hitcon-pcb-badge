@@ -51,7 +51,8 @@ class MainMenuApp : public MenuApp {
   void OnButton(button_t button) override;
 
  private:
-  uint8_t dbg_ctr;
+  uint8_t dbg_ctr = 0;
+  uint8_t heal_ctr = 0;
 };
 
 extern MainMenuApp main_menu;
