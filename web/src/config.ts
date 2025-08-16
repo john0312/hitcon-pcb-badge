@@ -3,7 +3,7 @@ export const env = {
         getStations: '/api/stations',
         getScores: '/api/scores',
         period: 30000,
-        timeout: 2000,
+        timeout: 5000,
     },
     station: {
         maxStationID: 21,

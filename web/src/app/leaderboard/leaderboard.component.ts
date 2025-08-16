@@ -1,13 +1,12 @@
 import { CommonModule, DecimalPipe } from '@angular/common';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { leaderboard, ScoreService } from '../score.service';
-import { LittleEndianPipe } from '../little-endian.pipe';
 import { StationsService as StationService } from '../stations.service';
 import { env } from '../../config';
 
 @Component({
   selector: 'app-leaderboard',
-  imports: [DecimalPipe, CommonModule, LittleEndianPipe],
+  imports: [DecimalPipe, CommonModule],
   templateUrl: './leaderboard.component.html',
   styleUrl: './leaderboard.component.css',
 })
@@ -23,19 +22,25 @@ export class LeaderboardComponent implements OnInit, OnDestroy {
 
   private update() {
     this.scoreService.getLeaderBoard().subscribe((scores) => {
-      this.items = scores;
+      // in case of fetching error, do not update the data
+      if (scores.length != 0) {
+        this.items = scores;
+      }
     });
     this.stationService.getStationScore().subscribe((scores) => {
-      this.teamScore = [0, 0, 0];
-      scores.forEach((score) => {
-        if (score > this.threshold) {
-          this.teamScore[0]++;
-        } else if (score < -this.threshold) {
-          this.teamScore[1]++;
-        } else {
-          this.teamScore[2]++;
-        }
-      });
+      if (scores.length != 0) {
+        const teamScore = [0, 0, 0];
+        scores.forEach((score) => {
+          if (score > this.threshold) {
+            teamScore[0]++;
+          } else if (score < -this.threshold) {
+            teamScore[1]++;
+          } else {
+            teamScore[2]++;
+          }
+        });
+        this.teamScore = teamScore;
+      }
     });
   }
 

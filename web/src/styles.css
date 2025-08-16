@@ -14,7 +14,7 @@
 body {
     margin: 0;
     padding: 0;
-    font-family: "Square Font", Roboto, "Helvetica Neue", sans-serif;
+    font-family: "Square Font", Roboto, "Helvetica Neue", monospace;
     background-color: var(--color-background-primary);
     color: var(--off-white);
     height: calc(100dvh - 64px);
