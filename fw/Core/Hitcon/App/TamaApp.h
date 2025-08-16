@@ -284,6 +284,9 @@ class TamaApp : public App {
   void XbUpdateFrameBuffer();
   void XbRoutine(void* unused);
 
+  // Heal related.
+  bool _pending_heal = false;
+
   // Save/Restore related.
   uint16_t _last_save_level = 0;
 
@@ -307,6 +310,7 @@ class TamaApp : public App {
   bool CanAcceptHeal();
   void TamaHeal();
   void TamaHealOnly();
+  void SetPendingHeal() { _pending_heal = true; }
 
   // Sponsor
   void SponsorRegister(uint8_t sponsor_id);

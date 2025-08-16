@@ -97,12 +97,13 @@ void TamaApp::OnEntry() {
     UpdateFrameBuffer();
     return;
   }
-  if (player_mode == TAMA_PLAYER_MODE::MODE_BASESTATION) {
+  if (player_mode == TAMA_PLAYER_MODE::MODE_BASESTATION || _pending_heal) {
     if (CanAcceptHeal()) {
       TamaHeal();
       return;
     }
     // Otherwise the same as singleplayer mode.
+    _pending_heal = false;
     player_mode = TAMA_PLAYER_MODE::MODE_SINGLEPLAYER;
   }
   my_assert(player_mode == TAMA_PLAYER_MODE::MODE_SINGLEPLAYER);
