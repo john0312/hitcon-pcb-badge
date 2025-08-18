@@ -44,10 +44,7 @@ async def get_scoreboard() -> list[ScoreEntry]:
         if linkage:
             score_entry["name"] = linkage.get("name", "Unknown")
         else:
-            # score_entry["name"] = " ".join(map(lambda x: f"{x:02x}", int.to_bytes(score_entry["player_id"], 4, 'little')))
-            user_bytes = int.to_bytes(score_entry["player_id"], 4, 'little')
-            score_entry["name"] = f"Unknown-{user_bytes[0]:02x} {user_bytes[1]:02x}"
-        score_entry["player_id"] = 48763
+            score_entry["name"] = " ".join(map(lambda x: f"{x:02x}", int.to_bytes(score_entry["player_id"], 4, 'little')))
 
     scoreboard.sort(key=itemgetter("total_score"), reverse=True)
 
