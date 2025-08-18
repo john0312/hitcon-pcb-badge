@@ -1,5 +1,12 @@
 #!/bin/bash
 
+# Check if clang-format is installed
+if ! command -v clang-format &> /dev/null
+then
+    echo "clang-format is not installed. Please install it before running this script."
+    exit 1
+fi
+
 # Parse Argument
 auto_fmt=false
 while getopts ":i" opt; do
