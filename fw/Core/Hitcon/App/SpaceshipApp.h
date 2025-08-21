@@ -16,9 +16,9 @@ enum state_t { INIT, RUN, GAME_OVER, END };
 
 class SpaceshipApp : public App {
  private:
-  static constexpr unsigned INTERVAL = 350;
+  static_assert(DISPLAY_HEIGHT) static constexpr unsigned INTERVAL = 350;
   static constexpr unsigned PLANE_LOWER_BOUND = 1 << 1;
-  static constexpr unsigned PLANE_UPPER_BOUND = 1 << 6;
+  static constexpr unsigned PLANE_UPPER_BOUND = 1 << (DISPLAY_HEIGHT - 2);
 
   PeriodicTask _routine_task;
   uint8_t _my_position;

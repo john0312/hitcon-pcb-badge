@@ -27,11 +27,13 @@ void SpaceshipApp::Init() { scheduler.Queue(&_routine_task, nullptr); }
 // 1. OnEntry: menu -> ready
 void SpaceshipApp::OnEntry() {
   _state = INIT;
-  display_set_mode_scroll_text("Ready...");
+  > display_set_mode_scroll_text("Ready...");
 }
 // 2. OnExit
 void SpaceshipApp::OnExit() {
-  scheduler.DisablePeriodic(&_routine_task);
+  if (_routine_task.IsEnabled()) {
+    scheduler.DisablePeriodic(&_routine_task);
+  }
   _state = END;
 }
 // 3. OnButton
@@ -133,7 +135,7 @@ void SpaceshipApp::_Render() {
 
 void SpaceshipApp::_CheckCollision() {
   for (uint8_t i = 0; i < 2; i++) {
-    if ((_my_plane[i] & _enemy_position[i]) > 0) {
+    if ((_my_plane[i] & _enemy_position[i]) != 0) {
       _state = GAME_OVER;  // game over!
       break;
     }
@@ -142,7 +144,7 @@ void SpaceshipApp::_CheckCollision() {
 
 void SpaceshipApp::_UpdateScoreBullets() {
   for (uint8_t i = 0; i < DISPLAY_WIDTH; i++) {
-    if ((_bullets[i] & _enemy_position[i]) > 0) {
+    if ((_bullets[i] & _enemy_position[i]) != 0) {
       _score += 1;
       _bullets[i] &= ~_enemy_position[i];  // remove bullet
       _enemy_position[i] = 0;              // remove enemy
@@ -153,6 +155,7 @@ void SpaceshipApp::_UpdateScoreBullets() {
 }
 
 void SpaceshipApp::_MoveBulletsToRight() {
+  // bullets stay in column 2 to column DISPLAY_WIDTH-1
   for (uint8_t i = DISPLAY_WIDTH - 1; i >= 2; i--) {
     _bullets[i] = _bullets[i - 1];
   }
