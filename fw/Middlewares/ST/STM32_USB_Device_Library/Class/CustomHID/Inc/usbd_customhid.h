@@ -41,13 +41,26 @@ extern "C" {
 /** @defgroup USBD_CUSTOM_HID_Exported_Defines
   * @{
   */
-#define CUSTOM_HID_EPIN_ADDR                 0x81U
-#define CUSTOM_HID_EPIN_SIZE                 0x02U
+// bEndpointAddress: dir=IN, number=1
+#define CUSTOM_HID_EPIN_ADDR 0b10000001U
+//                             ^+++^^^^
+// ^0: 0=OUT, 1=IN
+// + : reserved
+// ^1: endpoint number
 
-#define CUSTOM_HID_EPOUT_ADDR                0x01U
-#define CUSTOM_HID_EPOUT_SIZE                0x02U
+// wMaxPacketSize
+#define CUSTOM_HID_EPIN_SIZE 0x02U
 
-#define USB_CUSTOM_HID_CONFIG_DESC_SIZ       41U
+// bEndpointAddress: dir=OUT, number=1
+#define CUSTOM_HID_EPOUT_ADDR 0xb00000001U
+// wMaxPacketSize
+#define CUSTOM_HID_EPOUT_SIZE 0x02U
+
+// bEndpointAddress: dir=IN, number=2
+#define KEYBOARD_EPIN_ADDR 0b10000010U
+#define KEYBOARD_EPIN_SIZE 0x02U
+
+#define USB_CUSTOM_HID_CONFIG_DESC_SIZ       66U
 #define USB_CUSTOM_HID_DESC_SIZ              9U
 
 #ifndef CUSTOM_HID_HS_BINTERVAL
@@ -140,6 +153,9 @@ extern USBD_ClassTypeDef  USBD_CUSTOM_HID;
 uint8_t USBD_CUSTOM_HID_SendReport(USBD_HandleTypeDef *pdev,
                                    uint8_t *report,
                                    uint16_t len);
+uint8_t Keyboard_SendReport(USBD_HandleTypeDef *pdev,
+                            uint8_t *report,
+                            uint16_t len);
 
 
 

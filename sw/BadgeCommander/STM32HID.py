@@ -14,9 +14,12 @@ def get_hid_device():
             print("%s : %s" % (key, device_dict[key]))
         print()
 
+    dev_list = hid.enumerate(vendor_id, product_id)
+    device_dict = [device for device in dev_list if device["interface_number"] == 0][0]
     global device
     device = hid.device()
-    device.open(vendor_id, product_id)
+    # device.open(vendor_id, product_id)
+    device.open_path(device_dict["path"])
 
 # Set ShowName App Name
 def set_name(name):
@@ -81,7 +84,9 @@ def send_badusb_script(script):
     script = script+ [0x00]*(4-len(script)%4)
     checksum = crc.crc_int_to_bytes(crc.calculate(script))
     checksum = checksum[::-1] 
+    print('checksum')
     print(checksum)
+    time.sleep(1)
     datatosend = datatosend+checksum+ script
     for i in range(0, math.ceil(len(datatosend)), 8):
         
