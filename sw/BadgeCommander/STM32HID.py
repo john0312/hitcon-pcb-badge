@@ -84,9 +84,7 @@ def send_badusb_script(script):
     script = script+ [0x00]*(4-len(script)%4)
     checksum = crc.crc_int_to_bytes(crc.calculate(script))
     checksum = checksum[::-1] 
-    print('checksum')
     print(checksum)
-    time.sleep(1)
     datatosend = datatosend+checksum+ script
     for i in range(0, math.ceil(len(datatosend)), 8):
         
