@@ -51,7 +51,7 @@ void UsbService::SendKeyCode(uint8_t keycode, uint8_t modifier) {
   memset(_report.u8, 0, 8);
   _report.keyboard_report.keycode[0] = keycode;
   _report.keyboard_report.modifier = modifier;
-  auto ret = USBD_CUSTOM_HID_SendReport(
+  auto ret = Keyboard_SendReport(
       &hUsbDeviceFS, reinterpret_cast<uint8_t*>(&_report), REPORT_LEN);
 
   if (ret != USBD_OK) {
@@ -71,7 +71,7 @@ void UsbService::SendCustomReport(uint8_t* data) {
 }
 
 void UsbService::RetryHandler(void* unused) {
-  auto ret = USBD_CUSTOM_HID_SendReport(
+  auto ret = Keyboard_SendReport(
       &hUsbDeviceFS, reinterpret_cast<uint8_t*>(&_report), REPORT_LEN);
 
   if (ret != USBD_OK) {

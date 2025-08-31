@@ -74,7 +74,8 @@
 /*---------- -----------*/
 #define USBD_CUSTOMHID_OUTREPORT_BUF_SIZE     9
 /*---------- -----------*/
-#define USBD_CUSTOM_HID_REPORT_DESC_SIZE     80
+#define USBD_CUSTOM_HID_REPORT_DESC_SIZE     38
+#define KEYBOARD_DESCRIPTOR_SIZE             47
 /*---------- -----------*/
 #define CUSTOM_HID_FS_BINTERVAL     5
 

@@ -66,10 +66,13 @@ void UsbLogic::OnDataRecv(void* arg2) {
       _script_len = (data[3] << 8) | data[2];
       _state = USB_STATE_WRITING;
       _program_index = 0;
-    case USB_STATE_WRITING:
       memcpy(_script_temp, data + 1, REPORT_LEN - 1);
       _new_data = true;
       scheduler.EnablePeriodic(&_write_routine_task);
+      break;
+    case USB_STATE_WRITING:
+      memcpy(_script_temp, data + 1, REPORT_LEN - 1);
+      _new_data = true;
       break;
     case USB_STATE_WRITE_MEM: {
       static bool _first = true;
