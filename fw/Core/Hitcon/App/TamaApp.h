@@ -4,6 +4,8 @@
 #define TAMA_HATCHING_STEPS 400
 #define TAMA_HUNGER_DECREASE_INTERVAL 3600000
 #define TAMA_MAX_SECRET_LEVEL 16
+constexpr unsigned int TAMA_FULL_SPONSOR_MASK =
+    (1u << TAMA_MAX_SECRET_LEVEL) - 1;
 
 #define TAMA_PREPARE_FB(FB, FB_SIZE) \
   FB.fb_size = FB_SIZE;              \
@@ -275,7 +277,7 @@ class TamaApp : public App {
   void HungerRoutine(void* unused);
   void LevelUpRoutine(void* unused);
 
-  static uint16_t SecretLevelFromSponsor(uint32_t sponsors);
+  static uint16_t SecretLevelFromSponsor(uint32_t _unused);
 
   // XBoard related
   uint8_t _my_nounce;
@@ -289,6 +291,8 @@ class TamaApp : public App {
 
   // Save/Restore related.
   uint16_t _last_save_level = 0;
+
+  void SetAllSponsor();
 
  public:
   TAMA_PLAYER_MODE player_mode;
@@ -311,9 +315,6 @@ class TamaApp : public App {
   void TamaHeal();
   void TamaHealOnly();
   void SetPendingHeal() { _pending_heal = true; }
-
-  // Sponsor
-  void SponsorRegister(uint8_t sponsor_id);
 
   // Save/Restore related.
   static bool TamaDataToBuffer(uint8_t* buffer, const tama_storage_t& data);

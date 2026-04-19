@@ -11,7 +11,6 @@
 #include <App/ShowNameApp.h>
 #include <App/SnakeApp.h>
 #include <App/SpaceshipApp.h>
-#include <App/SponsorResp.h>
 #include <App/TamaApp.h>
 #include <App/UsbMenuApp.h>
 #include <Hitcon.h>
@@ -27,7 +26,6 @@
 #include <Logic/IrLogic.h>
 #include <Logic/IrxbBridge.h>
 #include <Logic/NvStorage.h>
-#include <Logic/SponsorReq.h>
 #include <Logic/UsbLogic.h>
 #include <Logic/XBoardLogic.h>
 #include <Service/ButtonService.h>
@@ -86,12 +84,6 @@ void hitcon_run() {
   g_imu_service.Init();
 #endif
   g_imu_logic.Init();
-#if BADGE_ROLE == BADGE_ROLE_ATTENDEE
-  hitcon::sponsor::g_sponsor_req.Init();
-#elif BADGE_ROLE == BADGE_ROLE_SPONSOR
-  hitcon::sponsor::g_sponsor_resp.Init();
-#endif
-
   g_button_logic.Init();
   g_button_service.Init();
   g_xboard_service.Init();
