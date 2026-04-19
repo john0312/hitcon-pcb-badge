@@ -3,7 +3,6 @@
 
 #include <App/ShowNameApp.h>
 #include <App/SnakeApp.h>
-#include <App/SponsorResp.h>
 #include <App/TamaApp.h>
 #include <App/TetrisApp.h>
 #include <Hitcon.h>
@@ -23,9 +22,6 @@ using hitcon::app::tetris::tetris_app;
 // using hitcon::app::tetris
 
 constexpr menu_entry_t connect_menu_entries[] = {
-#if BADGE_ROLE == BADGE_ROLE_SPONSOR
-    {"Send Bonus", &hitcon::sponsor::g_sponsor_resp, nullptr},
-#endif  // BADGE_ROLE == BADGE_ROLE_SPONSOR
     {"Hacker Pet", &tama_app, &hitcon::app::tama::SetMultiplayer},
     {"Tetris", &tetris_app, &hitcon::app::tetris::SetMultiplayer},
     {"Snake", &snake_app, &hitcon::app::snake::SetMultiplayer},

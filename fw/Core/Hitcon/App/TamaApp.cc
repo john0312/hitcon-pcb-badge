@@ -44,6 +44,7 @@ TamaApp::TamaApp()
 
 void TamaApp::Init() {
   my_assert(g_nv_storage.IsStorageValid());
+  SetAllSponsor();
   if (!IsDataValid()) {
     my_assert(false);
     _tama_data = {};
@@ -225,9 +226,7 @@ void TamaApp::OnButton(button_t button) {
           needs_update_fb = true;
           break;
         case TAMA_APP_STATE::LV_DETAIL:
-          SponsorRegister(hitcon::g_fast_random_pool.GetRandom() % 16);
-          needs_update_fb = true;
-          needs_save = true;
+          // Intentionally no action
           break;
 #endif
         case TAMA_APP_STATE::FEED_CONFIRM:
@@ -1074,12 +1073,9 @@ void TamaApp::ConcateAnimtaions(uint8_t count, ...) {
   va_end(args);
 }
 
-void TamaApp::SponsorRegister(uint8_t sponsor_id) {
-  unsigned int mask = 1 << sponsor_id;
-  if (_tama_data.sponsor_register & mask) {
-    return;
-  }
-  _tama_data.sponsor_register |= mask;
+void TamaApp::SetAllSponsor() {
+  if (_tama_data.sponsor_register == TAMA_FULL_SPONSOR_MASK) return;
+  _tama_data.sponsor_register = TAMA_FULL_SPONSOR_MASK;
   g_nv_storage.MarkDirty();
 }
 
@@ -1160,14 +1156,8 @@ bool TamaApp::BufferToTamaData(const uint8_t* buffer, tama_storage_t& data) {
   return true;
 }
 
-uint16_t TamaApp::SecretLevelFromSponsor(uint32_t sponsors) {
-  unsigned int popcount = 0;
-  uint32_t s_reg = sponsors;
-  while (s_reg > 0) {
-    s_reg &= (s_reg - 1);  // Brian Kernighan's algorithm
-    popcount++;
-  }
-  return popcount;
+uint16_t TamaApp::SecretLevelFromSponsor(uint32_t _unused) {
+  return TAMA_MAX_SECRET_LEVEL;
 }
 
 bool TamaApp::SaveToBuffer(uint8_t* buffer) {

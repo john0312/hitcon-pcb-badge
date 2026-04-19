@@ -9,7 +9,6 @@
 #include <Hitcon.h>
 #include <Logic/IrController.h>
 #include <Logic/IrxbBridge.h>
-#include <Logic/SponsorReq.h>
 #include <Logic/UsbLogic.h>
 #include <Logic/XBoardLogic.h>
 #include <Secret/secret.h>
@@ -142,11 +141,6 @@ void BadgeController::OnButton(void *arg1) {
 
 void BadgeController::OnXBoardConnect(void *unused) {
   if (current_app != &hardware_test_app) {
-#if BADGE_ROLE == BADGE_ROLE_ATTENDEE
-    hitcon::sponsor::g_sponsor_req.OnXBoardConnect();
-#elif BADGE_ROLE == BADGE_ROLE_SPONSOR
-    hitcon::sponsor::g_sponsor_resp.OnPeerConnect();
-#endif  // BADGE_ROLE == BADGE_ROLE_ATTENDEE
     badge_controller.change_app(&connect_menu);
   }
 }
@@ -164,11 +158,6 @@ void BadgeController::OnXBoardBasestnConnect(void *unused) {
 
 void BadgeController::OnXBoardDisconnect(void *unused) {
   if (current_app != &hardware_test_app) {
-#if BADGE_ROLE == BADGE_ROLE_ATTENDEE
-    hitcon::sponsor::g_sponsor_req.OnXBoardDisconnect();
-#elif BADGE_ROLE == BADGE_ROLE_SPONSOR
-    hitcon::sponsor::g_sponsor_resp.OnPeerDisconnect();
-#endif  // BADGE_ROLE == BADGE_ROLE_ATTENDEE
     badge_controller.change_app(&show_name_app);
   }
 }
