@@ -23,6 +23,7 @@ constexpr unsigned int TAMA_FULL_SPONSOR_MASK =
     }                                                            \
   }
 
+#include <Logic/BadgeId.h>
 #include <Logic/Display/display.h>
 #include <Logic/ImuLogic.h>
 #include <Logic/IrController.h>
@@ -139,7 +140,7 @@ typedef struct {
   TAMA_XBOARD_STATE state;
   TAMA_TYPE type;
   struct {
-    uint8_t user[hitcon::ir::IR_USERNAME_LEN];
+    uint8_t user[hitcon::BADGE_ID_LEN];
     uint16_t score;
     uint8_t nonce;
   } result;

@@ -1,6 +1,5 @@
 #include <App/MultiplayerGame.h>
 #include <Logic/GameController.h>
-#include <Logic/IrController.h>
 #include <Logic/RandomPool.h>
 #include <Logic/XBoardLogic.h>
 
@@ -76,7 +75,7 @@ void MultiplayerGame::SendGameOver() {
       .packetType = XboardPacketType::PACKET_GAME_OVER,
       .nonce = savedNonce = (uint16_t)g_fast_random_pool.GetRandom(),
       .score = GetScore()};
-  g_game_controller.SetBufferToUsername(packet.username);
+  hitcon::SetBufferToBadgeId(packet.username);
   g_xboard_logic.QueueDataForTx(reinterpret_cast<uint8_t *>(&packet),
                                 sizeof(packet), GetXboardRecvId());
 }
@@ -89,7 +88,7 @@ void MultiplayerGame::SendGameOverAck(PacketCallbackArg *rcvdPacket) {
   GameOverPacket packet = {.packetType = XboardPacketType::PACKET_GAME_OVER_ACK,
                            .nonce = savedNonce = _rcvdPacket->nonce,
                            .score = GetScore()};
-  g_game_controller.SetBufferToUsername(packet.username);
+  hitcon::SetBufferToBadgeId(packet.username);
   g_xboard_logic.QueueDataForTx(reinterpret_cast<uint8_t *>(&packet),
                                 sizeof(packet), GetXboardRecvId());
 }

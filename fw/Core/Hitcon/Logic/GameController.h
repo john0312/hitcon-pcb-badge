@@ -1,7 +1,7 @@
 #ifndef HITCON_LOGIC_GAME_CONTROLLER_H_
 #define HITCON_LOGIC_GAME_CONTROLLER_H_
 
-#include <Logic/IrController.h>
+#include <Logic/BadgeId.h>
 #include <Service/PerBoardData.h>
 #include <Service/Sched/Scheduler.h>
 #include <stdint.h>
@@ -27,7 +27,7 @@ struct SingleBadgeActivity {
 
 struct TwoBadgeActivity {
   EventType gameType;
-  uint8_t otherUser[hitcon::ir::IR_USERNAME_LEN];
+  uint8_t otherUser[BADGE_ID_LEN];
   uint16_t myScore;
   uint16_t otherScore;
   uint16_t nonce;
@@ -51,21 +51,6 @@ class GameController {
   bool SendSingleBadgeActivity(const SingleBadgeActivity &data);
 
   void NotifyPubkeyAck();
-  /**
-   * Returns a pointer to a buffer that holds the username, buffer holds
-   * IR_USERNAME_LEN in size.
-   *
-   * Note that the returned buffer may no longer be valid after the current
-   * task ends.
-   */
-  const uint8_t *GetUsername();
-
-  /**
-   * Copy the username into the specified buffer. Buffer should be at least
-   * IR_USERNAME_LEN in size. This function does not perform any size checks!
-   * Caller is expected to do so.
-   */
-  bool SetBufferToUsername(uint8_t *ptr);
 
  private:
   /*
