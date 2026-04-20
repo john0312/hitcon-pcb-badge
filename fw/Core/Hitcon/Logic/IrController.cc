@@ -72,25 +72,23 @@ void IrController::OnPacketReceived(void* arg) {
   } else if (data->type == packet_type::kShow) {
     ShowText(data->opaq.show.message);
   } else if (data->type == packet_type::kShowMsg) {
-    const uint8_t* user = g_game_controller.GetUsername();
-    if (user &&
-        (memcmp(data->opaq.show_msg.user, user, IR_USERNAME_LEN) == 0)) {
+    const uint8_t* user = hitcon::GetBadgeId();
+    if (user && (memcmp(data->opaq.show_msg.user, user, BADGE_ID_LEN) == 0)) {
       ShowText(data->opaq.show_msg.msg);
     }
   } else if (data->type == packet_type::kAcknowledge) {
     OnAcknowledgePacket(&data->opaq.acknowledge);
   } else if (data->type == packet_type::kScoreAnnounce) {
-    const uint8_t* user = g_game_controller.GetUsername();
+    const uint8_t* user = hitcon::GetBadgeId();
     if (user &&
-        memcmp(data->opaq.score_announce.user, user, IR_USERNAME_LEN) == 0) {
+        memcmp(data->opaq.score_announce.user, user, BADGE_ID_LEN) == 0) {
       g_signed_packet_service.VerifyAndReceivePacket(packet);
     } else {
       // Not our score.
     }
   } else if (data->type == packet_type::kRestorePet) {
-    const uint8_t* user = g_game_controller.GetUsername();
-    if (user &&
-        memcmp(data->opaq.restore_pet.user, user, IR_USERNAME_LEN) == 0) {
+    const uint8_t* user = hitcon::GetBadgeId();
+    if (user && memcmp(data->opaq.restore_pet.user, user, BADGE_ID_LEN) == 0) {
       g_signed_packet_service.VerifyAndReceivePacket(packet);
     } else {
       // Not our pet.

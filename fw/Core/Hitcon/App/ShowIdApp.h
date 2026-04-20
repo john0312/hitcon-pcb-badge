@@ -2,7 +2,7 @@
 #define SHOW_ID_APP_H
 
 #include <App/app.h>
-#include <Logic/IrController.h>
+#include <Logic/BadgeId.h>
 #include <Service/Sched/Scheduler.h>
 
 namespace hitcon {
@@ -28,7 +28,7 @@ class ShowIdApp : public App {
   service::sched::DelayedTask _get_id_task;
   service::sched::PeriodicTask _type_id_task;
   // store id string, e.g. "78 82 AD 2F" 2 5 8
-  char _id_str[ir::IR_USERNAME_LEN * 3] = {0};
+  char _id_str[BADGE_ID_LEN * 3] = {0};
   void GetId(void* unused);
   void TypeIdRoutine(void* unused);
   uint8_t _routine_count = 0;

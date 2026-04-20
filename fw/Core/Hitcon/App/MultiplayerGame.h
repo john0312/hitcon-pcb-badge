@@ -1,8 +1,8 @@
 #ifndef MULTIPLAYER_GAME_H
 #define MULTIPLAYER_GAME_H
 
+#include <Logic/BadgeId.h>
 #include <Logic/GameController.h>
-#include <Logic/IrController.h>
 #include <Logic/XBoardLogic.h>
 
 #include "app.h"
@@ -25,14 +25,14 @@ enum PlayerCount { SINGLEPLAYER = 1, MULTIPLAYER };
 
 struct GameOverPacket {
   XboardPacketType packetType;
-  uint8_t username[hitcon::ir::IR_USERNAME_LEN];
+  uint8_t username[hitcon::BADGE_ID_LEN];
   uint16_t nonce;
   uint16_t score;
 } __attribute__((packed));
 
 static_assert(sizeof(GameOverPacket) ==
               sizeof(XboardPacketType) + sizeof(uint16_t) +
-                  hitcon::ir::IR_USERNAME_LEN + sizeof(uint16_t));
+                  hitcon::BADGE_ID_LEN + sizeof(uint16_t));
 
 class MultiplayerGame : public App {
  private:

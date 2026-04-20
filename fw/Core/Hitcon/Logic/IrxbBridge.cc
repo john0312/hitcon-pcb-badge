@@ -1,7 +1,7 @@
 #include <App/ConnectMenuApp.h>
+#include <Logic/BadgeId.h>
 #include <Logic/Display/display.h>
 #include <Logic/EcLogic.h>
-#include <Logic/GameController.h>
 #include <Logic/IrLogic.h>
 #include <Logic/IrxbBridge.h>
 #include <Service/Sched/Scheduler.h>
@@ -167,8 +167,7 @@ void IrxbBridge::TamaRoutine() {
     tama_data_.ttl = 0;
     tama_data_.type = packet_type::kSavePet;
     tama_app.SaveToBuffer(tama_data_.opaq.save_pet.pet_data);
-    bool ret =
-        g_game_controller.SetBufferToUsername(tama_data_.opaq.save_pet.user);
+    bool ret = hitcon::SetBufferToBadgeId(tama_data_.opaq.save_pet.user);
     if (ret) tama_state_ = TamaState::kTamaStateWaitSignStart;
 
   } else if (tama_state_ == TamaState::kTamaStateWaitSignStart) {
@@ -208,8 +207,7 @@ void IrxbBridge::ScoreRoutine() {
   if (score_state_ == ScoreState::kScoreStateInit) {
     score_data_.ttl = 0;
     score_data_.type = packet_type::kRequestScore;
-    bool ret = g_game_controller.SetBufferToUsername(
-        score_data_.opaq.request_score.user);
+    bool ret = hitcon::SetBufferToBadgeId(score_data_.opaq.request_score.user);
     if (ret) score_state_ = ScoreState::kScoreStateWaitSendGetScore;
   } else if (score_state_ == ScoreState::kScoreStateWaitSendGetScore) {
     bool ret = hitcon::service::xboard::g_xboard_logic.SendIRPacket(

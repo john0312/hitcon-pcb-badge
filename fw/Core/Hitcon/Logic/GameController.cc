@@ -9,7 +9,6 @@
 
 #include <cstring>
 
-using hitcon::ir::IR_USERNAME_LEN;
 namespace hitcon {
 
 hitcon::game::GameController g_game_controller;
@@ -33,11 +32,11 @@ void GameController::Init() {
 
 bool GameController::SendTwoBadgeActivity(const TwoBadgeActivity &data) {
   hitcon::ir::TwoBadgeActivityPacket packet;
-  if (!SetBufferToUsername(packet.user1)) {
+  if (!SetBufferToBadgeId(packet.user1)) {
     // Not ready.
     return false;
   }
-  memcpy(packet.user2, data.otherUser, IR_USERNAME_LEN);
+  memcpy(packet.user2, data.otherUser, BADGE_ID_LEN);
   // Game Type: byte 0 bits 0:4
   packet.game_data[0] = data.gameType & 0xf;
   // Player 1 Score: byte 0 bits 4:8, byte 1 bits 0:6
@@ -55,7 +54,7 @@ bool GameController::SendTwoBadgeActivity(const TwoBadgeActivity &data) {
 
 bool GameController::SendProximity(const Proximity &data) {
   hitcon::ir::ProximityPacket packet;
-  if (!SetBufferToUsername(packet.user)) {
+  if (!SetBufferToBadgeId(packet.user)) {
     // Not ready.
     return false;
   }
@@ -69,7 +68,7 @@ bool GameController::SendProximity(const Proximity &data) {
 
 bool GameController::SendSingleBadgeActivity(const SingleBadgeActivity &data) {
   hitcon::ir::SingleBadgeActivityPacket packet;
-  if (!SetBufferToUsername(packet.user)) {
+  if (!SetBufferToBadgeId(packet.user)) {
     // Not ready.
     return false;
   }
@@ -98,25 +97,6 @@ void GameController::NotifyPubkeyAck() {
   }
 }
 
-const uint8_t *GameController::GetUsername() {
-  // To guarantee maximum entropy, we use the last 4 bytes of the x-coordinate
-  // of the public key, which is byte 3 - 6 inclusive.
-  const uint8_t *ptr = hitcon::ecc::g_ec_logic.GetPublicKey();
-  if (!ptr) return ptr;
-  ptr += (ECC_PUBKEY_SIZE - IR_USERNAME_LEN - 1);
-  return ptr;
-}
-
-bool GameController::SetBufferToUsername(uint8_t *ptr) {
-  auto *username = GetUsername();
-  if (!username) {
-    // Not ready.
-    memset(ptr, 0, IR_USERNAME_LEN);
-    return false;
-  }
-  memcpy(ptr, username, IR_USERNAME_LEN);
-  return true;
-}
 void GameController::TrySendPubAnnounce() {
   pubAnnounceCnt++;
   if (pubAnnounceCnt >= kPubAnnounceCycleInterval) {

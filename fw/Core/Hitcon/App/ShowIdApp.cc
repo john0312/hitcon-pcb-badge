@@ -1,5 +1,6 @@
 #include <App/ShowIdApp.h>
 #include <Logic/BadgeController.h>
+#include <Logic/BadgeId.h>
 #include <Logic/Display/display.h>
 #include <Logic/GameController.h>
 #include <Service/Sched/SysTimer.h>
@@ -25,17 +26,17 @@ void ShowIdApp::OnEntry() {
 void ShowIdApp::OnExit() {}
 
 void ShowIdApp::GetId(void* unused) {
-  const uint8_t* data = g_game_controller.GetUsername();
+  const uint8_t* data = hitcon::GetBadgeId();
   if (data == nullptr) {
     _get_id_task.SetWakeTime(SysTimer::GetTime() + 500);
     scheduler.Queue(&_get_id_task, nullptr);
   } else {
-    for (uint8_t i = 0; i < ir::IR_USERNAME_LEN; i++) {
+    for (uint8_t i = 0; i < BADGE_ID_LEN; i++) {
       _id_str[3 * i] = "0123456789abcdef"[data[i] >> 4];
       _id_str[3 * i + 1] = "0123456789abcdef"[data[i] & 0xF];
       _id_str[3 * i + 2] = ' ';
     }
-    _id_str[ir::IR_USERNAME_LEN * 3 - 1] = 0;
+    _id_str[BADGE_ID_LEN * 3 - 1] = 0;
     display_set_mode_scroll_text(_id_str);
   }
 }

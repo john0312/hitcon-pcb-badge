@@ -819,7 +819,7 @@ void TamaApp::XbRoutine(void* unused) {
 
       my_packet.result.score = qte.GetScore(GetCombatLevel()),
       my_packet.result.nonce = _my_nounce;
-      g_game_controller.SetBufferToUsername(my_packet.result.user);
+      hitcon::SetBufferToBadgeId(my_packet.result.user);
       my_packet.state = TAMA_XBOARD_STATE::XBOARD_BATTLE_SENT_SCORE;
 
       UpdateFrameBuffer();
@@ -1210,11 +1210,11 @@ bool TamaApp::TrySendSave(bool force) {
   if (current_level > _last_save_level || force) {
     // Should save.
     hitcon::ir::SavePetPacket save_pkt;
-    const uint8_t* user = hitcon::g_game_controller.GetUsername();
+    const uint8_t* user = hitcon::GetBadgeId();
     if (!user) return false;
     bool ret = SaveToBuffer(&save_pkt.pet_data[0]);
     if (!ret) return false;
-    memcpy(&save_pkt.user[0], user, hitcon::ir::IR_USERNAME_LEN);
+    memcpy(&save_pkt.user[0], user, hitcon::BADGE_ID_LEN);
     ret = hitcon::g_signed_packet_service.SignAndSendData(
         packet_type::kSavePet, reinterpret_cast<uint8_t*>(&save_pkt),
         sizeof(save_pkt) - ECC_SIGNATURE_SIZE);

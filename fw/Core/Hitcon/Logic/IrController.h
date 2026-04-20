@@ -1,6 +1,7 @@
 #ifndef LOGIC_IRCONTROLLER_DOT_H_
 #define LOGIC_IRCONTROLLER_DOT_H_
 
+#include <Logic/BadgeId.h>
 #include <Logic/EcLogic.h>
 #include <Logic/IrLogic.h>
 #include <Service/EcParams.h>
@@ -76,10 +77,6 @@ struct ShowPacket {
 };
 
 constexpr size_t PACKET_HASH_LEN = 6;
-// Currently we set the username to be the lower 32 bit (first 4 bytes in
-// little-endian) of public key. Might switch to the hash of pubkey if there's
-// concerns of collisions.
-constexpr size_t IR_USERNAME_LEN = 4;
 
 // This packet acknowledges a particular packet has been received.
 struct AcknowledgePacket {
@@ -89,7 +86,7 @@ struct AcknowledgePacket {
 
 // This packet is from the badge, saying I'm here to the base station.
 struct ProximityPacket {
-  uint8_t user[IR_USERNAME_LEN];
+  uint8_t user[BADGE_ID_LEN];
   // How much power or how active is the user according to accelerometer?
   uint8_t power;
   uint8_t nonce[2];
@@ -105,8 +102,8 @@ struct PubAnnouncePacket {
 
 // This packet is sent from two parties that participated in an activity.
 struct TwoBadgeActivityPacket {
-  uint8_t user1[IR_USERNAME_LEN];
-  uint8_t user2[IR_USERNAME_LEN];
+  uint8_t user1[BADGE_ID_LEN];
+  uint8_t user2[BADGE_ID_LEN];
   uint8_t game_data[5];
   // game_data structure:
   // Bit [0:4] - Game Type
@@ -121,7 +118,7 @@ struct TwoBadgeActivityPacket {
 
 // This packet is from the base station, telling user their score.
 struct ScoreAnnouncePacket {
-  uint8_t user[IR_USERNAME_LEN];
+  uint8_t user[BADGE_ID_LEN];
   uint8_t score[4];  // Little Endian 32-bit int. We use uint8_t here to avoid
                      // alignment issues.
   uint8_t sig[ECC_SIGNATURE_SIZE];
@@ -129,7 +126,7 @@ struct ScoreAnnouncePacket {
 
 // This packet is from the badge to the base station.
 struct SingleBadgeActivityPacket {
-  uint8_t user[IR_USERNAME_LEN];
+  uint8_t user[BADGE_ID_LEN];
   uint8_t event_type;
   // 0x01 - Snake
   // 0x02 - Tetris
@@ -145,29 +142,29 @@ struct SingleBadgeActivityPacket {
 struct SponsorActivityPacket {
   uint8_t sponsor_id;
   uint8_t nonce;
-  uint8_t user[IR_USERNAME_LEN];
+  uint8_t user[BADGE_ID_LEN];
   uint8_t sig[ECC_SIGNATURE_SIZE];
 };
 
 // This packet is from base station to badge.
 struct ShowMsgPacket {
-  uint8_t user[IR_USERNAME_LEN];
+  uint8_t user[BADGE_ID_LEN];
   char msg[24];
 };
 
 // This packet is from badge to base station.
 struct RequestScorePacket {
-  uint8_t user[IR_USERNAME_LEN];
+  uint8_t user[BADGE_ID_LEN];
 };
 
 struct SavePetPacket {
-  uint8_t user[IR_USERNAME_LEN];
+  uint8_t user[BADGE_ID_LEN];
   uint8_t pet_data[kTamaDataSaveLen];
   uint8_t sig[ECC_SIGNATURE_SIZE];
 };
 
 struct RestorePetPacket {
-  uint8_t user[IR_USERNAME_LEN];
+  uint8_t user[BADGE_ID_LEN];
   uint8_t pet_data[kTamaDataSaveLen];
   uint8_t sig[ECC_SIGNATURE_SIZE];
 };
