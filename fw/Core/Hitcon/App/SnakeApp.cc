@@ -209,8 +209,6 @@ void SnakeApp::Routine(void* unused) {
   if (_game_over) {
     if (IsMultiplayer()) {
       SendGameOver();
-    } else {
-      UploadSingleplayerScore();
     }
     GameOver();
     return;

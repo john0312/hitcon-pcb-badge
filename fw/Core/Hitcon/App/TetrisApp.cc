@@ -161,10 +161,7 @@ void TetrisApp::periodic_task_callback(void *) {
     }
 
     case hitcon::tetris::GAME_STATE_GAME_OVER: {
-      if (IsMultiplayer())
-        SendGameOver();
-      else
-        UploadSingleplayerScore();
+      if (IsMultiplayer()) SendGameOver();
       GameOver();
       break;
     }

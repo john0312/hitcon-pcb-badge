@@ -119,7 +119,6 @@ void IrController::OnAcknowledgeTag(AckTag tag) {
     case AckTag::ACK_TAG_NONE:
       return;
     case AckTag::ACK_TAG_PUBKEY_RECOG:
-      g_game_controller.NotifyPubkeyAck();
       return;
   }
 }

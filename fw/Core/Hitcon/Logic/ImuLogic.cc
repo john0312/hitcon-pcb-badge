@@ -1,6 +1,5 @@
 #include <Hitcon.h>
 #include <Logic/Display/display.h>
-#include <Logic/GameController.h>
 #include <Logic/ImuLogic.h>
 #include <Logic/lsm6ds3tr-c_reg.h>
 #include <Service/ImuService.h>
@@ -407,12 +406,9 @@ void ImuLogic::OnTxDone(void* arg1) {
 
 void ImuLogic::ProximityRoutine(void* arg1) {
   static uint32_t last_step = 0;
-  hitcon::game::Proximity data;
   uint16_t temp = (GetStep() - last_step) / SCALE_FACTOR;
   if (temp > 255) temp = 255;
-  data.power = temp;
-  data.nonce = SysTimer::GetTime() & 0xFFFF;
-  g_game_controller.SendProximity(data);
+  // maybe save temp (step count) for callbacks from other
   last_step = GetStep();
 }
 }  // namespace hitcon
