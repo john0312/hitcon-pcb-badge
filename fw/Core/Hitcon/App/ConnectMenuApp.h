@@ -59,8 +59,7 @@ class ConnectLegacyMenuApp : public MenuApp {
 extern ConnectLegacyMenuApp connect_legacy_menu;
 
 constexpr menu_entry_t connect_basestn_menu_entries[] = {
-    {"BaseStation", nullptr, nullptr},
-    {"Tama Heal", &tama_app, &hitcon::app::tama::SetBaseStationConnect},
+    {"Unsupported 2025 station", nullptr, nullptr},
 };
 
 constexpr int connect_basestn_menu_entries_len =
@@ -71,19 +70,9 @@ class ConnectBasestnMenuApp : public MenuApp {
   ConnectBasestnMenuApp()
       : MenuApp(connect_basestn_menu_entries,
                 connect_basestn_menu_entries_len) {}
-
-  void OnEntry() override;
-  void OnButton(button_t button) override;
-
   void OnButtonMode() override {}
   void OnButtonBack() override {}
   void OnButtonLongBack() override {}
-
-  void NotifyIrXbFinished();
-
- private:
-  // False if IR-XB Bridge is working.
-  bool basestn_available_;
 };
 
 extern ConnectBasestnMenuApp connect_basestn_menu;

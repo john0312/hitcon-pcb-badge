@@ -30,6 +30,9 @@ GameScore::GameScore()
 
 void GameScore::Init() {
   last_operation_progress_ = 0;
+  memcpy(
+      scores, g_nv_storage.GetCurrentStorage().max_scores,
+      sizeof(scores[0]) * static_cast<size_t>(GameScoreType::GAME_UNUSED_MAX));
 
   routine_task_delayed.SetWakeTime(SysTimer::GetTime() + kIdleRoutineDelay);
   scheduler.Queue(&routine_task_delayed, nullptr);

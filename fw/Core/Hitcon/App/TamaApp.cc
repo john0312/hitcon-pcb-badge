@@ -9,7 +9,6 @@
 #include <Logic/RandomPool.h>
 #include <Logic/XBoardLogic.h>
 #include <Service/Sched/Scheduler.h>
-#include <Service/SignedPacketService.h>
 
 #include <cstdarg>
 #include <cstring>
@@ -355,9 +354,6 @@ void TamaApp::Routine(void* unused) {
     XbRoutine(unused);
     return;
   }
-
-  // Try save first.
-  TrySendSave(false);
 
   // If the player is connected to the base station, behavior should be the same
   // as if it's not connected.
@@ -1079,109 +1075,8 @@ void TamaApp::SetAllSponsor() {
   g_nv_storage.MarkDirty();
 }
 
-bool TamaApp::TamaDataToBuffer(uint8_t* buffer, const tama_storage_t& data) {
-  if (data.state != TAMA_APP_STATE::IDLE) return false;
-  if (data.type != TAMA_TYPE::CAT && data.type != TAMA_TYPE::DOG) return false;
-
-  buffer[0] = data.sponsor_register & 0x0FF;
-  buffer[1] = (data.sponsor_register >> 8) & 0x0FF;
-  buffer[2] = (data.sponsor_register >> 16) & 0x0FF;
-
-  // Byte [3]
-  // [7] - 1 for cat, 0 for dog
-  // [5:6] - 2 bit for hp
-  // [2:4] - 3 bit for hunger
-  // [0:1] - 2 bit for qte level, bit [7:8] of qte level.
-  buffer[3] = 0;
-  if (data.type == TAMA_TYPE::CAT) buffer[3] |= 0x80;
-  uint8_t hp = data.hp;
-  if (hp >= 4) hp = 3;
-  buffer[3] |= (hp << 5);
-  uint8_t hunger = data.hunger;
-  if (hunger >= 5) hunger = 4;
-  buffer[3] |= (hunger << 2);
-  uint16_t qte_level = data.qte_level;
-  if (qte_level >= 500) qte_level = 499;
-  buffer[3] |= (qte_level >> 7) & 3;
-
-  // Byte [4]
-  // [1:7] - 7 bits for qte level, bit [0:6] of qte level.
-  // [0] - 1 bit for step level, bit
-  buffer[4] = (qte_level & 0x7F) << 1;
-  uint8_t step_level = data.step_level;
-  if (step_level >= 500) step_level = 499;
-  buffer[4] |= (step_level >> 8) & 1;
-
-  // Byte [5]
-  // [0:7] - 8 bits for step level, bit [0:7] of step level.
-  buffer[5] = step_level & 0xFF;
-
-  static_assert(kTamaDataSaveLen == 6);
-  return true;
-}
-
-bool TamaApp::BufferToTamaData(const uint8_t* buffer, tama_storage_t& data) {
-  // Restore sponsor_register
-  data.sponsor_register = buffer[0] | (buffer[1] << 8) | (buffer[2] << 16);
-  data.state = TAMA_APP_STATE::IDLE;
-  // Restore type, hp, hunger, and part of qte_level from buffer[3]
-  if (buffer[3] & 0x80) {
-    data.type = TAMA_TYPE::CAT;
-  } else {
-    data.type = TAMA_TYPE::DOG;
-  }
-  data.hp = (buffer[3] >> 5) & 0x03;
-  data.hunger = (buffer[3] >> 2) & 0x07;
-  if (data.hp >= 4) return false;
-  if (data.hunger >= 5) return false;
-
-  // Restore qte_level (split across buffer[3] and buffer[4])
-  uint16_t qte_level_high_bits = (buffer[3] & 0x03)
-                                 << 7;  // Bits [7:8] of qte_level
-  uint16_t qte_level_low_bits =
-      (buffer[4] >> 1) & 0x7F;  // Bits [0:6] of qte_level
-  data.qte_level = qte_level_high_bits | qte_level_low_bits;
-
-  // Restore step_level (split across buffer[4] and buffer[5])
-  uint16_t step_level_high_bit = (buffer[4] & 0x01)
-                                 << 8;       // Bit [8] of step_level
-  uint16_t step_level_low_bits = buffer[5];  // Bits [0:7] of step_level
-  data.step_level = step_level_high_bit | step_level_low_bits;
-
-  if (data.qte_level >= 500) return false;
-  if (data.step_level >= 500) return false;
-
-  // Note: Secret level is the number of bits in sponsor_register.
-
-  return true;
-}
-
 uint16_t TamaApp::SecretLevelFromSponsor(uint32_t _unused) {
   return TAMA_MAX_SECRET_LEVEL;
-}
-
-bool TamaApp::SaveToBuffer(uint8_t* buffer) {
-  return TamaDataToBuffer(buffer, _tama_data);
-}
-
-bool TamaApp::RestoreFromBuffer(const uint8_t* buffer) {
-  tama_storage_t t;
-  if (!BufferToTamaData(buffer, t)) return false;
-  if (ShouldRestore(t)) {
-    _tama_data = t;
-    return true;
-  }
-  return false;
-}
-
-bool TamaApp::ShouldRestore(const tama_storage_t& t) {
-  uint16_t their_secret_level = SecretLevelFromSponsor(t.sponsor_register);
-  int total_level_theirs = t.qte_level + their_secret_level + t.step_level;
-  uint16_t our_secret_level =
-      SecretLevelFromSponsor(_tama_data.sponsor_register);
-  int total_level_ours =
-      _tama_data.qte_level + our_secret_level + _tama_data.step_level;
-  return total_level_theirs > total_level_ours;
 }
 
 bool TamaApp::IsDataValid() {
@@ -1197,39 +1092,6 @@ bool TamaApp::IsDataValid() {
         static_cast<uint16_t>(TAMA_APP_STATE::SAVE_STATE)))
     return false;
   return true;
-}
-
-void TamaApp::ResetRestorePacketPoll() { _received_restore_packet = false; }
-
-bool TamaApp::PollRestorePacket() { return _received_restore_packet; }
-
-bool TamaApp::TrySendSave(bool force) {
-  int secret_level = SecretLevelFromSponsor(_tama_data.sponsor_register);
-  int current_level =
-      _tama_data.qte_level + secret_level + _tama_data.step_level;
-  if (current_level > _last_save_level || force) {
-    // Should save.
-    hitcon::ir::SavePetPacket save_pkt;
-    const uint8_t* user = hitcon::GetBadgeId();
-    if (!user) return false;
-    bool ret = SaveToBuffer(&save_pkt.pet_data[0]);
-    if (!ret) return false;
-    memcpy(&save_pkt.user[0], user, hitcon::BADGE_ID_LEN);
-    ret = hitcon::g_signed_packet_service.SignAndSendData(
-        packet_type::kSavePet, reinterpret_cast<uint8_t*>(&save_pkt),
-        sizeof(save_pkt) - ECC_SIGNATURE_SIZE);
-    if (ret) {
-      _last_save_level = current_level;
-      return true;
-    }
-    return false;
-  }
-  return false;
-}
-
-bool TamaApp::OnRestorePacket(struct hitcon::ir::RestorePetPacket* pkt) {
-  _received_restore_packet = true;
-  return RestoreFromBuffer(pkt->pet_data);
 }
 
 void TamaQte::Routine() {

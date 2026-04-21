@@ -19,7 +19,7 @@ enum ShowNameMode {
 class ShowNameApp : public App {
  public:
   static constexpr int NAME_LEN = kDisplayMaxNameLength;
-  static constexpr char *DEFAULT_NAME = "HITCON2025";
+  static constexpr char const *DEFAULT_NAME = "HITCON2025";
 
   char name[NAME_LEN + 1] = {0};
   char display_buf[DISPLAY_SCROLL_MAX_COLUMNS];
@@ -34,15 +34,12 @@ class ShowNameApp : public App {
 
   void SetName(const char *name);
   void SetMode(const enum ShowNameMode mode);
-  void SetScore(uint32_t score);
+  void CalculateScore();
   enum ShowNameMode GetMode();
 
   void SetSurpriseMsg(const char *msg);
 
   void check_update();
-
-  void ResetSetScorePacketPoll();
-  bool PollSetScorePacket();
 
  private:
   enum ShowNameMode mode = SHOW_INITIALIZE;
@@ -53,7 +50,6 @@ class ShowNameApp : public App {
   char surprise_msg[kDisplayScrollMaxTextLen + 1];
   bool starting_up;
   unsigned last_disp_update = 0;
-  bool _received_set_score_packet = false;
 };
 
 extern ShowNameApp show_name_app;
