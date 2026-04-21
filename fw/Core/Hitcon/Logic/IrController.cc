@@ -254,15 +254,8 @@ void IrController::MaintainQueued() {
     } else if (current_status == kRetransmitStatusWaitTxSlot) {
       // Waiting for IrController's tx slot to open up. (Hash is ready)
       if (current_tx_slot == -1) {
-        bool ret;
-        if (g_xboard_logic.GetConnectState() ==
-            UsartConnectState::ConnectBaseStn2025) {
-          ret = g_xboard_logic.SendIRPacket(&(queued_packets_[i].data[0]),
-                                            queued_packets_[i].size);
-        } else {
-          ret = irLogic.SendPacket(&(queued_packets_[i].data[0]),
-                                   queued_packets_[i].size);
-        }
+        bool ret = irLogic.SendPacket(&(queued_packets_[i].data[0]),
+                                      queued_packets_[i].size);
         if (ret) {
           // Packet successfully queued for transmission by irLogic.
           current_tx_slot =
