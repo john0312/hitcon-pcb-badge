@@ -26,7 +26,6 @@ constexpr unsigned int TAMA_FULL_SPONSOR_MASK =
 #include <Logic/BadgeId.h>
 #include <Logic/Display/display.h>
 #include <Logic/ImuLogic.h>
-#include <Logic/IrController.h>
 #include <Service/Sched/PeriodicTask.h>
 #include <Service/Sched/SysTimer.h>  // For SysTimer
 
@@ -254,8 +253,6 @@ class TamaApp : public App {
   bool _xb_qte_me_winning = false;
   bool _xb_qte_enemy_winning = false;
 
-  bool _received_restore_packet = false;
-
   TamaQte qte;
 
   // This level is displayed on the UI
@@ -290,9 +287,6 @@ class TamaApp : public App {
   // Heal related.
   bool _pending_heal = false;
 
-  // Save/Restore related.
-  uint16_t _last_save_level = 0;
-
   void SetAllSponsor();
 
  public:
@@ -317,18 +311,8 @@ class TamaApp : public App {
   void TamaHealOnly();
   void SetPendingHeal() { _pending_heal = true; }
 
-  // Save/Restore related.
-  static bool TamaDataToBuffer(uint8_t* buffer, const tama_storage_t& data);
-  static bool BufferToTamaData(const uint8_t* buffer, tama_storage_t& data);
-  bool SaveToBuffer(uint8_t* buffer);
-  bool RestoreFromBuffer(const uint8_t* buffer);
-  bool ShouldRestore(const tama_storage_t& t);
-  bool TrySendSave(bool force);
-  bool OnRestorePacket(struct hitcon::ir::RestorePetPacket* pkt);
+  // Save related.
   bool IsDataValid();
-
-  void ResetRestorePacketPoll();
-  bool PollRestorePacket();
 };
 
 void SetSingleplayer();

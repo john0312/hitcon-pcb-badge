@@ -1,7 +1,8 @@
-#include <App/ShowNameApp.h>
-#include <App/TamaApp.h>
+#include <Service/Sched/Checks.h>
 #include <Service/SignedPacketService.h>
 #include <string.h>
+
+using hitcon::service::sched::my_assert;
 
 namespace hitcon {
 
@@ -161,12 +162,8 @@ void SignedPacketService::OnPacketVerFinish(void *isValid) {
 void SignedPacketService::ReceivePacket(SignedPacket &packet) {
   switch (packet.type) {
     case packet_type::kScoreAnnounce:
-      show_name_app.SetScore(*reinterpret_cast<uint32_t *>(
-          packet.data + offsetof(hitcon::ir::ScoreAnnouncePacket, score)));
-      break;
     case packet_type::kRestorePet:
-      hitcon::app::tama::tama_app.OnRestorePacket(
-          reinterpret_cast<hitcon::ir::RestorePetPacket *>(&packet.data));
+      // deprecated packet, do nothing.
       break;
     default:
       my_assert(false);

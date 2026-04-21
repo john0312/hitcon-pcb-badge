@@ -1,4 +1,3 @@
-#include <App/ConnectMenuApp.h>
 #include <Logic/BadgeId.h>
 #include <Logic/Display/display.h>
 #include <Logic/EcLogic.h>
@@ -52,8 +51,6 @@ void IrxbBridge::OnXBoardBasestnConnect() {
 
   tama_state_ = TamaState::kTamaStateInit;
   score_state_ = ScoreState::kScoreStateInit;
-  tama_app.ResetRestorePacketPoll();
-  show_name_app.ResetSetScorePacketPoll();
 
   EnsureRoutineQueued();
 }
@@ -88,7 +85,6 @@ bool IrxbBridge::RoutineInternal() {
     disp_txt_[2] = '-';
     disp_txt_[3] = 0;
     show_text = true;
-    tama_app.TamaHealOnly();
   } else if (state_ >= kStateBase &&
              state_ < kStateBase + 16 * ir::RETX_QUEUE_SIZE) {
     int slot = (state_ - kStateBase) / 16;
@@ -151,7 +147,6 @@ bool IrxbBridge::RoutineInternal() {
     show_cycles_--;
     if (show_cycles_ == 0) {
       state_ = kStateMenu;
-      connect_basestn_menu.NotifyIrXbFinished();
     }
   }
   return true;
@@ -159,14 +154,11 @@ bool IrxbBridge::RoutineInternal() {
 
 void IrxbBridge::TamaRoutine() {
   // skip to "done" directly if we already received a restore packet.
-  if (tama_app.PollRestorePacket()) {
-    tama_state_ = TamaState::kTamaStateDone;
-  }
+  tama_state_ = TamaState::kTamaStateDone;
   if (tama_state_ == TamaState::kTamaStateInit) {
     // Prepare a "save tama" packet.
     tama_data_.ttl = 0;
     tama_data_.type = packet_type::kSavePet;
-    tama_app.SaveToBuffer(tama_data_.opaq.save_pet.pet_data);
     bool ret = hitcon::SetBufferToBadgeId(tama_data_.opaq.save_pet.user);
     if (ret) tama_state_ = TamaState::kTamaStateWaitSignStart;
 
@@ -201,8 +193,7 @@ void IrxbBridge::OnTamaSignDone(hitcon::ecc::Signature *signature) {
 
 void IrxbBridge::ScoreRoutine() {
   // If we already received a score packet, skip to "done".
-  if (show_name_app.PollSetScorePacket())
-    score_state_ = ScoreState::kScoreStateDone;
+  score_state_ = ScoreState::kScoreStateDone;
 
   if (score_state_ == ScoreState::kScoreStateInit) {
     score_data_.ttl = 0;

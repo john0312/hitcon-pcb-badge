@@ -7,7 +7,6 @@
 #include <Logic/Display/display.h>
 #include <Logic/GameController.h>
 #include <Logic/GameScore.h>
-#include <Logic/IrController.h>
 #include <Logic/RandomPool.h>
 #include <Logic/XBoardLogic.h>
 #include <Service/Sched/SysTimer.h>

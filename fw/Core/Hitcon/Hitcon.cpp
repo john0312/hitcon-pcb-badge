@@ -76,9 +76,9 @@ void hitcon_run() {
   g_secure_random_pool.Init();
   g_signed_packet_service.Init();
   g_game_controller.Init();
-  g_game_score.Init();
   g_flash_service.Init();
   g_nv_storage.Init();
+  g_game_score.Init();
   g_display_logic.Init();
 #ifndef V1_1
   g_imu_service.Init();

@@ -7,8 +7,6 @@
 #include <App/ShowNameApp.h>
 #include <App/UsbMenuApp.h>
 #include <Hitcon.h>
-#include <Logic/IrController.h>
-#include <Logic/IrxbBridge.h>
 #include <Logic/UsbLogic.h>
 #include <Logic/XBoardLogic.h>
 #include <Secret/secret.h>
@@ -20,7 +18,6 @@
 #error "BADGE_ROLE not defined"
 #endif  // BADGE_ROLE
 
-using hitcon::ir::irController;
 using hitcon::service::sched::my_assert;
 using hitcon::service::xboard::g_xboard_logic;
 using hitcon::service::xboard::UsartConnectState;
@@ -151,7 +148,6 @@ void BadgeController::OnXBoardLegacyConnect(void *unused) {
 }
 
 void BadgeController::OnXBoardBasestnConnect(void *unused) {
-  g_irxb_bridge.OnXBoardBasestnConnect();
   if (current_app != &hardware_test_app)
     badge_controller.change_app(&connect_basestn_menu);
 }
@@ -163,7 +159,6 @@ void BadgeController::OnXBoardDisconnect(void *unused) {
 }
 
 void BadgeController::OnXBoardBasestnDisconnect(void *unused) {
-  g_irxb_bridge.OnXBoardBasestnDisconnect();
   if (current_app != &hardware_test_app)
     badge_controller.change_app(&show_name_app);
 }

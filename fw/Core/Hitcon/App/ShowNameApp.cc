@@ -6,6 +6,7 @@
 #include <Logic/BadgeController.h>
 #include <Logic/Display/display.h>
 #include <Logic/Display/font.h>
+#include <Logic/GameScore.h>
 #include <Logic/NvStorage.h>
 #include <Service/Sched/SysTimer.h>
 #include <Service/Sched/Task.h>
@@ -50,7 +51,7 @@ void ShowNameApp::Init() {
 void ShowNameApp::OnEntry() {
   display_set_orientation(0);
   // TODO: update score with our new game
-  // score_cache = gameLogic.GetScore();
+  CalculateScore();
   scheduler.EnablePeriodic(&_routine_task);
   starting_up = false;
   update_display();
@@ -90,11 +91,19 @@ void ShowNameApp::OnButton(button_t button) {
   }
 }
 
-void ShowNameApp::ResetSetScorePacketPoll() {
-  _received_set_score_packet = false;
+void ShowNameApp::CalculateScore() {
+  // ScoreHistApp
+  constexpr int max_display_score = 9999999;
+  int total = g_game_score.GetScore(GameScoreType::GAME_DINO);
+  if (total > max_display_score) total = max_display_score;
+  total += g_game_score.GetScore(GameScoreType::GAME_SNAKE);
+  if (total > max_display_score) total = max_display_score;
+  total += g_game_score.GetScore(GameScoreType::GAME_SPACESHIP);
+  if (total > max_display_score) total = max_display_score;
+  total += g_game_score.GetScore(GameScoreType::GAME_TETRIS);
+  if (total > max_display_score) total = max_display_score;
+  score_cache = total;
 }
-
-bool ShowNameApp::PollSetScorePacket() { return _received_set_score_packet; }
 
 void ShowNameApp::check_update() {
   if (mode == SHOW_INITIALIZE) {
@@ -167,12 +176,6 @@ void ShowNameApp::SetName(const char *name) {
 
 void ShowNameApp::SetMode(const enum ShowNameMode mode) {
   this->mode = mode;
-  update_display();
-}
-
-void ShowNameApp::SetScore(uint32_t score) {
-  _received_set_score_packet = true;
-  score_cache = score;
   update_display();
 }
 
