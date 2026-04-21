@@ -117,6 +117,8 @@ class ImuLogic {
   void Routine(void *arg1);
 
   // send proximity packet every PROXIMITY_INTERVAL
+  // the data should be retrieved by callback from other callers.
+  // the function not useful since SetCallback is not implemented yet.
   void ProximityRoutine(void *arg);
 };
 

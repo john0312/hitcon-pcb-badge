@@ -174,8 +174,6 @@ void DinoApp::Routine(void* unused) {
   if (dinoDied()) {
     if (IsMultiplayer()) {
       SendGameOver();
-    } else {
-      UploadSingleplayerScore();
     }
     GameOver();
     return;

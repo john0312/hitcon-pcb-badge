@@ -5,9 +5,6 @@
 
 #include <cstring>
 
-using hitcon::game::EventType;
-using hitcon::game::SingleBadgeActivity;
-using hitcon::game::TwoBadgeActivity;
 using hitcon::service::xboard::g_xboard_logic;
 using hitcon::service::xboard::PacketCallbackArg;
 
@@ -28,46 +25,15 @@ void MultiplayerGame::OnXboardRecv(void *arg) {
       break;
     case PACKET_GAME_OVER:
       SendGameOverAck(packet);
-      UploadMultiplayerScore(packet);
       GameOver();
       break;
     case PACKET_GAME_OVER_ACK:
-      UploadMultiplayerScore(packet);
       GameOver();
       break;
     case PACKET_ATTACK:
       RecvAttackPacket(packet);
       break;
   }
-}
-
-void MultiplayerGame::UploadMultiplayerScore(PacketCallbackArg *packet) {
-  if (packet->len != sizeof(GameOverPacket)) return;
-  GameOverPacket *gameOverPacket =
-      reinterpret_cast<GameOverPacket *>(packet->data);
-  if (gameOverPacket->packetType != PACKET_GAME_OVER &&
-      gameOverPacket->packetType != PACKET_GAME_OVER_ACK)
-    return;
-  if (gameOverPacket->nonce != savedNonce) return;
-  TwoBadgeActivity activity = {.gameType = GetGameType(),
-                               .myScore = GetScore(),
-                               .otherScore = gameOverPacket->score,
-                               .nonce = gameOverPacket->nonce};
-  memcpy(activity.otherUser, gameOverPacket->username,
-         sizeof(activity.otherUser));
-  g_game_controller.SendTwoBadgeActivity(activity);
-}
-
-void MultiplayerGame::UploadSingleplayerScore() {
-  SingleBadgeActivity activity = {
-      .eventType = GetGameType(), .myScore = 0, .nonce = 0};
-  uint32_t score = GetScore();
-  if (score >= 1024) {
-    score = 1023;
-  }
-  activity.myScore = score;
-  activity.nonce = (uint16_t)g_fast_random_pool.GetRandom();
-  g_game_controller.SendSingleBadgeActivity(activity);
 }
 
 void MultiplayerGame::SendGameOver() {

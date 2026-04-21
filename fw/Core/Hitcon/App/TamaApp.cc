@@ -4,7 +4,6 @@
 
 #include <Logic/BadgeController.h>
 #include <Logic/Display/display.h>
-#include <Logic/GameController.h>
 #include <Logic/NvStorage.h>
 #include <Logic/RandomPool.h>
 #include <Logic/XBoardLogic.h>
@@ -829,26 +828,18 @@ void TamaApp::XbRoutine(void* unused) {
     my_packet.state = TAMA_XBOARD_STATE::XBOARD_BATTLE_END;
     // We need to know enemy score to update our frames
     my_assert(enemy_packet.result.nonce);
-    // Send result with TwoBadgeActivity
-    hitcon::game::TwoBadgeActivity activity = {
-        .gameType = hitcon::game::EventType::kTama,
-        .myScore = qte.GetScore(GetCombatLevel()),
-        .otherScore = enemy_packet.result.score,
-        .nonce = _my_nounce + enemy_packet.result.nonce,
-    };
-    memcpy(activity.otherUser, enemy_packet.result.user,
-           sizeof(enemy_packet.result.user));
-    g_game_controller.SendTwoBadgeActivity(activity);
-    if (activity.myScore > activity.otherScore)
+    uint16_t myScore = qte.GetScore(GetCombatLevel());
+    uint16_t otherScore = enemy_packet.result.score;
+    if (myScore > otherScore)
       _xb_qte_me_winning = true;
     else
       _xb_qte_me_winning = false;
-    if (activity.otherScore > activity.myScore)
+    if (otherScore > myScore)
       _xb_qte_enemy_winning = true;
     else
       _xb_qte_enemy_winning = false;
 
-    if (activity.otherScore == CRITICAL_HIT_SCORE)
+    if (otherScore == CRITICAL_HIT_SCORE)
       _tama_data.hp = 0;
     else if (_xb_qte_me_winning)
       SetQteLevel(_tama_data.qte_level + 3);

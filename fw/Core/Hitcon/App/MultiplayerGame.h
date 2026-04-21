@@ -42,9 +42,6 @@ class MultiplayerGame : public App {
   void SendGameOverAck(hitcon::service::xboard::PacketCallbackArg *rcvdPacket);
 
  protected:
-  void UploadSingleplayerScore();
-  void UploadMultiplayerScore(
-      hitcon::service::xboard::PacketCallbackArg *packet);
   void SendGameOver();
   void SendStartGame();
   void SendAbortGame();
