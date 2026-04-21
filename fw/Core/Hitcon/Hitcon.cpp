@@ -24,7 +24,6 @@
 #include <Logic/ImuLogic.h>
 #include <Logic/IrController.h>
 #include <Logic/IrLogic.h>
-#include <Logic/IrxbBridge.h>
 #include <Logic/NvStorage.h>
 #include <Logic/UsbLogic.h>
 #include <Logic/XBoardLogic.h>
@@ -88,7 +87,6 @@ void hitcon_run() {
   g_button_service.Init();
   g_xboard_service.Init();
   g_xboard_logic.Init();
-  g_irxb_bridge.Init();
   show_name_app.Init();
 
   badge_controller.Init();

@@ -101,13 +101,6 @@ void XBoardLogic::SetOnPacketArrive(callback_t callback, void *self,
 
 // private functions
 
-bool XBoardLogic::SendIRPacket(uint8_t *data, size_t len) {
-  g_xboard_logic.QueueDataForTx(data, len, IR_TO_BASE_STATION);
-  // TODO: Checking ACK
-  // assuming always ACKed now
-  return true;
-}
-
 void XBoardLogic::SendPing() {
   uint8_t pkt[HEADER_SZ] = {0};
   *reinterpret_cast<Frame *>(pkt) = Frame{PREAMBLE, 0, 0, PING_TYPE, 0};
