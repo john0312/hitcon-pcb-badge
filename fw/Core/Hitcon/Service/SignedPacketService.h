@@ -1,3 +1,9 @@
+// Base station IR signed packet features are currently disabled.
+// The base station has been removed, so there are no more packets that require
+// ECDSA digital signatures via IR. This code is preserved for future reference.
+// To re-enable, remove `#if 0`.
+#if 0
+
 #ifndef HITCON_SERVICE_SIGNED_PACKET_SERVICE_H_
 #define HITCON_SERVICE_SIGNED_PACKET_SERVICE_H_
 
@@ -72,3 +78,5 @@ extern SignedPacketService g_signed_packet_service;
 }  // namespace hitcon
 
 #endif  // HITCON_SERVICE_SIGNED_PACKET_SERVICE_H_
+
+#endif  // #if 0

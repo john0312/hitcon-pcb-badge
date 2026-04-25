@@ -12,27 +12,28 @@
 #include <stdint.h>
 
 enum class packet_type : uint8_t {
-  kGame = 0,  // disabled
+  kGame = 0,  // disabled, 2024 Game
   kShow = 1,
   kTest = 2,
   // Packet types for 2025
   kAcknowledge = 3,
-  kProximity = 4,
-  kPubAnnounce = 5,
-  kTwoBadgeActivity = 6,
-  kScoreAnnounce = 7,
-  kSingleBadgeActivity = 8,
-  kSponsorActivity = 9,
+  kProximity = 4,            // disabled
+  kPubAnnounce = 5,          // disabled
+  kTwoBadgeActivity = 6,     // disabled
+  kScoreAnnounce = 7,        // disabled
+  kSingleBadgeActivity = 8,  // disabled
+  kSponsorActivity = 9,      // disabled
   kShowMsg = 10,
-  kRequestScore = 11,
-  kSavePet = 12,
-  kRestorePet = 13,
+  kRequestScore = 11,  // disabled
+  kSavePet = 12,       // disabled
+  kRestorePet = 13,    // disabled
 };
 
 // smaller value means higher priority
 // only packets from badge need to have priority.
 constexpr uint8_t RETX_LOWEST_PKT_PRIORITY = 0xF0;
 constexpr uint8_t RETX_EMPTY_PKT_PRIORITY = 0xF1;
+// for kRequestScore and kSavePet, not used now
 constexpr uint8_t RETX_REPLACEMENT_PKT_PRIORITY = 0xF2;
 constexpr uint8_t packet_priority[14] = {
     RETX_LOWEST_PKT_PRIORITY,  // kGame
@@ -55,18 +56,11 @@ constexpr uint8_t GetPriority(packet_type type) {
     return RETX_LOWEST_PKT_PRIORITY;
   return packet_priority[static_cast<uint8_t>(type)];
 }
-
 namespace hitcon {
-
-constexpr size_t kTamaDataSaveLen = 6;
 
 namespace ir {
 
 /*Definition of IR content.*/
-struct GamePacket {
-  // It's a placeholder after removing the ir game
-  uint8_t data;
-};
 
 struct ShowPacket {
   char message[16];
@@ -80,89 +74,10 @@ struct AcknowledgePacket {
   uint8_t packet_hash[PACKET_HASH_LEN];
 };
 
-// This packet is from the badge, saying I'm here to the base station.
-struct ProximityPacket {
-  uint8_t user[BADGE_ID_LEN];
-  // How much power or how active is the user according to accelerometer?
-  uint8_t power;
-  uint8_t nonce[2];
-  uint8_t sig[ECC_SIGNATURE_SIZE];
-};
-
-// This packet is from the badge, announcing its public key.
-struct PubAnnouncePacket {
-  uint8_t pubkey[ECC_PUBKEY_SIZE];
-  // Signature from the Certificate Authority.
-  uint8_t sig[ECC_SIGNATURE_SIZE];
-};
-
-// This packet is sent from two parties that participated in an activity.
-struct TwoBadgeActivityPacket {
-  uint8_t user1[BADGE_ID_LEN];
-  uint8_t user2[BADGE_ID_LEN];
-  uint8_t game_data[5];
-  // game_data structure:
-  // Bit [0:4] - Game Type
-  //          0x00 - None/Reserved
-  //          0x01 - Snake
-  //          0x02 - Tetris
-  // Bit [4:14] - Player 1 Score
-  // Bit [14:24] - Player 2 Score
-  // Bit [24:40] - Nonce
-  uint8_t sig[ECC_SIGNATURE_SIZE];
-};
-
-// This packet is from the base station, telling user their score.
-struct ScoreAnnouncePacket {
-  uint8_t user[BADGE_ID_LEN];
-  uint8_t score[4];  // Little Endian 32-bit int. We use uint8_t here to avoid
-                     // alignment issues.
-  uint8_t sig[ECC_SIGNATURE_SIZE];
-};
-
-// This packet is from the badge to the base station.
-struct SingleBadgeActivityPacket {
-  uint8_t user[BADGE_ID_LEN];
-  uint8_t event_type;
-  // 0x01 - Snake
-  // 0x02 - Tetris
-  // 0x03 - Dino
-  // 0x10 - Shake
-  uint8_t event_data[3];
-  // Bit [0:10] - Score
-  // Bit [10:24] - Nonce
-  uint8_t sig[ECC_SIGNATURE_SIZE];
-};
-
-// This packet is from the badge to the base station.
-struct SponsorActivityPacket {
-  uint8_t sponsor_id;
-  uint8_t nonce;
-  uint8_t user[BADGE_ID_LEN];
-  uint8_t sig[ECC_SIGNATURE_SIZE];
-};
-
 // This packet is from base station to badge.
 struct ShowMsgPacket {
   uint8_t user[BADGE_ID_LEN];
   char msg[24];
-};
-
-// This packet is from badge to base station.
-struct RequestScorePacket {
-  uint8_t user[BADGE_ID_LEN];
-};
-
-struct SavePetPacket {
-  uint8_t user[BADGE_ID_LEN];
-  uint8_t pet_data[kTamaDataSaveLen];
-  uint8_t sig[ECC_SIGNATURE_SIZE];
-};
-
-struct RestorePetPacket {
-  uint8_t user[BADGE_ID_LEN];
-  uint8_t pet_data[kTamaDataSaveLen];
-  uint8_t sig[ECC_SIGNATURE_SIZE];
 };
 
 /*Definition of IR content.*/
@@ -173,19 +88,9 @@ struct IrData {
   // WARNING: Be extra careful about alignment of all struct below, they MUST be
   // made of uint8_t to avoid padding introduced by compiler.
   union {
-    struct GamePacket game;
     struct ShowPacket show;
     struct AcknowledgePacket acknowledge;
-    struct ProximityPacket proximity;
-    struct PubAnnouncePacket pub_announce;
-    struct TwoBadgeActivityPacket two_activity;
-    struct ScoreAnnouncePacket score_announce;
-    struct SingleBadgeActivityPacket single_activity;
-    struct SponsorActivityPacket sponsor_activity;
     struct ShowMsgPacket show_msg;
-    struct RequestScorePacket request_score;
-    struct SavePetPacket save_pet;
-    struct RestorePetPacket restore_pet;
   } opaq;
 };
 static_assert(sizeof(IrData) < 32);
@@ -202,7 +107,6 @@ constexpr uint8_t kRetransmitStatusWaitAck = 0xA0;
 
 enum class AckTag : uint8_t {
   ACK_TAG_NONE = 0,
-  ACK_TAG_PUBKEY_RECOG = 1,
 };
 
 struct RetransmittableIrPacket {

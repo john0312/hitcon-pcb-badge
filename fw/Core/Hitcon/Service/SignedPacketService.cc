@@ -1,3 +1,9 @@
+// Base station IR signed packet features are currently disabled.
+// The base station has been removed, so there are no more packets that require
+// ECDSA digital signatures via IR. This code is preserved for future reference.
+// To re-enable, remove `#if 0`.
+#if 0
+
 #include <Service/Sched/Checks.h>
 #include <Service/SignedPacketService.h>
 #include <string.h>
@@ -228,3 +234,5 @@ void SignedPacketService::SigRoutineFunc() {
 }
 
 }  // namespace hitcon
+
+#endif  // #if 0
