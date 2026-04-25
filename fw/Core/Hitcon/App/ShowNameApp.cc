@@ -41,7 +41,7 @@ ShowNameApp::ShowNameApp()
 void ShowNameApp::Init() {
   nv_storage_content &content = g_nv_storage.GetCurrentStorage();
   if (g_nv_storage.IsStorageValid() && strlen(content.name)) {
-    strncpy(name, content.name, NAME_LEN);
+    memcpy(name, content.name, NAME_LEN);
   } else {
     strncpy(name, DEFAULT_NAME, NAME_LEN);
   }
@@ -137,27 +137,26 @@ void ShowNameApp::update_display() {
   // TODO: update score
   uint32_t score_ = score_cache;
 
-  uint_to_chr(num_str, max_len + 1, score_);
-  num_len = strlen(num_str);
+  num_len = uint_to_chr(num_str, max_len + 1, score_);
 
   switch (mode) {
     case NameScore:
       if (name_len > max_len - num_len - 1) name_len = max_len - num_len - 1;
-      strncpy(display_str, name, name_len);
+      memcpy(display_str, name, name_len);
       display_str[name_len] = '-';
-      strncpy(display_str + name_len + 1, num_str, num_len);
+      memcpy(display_str + name_len + 1, num_str, num_len);
       display_str[name_len + num_len + 1] = 0;
       break;
     case NameOnly:
-      strncpy(display_str, name, name_len);
+      memcpy(display_str, name, name_len);
       display_str[name_len] = 0;
       break;
     case ScoreOnly:
-      strncpy(display_str, num_str, num_len);
+      memcpy(display_str, num_str, num_len);
       display_str[num_len] = 0;
       break;
     case Surprise:
-      strncpy(display_str, surprise_msg, strlen(surprise_msg) + 1);
+      memcpy(display_str, surprise_msg, strlen(surprise_msg) + 1);
       break;
     default:
       break;
@@ -168,7 +167,7 @@ void ShowNameApp::update_display() {
 void ShowNameApp::SetName(const char *name) {
   strncpy(this->name, name, NAME_LEN);
   nv_storage_content &content = g_nv_storage.GetCurrentStorage();
-  strncpy(content.name, name, NAME_LEN);
+  memcpy(content.name, this->name, NAME_LEN + 1);
   g_nv_storage.MarkDirty();
   g_nv_storage.ForceFlush(nullptr, nullptr);
   update_display();
@@ -180,12 +179,7 @@ void ShowNameApp::SetMode(const enum ShowNameMode mode) {
 }
 
 void ShowNameApp::SetSurpriseMsg(const char *msg) {
-  int len = strlen(msg);
-  if (len >= kDisplayScrollMaxTextLen) {
-    len = kDisplayScrollMaxTextLen;
-  }
-  memcpy(surprise_msg, msg, len);
-  surprise_msg[len] = 0;
+  strncpy(surprise_msg, msg, kDisplayScrollMaxTextLen);
 }
 
 enum ShowNameMode ShowNameApp::GetMode() { return mode; }

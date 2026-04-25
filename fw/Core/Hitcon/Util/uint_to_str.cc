@@ -11,8 +11,13 @@ char hitcon::uint_to_chr_hex_nibble(uint8_t value) {
   }
 }
 
-unsigned int hitcon::uint_to_chr(char *str, unsigned size, int n) {
-  int count = 0;
+unsigned int hitcon::uint_to_chr(char *str, unsigned size, unsigned n) {
+  if (size == 0) return 0;
+  if (size == 1) {
+    str[0] = '\0';
+    return 0;
+  }
+  unsigned int count = 0;
   do {
     str[count++] = '0' + (n % 10);
     n /= 10;
@@ -20,7 +25,7 @@ unsigned int hitcon::uint_to_chr(char *str, unsigned size, int n) {
   str[count] = 0;
   // reverse string
   char *p1 = str;
-  char *p2 = str + strlen(p1) - 1;
+  char *p2 = str + count - 1;
   while (p1 < p2) {
     char tmp = *p1;
     *p1++ = *p2;
@@ -30,15 +35,19 @@ unsigned int hitcon::uint_to_chr(char *str, unsigned size, int n) {
   return count;
 }
 
-unsigned int hitcon::uint_to_chr_hex(char *str, unsigned size, int n) {
-  // Function to convert integer to hexadecimal
+unsigned int hitcon::uint_to_chr_hex(char *str, unsigned size, unsigned n) {
+  if (size == 0) return 0;
+  if (size == 1) {
+    str[0] = '\0';
+    return 0;
+  }
   if (n == 0) {
     str[0] = '0';
     str[1] = '\0';
     return 1;
   }
 
-  int count = 0;
+  unsigned int count = 0;
   while (n != 0 && count < size - 1) {
     int digit = n % 16;
     str[count++] = uint_to_chr_hex_nibble(digit);
@@ -48,7 +57,7 @@ unsigned int hitcon::uint_to_chr_hex(char *str, unsigned size, int n) {
 
   // reverse the string
   char *p1 = str;
-  char *p2 = str + strlen(p1) - 1;
+  char *p2 = str + count - 1;
   while (p1 < p2) {
     char tmp = *p1;
     *p1++ = *p2;
