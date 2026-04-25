@@ -315,6 +315,8 @@ void TamaApp::OnButton(button_t button) {
           _state = TAMA_APP_STATE::IDLE;
           needs_update_fb = true;
           break;
+        default:
+          break;
       }
       break;
     case BUTTON_DOWN:
@@ -326,6 +328,8 @@ void TamaApp::OnButton(button_t button) {
         case TAMA_APP_STATE::LV_DETAIL:
           _state = TAMA_APP_STATE::IDLE;
           needs_update_fb = true;
+          break;
+        default:
           break;
       }
       break;

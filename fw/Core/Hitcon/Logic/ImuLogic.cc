@@ -142,6 +142,8 @@ void ImuLogic::Routine(void* arg1) {
         _init_state = InitState::WAIT_CONFIGURE;
         break;
       }
+      default:
+        break;
     }
   } else if (_state == RoutineState::ST_GYRO) {
     switch (_self_test_state) {
@@ -220,6 +222,8 @@ void ImuLogic::Routine(void* arg1) {
           _gyro_st_cb(_gyro_st_cb_arg1, reinterpret_cast<void*>(pass));
         break;
       }
+      default:
+        break;
     }
   } else if (_state == RoutineState::ST_ACC) {
     switch (_self_test_state) {
@@ -297,6 +301,8 @@ void ImuLogic::Routine(void* arg1) {
           _acc_st_cb(_acc_st_cb_arg1, reinterpret_cast<void*>(pass));
         break;
       }
+      default:
+        break;
     }
   } else if (_state == RoutineState::GET_STEP) {
     g_imu_service.QueueReadReg(LSM6DS3TR_C_STEP_COUNTER_L, &_buf[0]);
@@ -325,6 +331,8 @@ void ImuLogic::OnRxDone(void* arg1) {
     }
     case InitState::WAIT_CONFIGURE:
       _state = RoutineState::IDLE;
+      break;
+    default:
       break;
   }
 
@@ -367,6 +375,8 @@ void ImuLogic::OnRxDone(void* arg1) {
       _count++;
       break;
     }
+    default:
+      break;
   }
 
   if (_state == RoutineState::WAIT_STEP) {
