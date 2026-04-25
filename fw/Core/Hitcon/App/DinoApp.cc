@@ -111,9 +111,10 @@ void DinoApp::Routine(void* unused) {
     return;
   }
   // Shift frame
-  for (uint8_t i = 0; i < OBSTACAL_FRAME_WIDTH; i++) {
+  for (uint8_t i = 0; i < OBSTACAL_FRAME_WIDTH - 1; i++) {
     _obstacle_frame[i] = _obstacle_frame[i + 1];
   }
+  _obstacle_frame[OBSTACAL_FRAME_WIDTH - 1] = 0;
   _obstacle_interval++;
   // Generate obstacle
   if (_obstacle_interval > DINO_OBS_LEAST_DISTANCE) {
