@@ -11,8 +11,6 @@
 #include <Logic/XBoardLogic.h>
 #include <Service/HashService.h>
 #include <Service/IrService.h>
-#include <Service/Sched/Scheduler.h>
-#include <Service/SignedPacketService.h>
 #include <stdlib.h>
 
 #include <cstring>
@@ -64,10 +62,7 @@ void IrController::OnPacketReceived(void* arg) {
   IrPacket* packet = reinterpret_cast<IrPacket*>(arg);
   IrData* data = reinterpret_cast<IrData*>(&packet->data_[1]);
 
-  // Game
-  if (data->type == packet_type::kGame) {
-    // removed
-  } else if (data->type == packet_type::kTest) {
+  if (data->type == packet_type::kTest) {
     hardware_test_app.CheckIr(&data->opaq.show);
   } else if (data->type == packet_type::kShow) {
     ShowText(data->opaq.show.message);
@@ -78,21 +73,6 @@ void IrController::OnPacketReceived(void* arg) {
     }
   } else if (data->type == packet_type::kAcknowledge) {
     OnAcknowledgePacket(&data->opaq.acknowledge);
-  } else if (data->type == packet_type::kScoreAnnounce) {
-    const uint8_t* user = hitcon::GetBadgeId();
-    if (user &&
-        memcmp(data->opaq.score_announce.user, user, BADGE_ID_LEN) == 0) {
-      g_signed_packet_service.VerifyAndReceivePacket(packet);
-    } else {
-      // Not our score.
-    }
-  } else if (data->type == packet_type::kRestorePet) {
-    const uint8_t* user = hitcon::GetBadgeId();
-    if (user && memcmp(data->opaq.restore_pet.user, user, BADGE_ID_LEN) == 0) {
-      g_signed_packet_service.VerifyAndReceivePacket(packet);
-    } else {
-      // Not our pet.
-    }
   }
 }
 
@@ -117,8 +97,6 @@ void IrController::OnAcknowledgeTag(AckTag tag) {
   // Hardcoded receivers.
   switch (tag) {
     case AckTag::ACK_TAG_NONE:
-      return;
-    case AckTag::ACK_TAG_PUBKEY_RECOG:
       return;
   }
 }
@@ -147,8 +125,6 @@ void IrController::OnPacketHashResult(void* arg_ptr) {
 }
 
 // - if there's empty slot, use it
-// - else if there are same packet_type: replaced with the new one  (only
-// RequestScore, SavePet)
 // - else: find the lowest priority (lower than input priority) slot to replace
 bool IrController::SendPacketWithRetransmit(uint8_t* data, size_t len,
                                             uint8_t retries, AckTag ack_tag) {
@@ -169,13 +145,7 @@ bool IrController::SendPacketWithRetransmit(uint8_t* data, size_t len,
     } else {
       const IrData* queued_ir_data =
           reinterpret_cast<IrData*>(queued_packets_[i].data);
-      if ((input_ir_data->type == packet_type::kRequestScore ||
-           input_ir_data->type == packet_type::kSavePet) &&
-          queued_ir_data->type == input_ir_data->type) {
-        queue_priority = RETX_REPLACEMENT_PKT_PRIORITY;
-      } else {
-        queue_priority = GetPriority(queued_ir_data->type);
-      }
+      queue_priority = GetPriority(queued_ir_data->type);
     }
 
     if (lowest_priority < queue_priority) {
