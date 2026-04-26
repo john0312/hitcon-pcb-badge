@@ -23,19 +23,11 @@ TamaApp tama_app;
 
 TamaApp::TamaApp()
     : _routine_task(930,  // Task priority
-                    (hitcon::service::sched::task_callback_t)&TamaApp::Routine,
-                    (void*)this, ROUTINE_INTERVAL_MS),
-      _hatching_task(
-          600,
-          (hitcon::service::sched::task_callback_t)&TamaApp::HatchingRoutine,
-          this, 5000),
-      _hunger_task(
-          600, (hitcon::service::sched::task_callback_t)&TamaApp::HungerRoutine,
-          this, 30000),
-      _level_up_task(
-          600,
-          (hitcon::service::sched::task_callback_t)&TamaApp::LevelUpRoutine,
-          this, 30000),
+                    CB_CAST(&TamaApp::Routine), (void*)this,
+                    ROUTINE_INTERVAL_MS),
+      _hatching_task(600, CB_CAST(&TamaApp::HatchingRoutine), this, 5000),
+      _hunger_task(600, CB_CAST(&TamaApp::HungerRoutine), this, 30000),
+      _level_up_task(600, CB_CAST(&TamaApp::LevelUpRoutine), this, 30000),
       _tama_data(g_nv_storage.GetCurrentStorage().tama_storage),
       _state(_tama_data.state),
       _current_selection_in_choose_mode(TAMA_TYPE::CAT), _fb() {}
@@ -85,7 +77,7 @@ void TamaApp::OnEntry() {
   hitcon::service::sched::scheduler.EnablePeriodic(&_routine_task);
   if (player_mode == TAMA_PLAYER_MODE::MODE_MULTIPLAYER) {
     enemy_packet = {.state = TAMA_XBOARD_STATE::XBOARD_INVITE};
-    g_xboard_logic.SetOnPacketArrive((callback_t)&TamaApp::OnXBoardRecv, this,
+    g_xboard_logic.SetOnPacketArrive(CB_CAST(&TamaApp::OnXBoardRecv), this,
                                      TAMA_RECV_ID);
     if (_tama_data.state != TAMA_APP_STATE::IDLE || _tama_data.hp == 0) {
       my_packet.state = TAMA_XBOARD_STATE::XBOARD_UNAVAILABLE;
@@ -1154,7 +1146,7 @@ uint16_t TamaQte::GetScore(uint16_t level) {
 }
 
 TamaQte::TamaQte()
-    : routineTask(650, (callback_t)&TamaQte::Routine, this, QTE_REFRESH_RATE) {}
+    : routineTask(650, CB_CAST(&TamaQte::Routine), this, QTE_REFRESH_RATE) {}
 
 void TamaQte::OnButton(button_t button) {
   if (state != kInGame) return;
