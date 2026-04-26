@@ -71,8 +71,6 @@ void HashService::doHash(void *unused) {
 }
 
 void HashService::doHashUpdate() {
-  size_t i;
-  uint64_t word;
   // TODO: the performance of UpdateWord can be optimized.
   // sha3_UpdateWord_split often does a "fast return", so we can analyze how
   // much each "fast return" takes, and do multiple of them each round.
