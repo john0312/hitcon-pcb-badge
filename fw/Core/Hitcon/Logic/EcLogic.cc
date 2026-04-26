@@ -87,8 +87,8 @@ bool ModNum::operator==(const uint64_t other) const { return val == other; }
 ModMulService g_mod_mul_service;
 
 ModMulService::ModMulService()
-    : routineTask(804, (callback_t)&ModMulService::routineFunc, this),
-      finalizeTask(804, (callback_t)&ModMulService::finalize, this) {}
+    : routineTask(804, CB_CAST(&ModMulService::routineFunc), this),
+      finalizeTask(804, CB_CAST(&ModMulService::finalize), this) {}
 
 void ModMulService::start(uint64_t a, uint64_t b, uint64_t m,
                           callback_t callback, void *callbackArg1) {

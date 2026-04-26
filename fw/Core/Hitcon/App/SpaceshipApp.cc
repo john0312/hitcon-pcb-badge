@@ -20,7 +20,7 @@ namespace spaceship {
 SpaceshipApp spaceship_app;
 
 SpaceshipApp::SpaceshipApp()
-    : _routine_task(30, (task_callback_t)&SpaceshipApp::Routine, (void*)this,
+    : _routine_task(30, CB_CAST(&SpaceshipApp::Routine), (void*)this,
                     INTERVAL) {}
 
 // Init: put routine_task into queue
