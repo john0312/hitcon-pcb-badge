@@ -7,6 +7,8 @@
 #include <Service/UsbService.h>
 #include <main.h>
 #include <usbd_def.h>
+
+#include <algorithm>
 using namespace hitcon::service::sched;
 
 namespace hitcon {
@@ -43,8 +45,8 @@ void UsbLogic::OnDataRecv(void* arg2) {
     case USB_STATE_SET_NAME: {
       static uint8_t name_index = 0;
       nv_storage_content& content = g_nv_storage.GetCurrentStorage();
-      uint8_t copy_len =
-          MIN(REPORT_LEN - 1, hitcon::ShowNameApp::NAME_LEN - name_index);
+      uint8_t copy_len = std::min(static_cast<int>(REPORT_LEN - 1),
+                                  hitcon::ShowNameApp::NAME_LEN - name_index);
       memcpy(&content.name[name_index], &data[(name_index == 0) ? 2 : 1],
              copy_len);
       name_index += copy_len - 1;

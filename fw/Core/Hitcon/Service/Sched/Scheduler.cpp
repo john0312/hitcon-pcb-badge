@@ -166,7 +166,7 @@ void Scheduler::Run() {
     TaskRecord record;
     record.startTime = SysTimer::GetTime();
     record.task = &top;
-#endif DEBUG
+#endif  // DEBUG
 
     currentTask = &top;
 #ifdef DEBUG
@@ -182,7 +182,7 @@ void Scheduler::Run() {
     taskRecords[record_index] = record;
     record_index++;
     if (record_index == kRecordSize) record_index = 0;
-#endif DEBUG
+#endif  // DEBUG
   }
 }
 
