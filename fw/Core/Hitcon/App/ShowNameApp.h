@@ -19,7 +19,7 @@ enum ShowNameMode {
 class ShowNameApp : public App {
  public:
   static constexpr int NAME_LEN = kDisplayMaxNameLength;
-  static constexpr char const *DEFAULT_NAME = "HITCON2025";
+  static constexpr char const *DEFAULT_NAME = "HITCON2026";
 
   char name[NAME_LEN + 1] = {0};
   char display_buf[DISPLAY_SCROLL_MAX_COLUMNS];
