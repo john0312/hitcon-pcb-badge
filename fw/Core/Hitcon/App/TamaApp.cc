@@ -168,7 +168,8 @@ void TamaApp::OnButton(button_t button) {
     case BUTTON_LONG_BACK:
       if (_state == TAMA_APP_STATE::LV_DETAIL ||
           _state == TAMA_APP_STATE::FEED_CONFIRM ||
-          _state == TAMA_APP_STATE::TRAINING_CONFIRM) {
+          _state == TAMA_APP_STATE::TRAINING_CONFIRM ||
+          _state == TAMA_APP_STATE::HEAL_CONFIRM) {
         _state = TAMA_APP_STATE::IDLE;
         needs_update_fb = true;
         break;
@@ -229,6 +230,14 @@ void TamaApp::OnButton(button_t button) {
               _is_selected ? TAMA_APP_STATE::TRAINING : TAMA_APP_STATE::IDLE;
           needs_update_fb = true;
           break;
+        case TAMA_APP_STATE::HEAL_CONFIRM:
+          if (_is_selected) {
+            TamaHeal();
+          } else {
+            _state = TAMA_APP_STATE::IDLE;
+            needs_update_fb = true;
+          }
+          break;
         default:
           // No action for other states on OK press, or handle as needed
           break;
@@ -244,9 +253,10 @@ void TamaApp::OnButton(button_t button) {
           break;
         case TAMA_APP_STATE::IDLE:
           if (_tama_data.hp == 0) {
-            break;
+            _state = TAMA_APP_STATE::HEAL_CONFIRM;
+          } else {
+            _state = TAMA_APP_STATE::FEED_CONFIRM;
           }
-          _state = TAMA_APP_STATE::FEED_CONFIRM;
           needs_update_fb = true;
           break;
         // TODO: Handle other states for BUTTON_LEFT if necessary
@@ -257,6 +267,12 @@ void TamaApp::OnButton(button_t button) {
           }
           break;
         case TAMA_APP_STATE::TRAINING_CONFIRM:
+          if (_is_selected == true) {
+            _is_selected = false;
+            needs_update_fb = true;
+          }
+          break;
+        case TAMA_APP_STATE::HEAL_CONFIRM:
           if (_is_selected == true) {
             _is_selected = false;
             needs_update_fb = true;
@@ -293,6 +309,12 @@ void TamaApp::OnButton(button_t button) {
             needs_update_fb = true;
           }
           break;
+        case TAMA_APP_STATE::HEAL_CONFIRM:
+          if (_is_selected == false) {
+            _is_selected = true;
+            needs_update_fb = true;
+          }
+          break;
         default:
           break;
       }
@@ -307,6 +329,18 @@ void TamaApp::OnButton(button_t button) {
           _state = TAMA_APP_STATE::IDLE;
           needs_update_fb = true;
           break;
+        case TAMA_APP_STATE::FEED_CONFIRM:
+          if (_tama_data.hp > 0) {
+            _state = TAMA_APP_STATE::HEAL_CONFIRM;
+            needs_update_fb = true;
+          }
+          break;
+        case TAMA_APP_STATE::HEAL_CONFIRM:
+          if (_tama_data.hp > 0) {
+            _state = TAMA_APP_STATE::FEED_CONFIRM;
+            needs_update_fb = true;
+          }
+          break;
         default:
           break;
       }
@@ -320,6 +354,18 @@ void TamaApp::OnButton(button_t button) {
         case TAMA_APP_STATE::LV_DETAIL:
           _state = TAMA_APP_STATE::IDLE;
           needs_update_fb = true;
+          break;
+        case TAMA_APP_STATE::FEED_CONFIRM:
+          if (_tama_data.hp > 0) {
+            _state = TAMA_APP_STATE::HEAL_CONFIRM;
+            needs_update_fb = true;
+          }
+          break;
+        case TAMA_APP_STATE::HEAL_CONFIRM:
+          if (_tama_data.hp > 0) {
+            _state = TAMA_APP_STATE::FEED_CONFIRM;
+            needs_update_fb = true;
+          }
           break;
         default:
           break;
@@ -419,6 +465,7 @@ void TamaApp::Routine(void* unused) {
       }
     case TAMA_APP_STATE::LV_DETAIL:
     case TAMA_APP_STATE::FEED_CONFIRM:
+    case TAMA_APP_STATE::HEAL_CONFIRM:
     case TAMA_APP_STATE::TRAINING_CONFIRM:
       needs_render = true;
       break;
@@ -565,6 +612,14 @@ void TamaApp::UpdateFrameBuffer() {
     case TAMA_APP_STATE::FEED_CONFIRM:
       TAMA_PREPARE_FB(_fb, TAMA_GET_ANIMATION_DATA(FEED_CONFIRM).frame_count);
       TAMA_COPY_FB(_fb, TAMA_GET_ANIMATION_DATA(FEED_CONFIRM), 4);
+      StackOnFrame(&TAMA_COMPONENT_N_FONT, 0);
+      StackOnFrame(&TAMA_COMPONENT_Y_FONT, 13);
+      StackOnFrameBlinking(&TAMA_COMPONENT_SELECTION_CURSOR,
+                           _is_selected ? 13 : 0);
+      break;
+    case TAMA_APP_STATE::HEAL_CONFIRM:
+      TAMA_PREPARE_FB(_fb, TAMA_GET_ANIMATION_DATA(HEAL_CONFIRM).frame_count);
+      TAMA_COPY_FB(_fb, TAMA_GET_ANIMATION_DATA(HEAL_CONFIRM), 4);
       StackOnFrame(&TAMA_COMPONENT_N_FONT, 0);
       StackOnFrame(&TAMA_COMPONENT_Y_FONT, 13);
       StackOnFrameBlinking(&TAMA_COMPONENT_SELECTION_CURSOR,
