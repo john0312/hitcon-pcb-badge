@@ -52,7 +52,7 @@ extern "C" {
 #define CUSTOM_HID_EPIN_SIZE 0x02U
 
 // bEndpointAddress: dir=OUT, number=1
-#define CUSTOM_HID_EPOUT_ADDR 0xb00000001U
+#define CUSTOM_HID_EPOUT_ADDR 0b00000001U
 // wMaxPacketSize
 #define CUSTOM_HID_EPOUT_SIZE 0x02U
 
