@@ -7,11 +7,6 @@ MainMenuApp main_menu;
 constexpr uint32_t kDebugMenuSequence = 0x189;
 // RLL RLLL RRL
 constexpr size_t kDebugMenuSequenceLength = 10;
-// LLLL L LR LRLL
-
-constexpr uint32_t kHealSequence = 0x140;
-
-constexpr size_t kHealSequenceLength = 11;
 
 void MainMenuApp::OnButton(button_t button) {
   if (button == BUTTON_LEFT || button == BUTTON_RIGHT) {
@@ -30,21 +25,8 @@ void MainMenuApp::OnButton(button_t button) {
       }
     }
 
-    if (curr_value != ((kHealSequence >> heal_ctr) & 1)) {
-      heal_ctr = 0;
-    } else {
-      heal_ctr++;
-      if (heal_ctr >= kHealSequenceLength) {
-        heal_ctr = 0;
-        hitcon::app::tama::SetSingleplayer();
-        tama_app.SetPendingHeal();
-        badge_controller.change_app(&tama_app);
-      }
-    }
-
   } else {
     dbg_ctr = 0;
-    heal_ctr = 0;
     MenuApp::OnButton(button);
   }
 }
