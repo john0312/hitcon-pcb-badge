@@ -300,11 +300,6 @@ class TamaApp : public App {
   TAMA_XBOARD_BATTLE_INVITE xboard_battle_invite;
   void OnXBoardRecv(void* arg);
 
-  // BaseStation
-  bool CanAcceptHeal();
-  void TamaHeal();
-  void TamaHealOnly();
-
   // Save related.
   bool IsDataValid();
 };

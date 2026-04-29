@@ -89,11 +89,7 @@ void TamaApp::OnEntry() {
     return;
   }
   if (player_mode == TAMA_PLAYER_MODE::MODE_BASESTATION) {
-    if (CanAcceptHeal()) {
-      TamaHeal();
-      return;
-    }
-    // Otherwise the same as singleplayer mode.
+    // Base station behaves the same as singleplayer mode.
     player_mode = TAMA_PLAYER_MODE::MODE_SINGLEPLAYER;
   }
   my_assert(player_mode == TAMA_PLAYER_MODE::MODE_SINGLEPLAYER);
@@ -231,11 +227,14 @@ void TamaApp::OnButton(button_t button) {
           break;
         case TAMA_APP_STATE::HEAL_CONFIRM:
           if (_is_selected) {
-            TamaHeal();
+            _tama_data.hp = 3;
+            SetHunger(4);
+            _state = TAMA_APP_STATE::PET_HEALING;
+            needs_save = true;
           } else {
             _state = TAMA_APP_STATE::IDLE;
-            needs_update_fb = true;
           }
+          needs_update_fb = true;
           break;
         default:
           // No action for other states on OK press, or handle as needed
@@ -907,25 +906,6 @@ void TamaApp::XbRoutine(void* unused) {
   if (needs_save) g_nv_storage.MarkDirty();
 
   Render();
-}
-
-bool TamaApp::CanAcceptHeal() {
-  if (_tama_data.type != TAMA_TYPE::DOG && _tama_data.type != TAMA_TYPE::CAT) {
-    return false;
-  }
-  if (_tama_data.state == TAMA_APP_STATE::IDLE) return true;
-  return false;
-}
-
-void TamaApp::TamaHealOnly() {
-  _tama_data.hp = 3;
-  SetHunger(4);
-}
-
-void TamaApp::TamaHeal() {
-  TamaHealOnly();
-  _state = TAMA_APP_STATE::PET_HEALING;
-  UpdateFrameBuffer();
 }
 
 void TamaApp::StackOnFrame(const tama_display_component_t* component,
