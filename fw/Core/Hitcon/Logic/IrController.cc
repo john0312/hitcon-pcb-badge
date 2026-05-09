@@ -17,7 +17,6 @@
 
 using namespace hitcon::service::sched;
 using hitcon::service::xboard::g_xboard_logic;
-using hitcon::service::xboard::UsartConnectState;
 
 namespace hitcon {
 namespace ir {

@@ -20,7 +20,7 @@
 
 using hitcon::service::sched::my_assert;
 using hitcon::service::xboard::g_xboard_logic;
-using hitcon::service::xboard::UsartConnectState;
+using hitcon::service::xboard::PeerType;
 
 namespace hitcon {
 BadgeController badge_controller;
@@ -30,36 +30,31 @@ int combo_button_ctr = 0;
 BadgeController::BadgeController() : current_app(nullptr) {}
 
 void BadgeController::Init() {
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wpmf-conversions"
-  g_button_logic.SetCallback((callback_t)&BadgeController::OnButton, this);
-  g_button_logic.SetEdgeCallback((callback_t)&BadgeController::OnEdgeButton,
-                                 this);
-#pragma GCC diagnostic pop
+  g_button_logic.SetCallback(CB_CAST(&BadgeController::OnButton), this);
+  g_button_logic.SetEdgeCallback(CB_CAST(&BadgeController::OnEdgeButton), this);
   current_app = &show_name_app;
   current_app->OnEntry();
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wpmf-conversions"
-  hitcon::service::xboard::g_xboard_logic.SetOnConnectPeer2025(
-      (callback_t)&BadgeController::OnXBoardConnect, this);
-  hitcon::service::xboard::g_xboard_logic.SetOnDisconnectPeer2025(
-      (callback_t)&BadgeController::OnXBoardDisconnect, this);
+  g_xboard_logic.SetOnConnect(PeerType::Peer2025,
+                              CB_CAST(&BadgeController::OnXBoardConnect), this);
+  g_xboard_logic.SetOnDisconnect(
+      PeerType::Peer2025, CB_CAST(&BadgeController::OnXBoardDisconnect), this);
 
-  hitcon::service::xboard::g_xboard_logic.SetOnConnectLegacy(
-      (callback_t)&BadgeController::OnXBoardLegacyConnect, this);
-  hitcon::service::xboard::g_xboard_logic.SetOnDisconnectLegacy(
-      (callback_t)&BadgeController::OnXBoardDisconnect, this);
+  g_xboard_logic.SetOnConnect(
+      PeerType::Legacy, CB_CAST(&BadgeController::OnXBoardLegacyConnect), this);
+  g_xboard_logic.SetOnDisconnect(
+      PeerType::Legacy, CB_CAST(&BadgeController::OnXBoardDisconnect), this);
 
-  hitcon::service::xboard::g_xboard_logic.SetOnConnectBaseStn2025(
-      (callback_t)&BadgeController::OnXBoardBasestnConnect, this);
-  hitcon::service::xboard::g_xboard_logic.SetOnDisconnectBaseStn2025(
-      (callback_t)&BadgeController::OnXBoardBasestnDisconnect, this);
+  g_xboard_logic.SetOnConnect(PeerType::BaseStn2025,
+                              CB_CAST(&BadgeController::OnXBoardBasestnConnect),
+                              this);
+  g_xboard_logic.SetOnDisconnect(PeerType::BaseStn2025,
+                                 CB_CAST(&BadgeController::OnXBoardDisconnect),
+                                 this);
 
-  usb::g_usb_service.SetOnUsbPlugIn((callback_t)&BadgeController::OnUsbPlugIn,
+  usb::g_usb_service.SetOnUsbPlugIn(CB_CAST(&BadgeController::OnUsbPlugIn),
                                     this);
-  usb::g_usb_service.SetOnUsbPlugOut((callback_t)&BadgeController::OnUsbPlugOut,
+  usb::g_usb_service.SetOnUsbPlugOut(CB_CAST(&BadgeController::OnUsbPlugOut),
                                      this);
-#pragma GCC diagnostic pop
 }
 
 void BadgeController::SetCallback(callback_t callback, void *callback_arg1,
@@ -78,17 +73,23 @@ void BadgeController::change_app(App *new_app) {
 void BadgeController::BackToMenu(App *ending_app) {
   my_assert(current_app == ending_app);
 
-  UsartConnectState conn_state = g_xboard_logic.GetConnectState();
-  if (conn_state == UsartConnectState::ConnectPeer2025) {
-    change_app(&connect_menu);
-  } else if (conn_state == UsartConnectState::ConnectLegacy) {
-    change_app(&connect_legacy_menu);
-  } else if (conn_state == UsartConnectState::ConnectBaseStn2025) {
-    change_app(&connect_basestn_menu);
-  } else if (usb::g_usb_service.IsConnected()) {
-    change_app(&usb::usb_menu);
-  } else {
-    change_app(&main_menu);
+  switch (g_xboard_logic.GetPeer()) {
+    case PeerType::Peer2025:
+      change_app(&connect_menu);
+      break;
+    case PeerType::Legacy:
+      change_app(&connect_legacy_menu);
+      break;
+    case PeerType::BaseStn2025:
+      change_app(&connect_basestn_menu);
+      break;
+    default:
+      if (usb::g_usb_service.IsConnected()) {
+        change_app(&usb::usb_menu);
+      } else {
+        change_app(&main_menu);
+      }
+      break;
   }
 }
 
@@ -156,11 +157,6 @@ void BadgeController::OnXBoardDisconnect(void *unused) {
   if (current_app != &hardware_test_app) {
     badge_controller.change_app(&show_name_app);
   }
-}
-
-void BadgeController::OnXBoardBasestnDisconnect(void *unused) {
-  if (current_app != &hardware_test_app)
-    badge_controller.change_app(&show_name_app);
 }
 
 void BadgeController::OnEdgeButton(void *arg1) {

@@ -16,7 +16,7 @@
 
 using namespace hitcon::service::sched;
 using hitcon::service::xboard::g_xboard_logic;
-using hitcon::service::xboard::UsartConnectState;
+using hitcon::service::xboard::PeerType;
 
 namespace hitcon {
 
@@ -63,23 +63,27 @@ void ShowNameApp::OnExit() {
 }
 
 void ShowNameApp::OnButton(button_t button) {
-  const UsartConnectState conn_state = g_xboard_logic.GetConnectState();
+  const PeerType peer = g_xboard_logic.GetPeer();
   switch (button) {
     case BUTTON_LONG_MODE:
-      if (conn_state == UsartConnectState::ConnectPeer2025) {
-        badge_controller.change_app(&connect_menu);
-      } else if (conn_state == UsartConnectState::ConnectLegacy) {
-        badge_controller.change_app(&connect_legacy_menu);
-      } else if (conn_state == UsartConnectState::ConnectBaseStn2025) {
-        badge_controller.change_app(&connect_basestn_menu);
-      } else {
-        badge_controller.change_app(&name_setting_menu);
+      switch (peer) {
+        case PeerType::Peer2025:
+          badge_controller.change_app(&connect_menu);
+          break;
+        case PeerType::Legacy:
+          badge_controller.change_app(&connect_legacy_menu);
+          break;
+        case PeerType::BaseStn2025:
+          badge_controller.change_app(&connect_basestn_menu);
+          break;
+        default:
+          badge_controller.change_app(&name_setting_menu);
+          break;
       }
       break;
 
     case BUTTON_MODE:
-      if (g_xboard_logic.GetConnectState() ==
-          UsartConnectState::ConnectPeer2025) {
+      if (peer == PeerType::Peer2025) {
         badge_controller.change_app(&connect_menu);
       } else {
         badge_controller.change_app(&main_menu);

@@ -64,34 +64,15 @@ void XBoardLogic::QueueDataForTx(const uint8_t *packet, uint8_t packet_len,
   g_xboard_service.QueueDataForTx(pkt, HEADER_SZ + packet_len);
 }
 
-void XBoardLogic::SetOnConnectLegacy(callback_t callback, void *self) {
-  connect_legacy_handler = callback;
-  connect_legacy_handler_self = self;
+void XBoardLogic::SetOnConnect(PeerType peer, callback_t callback, void *self) {
+  my_assert(peer != PeerType::None && peer != PeerType::NUM_PEER_TYPES);
+  connect_cbs[static_cast<size_t>(peer)] = {callback, self};
 }
 
-void XBoardLogic::SetOnDisconnectLegacy(callback_t callback, void *self) {
-  disconnect_legacy_handler = callback;
-  disconnect_legacy_handler_self = self;
-}
-
-void XBoardLogic::SetOnConnectPeer2025(callback_t callback, void *self) {
-  connect_peer2025_handler = callback;
-  connect_peer2025_handler_self = self;
-}
-
-void XBoardLogic::SetOnDisconnectPeer2025(callback_t callback, void *self) {
-  disconnect_peer2025_handler = callback;
-  disconnect_peer2025_handler_self = self;
-}
-
-void XBoardLogic::SetOnConnectBaseStn2025(callback_t callback, void *self) {
-  connect_basestn2025_handler = callback;
-  connect_basestn2025_handler_self = self;
-}
-
-void XBoardLogic::SetOnDisconnectBaseStn2025(callback_t callback, void *self) {
-  disconnect_basestn2025_handler = callback;
-  disconnect_basestn2025_handler_self = self;
+void XBoardLogic::SetOnDisconnect(PeerType peer, callback_t callback,
+                                  void *self) {
+  my_assert(peer != PeerType::None && peer != PeerType::NUM_PEER_TYPES);
+  disconnect_cbs[static_cast<size_t>(peer)] = {callback, self};
 }
 
 void XBoardLogic::SetOnPacketArrive(callback_t callback, void *self,
@@ -215,75 +196,48 @@ void XBoardLogic::CheckPing() {
 }
 
 void XBoardLogic::CheckPong() {
-  UsartConnectState next_state = connect_state;
+  // 1. Decode received pong.
+  PeerType received_peer = PeerType::None;
   if (recv_pong_flags == 0x01) {
-    // Received legacy pong.
-    next_state = UsartConnectState::ConnectLegacy;
-    no_pong_count = 0;
+    received_peer = PeerType::Legacy;
   } else if (recv_pong_flags == 0x02) {
-    // Received peer 2025 pong.
-    next_state = UsartConnectState::ConnectPeer2025;
-    no_pong_count = 0;
+    received_peer = PeerType::Peer2025;
   } else if (recv_pong_flags == 0x04) {
-    // Received base stn 2025 pong.
-    next_state = UsartConnectState::ConnectBaseStn2025;
-    no_pong_count = 0;
-  } else {
-    // recv_pong_flags == 0 or some combination, either way
-    // No pong at all.
-    if (connect_state == UsartConnectState::Init) no_pong_count = 3;
-    if (no_pong_count < 3) {
-      ++no_pong_count;
-    }
-    if (no_pong_count >= 3) {
-      next_state = UsartConnectState::Disconnect;
-    }
-  }
-  if (next_state != connect_state) {
-    if (next_state == UsartConnectState::Disconnect &&
-        connect_state != UsartConnectState::Init) {
-      g_suspender.DecBlocker();
-    } else if (next_state == UsartConnectState::ConnectBaseStn2025 ||
-               next_state == UsartConnectState::ConnectLegacy ||
-               next_state == UsartConnectState::ConnectPeer2025) {
-      g_suspender.IncBlocker();
-    }
+    received_peer = PeerType::BaseStn2025;
   }
 
-  if (next_state != connect_state && connect_state != UsartConnectState::Init) {
-    if (connect_state == UsartConnectState::ConnectLegacy &&
-        disconnect_legacy_handler != nullptr) {
-      disconnect_legacy_handler(disconnect_legacy_handler_self, nullptr);
-      connect_state = UsartConnectState::Disconnect;
-    }
-    if (connect_state == UsartConnectState::ConnectBaseStn2025 &&
-        disconnect_basestn2025_handler != nullptr) {
-      disconnect_basestn2025_handler(disconnect_basestn2025_handler_self,
-                                     nullptr);
-      connect_state = UsartConnectState::Disconnect;
-    }
-    if (connect_state == UsartConnectState::ConnectPeer2025 &&
-        disconnect_peer2025_handler != nullptr) {
-      disconnect_peer2025_handler(disconnect_peer2025_handler_self, nullptr);
-      connect_state = UsartConnectState::Disconnect;
-    }
+  // 2. A pong is valid only if it keeps the current peer or connects from None.
+  // Pong from a different peer than the current one is treated as no pong, so
+  // the state machine only transitions via None.
+  bool valid_pong = (received_peer != PeerType::None) &&
+                    (peer == PeerType::None || peer == received_peer);
+
+  // 3. Compute next_peer.
+  PeerType next_peer;
+  if (valid_pong) {
+    next_peer = received_peer;
+    no_pong_count = 0;
+  } else {
+    if (no_pong_count < 3) ++no_pong_count;
+    next_peer = (no_pong_count >= 3) ? PeerType::None : peer;
   }
-  if (next_state != connect_state && connect_state != UsartConnectState::Init) {
-    if (next_state == UsartConnectState::ConnectLegacy &&
-        connect_legacy_handler != nullptr) {
-      connect_legacy_handler(connect_legacy_handler_self, nullptr);
+
+  // 4. Dispatch transition. Invariant guarantees one side is None.
+  if (next_peer != peer) {
+    if (peer == PeerType::None) {
+      // None -> X: pure connect.
+      auto [cb, self] = connect_cbs[static_cast<size_t>(next_peer)];
+      if (cb != nullptr) cb(self, nullptr);
+      g_suspender.IncBlocker();
+    } else {
+      // X -> None: pure disconnect.
+      auto [cb, self] = disconnect_cbs[static_cast<size_t>(peer)];
+      if (cb != nullptr) cb(self, nullptr);
+      g_suspender.DecBlocker();
     }
-    if (next_state == UsartConnectState::ConnectPeer2025 &&
-        connect_peer2025_handler != nullptr) {
-      connect_peer2025_handler(connect_peer2025_handler_self, nullptr);
-    }
-    if (next_state == UsartConnectState::ConnectBaseStn2025 &&
-        connect_basestn2025_handler != nullptr) {
-      connect_basestn2025_handler(connect_basestn2025_handler_self, nullptr);
-    }
+    peer = next_peer;
   }
   recv_pong_flags = 0;
-  connect_state = next_state;
 }
 
 void XBoardLogic::ParseRoutine(void *) { ParsePacket(); }
@@ -293,8 +247,6 @@ void XBoardLogic::PingRoutine(void *) {
   CheckPing();
   CheckPong();
 }
-
-enum UsartConnectState XBoardLogic::GetConnectState() { return connect_state; }
 
 }  // namespace xboard
 }  // namespace service
