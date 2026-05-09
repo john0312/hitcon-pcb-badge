@@ -40,9 +40,6 @@ class BadgeController {
   // This is called whenever a base station board connects.
   void OnXBoardBasestnConnect(void *unused);
 
-  // This is called whenever a base station board disconnects.
-  void OnXBoardBasestnDisconnect(void *unused);
-
   // This is called when usb power supply is available.
   void OnUsbPlugIn(void *unused);
 

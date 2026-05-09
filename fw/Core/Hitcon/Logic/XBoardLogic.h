@@ -22,12 +22,12 @@ struct PacketCallbackArg {
   uint8_t len;
 };
 
-enum class UsartConnectState {
-  Init,
-  ConnectLegacy,
-  ConnectPeer2025,
-  ConnectBaseStn2025,
-  Disconnect
+enum class PeerType : uint8_t {
+  None,
+  Legacy,
+  Peer2025,
+  BaseStn2025,
+  NUM_PEER_TYPES,
 };
 
 constexpr size_t RX_BUF_SZ = 128;
@@ -54,25 +54,13 @@ class XBoardLogic {
   void QueueDataForTx(const uint8_t *data, uint8_t data_len,
                       RecvFnId handler_id);
 
-  // On detected connection from a legacy remote board, this will be called.
-  void SetOnConnectLegacy(callback_t callback, void *callback_arg1);
+  // Register callback for when a connection to `peer` is detected.
+  // `peer` must not be `PeerType::None`.
+  void SetOnConnect(PeerType peer, callback_t callback, void *callback_arg1);
 
-  // On detected disconnection from a legacy remote board, this will be called.
-  void SetOnDisconnectLegacy(callback_t callback, void *callback_arg1);
-
-  // On detected connection from a peer remote board (2025), this will be
-  // called.
-  void SetOnConnectPeer2025(callback_t callback, void *callback_arg1);
-
-  // On detected disconnection from a peer remote board (2025), this will be
-  // called.
-  void SetOnDisconnectPeer2025(callback_t callback, void *callback_arg1);
-
-  // On detected connection from a base station (2025), this will be called.
-  void SetOnConnectBaseStn2025(callback_t callback, void *callback_arg1);
-
-  // On detected disconnection from a base station (2025), this will be called.
-  void SetOnDisconnectBaseStn2025(callback_t callback, void *callback_arg1);
+  // Register callback for when a disconnection from `peer` is detected.
+  // `peer` must not be `PeerType::None`.
+  void SetOnDisconnect(PeerType peer, callback_t callback, void *callback_arg1);
 
   // On received a packet from a remote board, this will be called with a
   // pointer to packet struct.
@@ -82,7 +70,8 @@ class XBoardLogic {
   // - `handler_id`: should be the same as `QueueDataForTx`
   void SetOnPacketArrive(callback_t callback, void *self, RecvFnId handler_id);
 
-  enum UsartConnectState GetConnectState();
+  PeerType GetPeer() const { return peer; }
+  bool IsConnected() const { return peer != PeerType::None; }
 
  private:
   // buffer variables
@@ -99,21 +88,11 @@ class XBoardLogic {
   hitcon::service::sched::PeriodicTask _ping_routine;
   std::pair<callback_t, void *> packet_arrive_cbs[RecvFnId::MAX] = {};
 
-  UsartConnectState connect_state = UsartConnectState::Init;
-  callback_t disconnect_legacy_handler = nullptr;
-  void *disconnect_legacy_handler_self = nullptr;
-  callback_t connect_legacy_handler = nullptr;
-  void *connect_legacy_handler_self = nullptr;
-
-  callback_t disconnect_peer2025_handler = nullptr;
-  void *disconnect_peer2025_handler_self = nullptr;
-  callback_t connect_peer2025_handler = nullptr;
-  void *connect_peer2025_handler_self = nullptr;
-
-  callback_t disconnect_basestn2025_handler = nullptr;
-  void *disconnect_basestn2025_handler_self = nullptr;
-  callback_t connect_basestn2025_handler = nullptr;
-  void *connect_basestn2025_handler_self = nullptr;
+  PeerType peer = PeerType::None;
+  std::pair<callback_t, void *>
+      connect_cbs[static_cast<size_t>(PeerType::NUM_PEER_TYPES)] = {};
+  std::pair<callback_t, void *>
+      disconnect_cbs[static_cast<size_t>(PeerType::NUM_PEER_TYPES)] = {};
 
   void SendPing();
   void SendPeerPong();
