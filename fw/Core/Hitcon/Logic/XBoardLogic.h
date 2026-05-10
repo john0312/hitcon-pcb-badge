@@ -1,6 +1,7 @@
 #ifndef HITCON_LOGIC_XBOARD_LOGIC_H_
 #define HITCON_LOGIC_XBOARD_LOGIC_H_
 
+#include <Hitcon.h>
 #include <Util/CircularQueue.h>
 #include <Util/callback.h>
 #include <stddef.h>
@@ -12,6 +13,10 @@
 #include "Service/XBoardService.h"
 #include "XBoardRecvFn.h"
 #include "usart.h"
+
+#ifndef BADGE_ROLE
+#error "BADGE_ROLE not defined"
+#endif  // BADGE_ROLE
 
 namespace hitcon {
 namespace service {
@@ -27,6 +32,7 @@ enum class PeerType : uint8_t {
   Legacy,
   Peer2025,
   BaseStn2025,
+  QRStn2026,
   NUM_PEER_TYPES,
 };
 
@@ -36,8 +42,13 @@ constexpr uint8_t PING_TYPE = 208;
 constexpr uint8_t PONG_LEGACY_TYPE = 209;
 constexpr uint8_t PONG_PEER2025_TYPE = 210;
 constexpr uint8_t PONG_BASESTN2025_TYPE = 211;
+constexpr uint8_t PONG_QRSTN2026_TYPE = 212;
 
+#if BADGE_ROLE == BADGE_ROLE_QR_STN
+constexpr uint8_t SELF_PONG_TYPE = PONG_QRSTN2026_TYPE;
+#else
 constexpr uint8_t SELF_PONG_TYPE = PONG_PEER2025_TYPE;
+#endif
 
 class XBoardLogic {
  public:
@@ -82,6 +93,7 @@ class XBoardLogic {
   // 0x01 - Legacy pong received.
   // 0x02 - Peer 2025 pong received.
   // 0x04 - Base station pong received.
+  // 0x08 - QR station 2026 pong received.
   uint8_t no_pong_count = 0;
 
   hitcon::service::sched::PeriodicTask _parse_routine;

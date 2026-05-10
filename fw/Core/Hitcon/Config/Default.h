@@ -4,7 +4,7 @@
 // Override defaults in custom.h if needed.
 
 #define BADGE_ROLE_ATTENDEE 1
-#define BADGE_ROLE_SPONSOR 2
+#define BADGE_ROLE_QR_STN 2
 
 #ifndef BADGE_ROLE
 #define BADGE_ROLE BADGE_ROLE_ATTENDEE
