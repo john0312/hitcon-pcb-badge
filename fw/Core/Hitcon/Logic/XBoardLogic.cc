@@ -174,6 +174,10 @@ void XBoardLogic::ParsePacket() {
       recv_pong_flags |= 0x04;
       continue;
     }
+    if (header->type == PONG_QRSTN2026_TYPE) {
+      recv_pong_flags |= 0x08;
+      continue;
+    }
 
     // app callbacks
     if (header->type < RecvFnId::MAX) {
@@ -204,6 +208,8 @@ void XBoardLogic::CheckPong() {
     received_peer = PeerType::Peer2025;
   } else if (recv_pong_flags == 0x04) {
     received_peer = PeerType::BaseStn2025;
+  } else if (recv_pong_flags == 0x08) {
+    received_peer = PeerType::QRStn2026;
   }
 
   // 2. A pong is valid only if it keeps the current peer or connects from None.

@@ -2,7 +2,12 @@
 #define BADGE_CONTROLLER_H
 
 #include <App/app.h>
+#include <Hitcon.h>
 #include <Logic/ButtonLogic.h>
+
+#ifndef BADGE_ROLE
+#error "BADGE_ROLE not defined"
+#endif  // BADGE_ROLE
 
 namespace hitcon {
 
@@ -39,6 +44,16 @@ class BadgeController {
 
   // This is called whenever a base station board connects.
   void OnXBoardBasestnConnect(void *unused);
+
+#if BADGE_ROLE == BADGE_ROLE_QR_STN
+  // QR station role: a controller (Peer2025) connected / disconnected.
+  void OnPeerControllerConnect(void *unused);
+  void OnPeerControllerDisconnect(void *unused);
+#else
+  // Non-QR role: a QR station was detected, switch to QR client app.
+  void OnXBoardQrStnConnect(void *unused);
+  void OnXBoardQrStnDisconnect(void *unused);
+#endif
 
   // This is called when usb power supply is available.
   void OnUsbPlugIn(void *unused);

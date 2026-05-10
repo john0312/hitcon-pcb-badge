@@ -7,6 +7,8 @@
 
 #include <App/DinoApp.h>
 #include <App/HardwareTestApp.h>
+#include <App/QrClientApp.h>
+#include <App/QrStationApp.h>
 #include <App/ShowIdApp.h>
 #include <App/ShowNameApp.h>
 #include <App/SnakeApp.h>
@@ -86,6 +88,11 @@ void hitcon_run() {
   g_xboard_service.Init();
   g_xboard_logic.Init();
   show_name_app.Init();
+#if BADGE_ROLE == BADGE_ROLE_QR_STN
+  qr_station_app.Init();
+#else
+  qr_client_app.Init();
+#endif
 
   badge_controller.Init();
   hitcon::ir::irService.Init();

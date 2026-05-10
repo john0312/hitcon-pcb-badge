@@ -4,6 +4,8 @@
 #include <App/EditNameApp.h>
 #include <App/HardwareTestApp.h>
 #include <App/MainMenuApp.h>
+#include <App/QrClientApp.h>
+#include <App/QrStationApp.h>
 #include <App/ShowNameApp.h>
 #include <App/UsbMenuApp.h>
 #include <Hitcon.h>
@@ -32,8 +34,20 @@ BadgeController::BadgeController() : current_app(nullptr) {}
 void BadgeController::Init() {
   g_button_logic.SetCallback(CB_CAST(&BadgeController::OnButton), this);
   g_button_logic.SetEdgeCallback(CB_CAST(&BadgeController::OnEdgeButton), this);
+#if BADGE_ROLE == BADGE_ROLE_QR_STN
+  current_app = &qr_station_app;
+#else
   current_app = &show_name_app;
+#endif
   current_app->OnEntry();
+#if BADGE_ROLE == BADGE_ROLE_QR_STN
+  g_xboard_logic.SetOnConnect(
+      PeerType::Peer2025, CB_CAST(&BadgeController::OnPeerControllerConnect),
+      this);
+  g_xboard_logic.SetOnDisconnect(
+      PeerType::Peer2025, CB_CAST(&BadgeController::OnPeerControllerDisconnect),
+      this);
+#else
   g_xboard_logic.SetOnConnect(PeerType::Peer2025,
                               CB_CAST(&BadgeController::OnXBoardConnect), this);
   g_xboard_logic.SetOnDisconnect(
@@ -50,6 +64,14 @@ void BadgeController::Init() {
   g_xboard_logic.SetOnDisconnect(PeerType::BaseStn2025,
                                  CB_CAST(&BadgeController::OnXBoardDisconnect),
                                  this);
+
+  g_xboard_logic.SetOnConnect(PeerType::QRStn2026,
+                              CB_CAST(&BadgeController::OnXBoardQrStnConnect),
+                              this);
+  g_xboard_logic.SetOnDisconnect(
+      PeerType::QRStn2026, CB_CAST(&BadgeController::OnXBoardQrStnDisconnect),
+      this);
+#endif
 
   usb::g_usb_service.SetOnUsbPlugIn(CB_CAST(&BadgeController::OnUsbPlugIn),
                                     this);
@@ -158,6 +180,33 @@ void BadgeController::OnXBoardDisconnect(void *unused) {
     badge_controller.change_app(&show_name_app);
   }
 }
+
+#if BADGE_ROLE == BADGE_ROLE_QR_STN
+void BadgeController::OnPeerControllerConnect(void *unused) {
+  if (current_app != &hardware_test_app) {
+    if (current_app != &qr_station_app) {
+      badge_controller.change_app(&qr_station_app);
+    }
+    qr_station_app.OnPeerConnected();
+  }
+}
+
+void BadgeController::OnPeerControllerDisconnect(void *unused) {
+  if (current_app == &qr_station_app) {
+    qr_station_app.OnPeerDisconnected();
+  }
+}
+#else
+void BadgeController::OnXBoardQrStnConnect(void *unused) {
+  if (current_app != &hardware_test_app)
+    badge_controller.change_app(&qr_client_app);
+}
+
+void BadgeController::OnXBoardQrStnDisconnect(void *unused) {
+  if (current_app != &hardware_test_app)
+    badge_controller.change_app(&show_name_app);
+}
+#endif
 
 void BadgeController::OnEdgeButton(void *arg1) {
   button_t button = static_cast<button_t>(reinterpret_cast<uintptr_t>(arg1));
