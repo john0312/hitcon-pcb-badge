@@ -5,6 +5,11 @@
 
 namespace hitcon {
 
+// Each entry's numeric value is a slot index in NvStorage's max_scores[].
+// Append-only: never reorder, renumber, or delete middle entries -- doing so
+// would silently remap stored high scores to different games. New entries go
+// before GAME_UNUSED_MAX. Capacity is bounded by NV_MAX_SCORE_SLOTS in
+// NvStorage.h; exceeding it triggers a compile-time assert there.
 enum class GameScoreType {
   GAME_TETRIS = 0,
   GAME_SNAKE,

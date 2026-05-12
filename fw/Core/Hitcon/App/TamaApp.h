@@ -38,6 +38,10 @@ namespace hitcon {
 namespace app {
 namespace tama {
 
+// Persisted in NvStorage::tama_storage.state. Append-only: never renumber or
+// remove existing values - doing so silently remaps saved state on devices
+// that already wrote NV records. New states get a new number; deprecated
+// states stay reserved.
 enum class TAMA_APP_STATE : uint8_t {
   SAVE_STATE = 0x80,
   INTRO_TEXT = 0,             // Displaying introductory text
@@ -60,12 +64,18 @@ enum class TAMA_APP_STATE : uint8_t {
   HEAL_CONFIRM = 17,
 };
 
+// Persisted in NvStorage::tama_storage.type. Append-only - same rule as
+// TAMA_APP_STATE above.
 enum class TAMA_TYPE : uint8_t {
   NONE_TYPE,  // No pet selected or game reset
   DOG,        // Player chose a dog
   CAT,        // Player chose a cat
 };
 
+// Persisted as part of nv_storage_content. Changing this struct's layout
+// (add/remove/resize/reorder fields) is a NV schema-affecting change: the
+// freeze sanity assert in NvStorage.h's nv_v0 namespace will fire, and the
+// expected response is to bump NV_SCHEMA_VERSION_CURRENT and write a migrator.
 typedef struct {
   TAMA_APP_STATE state;
   TAMA_TYPE type;
