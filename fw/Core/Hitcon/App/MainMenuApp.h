@@ -5,6 +5,7 @@
 #include <App/BouncingDVDApp.h>
 #include <App/DebugApp.h>
 #include <App/DinoApp.h>
+#include <App/QrCodeApp.h>
 #include <App/ScoreHistApp.h>
 #include <App/ShowIdApp.h>
 #include <App/ShowNameApp.h>
@@ -32,6 +33,7 @@ constexpr menu_entry_t main_menu_entries[] = {
     {"Tetris", &tetris_app, &hitcon::app::tetris::SetSingleplayer},
     {"Spaceship", &spaceship_app, nullptr},
     {"Dino", &dino_app, nullptr},
+    {"QR Code", &qr_code_app, nullptr},
     {"Show ID", &show_id_app, nullptr},
     {"Show Scores", &score_hist::g_score_hist, nullptr},
     {"Bouncing DVD", &bouncing_dvd_app, nullptr},
