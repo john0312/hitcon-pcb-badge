@@ -11,6 +11,8 @@
 #if BADGE_ROLE != BADGE_ROLE_QR_STN
 
 namespace hitcon {
+namespace app {
+namespace qr {
 
 class QrClientApp : public App {
  public:
@@ -21,10 +23,15 @@ class QrClientApp : public App {
   void OnEntry() override;
   void OnExit() override;
   void OnButton(button_t button) override;
+
+ private:
+  void OnUnlockPacket(void *arg);
 };
 
 extern QrClientApp qr_client_app;
 
+}  // namespace qr
+}  // namespace app
 }  // namespace hitcon
 
 #endif  // BADGE_ROLE != BADGE_ROLE_QR_STN

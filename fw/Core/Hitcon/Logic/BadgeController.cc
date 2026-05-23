@@ -20,6 +20,11 @@
 #error "BADGE_ROLE not defined"
 #endif  // BADGE_ROLE
 
+#if BADGE_ROLE == BADGE_ROLE_QR_STN
+using hitcon::app::qr::qr_station_app;
+#else
+using hitcon::app::qr::qr_client_app;
+#endif
 using hitcon::service::sched::my_assert;
 using hitcon::service::xboard::g_xboard_logic;
 using hitcon::service::xboard::PeerType;

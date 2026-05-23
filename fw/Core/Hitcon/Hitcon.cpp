@@ -89,9 +89,9 @@ void hitcon_run() {
   g_xboard_logic.Init();
   show_name_app.Init();
 #if BADGE_ROLE == BADGE_ROLE_QR_STN
-  qr_station_app.Init();
+  hitcon::app::qr::qr_station_app.Init();
 #else
-  qr_client_app.Init();
+  hitcon::app::qr::qr_client_app.Init();
 #endif
 
   badge_controller.Init();

@@ -25,7 +25,7 @@ constexpr size_t NV_MAX_SCORE_SLOTS = 8;
 // the static_assert below fires and the developer must respond:
 //   - Append (size grew): update NV_FIELDS table and NV_LAYOUT_SIZE_V1.
 //   - Shrink/reorder: bump schema_version + write a migrator.
-constexpr size_t NV_LAYOUT_SIZE_V1 = 80;
+constexpr size_t NV_LAYOUT_SIZE_V1 = 84;
 
 typedef struct nv_storage_content_t {
   // CRC32 over `content_size` bytes immediately following this field.
@@ -47,6 +47,9 @@ typedef struct nv_storage_content_t {
   char name[hitcon::ShowNameApp::NAME_LEN + 1];
   uint32_t max_scores[hitcon::NV_MAX_SCORE_SLOTS];
   hitcon::app::tama::tama_storage_t tama_storage;
+  // Bit N set = QR station N's third of the QR code is unlocked (N in 0..2).
+  uint8_t qr_unlocked_mask;
+  uint8_t _rsvd[3];  // pad to 4-byte boundary; reserved for future use
 } nv_storage_content;
 
 // === Layout invariants (X-macro) ===
@@ -59,7 +62,8 @@ typedef struct nv_storage_content_t {
   X(game_storage, 12)  \
   X(name, 13)          \
   X(max_scores, 36)    \
-  X(tama_storage, 68)
+  X(tama_storage, 68)  \
+  X(qr_unlocked_mask, 80)
 
 #define NV_ASSERT_OFFSET(field, expected)                            \
   static_assert(offsetof(nv_storage_content_t, field) == (expected), \

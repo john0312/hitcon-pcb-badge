@@ -21,6 +21,7 @@ namespace hitcon {
 
 using hitcon::app::bouncing_dvd::bouncing_dvd_app;
 using hitcon::app::dino::dino_app;
+using hitcon::app::qr::qr_code_app;
 using hitcon::app::snake::snake_app;
 using hitcon::app::spaceship::spaceship_app;
 using hitcon::app::tama::tama_app;

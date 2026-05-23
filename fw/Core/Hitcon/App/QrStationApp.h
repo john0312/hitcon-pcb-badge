@@ -11,10 +11,16 @@
 #if BADGE_ROLE == BADGE_ROLE_QR_STN
 
 namespace hitcon {
+namespace app {
+namespace qr {
+
+// Free function adapters for `menu_entry_t.func`
+void OnUnlockPicked();
+void OnWrongPicked();
 
 constexpr menu_entry_t qr_station_menu_entries[] = {
-    {"A Item", nullptr, nullptr},
-    {"B Item", nullptr, nullptr},
+    {"Unlock QR", nullptr, &OnUnlockPicked},
+    {"Wrong", nullptr, &OnWrongPicked},
 };
 
 constexpr int qr_station_menu_entries_len =
@@ -41,12 +47,21 @@ class QrStationApp : public MenuApp {
   void OnPeerConnected();
   void OnPeerDisconnected();
 
+  // Handler for when the client picks the right/wrong menu entry
+  void OnUnlockPicked();
+  void OnWrongPicked();
+
  private:
+  // Client can only make one selection per connection
+  bool selection_made_ = false;
+
   void OnForwardedButtonPacket(void *arg);
 };
 
 extern QrStationApp qr_station_app;
 
+}  // namespace qr
+}  // namespace app
 }  // namespace hitcon
 
 #endif  // BADGE_ROLE == BADGE_ROLE_QR_STN
