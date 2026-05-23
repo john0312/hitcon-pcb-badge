@@ -22,6 +22,7 @@ enum RecvFnId {
   SPONSOR_RESP_ACK,
   DINO_RECV_ID,  // Unused
   QR_STN_BTN_FWD_ID,
+  QR_STN_UNLOCK_ID,
   // MAX is to express the length of callback function array
   MAX
 };
