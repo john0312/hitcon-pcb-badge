@@ -1,0 +1,12 @@
+[package]
+name = "provisioner"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+crossbeam-channel = "0.5.16"
+crossterm = "0.29.0"
+futures = "0.3.32"
+nusb = "0.2.4"
+probe-rs = "0.31.0"
+ratatui = "0.30.2"
