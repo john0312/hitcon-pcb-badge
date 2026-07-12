@@ -6,6 +6,8 @@ use std::collections::HashMap;
 use std::thread;
 use std::time::Duration;
 
+use crate::inject::inject;
+
 /// Worker thread -> main thread: worker-level events
 pub(crate) enum WorkerEvent {
     /// A status update (sn, phase, level, message). `phase` is the stage it happened in, `level`
@@ -247,9 +249,24 @@ fn flash(guard: &mut DiedGuard, session: &mut Session) -> bool {
         format!("開始燒錄 {}...", session.target().name),
     );
 
-    // Build a flash loader from the embedded ELF (Cursor makes &[u8] Read + Seek).
+    let injected = inject(FIRMWARE);
+    // Warn on any missing placeholder; silent on full success.
+    let missing: Vec<&str> = injected
+        .replacements
+        .iter()
+        .filter(|(_, count)| *count == 0)
+        .map(|(name, _)| *name)
+        .collect();
+    if !missing.is_empty() {
+        guard.status(
+            Level::Warn,
+            format!("韌體 placeholder 取代失敗: {}", missing.join(", ")),
+        );
+    }
+
+    // Build a flash loader from the injected image (Cursor makes &[u8] Read + Seek).
     let mut loader = session.target().flash_loader();
-    let mut image = std::io::Cursor::new(FIRMWARE);
+    let mut image = std::io::Cursor::new(injected.image.as_slice());
     if let Err(e) = loader.load_image(
         session,
         &mut image,
