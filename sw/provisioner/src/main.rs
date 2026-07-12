@@ -8,6 +8,8 @@ use std::thread;
 use std::time::Duration;
 
 mod device;
+mod ecc;
+mod inject;
 mod stlink_tools;
 mod ui;
 mod worker;
