@@ -2,16 +2,19 @@ use futures::executor::block_on_stream;
 use nusb::watch_devices;
 use nusb::{DeviceId, MaybeFuture, hotplug::HotplugEvent};
 use probe_rs::probe::DebugProbeSelector;
+use ratatui::crossterm::event::{self, Event, KeyCode, KeyEventKind, KeyModifiers};
 use std::collections::HashMap;
 use std::thread;
 use std::time::Duration;
 
 mod device;
 mod stlink_tools;
+mod ui;
 mod worker;
 
 use device::{DeviceEvent, TrackedDevice, on_connected, on_disconnected};
-use worker::{WorkerCmd, WorkerEvent, spawn_worker};
+use ui::Ui;
+use worker::{Phase, WorkerCmd, WorkerEvent, spawn_worker};
 
 /// How long to wait before respawning a worker whose device is still present (avoids a die->respawn tight loop).
 const RESPAWN_BACKOFF: Duration = Duration::from_millis(500);
@@ -29,6 +32,21 @@ fn main() {
     let mut serial_to_ids: HashMap<Option<String>, Vec<DeviceId>> = HashMap::new();
     // id -> device: Disconnected only gives an id, so this reverse-maps to the serial (and keeps DeviceInfo).
     let mut id_to_device: HashMap<DeviceId, TrackedDevice> = HashMap::new();
+
+    // TUI: one line per SN on top, a scrolling log at the bottom.
+    let mut terminal = ratatui::init();
+    let mut ui = Ui::new();
+
+    // Terminal input on its own thread, forwarded into the select loop (event::read blocks).
+    let (input_tx, input_rx) = crossbeam_channel::unbounded::<Event>();
+    thread::spawn(move || {
+        // event::read errors (terminal closed) end the loop; a closed receiver breaks it too.
+        while let Ok(ev) = event::read() {
+            if input_tx.send(ev).is_err() {
+                break;
+            }
+        }
+    });
 
     thread::spawn(move || {
         // Pure forwarder: no filtering or state, everything is handled by the main loop.
@@ -52,6 +70,7 @@ fn main() {
         }
     });
 
+    terminal.draw(|f| ui.render(f)).unwrap();
     loop {
         crossbeam_channel::select! {
             recv(dev_rx) -> msg => {
@@ -63,31 +82,38 @@ fn main() {
                         &mut id_to_device,
                         &mut active_workers,
                         &worker_tx,
+                        &mut ui,
                     ),
                     DeviceEvent::Disconnected(id) => on_disconnected(
                         id,
                         &mut serial_to_ids,
                         &mut id_to_device,
                         &active_workers,
+                        &mut ui,
                     ),
                 }
             }
             recv(worker_rx) -> msg => {
                 let Ok(msg) = msg else { break };
                 match msg {
-                    WorkerEvent::Status(sn, m) => println!("[SN: {}] {}", sn, m),
-                    WorkerEvent::Died(sn) => {
-                        println!("❌ [SN: {}] Worker 結束", sn);
+                    WorkerEvent::Status(sn, phase, level, m) => ui.set_status(&sn, phase, level, m),
+                    WorkerEvent::Died(sn, phase, level, reason) => {
                         active_workers.remove(&sn);
                         // Respawn only if a device with this SN is still present.
                         // Back off first, or repeated open failures become a die->respawn tight loop.
                         // The main loop can't sleep (would stall select), so a short-lived thread sends the sn back.
                         if serial_to_ids.contains_key(&Some(sn.clone())) {
+                            // Worker gone but device present: show WaitingRestart with the death
+                            // phase + reason. The restarted worker replaces it after the backoff.
+                            ui.set_status(&sn, Phase::WaitingRestart, level, format!("[{phase}] {reason}"));
                             let respawn_tx = respawn_tx.clone();
                             thread::spawn(move || {
                                 thread::sleep(RESPAWN_BACKOFF);
                                 let _ = respawn_tx.send(sn);
                             });
+                        } else {
+                            // Device fully gone (already logged by on_disconnected): drop the line.
+                            ui.remove(&sn);
                         }
                     }
                 }
@@ -106,10 +132,28 @@ fn main() {
                         serial_number: tracked.serial.clone(),
                     });
                 if let Some(selector) = selector {
-                    println!("[SN: {}] 重啟延遲 worker", sn);
+                    // Log the restart; the worker reports its own status once running.
+                    ui.log(format!("[SN: {sn}] 延遲重啟 worker"));
                     spawn_worker(sn, selector, &mut active_workers, &worker_tx);
                 }
             }
+            // Keyboard / resize: q or Ctrl-C quits; anything else just falls through to a redraw.
+            recv(input_rx) -> ev => {
+                let Ok(ev) = ev else { break };
+                if let Event::Key(key) = ev
+                    && key.kind == KeyEventKind::Press
+                {
+                    let quit = key.code == KeyCode::Char('q')
+                        || (key.code == KeyCode::Char('c')
+                            && key.modifiers.contains(KeyModifiers::CONTROL));
+                    if quit {
+                        break;
+                    }
+                }
+            }
         }
+        terminal.draw(|f| ui.render(f)).unwrap();
     }
+
+    ratatui::restore();
 }

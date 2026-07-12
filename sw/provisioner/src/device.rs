@@ -5,7 +5,8 @@ use std::thread;
 use std::time::Duration;
 
 use crate::stlink_tools::{is_stlink_device, read_serial_number};
-use crate::worker::{WorkerCmd, WorkerEvent, spawn_worker};
+use crate::ui::Ui;
+use crate::worker::{Level, Phase, WorkerCmd, WorkerEvent, spawn_worker};
 
 /// Watcher thread -> main: raw hotplug events only; all state lives in the main loop.
 pub(crate) enum DeviceEvent {
@@ -27,6 +28,7 @@ pub(crate) fn on_connected(
     id_to_device: &mut HashMap<DeviceId, TrackedDevice>,
     active_workers: &mut HashMap<String, crossbeam_channel::Sender<WorkerCmd>>,
     worker_tx: &crossbeam_channel::Sender<WorkerEvent>,
+    ui: &mut Ui,
 ) {
     if !is_stlink_device(&dev) {
         return;
@@ -38,7 +40,11 @@ pub(crate) fn on_connected(
     }
     // Same serial algorithm as probe-rs, so it matches list_probes_filtered.
     let sn = read_serial_number(&dev);
-    println!("➕ [SN: {:?}] 新裝置接入", sn);
+    // A device with a serial gets a table line; a no-serial one is log-only (can't key a worker).
+    match &sn {
+        Some(s) => ui.set_status(s, Phase::ProbeConnected, Level::Info, "新裝置已連接"),
+        None => ui.log("偵測到無序號 ST-Link 裝置"),
+    }
     serial_to_ids.entry(sn.clone()).or_default().push(id);
 
     // Build the selector while we still own dev (before it moves into the map).
@@ -72,6 +78,7 @@ pub(crate) fn on_disconnected(
     serial_to_ids: &mut HashMap<Option<String>, Vec<DeviceId>>,
     id_to_device: &mut HashMap<DeviceId, TrackedDevice>,
     active_workers: &HashMap<String, crossbeam_channel::Sender<WorkerCmd>>,
+    ui: &mut Ui,
 ) {
     // Not tracked -> not our ST-Link.
     let Some(tracked) = id_to_device.remove(&id) else {
@@ -93,15 +100,24 @@ pub(crate) fn on_disconnected(
     let Some(sn) = sn else {
         return;
     };
+    // No worker for this SN: nothing will emit Died, so if it's fully gone remove the row here.
     let Some(cmd_tx) = active_workers.get(&sn) else {
+        if remaining == 0 {
+            ui.log(format!("[SN: {sn}] 全部移除（無運作中的 worker）"));
+            ui.remove(&sn);
+        }
         return;
     };
     if remaining == 0 {
-        println!("➖ [SN: {}] 全部拔除，kill worker", sn);
+        // A command, not a phase -> log only. The line is removed once the worker acts on Kill
+        // and dies (see the Died handler in main).
+        ui.log(format!("[SN: {sn}] 全部移除，通知 worker 結束"));
         let _ = cmd_tx.send(WorkerCmd::Kill);
     } else {
-        // Same SN still has a device -> have the worker re-check itself.
-        println!("♻️ [SN: {}] 拔除一支但仍有裝置，通知 worker 重新檢查", sn);
+        // Same SN still has a device -> have the worker re-check itself (a command, not a phase).
+        ui.log(format!(
+            "[SN: {sn}] 移除一支但仍有裝置，通知 worker 重新檢查"
+        ));
         let _ = cmd_tx.send(WorkerCmd::WakeUp);
     }
 }
