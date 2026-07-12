@@ -1,9 +1,11 @@
 use nusb::{DeviceId, DeviceInfo};
 use probe_rs::probe::DebugProbeSelector;
 use std::collections::HashMap;
+use std::sync::{Arc, Mutex};
 use std::thread;
 use std::time::Duration;
 
+use crate::firmware::FwRegistry;
 use crate::stlink_tools::{is_stlink_device, read_serial_number};
 use crate::ui::Ui;
 use crate::worker::{Level, Phase, WorkerCmd, WorkerEvent, spawn_worker};
@@ -28,6 +30,7 @@ pub(crate) fn on_connected(
     id_to_device: &mut HashMap<DeviceId, TrackedDevice>,
     active_workers: &mut HashMap<String, crossbeam_channel::Sender<WorkerCmd>>,
     worker_tx: &crossbeam_channel::Sender<WorkerEvent>,
+    registry: &Arc<Mutex<FwRegistry>>,
     ui: &mut Ui,
 ) {
     if !is_stlink_device(&dev) {
@@ -68,7 +71,7 @@ pub(crate) fn on_connected(
     };
     // Give USB/probe-rs a moment to enumerate before opening.
     thread::sleep(Duration::from_millis(200));
-    spawn_worker(sn, selector, active_workers, worker_tx);
+    spawn_worker(sn, selector, active_workers, worker_tx, registry.clone());
 }
 
 /// Device disconnected: update state and signal the worker based on how many of the same SN remain.

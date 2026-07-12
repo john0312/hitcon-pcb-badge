@@ -3,9 +3,11 @@ use probe_rs::probe::stlink::StLinkFactory;
 use probe_rs::probe::{DebugProbeInfo, DebugProbeSelector, Probe, ProbeFactory};
 use probe_rs::{Permissions, Session};
 use std::collections::HashMap;
+use std::sync::{Arc, Mutex};
 use std::thread;
 use std::time::Duration;
 
+use crate::firmware::FwRegistry;
 use crate::inject::inject;
 
 /// Worker thread -> main thread: worker-level events
@@ -103,6 +105,7 @@ pub(crate) fn spawn_worker(
     selector: DebugProbeSelector,
     active_workers: &mut HashMap<String, crossbeam_channel::Sender<WorkerCmd>>,
     worker_tx: &crossbeam_channel::Sender<WorkerEvent>,
+    registry: Arc<Mutex<FwRegistry>>,
 ) {
     if active_workers.contains_key(&sn) {
         return;
@@ -124,7 +127,7 @@ pub(crate) fn spawn_worker(
         // Guard drops on this thread, sending exactly one Died however worker_loop ends (`?` Death
         // or panic). Borrow it (don't move) so we can record the Death after worker_loop returns.
         let mut guard = DiedGuard::new(sn, worker_tx);
-        if let Err(death) = worker_loop(&mut guard, probe_info, cmd_rx) {
+        if let Err(death) = worker_loop(&mut guard, probe_info, cmd_rx, &registry) {
             guard.set_death(death.level, death.reason);
         }
     });
@@ -195,6 +198,7 @@ fn worker_loop(
     guard: &mut DiedGuard,
     probe_info: DebugProbeInfo,
     cmd_rx: crossbeam_channel::Receiver<WorkerCmd>,
+    registry: &Mutex<FwRegistry>,
 ) -> Result<(), Death> {
     let target_mcu = "STM32F103CBT6";
 
@@ -215,7 +219,7 @@ fn worker_loop(
             continue; // just confirmed present but attach failed (transient); retry
         };
         guard.enter(Phase::Flashing);
-        if !flash(guard, &mut session) {
+        if !flash(guard, &mut session, registry) {
             continue;
         }
 
@@ -237,19 +241,33 @@ fn open_probe(probe_info: &DebugProbeInfo) -> Result<Probe, Death> {
     Ok(probe)
 }
 
-/// Firmware to flash, embedded into the binary (no runtime file dependency).
-const FIRMWARE: &[u8] = include_bytes!("../../../fw/V1.1/fw.elf");
-// const FIRMWARE: &[u8] = include_bytes!("../../../fw/V2.2 RELEASE/fw.elf");
-
 /// Flashing flow after a successful attach; borrows session (no consume), returns true on success.
 /// The caller has entered Phase::Flashing, so errors here are tagged with it.
-fn flash(guard: &mut DiedGuard, session: &mut Session) -> bool {
+fn flash(guard: &mut DiedGuard, session: &mut Session, registry: &Mutex<FwRegistry>) -> bool {
+    // Read the firmware selected for the active year; clone the source out and drop the lock
+    // before any file IO or flashing.
+    let (label, source) = {
+        let reg = registry.lock().unwrap();
+        let choice = reg.active_choice();
+        (choice.label.clone(), choice.source.clone())
+    };
+
     guard.status(
         Level::Progress,
-        format!("開始燒錄 {}...", session.target().name),
+        format!("開始燒錄 {}（{label}）...", session.target().name),
     );
 
-    let injected = inject(FIRMWARE);
+    // Embedded returns instantly; a runtime File is re-read here, so a missing/unreadable file
+    // fails just this board (retry) instead of killing the worker.
+    let bytes = match source.load() {
+        Ok(bytes) => bytes,
+        Err(e) => {
+            guard.status(Level::Error, format!("讀取韌體失敗：{e}"));
+            return false;
+        }
+    };
+
+    let injected = inject(&bytes);
     // Warn on any missing placeholder; silent on full success.
     let missing: Vec<&str> = injected
         .replacements

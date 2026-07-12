@@ -2,17 +2,21 @@ use futures::executor::block_on_stream;
 use nusb::watch_devices;
 use nusb::{DeviceId, MaybeFuture, hotplug::HotplugEvent};
 use probe_rs::probe::DebugProbeSelector;
-use ratatui::crossterm::event::{self, Event, KeyCode, KeyEventKind, KeyModifiers};
+use ratatui::crossterm::event::{self, Event, KeyEventKind};
 use std::collections::HashMap;
+use std::sync::{Arc, Mutex};
 use std::thread;
 use std::time::Duration;
 
 mod device;
 mod ecc;
+mod firmware;
 mod inject;
 mod stlink_tools;
 mod ui;
 mod worker;
+
+use firmware::FwRegistry;
 
 use device::{DeviceEvent, TrackedDevice, on_connected, on_disconnected};
 use ui::Ui;
@@ -29,6 +33,9 @@ fn main() {
 
     let mut active_workers: HashMap<String, crossbeam_channel::Sender<WorkerCmd>> = HashMap::new();
 
+    // Firmware selection, shared with every worker (read at flash time) and the UI (rendered + mutated by keys).
+    let registry = Arc::new(Mutex::new(FwRegistry::default()));
+
     // Device state, centralized in the main loop so Died can look it up.
     // serial -> its dev ids (Vec only in case serials collide); None = no-serial devices.
     let mut serial_to_ids: HashMap<Option<String>, Vec<DeviceId>> = HashMap::new();
@@ -37,7 +44,7 @@ fn main() {
 
     // TUI: one line per SN on top, a scrolling log at the bottom.
     let mut terminal = ratatui::init();
-    let mut ui = Ui::new();
+    let mut ui = Ui::new(registry.clone());
 
     // Terminal input on its own thread, forwarded into the select loop (event::read blocks).
     let (input_tx, input_rx) = crossbeam_channel::unbounded::<Event>();
@@ -84,6 +91,7 @@ fn main() {
                         &mut id_to_device,
                         &mut active_workers,
                         &worker_tx,
+                        &registry,
                         &mut ui,
                     ),
                     DeviceEvent::Disconnected(id) => on_disconnected(
@@ -136,21 +144,18 @@ fn main() {
                 if let Some(selector) = selector {
                     // Log the restart; the worker reports its own status once running.
                     ui.log(format!("[SN: {sn}] 延遲重啟 worker"));
-                    spawn_worker(sn, selector, &mut active_workers, &worker_tx);
+                    spawn_worker(sn, selector, &mut active_workers, &worker_tx, registry.clone());
                 }
             }
-            // Keyboard / resize: q or Ctrl-C quits; anything else just falls through to a redraw.
+            // Keyboard: UI owns the routing (screen state, firmware selection, path input); it
+            // returns true to quit. Anything else just falls through to a redraw.
             recv(input_rx) -> ev => {
                 let Ok(ev) = ev else { break };
                 if let Event::Key(key) = ev
                     && key.kind == KeyEventKind::Press
+                    && ui.handle_key(key)
                 {
-                    let quit = key.code == KeyCode::Char('q')
-                        || (key.code == KeyCode::Char('c')
-                            && key.modifiers.contains(KeyModifiers::CONTROL));
-                    if quit {
-                        break;
-                    }
+                    break;
                 }
             }
         }
