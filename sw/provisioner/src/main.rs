@@ -9,6 +9,7 @@ use std::thread;
 use std::time::Duration;
 
 mod cli;
+mod challenge_2026; // challenge_2026: NeverGonna per-board flag — remove with src/challenge_2026.rs
 mod device;
 mod ecc;
 mod firmware;
@@ -52,6 +53,7 @@ fn main() {
     if args.single_probe {
         ui.log("--single-probe：無序號 ST-Link 會被當成唯一的一支處理");
     }
+    challenge_2026::init(&mut ui); // challenge_2026: load flag + log outcome — remove with src/challenge_2026.rs
 
     // Terminal input on its own thread, forwarded into the select loop (event::read blocks).
     let (input_tx, input_rx) = crossbeam_channel::unbounded::<Event>();
