@@ -267,7 +267,7 @@ fn flash(guard: &mut DiedGuard, session: &mut Session, registry: &Mutex<FwRegist
         }
     };
 
-    let injected = inject(&bytes);
+    let mut injected = inject(&bytes);
     // Warn on any missing placeholder; silent on full success.
     let missing: Vec<&str> = injected
         .replacements
@@ -280,6 +280,21 @@ fn flash(guard: &mut DiedGuard, session: &mut Session, registry: &Mutex<FwRegist
             Level::Warn,
             format!("韌體 placeholder 取代失敗: {}", missing.join(", ")),
         );
+    }
+
+    // challenge_2026: NeverGonna per-board flag — remove this block with src/challenge_2026.rs
+    match crate::challenge_2026::apply(&mut injected.image, session) {
+        Ok(crate::challenge_2026::Applied::Injected(n)) => {
+            guard.status(Level::Success, format!("flag 已加密注入（{n} 處）"))
+        }
+        Ok(crate::challenge_2026::Applied::PlaceholderMissing) => {
+            guard.status(Level::Warn, "韌體無 flag placeholder，未注入 flag")
+        }
+        Ok(crate::challenge_2026::Applied::NoFlag) => {}
+        Err(e) => {
+            guard.status(Level::Error, format!("讀取 UID／flag 失敗：{e}"));
+            return false;
+        }
     }
 
     // Build a flash loader from the injected image (Cursor makes &[u8] Read + Seek).
