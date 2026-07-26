@@ -14,47 +14,37 @@ QrCodeApp qr_code_app;
 
 namespace {
 
-constexpr int kQrPatternWidth = 32;
-constexpr int kQrPatternHeight = 32;
-constexpr int kQrPatternBytesPerCol = kQrPatternHeight / 8;
+constexpr int kQrPatternWidth = 21;
+constexpr int kQrPatternHeight = 21;
+constexpr int kQrPatternBytesPerCol = (kQrPatternHeight + 7) / 8;
 
-// Column-major, same packing as display_buf_t: each column stored as 4 bytes,
-// byte 0 holds rows 0-7 with bit 0 = row 0 (top).
+// Column-major, same packing as display_buf_t: each column stored as 3 bytes,
+// byte 0 holds rows 0-7 with bit 0 = row 0 (top). The unused high bits of the
+// last byte (rows 21-23) stay 0.
 // Placeholder content: three QR-style finder patterns at TL/TR/BL corners with
 // an X across the middle data area. Real QR encoding can replace this later.
 constexpr uint8_t kQrPattern[kQrPatternWidth][kQrPatternBytesPerCol] = {
-    {0x7F, 0x00, 0x00, 0xFE},  // col 0
-    {0x41, 0x01, 0x00, 0x82},  // col 1
-    {0x5D, 0x02, 0x00, 0xBA},  // col 2
-    {0x5D, 0x04, 0x00, 0xBA},  // col 3
-    {0x5D, 0x08, 0x00, 0xBA},  // col 4
-    {0x41, 0x10, 0x00, 0x82},  // col 5
-    {0x7F, 0x20, 0x00, 0xFE},  // col 6
-    {0x00, 0x40, 0x00, 0x00},  // col 7
-    {0x00, 0x80, 0x00, 0x00},  // col 8
-    {0x00, 0x00, 0x01, 0x00},  // col 9
-    {0x00, 0x00, 0x02, 0x00},  // col 10
-    {0x00, 0x00, 0x04, 0x00},  // col 11
-    {0x00, 0x00, 0x08, 0x00},  // col 12
-    {0x00, 0x00, 0x10, 0x00},  // col 13
-    {0x00, 0x00, 0x20, 0x01},  // col 14
-    {0x00, 0x00, 0xC0, 0x00},  // col 15  X meets center
-    {0x00, 0x00, 0xC0, 0x00},  // col 16
-    {0x00, 0x00, 0x20, 0x01},  // col 17
-    {0x00, 0x00, 0x10, 0x00},  // col 18
-    {0x00, 0x00, 0x08, 0x00},  // col 19
-    {0x00, 0x00, 0x04, 0x00},  // col 20
-    {0x00, 0x00, 0x02, 0x00},  // col 21
-    {0x00, 0x00, 0x01, 0x00},  // col 22
-    {0x00, 0x80, 0x00, 0x00},  // col 23
-    {0x00, 0x40, 0x00, 0x00},  // col 24
-    {0x7F, 0x20, 0x00, 0x00},  // col 25
-    {0x41, 0x10, 0x00, 0x00},  // col 26
-    {0x5D, 0x08, 0x00, 0x00},  // col 27
-    {0x5D, 0x04, 0x00, 0x00},  // col 28
-    {0x5D, 0x02, 0x00, 0x00},  // col 29
-    {0x41, 0x01, 0x00, 0x00},  // col 30
-    {0x7F, 0x00, 0x00, 0x00},  // col 31
+    {0x7F, 0b11001001, 0x1F},              // col 0
+    {0x41, 0b01010100, 0x10},              // col 1
+    {0x5D, 0b01000111, 0x17},              // col 2
+    {0x5D, 0b01000011, 0x17},              // col 3
+    {0x5D, 0b01010001, 0x17},              // col 4
+    {0x41, 0b01001011, 0x10},              // col 5
+    {0x7F, 0b11010101, 0x1F},              // col 6
+    {0x00, 0b00001100, 0x00},              // col 7
+    {0b11111100, 0b10110100, 0b00010111},  // col 8
+    {0b10000110, 0b10010101, 0b00010111},  // col 9
+    {0b01000001, 0b00110101, 0b00001111},  // col 10
+    {0b00100001, 0b01001001, 0b00011110},  // col 11
+    {0b01011100, 0b01000110, 0b00000101},  // col 12
+    {0x00, 0b10000110, 0b00001001},        // col 13
+    {0x7F, 0b00010001, 0b00010001},        // col 14
+    {0x41, 0b10110001, 0b00011011},        // col 15
+    {0x5D, 0b10100011, 0b00000010},        // col 16
+    {0x5D, 0b10001111, 0b00000010},        // col 17
+    {0x5D, 0b11001001, 0b00001000},        // col 18
+    {0x41, 0b11000100, 0b00010001},        // col 19
+    {0x7F, 0b00111010, 0b00000001},        // col 20
 };
 
 constexpr int kMaxOffsetX = kQrPatternWidth - DISPLAY_WIDTH;
@@ -70,12 +60,12 @@ inline bool IsUnlocked(int col, uint8_t mask) {
 // For each column, a 32-bit bitmap of rows that belong to a finder + separator
 // region. These rows always render from kQrPattern regardless of lock state so
 // the screen is always recognizable as a QR code.
-//   cols 0..7  : TL (rows 0-7) + BL (rows 24-31)
-//   cols 24..31: TR (rows 0-7)
+//   cols 0..7  : TL (rows 0-7) + BL (rows 13-20)
+//   cols 13..20: TR (rows 0-7)
 //   otherwise  : none
 inline uint32_t FinderBitsForCol(int col) {
-  if (col < 8) return 0xFF0000FFu;
-  if (col >= 24) return 0x000000FFu;
+  if (col < 8) return 0x001FE0FFu;
+  if (col >= 13) return 0x000000FFu;
   return 0;
 }
 
