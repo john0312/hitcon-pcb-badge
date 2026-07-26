@@ -19,8 +19,24 @@ void OnUnlockPicked();
 void OnWrongPicked();
 
 constexpr menu_entry_t qr_station_menu_entries[] = {
-    {"Unlock QR", nullptr, &OnUnlockPicked},
-    {"Wrong", nullptr, &OnWrongPicked},
+// {"Unlock QR", nullptr, &OnUnlockPicked},
+// {"Wrong", nullptr, &OnWrongPicked},
+#if STATION_ID == 0
+    // hitcon topic this year
+    {"Agentic AI", nullptr, &OnUnlockPicked},
+    {"Drone", nullptr, &OnWrongPicked},
+    {"War", nullptr, &OnWrongPicked},
+#elif STATION_ID == 1
+    // edition of HITCON event
+    {"22", nullptr, &OnUnlockPicked},
+    {"24", nullptr, &OnWrongPicked},
+    {"26", nullptr, &OnWrongPicked},
+#elif STATION_ID == 2
+    // the cat we have
+    {"A", nullptr, &OnWrongPicked},
+    {"B", nullptr, &OnWrongPicked},
+    {"C", nullptr, &OnUnlockPicked},
+#endif
 };
 
 constexpr int qr_station_menu_entries_len =
