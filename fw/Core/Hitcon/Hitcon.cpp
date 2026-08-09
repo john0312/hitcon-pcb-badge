@@ -15,6 +15,8 @@
 #include <App/SpaceshipApp.h>
 #include <App/TamaApp.h>
 #include <App/UsbMenuApp.h>
+// VAULT CHALLENGE (disposable)
+#include <App/VaultApp.h>
 #include <Hitcon.h>
 #include <Logic/BadgeController.h>
 #include <Logic/ButtonLogic.h>
@@ -93,6 +95,8 @@ void hitcon_run() {
 #else
   hitcon::app::qr::qr_client_app.Init();
 #endif
+  // VAULT CHALLENGE (disposable): register vault packet handlers.
+  hitcon::app::vault::vault_app.Init();
 
   badge_controller.Init();
   hitcon::ir::irService.Init();

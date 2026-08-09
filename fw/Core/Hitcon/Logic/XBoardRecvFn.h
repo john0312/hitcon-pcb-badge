@@ -23,6 +23,11 @@ enum RecvFnId {
   DINO_RECV_ID,  // Unused
   QR_STN_BTN_FWD_ID,
   QR_STN_UNLOCK_ID,
+  // VAULT CHALLENGE
+  VAULT_HELLO_ID,
+  VAULT_BTN_FWD_ID,
+  VAULT_NAME_REQ_ID,
+  VAULT_NAME_RESP_ID,
   // MAX is to express the length of callback function array
   MAX
 };

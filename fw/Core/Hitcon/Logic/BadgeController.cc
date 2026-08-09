@@ -8,6 +8,8 @@
 #include <App/QrStationApp.h>
 #include <App/ShowNameApp.h>
 #include <App/UsbMenuApp.h>
+// VAULT CHALLENGE (disposable)
+#include <App/VaultApp.h>
 #include <Hitcon.h>
 #include <Logic/UsbLogic.h>
 #include <Logic/XBoardLogic.h>
@@ -166,6 +168,14 @@ void BadgeController::OnButton(void *arg1) {
 
 void BadgeController::OnXBoardConnect(void *unused) {
   if (current_app != &hardware_test_app) {
+    // VAULT CHALLENGE (disposable): the server badge auto-enters the vault and
+    // announces itself; a client reacts to the hello (see VaultApp).
+    if (hitcon::app::vault::g_vault_role ==
+        hitcon::app::vault::VaultRole::Server) {
+      badge_controller.change_app(&hitcon::app::vault::vault_app);
+      hitcon::app::vault::vault_app.SendHello();
+      return;
+    }
     badge_controller.change_app(&connect_menu);
   }
 }
