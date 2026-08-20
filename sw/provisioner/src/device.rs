@@ -10,6 +10,10 @@ use crate::stlink_tools::{is_stlink_device, read_serial_number};
 use crate::ui::Ui;
 use crate::worker::{Level, Phase, WorkerCmd, WorkerEvent, spawn_worker};
 
+/// Worker/UI key standing in for the unreadable serial under --single-probe.
+/// ASCII so the SN column stays aligned.
+const SINGLE_PROBE_KEY: &str = "SINGLE-PROBE";
+
 /// Watcher thread -> main: raw hotplug events only; all state lives in the main loop.
 pub(crate) enum DeviceEvent {
     Connected(DeviceInfo),
@@ -19,6 +23,10 @@ pub(crate) enum DeviceEvent {
 /// A tracked device: its serial (formatted for open() matching) and the raw DeviceInfo.
 pub(crate) struct TrackedDevice {
     pub(crate) serial: Option<String>,
+    /// Worker/UI key. Same as `serial`, except under --single-probe where a serial-less device
+    /// gets SINGLE_PROBE_KEY. Kept apart from `serial` so the probe-rs selector still sees None
+    /// and matches on VID/PID alone.
+    pub(crate) key: Option<String>,
     pub(crate) info: DeviceInfo,
 }
 
@@ -43,12 +51,26 @@ pub(crate) fn on_connected(
     }
     // Same serial algorithm as probe-rs, so it matches list_probes_filtered.
     let sn = read_serial_number(&dev);
-    // A device with a serial gets a table line; a no-serial one is log-only (can't key a worker).
-    match &sn {
+    let key = sn.clone().or_else(|| {
+        crate::cli::ARGS
+            .single_probe
+            .then(|| SINGLE_PROBE_KEY.to_string())
+    });
+    // A device with a key gets a table line; a no-serial one is log-only (can't key a worker).
+    match &key {
         Some(s) => ui.set_status(s, Phase::ProbeConnected, Level::Info, "新裝置已連接"),
         None => ui.log("偵測到無序號 ST-Link 裝置"),
     }
-    serial_to_ids.entry(sn.clone()).or_default().push(id);
+    let same_key = serial_to_ids.entry(key.clone()).or_default();
+    same_key.push(id);
+    // --single-probe assumes exactly one probe. A second serial-less one lands on the same key and
+    // the selector matches on VID/PID alone, so probe-rs would pick between them arbitrarily.
+    if key.as_deref() == Some(SINGLE_PROBE_KEY) && same_key.len() > 1 {
+        ui.log(format!(
+            "警告：--single-probe 下有 {} 支無序號裝置，無法確定燒錄目標，請只留一支",
+            same_key.len()
+        ));
+    }
 
     // Build the selector while we still own dev (before it moves into the map).
     let selector = DebugProbeSelector {
@@ -61,17 +83,18 @@ pub(crate) fn on_connected(
         id,
         TrackedDevice {
             serial: sn.clone(),
+            key: key.clone(),
             info: dev,
         },
     );
 
-    // No serial -> can't key a worker; record only.
-    let Some(sn) = sn else {
+    // No key -> can't key a worker; record only.
+    let Some(key) = key else {
         return;
     };
     // Give USB/probe-rs a moment to enumerate before opening.
     thread::sleep(Duration::from_millis(200));
-    spawn_worker(sn, selector, active_workers, worker_tx, registry.clone());
+    spawn_worker(key, selector, active_workers, worker_tx, registry.clone());
 }
 
 /// Device disconnected: update state and signal the worker based on how many of the same SN remain.
@@ -87,7 +110,7 @@ pub(crate) fn on_disconnected(
     let Some(tracked) = id_to_device.remove(&id) else {
         return;
     };
-    let sn = tracked.serial;
+    let sn = tracked.key;
     // Drop this id and count how many remain under the same sn.
     let remaining = match serial_to_ids.get_mut(&sn) {
         Some(ids) => {

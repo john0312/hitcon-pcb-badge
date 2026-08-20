@@ -8,6 +8,7 @@ use std::sync::{Arc, Mutex};
 use std::thread;
 use std::time::Duration;
 
+mod cli;
 mod device;
 mod ecc;
 mod firmware;
@@ -26,6 +27,9 @@ use worker::{Phase, WorkerCmd, WorkerEvent, spawn_worker};
 const RESPAWN_BACKOFF: Duration = Duration::from_millis(500);
 
 fn main() {
+    // Parse before ratatui takes the screen (see cli::ARGS).
+    let args = &*cli::ARGS;
+
     let (dev_tx, dev_rx) = crossbeam_channel::unbounded::<DeviceEvent>();
     let (worker_tx, worker_rx) = crossbeam_channel::unbounded::<WorkerEvent>();
     // Backoff respawn requests: after Died with the device still present, send the sn back later.
@@ -45,6 +49,9 @@ fn main() {
     // TUI: one line per SN on top, a scrolling log at the bottom.
     let mut terminal = ratatui::init();
     let mut ui = Ui::new(registry.clone());
+    if args.single_probe {
+        ui.log("--single-probe：無序號 ST-Link 會被當成唯一的一支處理");
+    }
 
     // Terminal input on its own thread, forwarded into the select loop (event::read blocks).
     let (input_tx, input_rx) = crossbeam_channel::unbounded::<Event>();
